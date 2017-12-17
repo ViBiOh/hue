@@ -38,6 +38,7 @@ func main() {
 	port := flag.String(`port`, `1080`, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
 	iftttWebHook := flag.String(`iftttWebHook`, ``, `IFTTT WebHook Key`)
+	netatmoToken := flag.String(`netatmoToken`, ``, `NetAtmo Token`)
 	alcotestConfig := alcotest.Flags(``)
 	authConfig := auth.Flags(`auth`)
 	certConfig := cert.Flags(`tls`)
@@ -49,7 +50,7 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	if err := iot.Init(authConfig, *iftttWebHook); err != nil {
+	if err := iot.Init(authConfig, *iftttWebHook, *netatmoToken); err != nil {
 		log.Printf(`Error while initializing iot Handler: %v`, err)
 	}
 	iotHandler = gziphandler.GzipHandler(iot.Handler())

@@ -4,6 +4,17 @@
 [![codecov](https://codecov.io/gh/ViBiOh/iot/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/iot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/iot)](https://goreportcard.com/report/github.com/ViBiOh/iot)
 
+## Generate NetAtmo Token
+
+```bash
+export NETATMO_USER=[YOUR_EMAIL]
+export NETATMO_PASS=[YOUR_PASS]
+export NETATMO_CLIENT_ID=[YOUR_CLIENT_ID]
+export NETATMO_CLIENT_SECRET=[YOUR_SECRET_ID]
+export NETATMO_SCOPES=read_station
+curl -X POST https://api.netatmo.com/oauth2/token --data "grant_type=password&username=${NETATMO_USER}&password=${NETATMO_PASS}&client_id=${NETATMO_CLIENT_ID}&client_secret=${NETATMO_CLIENT_SECRET}&scope=${NETATMO_SCOPES}"
+```
+
 ## Usage
 
 ```
