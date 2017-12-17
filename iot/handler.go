@@ -85,12 +85,13 @@ func writeHTMLTemplate(w http.ResponseWriter, templateName string, content inter
 func getNetatmoInfo() (*netatmo, error) {
 	var infos netatmo
 
-	if rawData, err := httputils.GetBody(`https://api.netatmo.com/api/getstationsdata?access_token=`+templateConfig.NetatmoToken, nil); err != nil {
+	rawData, err := httputils.GetBody(`https://api.netatmo.com/api/getstationsdata?access_token=`+templateConfig.NetatmoToken, nil)
+	if err != nil {
 		return nil, fmt.Errorf(`Error while reading station data: %v`, err)
-	} else {
-		if err := json.Unmarshal(rawData, &infos); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling data: %v`, err)
-		}
+	}
+
+	if err := json.Unmarshal(rawData, &infos); err != nil {
+		return nil, fmt.Errorf(`Error while unmarshalling data: %v`, err)
 	}
 
 	return &infos, nil
