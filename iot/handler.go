@@ -3,7 +3,6 @@ package iot
 import (
 	"bytes"
 	"html/template"
-	"log"
 	"net/http"
 	"path"
 
@@ -56,7 +55,6 @@ func writeHTMLTemplate(w http.ResponseWriter, templateName string, content *conf
 
 // Handler for IOT request. Should be use with net/http
 func Handler() http.Handler {
-	log.Print(url)
 	return auth.HandlerWithFail(url, users, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
 		if err := writeHTMLTemplate(w, `iot`, templateConfig); err != nil {
 			httputils.InternalServerError(w, err)
