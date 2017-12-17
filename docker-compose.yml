@@ -1,0 +1,70 @@
+version: '2'
+
+services:
+  auth:
+    image: vibioh/auth
+    command:
+    - -corsHeaders
+    - Authorization
+    - -corsCredentials
+    - -prometheusMetricsHost
+    - iot-auth:1080
+    - -rateCount
+    - '60'
+    - -cookieDomain
+    - vibioh.fr
+    - -authRedirect
+    - https://iot.vibioh.fr/
+    - -githubClientId
+    - ${GITHUB_OAUTH_CLIENT_ID}
+    - -githubClientSecret
+    - ${GITHUB_OAUTH_CLIENT_SECRET}
+    labels:
+      traefik.frontend.passHostHeader: 'true'
+      traefik.frontend.rule: 'Host: iot-auth.vibioh.fr'
+      traefik.protocol: 'https'
+      traefik.port: '1080'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+    restart: on-failure:5
+    read_only: true
+    cpu_shares: 128
+    mem_limit: 67108864
+    security_opt:
+    - no-new-privileges
+
+  api:
+    image: vibioh/iot
+    command:
+    - -prometheusMetricsHost
+    - iot:1080
+    - -authUrl
+    - https://iot-auth.vibioh.fr
+    - -authUsers
+    - vibioh:admin,eponae:admin
+    - -csp
+    - default-src 'self'; style-src 'self' 'unsafe-inline'
+    - -iftttWebHook
+    - ${IFTTT_WEBHOOK_KEY}
+    labels:
+      traefik.frontend.passHostHeader: 'true'
+      traefik.frontend.rule: 'Host: iot.vibioh.fr'
+      traefik.protocol: 'https'
+      traefik.port: '1080'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+    restart: on-failure:5
+    read_only: true
+    cpu_shares: 128
+    mem_limit: 25165824
+    security_opt:
+    - no-new-privileges
+
+networks:
+  default:
+    external:
+      name: traefik

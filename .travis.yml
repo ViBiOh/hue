@@ -1,0 +1,24 @@
+language: go
+sudo: required
+services:
+- docker
+go: 1.9
+after_success: |
+  bash <(curl -s https://codecov.io/bash)
+
+  if [ "${TRAVIS_BRANCH}" == "master" ]; then
+    make docker-push
+    curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
+
+    sed \
+      -e "s|\${IFTTT_WEBHOOK_KEY}|${IFTTT_WEBHOOK_KEY}|g" \
+      docker-compose.yml > docker-compose-env.yml
+  fi
+notifications:
+  email: false
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: "curl -H 'Authorization: GitHub ${GITHUB_OAUTH_TOKEN}' -X POST https://dashboard-api.vibioh.fr/containers/iot/ --data-binary @docker-compose-env.yml"
+  on:
+    branch: master
