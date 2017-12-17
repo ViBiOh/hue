@@ -14,7 +14,7 @@ after_success: |
       -e "s|\${GITHUB_OAUTH_CLIENT_ID}|${GITHUB_OAUTH_CLIENT_ID}|g" \
       -e "s|\${GITHUB_OAUTH_CLIENT_SECRET}|${GITHUB_OAUTH_CLIENT_SECRET}|g" \
       -e "s|\${IFTTT_WEBHOOK_KEY}|${IFTTT_WEBHOOK_KEY}|g" \
-      -e "s|\${NETATMO_TOKEN}|${NETATMO_TOKEN}|g" \
+      -e "s/\${NETATMO_TOKEN}/${NETATMO_TOKEN}/g" \
       docker-compose.yml > docker-compose-env.yml
   fi
 notifications:
