@@ -8,6 +8,7 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/ViBiOh/alcotest/alcotest"
+	"github.com/ViBiOh/alcotest/healthcheck"
 	"github.com/ViBiOh/auth/auth"
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/cert"
@@ -15,7 +16,6 @@ import (
 	"github.com/ViBiOh/httputils/owasp"
 	"github.com/ViBiOh/httputils/prometheus"
 	"github.com/ViBiOh/httputils/rate"
-	"github.com/ViBiOh/iot/healthcheck"
 	"github.com/ViBiOh/iot/iot"
 )
 

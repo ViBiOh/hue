@@ -11,6 +11,8 @@ after_success: |
     curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
 
     sed \
+      -e "s|\${GITHUB_OAUTH_CLIENT_ID}|${GITHUB_OAUTH_CLIENT_ID}|g" \
+      -e "s|\${GITHUB_OAUTH_CLIENT_SECRET}|${GITHUB_OAUTH_CLIENT_SECRET}|g" \
       -e "s|\${IFTTT_WEBHOOK_KEY}|${IFTTT_WEBHOOK_KEY}|g" \
       docker-compose.yml > docker-compose-env.yml
   fi
