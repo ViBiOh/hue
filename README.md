@@ -41,6 +41,8 @@ Usage of iot:
       [owasp] Indicate Strict Transport Security (default true)
   -iftttWebHook string
       IFTTT WebHook Key
+  -netatmoToken string
+      NetAtmo Token
   -port string
       Listen port (default "1080")
   -prometheusMetricsHost string
