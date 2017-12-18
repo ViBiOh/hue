@@ -39,8 +39,6 @@ Usage of iot:
       [owasp] Content-Security-Policy (default "default-src 'self'")
   -hsts
       [owasp] Indicate Strict Transport Security (default true)
-  -iftttWebHook string
-      IFTTT WebHook Key
   -netatmoAccessToken string
       [netatmo] Access Token
   -netatmoClientID string
@@ -67,4 +65,6 @@ Usage of iot:
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
+  -wemoWebHook string
+      [wemo] WebHook Key
 ```

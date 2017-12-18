@@ -46,7 +46,7 @@ services:
     - vibioh:admin,eponae:admin
     - -csp
     - default-src 'self'; style-src 'self' 'unsafe-inline'
-    - -iftttWebHook
+    - -wemoWebHook
     - ${IFTTT_WEBHOOK_KEY}
     - -netatmoAccessToken
     - ${NETATMO_ACCESS_TOKEN}

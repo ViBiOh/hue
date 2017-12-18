@@ -18,7 +18,7 @@ var (
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`webhookKey`: flag.String(tools.ToCamel(prefix+`WebHook`), ``, `[wemo] IFTTT WebHook Key`),
+		`webhookKey`: flag.String(tools.ToCamel(prefix+`WebHook`), ``, `[wemo] WebHook Key`),
 	}
 }
 
