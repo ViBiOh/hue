@@ -24,6 +24,8 @@ type StationData struct {
 				DashboardData struct {
 					Temperature float32
 					Humidity    float32
+					Noise       float32
+					CO2         float32
 				} `json:"dashboard_data"`
 			} `json:"modules"`
 		} `json:"devices"`

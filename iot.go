@@ -18,17 +18,22 @@ import (
 	"github.com/ViBiOh/httputils/rate"
 	"github.com/ViBiOh/iot/iot"
 	"github.com/ViBiOh/iot/netatmo"
+	"github.com/ViBiOh/iot/wemo"
 )
 
 const healthcheckPath = `/health`
+const wemoPath = `/wemo`
 
 var iotHandler http.Handler
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
+var wemoHandler = http.StripPrefix(wemoPath, wemo.Handler())
 
 func handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, healthcheckPath) {
 			healthcheckHandler.ServeHTTP(w, r)
+		} else if strings.HasPrefix(r.URL.Path, wemoPath) {
+			wemoHandler.ServeHTTP(w, r)
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
@@ -38,8 +43,8 @@ func handler() http.Handler {
 func main() {
 	port := flag.String(`port`, `1080`, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
-	iftttWebHook := flag.String(`iftttWebHook`, ``, `IFTTT WebHook Key`)
 	netatmoConfig := netatmo.Flags(`netatmo`)
+	wemoConfig := wemo.Flags(`wemo`)
 	alcotestConfig := alcotest.Flags(``)
 	authConfig := auth.Flags(`auth`)
 	certConfig := cert.Flags(`tls`)
@@ -51,8 +56,11 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	if err := iot.Init(authConfig, *iftttWebHook); err != nil {
+	if err := iot.Init(authConfig); err != nil {
 		log.Printf(`Error while initializing iot: %v`, err)
+	}
+	if err := wemo.Init(wemoConfig); err != nil {
+		log.Printf(`Error while initializing wemo: %v`, err)
 	}
 	if err := netatmo.Init(netatmoConfig); err != nil {
 		log.Printf(`Error while initializing netatmo: %v`, err)
