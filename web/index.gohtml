@@ -24,13 +24,13 @@
             <p class="center flex">
               {{ .ModuleName }}&nbsp;<strong>{{ .DashboardData.Temperature }}°c</strong>
               &nbsp;/&nbsp;<strong>{{ .DashboardData.Humidity }}%</strong>
-              &nbsp;/&nbsp;<strong>{{ .DashboardData.Noise }}dB</strong>
-              &nbsp;/&nbsp;<strong>{{ .DashboardData.CO2 }}ppm</strong>
             </p>
           {{- end -}}
           <p class="center flex">
             {{ .StationName }}&nbsp;<strong>{{ .DashboardData.Temperature }}°c</strong>
             &nbsp;/&nbsp;<strong>{{ .DashboardData.Humidity }}%</strong>
+            &nbsp;/&nbsp;<strong>{{ .DashboardData.Noise }}dB</strong>
+            &nbsp;/&nbsp;<strong>{{ .DashboardData.CO2 }}ppm</strong>
           </p>
         {{- end -}}
       {{- end -}}
