@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
@@ -71,6 +72,8 @@ func Init(config map[string]*string) error {
 }
 
 func refreshAccessToken() error {
+	log.Print(`Refreshing Netatmo Access Token`)
+
 	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+refreshToken+`&client_id=`+clientID+`&client_secret`+clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
 
 	if err != nil {
@@ -89,6 +92,10 @@ func refreshAccessToken() error {
 
 // GetStationData retrieves Station data of user
 func GetStationData() (*StationData, error) {
+	if accessToken == `` {
+		return nil, nil
+	}
+
 	var infos StationData
 
 	rawData, err := httputils.GetBody(netatmoGetStationDataURL+accessToken, nil)
@@ -106,7 +113,7 @@ func GetStationData() (*StationData, error) {
 			return GetStationData()
 		}
 
-		return nil, fmt.Errorf(`Error while reading station data: %v`, err)
+		return nil, fmt.Errorf(`Error while getting data: %v`, err)
 	}
 
 	if err := json.Unmarshal(rawData, &infos); err != nil {
