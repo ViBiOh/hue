@@ -17,6 +17,7 @@ import (
 	"github.com/ViBiOh/httputils/prometheus"
 	"github.com/ViBiOh/httputils/rate"
 	"github.com/ViBiOh/iot/iot"
+	"github.com/ViBiOh/iot/netatmo"
 )
 
 const healthcheckPath = `/health`
@@ -38,7 +39,7 @@ func main() {
 	port := flag.String(`port`, `1080`, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
 	iftttWebHook := flag.String(`iftttWebHook`, ``, `IFTTT WebHook Key`)
-	netatmoToken := flag.String(`netatmoToken`, ``, `NetAtmo Token`)
+	netatmoConfig := netatmo.Flags(`netatmo`)
 	alcotestConfig := alcotest.Flags(``)
 	authConfig := auth.Flags(`auth`)
 	certConfig := cert.Flags(`tls`)
@@ -50,8 +51,11 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	if err := iot.Init(authConfig, *iftttWebHook, *netatmoToken); err != nil {
-		log.Printf(`Error while initializing iot Handler: %v`, err)
+	if err := iot.Init(authConfig, *iftttWebHook); err != nil {
+		log.Printf(`Error while initializing iot: %v`, err)
+	}
+	if err := netatmo.Init(netatmoConfig); err != nil {
+		log.Printf(`Error while initializing netatmo: %v`, err)
 	}
 	iotHandler = gziphandler.GzipHandler(iot.Handler())
 

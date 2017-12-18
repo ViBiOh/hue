@@ -48,8 +48,14 @@ services:
     - default-src 'self'; style-src 'self' 'unsafe-inline'
     - -iftttWebHook
     - ${IFTTT_WEBHOOK_KEY}
-    - -netatmoToken
-    - ${NETATMO_TOKEN}
+    - -netatmoAccessToken
+    - ${NETATMO_ACCESS_TOKEN}
+    - -netatmoClientID
+    - ${NETATMO_CLIENT_ID}
+    - -netatmoClientSecret
+    - ${NETATMO_CLIENT_SECRET}
+    - -netatmoRefreshToken
+    - ${NETATMO_REFRESH_TOKEN}
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot.vibioh.fr'

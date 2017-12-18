@@ -2,8 +2,6 @@ package iot
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,38 +9,19 @@ import (
 
 	"github.com/ViBiOh/auth/auth"
 	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/iot/netatmo"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
 )
 
-type netatmo struct {
-	Body struct {
-		Devices []struct {
-			StationName   string `json:"station_name"`
-			DashboardData struct {
-				Temperature float32
-				Humidity    float32
-			} `json:"dashboard_data"`
-			Modules []struct {
-				ModuleName    string `json:"module_name"`
-				DashboardData struct {
-					Temperature float32
-					Humidity    float32
-				} `json:"dashboard_data"`
-			} `json:"modules"`
-		} `json:"devices"`
-	} `json:"body"`
-}
-
 type config struct {
 	IFTTTSecureKey string
-	NetatmoToken   string
 }
 
 type response struct {
 	Config  *config
-	Netatmo *netatmo
+	Netatmo *netatmo.StationData
 }
 
 var (
@@ -54,14 +33,13 @@ var (
 )
 
 // Init handler
-func Init(authConfig map[string]*string, iftttSecureKey string, netatmoToken string) error {
+func Init(authConfig map[string]*string, iftttSecureKey string) error {
 	url = *authConfig[`url`]
 	users = auth.LoadUsersProfiles(*authConfig[`users`])
 
 	tpl = template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
 	templateConfig = &config{
 		IFTTTSecureKey: iftttSecureKey,
-		NetatmoToken:   netatmoToken,
 	}
 
 	minifier = minify.New()
@@ -82,25 +60,10 @@ func writeHTMLTemplate(w http.ResponseWriter, templateName string, content inter
 	return nil
 }
 
-func getNetatmoInfo() (*netatmo, error) {
-	var infos netatmo
-
-	rawData, err := httputils.GetBody(`https://api.netatmo.com/api/getstationsdata?access_token=`+templateConfig.NetatmoToken, nil)
-	if err != nil {
-		return nil, fmt.Errorf(`Error while reading station data: %v`, err)
-	}
-
-	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data: %v`, err)
-	}
-
-	return &infos, nil
-}
-
 // Handler for IOT request. Should be use with net/http
 func Handler() http.Handler {
 	return auth.HandlerWithFail(url, users, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
-		netatmoData, err := getNetatmoInfo()
+		netatmoData, err := netatmo.GetStationData()
 		if err != nil {
 			log.Printf(`Error while reading Netatmo data: %v`, err)
 		}

@@ -10,8 +10,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/ViBiOh/alcotest"
-  packages = ["alcotest","httpclient"]
-  revision = "99e8506061b4d48c6583ae2af977bc48f1a7058a"
+  packages = ["alcotest","healthcheck","httpclient"]
+  revision = "7187d04caa2bfd06fc89ca52092c0ff924ff39bc"
 
 [[projects]]
   branch = "master"
@@ -82,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "edfdb5de260c0a19d3c4b8cc1b83818ecaee35534fbc831facbe8f78086810a7"
+  inputs-digest = "777db98640e498ab13c17eec3ecffb8eb1a5c83d5b623ef55e8b01aed73116fc"
   solver-name = "gps-cdcl"
   solver-version = 1
