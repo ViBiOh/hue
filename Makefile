@@ -45,15 +45,15 @@ start-deps:
 
 start-auth:
 	auth \
-	  -tls=false \
-	  -basicUsers "1:admin:`bcrypt admin`" \
-	  -corsHeaders Content-Type,Authorization \
-	  -port 1081 \
-	  -corsCredentials
+		-tls=false \
+		-basicUsers "1:admin:`bcrypt admin`" \
+		-corsHeaders Content-Type,Authorization \
+		-port 1081 \
+		-corsCredentials
 
 start-api:
 	go run iot.go \
-	  -tls=false \
-	  -authUrl http://localhost:1081 \
-	  -authUsers admin:admin \
-	  -csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
+		-tls=false \
+		-authUrl http://localhost:1081 \
+		-authUsers admin:admin \
+		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
