@@ -74,7 +74,7 @@ func Init(config map[string]*string) error {
 func refreshAccessToken() error {
 	log.Print(`Refreshing Netatmo Access Token`)
 
-	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+refreshToken+`&client_id=`+clientID+`&client_secret`+clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
+	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+refreshToken+`&client_id=`+clientID+`&client_secret=`+clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
 
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
