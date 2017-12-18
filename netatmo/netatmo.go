@@ -108,7 +108,7 @@ func GetStationData() (*StationData, error) {
 			return nil, fmt.Errorf(`Error while unmarshalling error: %v`, err)
 		}
 
-		if netatmoErrorValue.Error.Code == 3 {
+		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
 			if err := refreshAccessToken(); err != nil {
 				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
