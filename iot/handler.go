@@ -1,7 +1,6 @@
 package iot
 
 import (
-	"bytes"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,8 +10,6 @@ import (
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/iot/netatmo"
 	"github.com/tdewolff/minify"
-	"github.com/tdewolff/minify/css"
-	"github.com/tdewolff/minify/html"
 )
 
 type message struct {
@@ -34,21 +31,6 @@ func Init(authConfig map[string]*string) error {
 
 	tpl = template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
 
-	minifier = minify.New()
-	minifier.AddFunc(`text/css`, css.Minify)
-	minifier.AddFunc(`text/html`, html.Minify)
-
-	return nil
-}
-
-func writeHTMLTemplate(w http.ResponseWriter, templateName string, content interface{}) error {
-	templateBuffer := &bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(templateBuffer, templateName, content); err != nil {
-		return err
-	}
-
-	w.Header().Add(`Content-Type`, `text/html; charset=UTF-8`)
-	minifier.Minify(`text/html`, w, templateBuffer)
 	return nil
 }
 
@@ -64,7 +46,7 @@ func RenderDashboard(w http.ResponseWriter, r *http.Request, message *message) {
 		`Message`: message,
 	}
 
-	if err := writeHTMLTemplate(w, `iot`, response); err != nil {
+	if err := httputils.WriteHTMLTemplate(tpl.Lookup(`iot`), w, response); err != nil {
 		httputils.InternalServerError(w, err)
 	}
 }
