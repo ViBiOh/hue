@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/ViBiOh/httputils"
   packages = [".","cert","cors","owasp","prometheus","rate","tools"]
-  revision = "4e93594d7beb0c2661becfd3c0c2d2eaa2496147"
+  revision = "9fd4592770314325d7d81c1e926689d3ea7598ca"
 
 [[projects]]
   branch = "master"
@@ -47,7 +47,7 @@
   branch = "master"
   name = "github.com/prometheus/client_golang"
   packages = ["prometheus","prometheus/promhttp"]
-  revision = "661e31bf844dfca9aeba15f27ea8aa0d485ad212"
+  revision = "180b8fdc22b4ea7750bcb43c925277654a1ea2f3"
 
 [[projects]]
   branch = "master"
