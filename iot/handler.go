@@ -9,7 +9,6 @@ import (
 	"github.com/ViBiOh/auth/auth"
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/iot/netatmo"
-	"github.com/tdewolff/minify"
 )
 
 type message struct {
@@ -17,26 +16,9 @@ type message struct {
 	Content string
 }
 
-var (
-	url      string
-	users    map[string]*auth.User
-	tpl      *template.Template
-	minifier *minify.M
-)
-
-// Init handler
-func Init(authConfig map[string]*string) error {
-	url = *authConfig[`url`]
-	users = auth.LoadUsersProfiles(*authConfig[`users`])
-
-	tpl = template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
-
-	return nil
-}
-
 // RenderDashboard render dashboard
-func RenderDashboard(w http.ResponseWriter, r *http.Request, message *message) {
-	netatmoData, err := netatmo.GetStationData()
+func RenderDashboard(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoClient *netatmo.Client, message *message) {
+	netatmoData, err := netatmoClient.GetStationData()
 	if err != nil {
 		log.Printf(`Error while reading Netatmo data: %v`, err)
 	}
@@ -51,28 +33,36 @@ func RenderDashboard(w http.ResponseWriter, r *http.Request, message *message) {
 	}
 }
 
-func handleAuthFail(w http.ResponseWriter, r *http.Request, err error) {
+func handleAuthFail(w http.ResponseWriter, r *http.Request, err error, authURL string) {
 	if auth.IsForbiddenErr(err) {
 		httputils.Forbidden(w)
 	} else if err == auth.ErrEmptyAuthorization {
-		http.Redirect(w, r, path.Join(url, `/redirect/github`), http.StatusFound)
+		http.Redirect(w, r, path.Join(authURL, `/redirect/github`), http.StatusFound)
 	} else {
 		httputils.Unauthorized(w, err)
 	}
 }
 
-func handleAuthSuccess(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+func handleAuthSuccess(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoClient *netatmo.Client) {
 	values := r.URL.Query()
 	messageContent := values.Get(`message_content`)
 
 	if messageContent != `` {
-		RenderDashboard(w, r, &message{Level: values.Get(`message_level`), Content: messageContent})
+		RenderDashboard(w, r, tpl, netatmoClient, &message{Level: values.Get(`message_level`), Content: messageContent})
 	} else {
-		RenderDashboard(w, r, nil)
+		RenderDashboard(w, r, tpl, netatmoClient, nil)
 	}
 }
 
-// Handler for IOT request. Should be use with net/http
-func Handler() http.Handler {
-	return auth.HandlerWithFail(url, users, handleAuthSuccess, handleAuthFail)
+// NewHandler create Handler from Flags' config
+func NewHandler(authConfig map[string]*string, netatmoClient *netatmo.Client) http.Handler {
+	authURL := *authConfig[`url`]
+	users := auth.LoadUsersProfiles(*authConfig[`users`])
+	tpl := template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
+
+	return auth.HandlerWithFail(authURL, users, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+		handleAuthSuccess(w, r, tpl, netatmoClient)
+	}, func(w http.ResponseWriter, r *http.Request, err error) {
+		handleAuthFail(w, r, err, authURL)
+	})
 }

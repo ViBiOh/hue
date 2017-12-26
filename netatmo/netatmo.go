@@ -10,6 +10,9 @@ import (
 	"github.com/ViBiOh/httputils/tools"
 )
 
+const netatmoGetStationDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
+const netatmoRefreshTokenURL = `https://api.netatmo.com/oauth2/token`
+
 // StationData contains data retrieved when getting stations datas
 type StationData struct {
 	Body struct {
@@ -43,15 +46,13 @@ type netatmoToken struct {
 	AccessToken string `json:"access_token"`
 }
 
-var (
+// Client client that store informations for dealing with API
+type Client struct {
 	clientID     string
 	clientSecret string
 	accessToken  string
 	refreshToken string
-)
-
-const netatmoGetStationDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
-const netatmoRefreshTokenURL = `https://api.netatmo.com/oauth2/token`
+}
 
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
@@ -63,20 +64,20 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// Init retrieves config from CLI args
-func Init(config map[string]*string) error {
-	clientID = *config[`clientID`]
-	clientSecret = *config[`clientSecret`]
-	accessToken = *config[`accessToken`]
-	refreshToken = *config[`refreshToken`]
-
-	return nil
+// NewClient create Client from Flags' config
+func NewClient(config map[string]*string) *Client {
+	return &Client{
+		clientID:     *config[`clientID`],
+		clientSecret: *config[`clientSecret`],
+		accessToken:  *config[`accessToken`],
+		refreshToken: *config[`refreshToken`],
+	}
 }
 
-func refreshAccessToken() error {
+func (n *Client) refreshAccessToken() error {
 	log.Print(`Refreshing Netatmo Access Token`)
 
-	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+refreshToken+`&client_id=`+clientID+`&client_secret=`+clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
+	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+n.refreshToken+`&client_id=`+n.clientID+`&client_secret=`+n.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
 
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
@@ -87,20 +88,20 @@ func refreshAccessToken() error {
 		return fmt.Errorf(`Error while unmarshalling token: %v`, err)
 	}
 
-	accessToken = token.AccessToken
+	n.accessToken = token.AccessToken
 
 	return nil
 }
 
 // GetStationData retrieves Station data of user
-func GetStationData() (*StationData, error) {
-	if accessToken == `` {
+func (n *Client) GetStationData() (*StationData, error) {
+	if n.accessToken == `` {
 		return nil, nil
 	}
 
 	var infos StationData
 
-	rawData, err := httputils.GetBody(netatmoGetStationDataURL+accessToken, nil)
+	rawData, err := httputils.GetBody(netatmoGetStationDataURL+n.accessToken, nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 
@@ -109,10 +110,10 @@ func GetStationData() (*StationData, error) {
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
-			if err := refreshAccessToken(); err != nil {
+			if err := n.refreshAccessToken(); err != nil {
 				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
-			return GetStationData()
+			return n.GetStationData()
 		}
 
 		return nil, fmt.Errorf(`Error while getting data: %v`, err)

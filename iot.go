@@ -27,12 +27,16 @@ const healthcheckPath = `/health`
 const wemoPath = `/wemo`
 const huePath = `/hue`
 
-var apiHandler http.Handler
-var iotHandler http.Handler
+var (
+	apiHandler http.Handler
+	iotHandler http.Handler
+
+	hueHandler   http.Handler
+	hueWsHandler http.Handler
+	wemoHandler  http.Handler
+)
+
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
-var wemoHandler = http.StripPrefix(wemoPath, wemo.Handler())
-var hueHandler = http.StripPrefix(huePath, hue.Handler())
-var hueWsHandler = http.StripPrefix(huePath, hue.WebsocketHandler())
 
 func restHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -89,22 +93,15 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	if err := iot.Init(authConfig); err != nil {
-		log.Printf(`Error while initializing iot: %v`, err)
-	}
-	if err := hue.Init(hueConfig); err != nil {
-		log.Printf(`Error while initializing hue: %v`, err)
-	}
-	if err := wemo.Init(wemoConfig); err != nil {
-		log.Printf(`Error while initializing wemo: %v`, err)
-	}
-	if err := netatmo.Init(netatmoConfig); err != nil {
-		log.Printf(`Error while initializing netatmo: %v`, err)
-	}
-
 	log.Printf(`Starting server on port %s`, *port)
 
-	iotHandler = gziphandler.GzipHandler(iot.Handler())
+	netatmoClient := netatmo.NewClient(netatmoConfig)
+
+	hueHandler = http.StripPrefix(huePath, hue.NewHandler(hueConfig))
+	hueWsHandler = http.StripPrefix(huePath, hue.NewWebsocketHandler(hueConfig))
+	wemoHandler = http.StripPrefix(wemoPath, wemo.NewHandler(wemoConfig))
+	iotHandler = gziphandler.GzipHandler(iot.NewHandler(authConfig, netatmoClient))
+
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{
 		Addr:    `:` + *port,

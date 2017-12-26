@@ -11,10 +11,6 @@ import (
 	"github.com/ViBiOh/httputils/tools"
 )
 
-var (
-	webHookKey string
-)
-
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
@@ -22,15 +18,10 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// Init retrieves config from CLI args
-func Init(config map[string]*string) error {
-	webHookKey = *config[`webhookKey`]
+// NewHandler create Handler from Flags' config
+func NewHandler(config map[string]*string) http.Handler {
+	webHookKey := *config[`webhookKey`]
 
-	return nil
-}
-
-// Handler for WeMo Request
-func Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var rawData []byte
 		var err error

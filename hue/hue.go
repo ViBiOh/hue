@@ -11,10 +11,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var (
-	secretKey string
-)
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -30,15 +26,10 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// Init retrieves config from CLI args
-func Init(config map[string]*string) error {
-	secretKey = *config[`secretKey`]
+// NewWebsocketHandler create Websockethandler from Flags' config
+func NewWebsocketHandler(config map[string]*string) http.Handler {
+	secretKey := *config[`secretKey`]
 
-	return nil
-}
-
-// WebsocketHandler for websocket connection
-func WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if ws != nil {
@@ -82,8 +73,8 @@ func WebsocketHandler() http.Handler {
 	})
 }
 
-// Handler for Hue Request
-func Handler() http.Handler {
+// NewHandler create Handler from Flags' config
+func NewHandler(config map[string]*string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httputils.NotFound(w)
 	})
