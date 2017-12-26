@@ -44,21 +44,21 @@ func workerHandler() http.Handler {
 			defer ws.Close()
 		}
 		if err != nil {
-			httputils.InternalServerError(w, err)
+			log.Printf(`Error while upgrading connection: %v`, err)
 			return
 		}
 
 		messageType, p, err := ws.ReadMessage()
 		if err != nil {
-			ws.WriteMessage(websocket.CloseMessage, []byte(fmt.Errorf(`Error while reading first message: %v`, err).Error()))
+			ws.WriteMessage(websocket.TextMessage, []byte(fmt.Errorf(`Error while reading first message: %v`, err).Error()))
 			return
 		}
 		if messageType != websocket.TextMessage {
-			ws.WriteMessage(websocket.CloseMessage, []byte(`First message should be a Text Message`))
+			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be a Text Message`))
 			return
 		}
 		if string(p) != secretKey {
-			ws.WriteMessage(websocket.CloseMessage, []byte(`First message should be the Secret Key`))
+			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be the Secret Key`))
 			return
 		}
 
