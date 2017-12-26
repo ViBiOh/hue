@@ -16,6 +16,7 @@ import (
 	"github.com/ViBiOh/httputils/owasp"
 	"github.com/ViBiOh/httputils/prometheus"
 	"github.com/ViBiOh/httputils/rate"
+	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/iot"
 	"github.com/ViBiOh/iot/netatmo"
 	"github.com/ViBiOh/iot/wemo"
@@ -23,10 +24,12 @@ import (
 
 const healthcheckPath = `/health`
 const wemoPath = `/wemo`
+const huePath = `/hue`
 
 var iotHandler http.Handler
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
 var wemoHandler = http.StripPrefix(wemoPath, wemo.Handler())
+var hueHandler = http.StripPrefix(huePath, hue.Handler())
 
 func handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +37,8 @@ func handler() http.Handler {
 			healthcheckHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, wemoPath) {
 			wemoHandler.ServeHTTP(w, r)
+		} else if strings.HasPrefix(r.URL.Path, huePath) {
+			hueHandler.ServeHTTP(w, r)
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
@@ -43,8 +48,6 @@ func handler() http.Handler {
 func main() {
 	port := flag.String(`port`, `1080`, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
-	netatmoConfig := netatmo.Flags(`netatmo`)
-	wemoConfig := wemo.Flags(`wemo`)
 	alcotestConfig := alcotest.Flags(``)
 	authConfig := auth.Flags(`auth`)
 	certConfig := cert.Flags(`tls`)
@@ -52,12 +55,20 @@ func main() {
 	rateConfig := rate.Flags(`rate`)
 	owaspConfig := owasp.Flags(``)
 	corsConfig := cors.Flags(`cors`)
+
+	netatmoConfig := netatmo.Flags(`netatmo`)
+	wemoConfig := wemo.Flags(`wemo`)
+	hueConfig := hue.Flags(`hue`)
+
 	flag.Parse()
 
 	alcotest.DoAndExit(alcotestConfig)
 
 	if err := iot.Init(authConfig); err != nil {
 		log.Printf(`Error while initializing iot: %v`, err)
+	}
+	if err := hue.Init(hueConfig); err != nil {
+		log.Printf(`Error while initializing hue: %v`, err)
 	}
 	if err := wemo.Init(wemoConfig); err != nil {
 		log.Printf(`Error while initializing wemo: %v`, err)

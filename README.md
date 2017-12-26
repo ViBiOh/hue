@@ -37,8 +37,12 @@ Usage of iot:
       [cors] Access-Control-Allow-Origin (default "*")
   -csp string
       [owasp] Content-Security-Policy (default "default-src 'self'")
+  -frameOptions string
+      [owasp] X-Frame-Options (default "deny")
   -hsts
       [owasp] Indicate Strict Transport Security (default true)
+  -hueSecretKey string
+      [hue] Secret Key between worker and API
   -netatmoAccessToken string
       [netatmo] Access Token
   -netatmoClientID string
