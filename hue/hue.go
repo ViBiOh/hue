@@ -37,7 +37,8 @@ func Init(config map[string]*string) error {
 	return nil
 }
 
-func workerHandler() http.Handler {
+// WebsocketHandler for websocket connection
+func WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if ws != nil {
@@ -83,13 +84,7 @@ func workerHandler() http.Handler {
 
 // Handler for Hue Request
 func Handler() http.Handler {
-	ws := workerHandler()
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == `/ws` {
-			ws.ServeHTTP(w, r)
-		} else {
-			httputils.NotFound(w)
-		}
+		httputils.NotFound(w)
 	})
 }

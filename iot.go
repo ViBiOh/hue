@@ -22,16 +22,19 @@ import (
 	"github.com/ViBiOh/iot/wemo"
 )
 
+const websocketPath = `/ws`
 const healthcheckPath = `/health`
 const wemoPath = `/wemo`
 const huePath = `/hue`
 
+var apiHandler http.Handler
 var iotHandler http.Handler
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
 var wemoHandler = http.StripPrefix(wemoPath, wemo.Handler())
 var hueHandler = http.StripPrefix(huePath, hue.Handler())
+var hueWsHandler = http.StripPrefix(huePath, hue.WebsocketHandler())
 
-func handler() http.Handler {
+func restHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, healthcheckPath) {
 			healthcheckHandler.ServeHTTP(w, r)
@@ -41,6 +44,28 @@ func handler() http.Handler {
 			hueHandler.ServeHTTP(w, r)
 		} else {
 			iotHandler.ServeHTTP(w, r)
+		}
+	})
+}
+
+func wsHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, huePath) {
+			hueWsHandler.ServeHTTP(w, r)
+		} else {
+			httputils.NotFound(w)
+		}
+	})
+}
+
+func handler() http.Handler {
+	websocket := http.StripPrefix(websocketPath, wsHandler())
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, websocketPath) {
+			websocket.ServeHTTP(w, r)
+		} else {
+			apiHandler.ServeHTTP(w, r)
 		}
 	})
 }
@@ -76,13 +101,14 @@ func main() {
 	if err := netatmo.Init(netatmoConfig); err != nil {
 		log.Printf(`Error while initializing netatmo: %v`, err)
 	}
-	iotHandler = gziphandler.GzipHandler(iot.Handler())
 
 	log.Printf(`Starting server on port %s`, *port)
 
+	iotHandler = gziphandler.GzipHandler(iot.Handler())
+	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{
 		Addr:    `:` + *port,
-		Handler: prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, handler())))),
+		Handler: handler(),
 	}
 
 	var serveError = make(chan error)
