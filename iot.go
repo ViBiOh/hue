@@ -97,10 +97,10 @@ func main() {
 
 	netatmoClient := netatmo.NewClient(netatmoConfig)
 
-	hueHandler = http.StripPrefix(huePath, hue.NewHandler(hueConfig))
-	hueWsHandler = http.StripPrefix(huePath, hue.NewWebsocketHandler(hueConfig))
-	wemoHandler = http.StripPrefix(wemoPath, wemo.NewHandler(wemoConfig))
-	iotHandler = gziphandler.GzipHandler(iot.NewHandler(authConfig, netatmoClient))
+	hueHandler = http.StripPrefix(huePath, hue.Handler(hueConfig))
+	hueWsHandler = http.StripPrefix(huePath, hue.WebsocketHandler(hueConfig))
+	wemoHandler = http.StripPrefix(wemoPath, wemo.Handler(wemoConfig))
+	iotHandler = gziphandler.GzipHandler(iot.Handler(authConfig, netatmoClient))
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{

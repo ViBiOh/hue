@@ -26,8 +26,8 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// NewWebsocketHandler create Websockethandler from Flags' config
-func NewWebsocketHandler(config map[string]*string) http.Handler {
+// WebsocketHandler create Websockethandler from Flags' config
+func WebsocketHandler(config map[string]*string) http.Handler {
 	secretKey := *config[`secretKey`]
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -73,8 +73,8 @@ func NewWebsocketHandler(config map[string]*string) http.Handler {
 	})
 }
 
-// NewHandler create Handler from Flags' config
-func NewHandler(config map[string]*string) http.Handler {
+// Handler create Handler from Flags' config
+func Handler(config map[string]*string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httputils.NotFound(w)
 	})

@@ -18,8 +18,8 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// NewHandler create Handler from Flags' config
-func NewHandler(config map[string]*string) http.Handler {
+// Handler create Handler from Flags' config
+func Handler(config map[string]*string) http.Handler {
 	webHookKey := *config[`webhookKey`]
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
