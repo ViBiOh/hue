@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/ViBiOh/auth"
   packages = ["auth","cookie"]
-  revision = "e99d49be358db8d7a1be89503e5cee72b42f27e5"
+  revision = "19a25c5d4b9c8c030f9ad8984b3004e1109529d8"
 
 [[projects]]
   branch = "master"
@@ -71,7 +71,7 @@
   branch = "master"
   name = "github.com/prometheus/procfs"
   packages = [".","xfs"]
-  revision = "8f918ac9ab4be3a790338bda8624fec5d71260b3"
+  revision = "b15cd069a83443be3154b719d0cc9fe8117f09fb"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -88,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc7a06a00367f8243ef22b48c9c92de13678d241fcc2233259c9814fc41cbcac"
+  inputs-digest = "420c283c4785a111911d1192aa07562934142c22820f621e94880984f9db03d4"
   solver-name = "gps-cdcl"
   solver-version = 1

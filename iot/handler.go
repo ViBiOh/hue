@@ -57,10 +57,9 @@ func handleAuthSuccess(w http.ResponseWriter, r *http.Request, tpl *template.Tem
 // Handler create Handler from Flags' config
 func Handler(authConfig map[string]*string, netatmoClient *netatmo.Client) http.Handler {
 	authURL := *authConfig[`url`]
-	users := auth.LoadUsersProfiles(*authConfig[`users`])
 	tpl := template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
 
-	return auth.HandlerWithFail(authURL, users, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+	return auth.HandlerWithFail(authConfig, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
 		handleAuthSuccess(w, r, tpl, netatmoClient)
 	}, func(w http.ResponseWriter, r *http.Request, err error) {
 		handleAuthFail(w, r, err, authURL)
