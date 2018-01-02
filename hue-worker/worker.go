@@ -10,11 +10,14 @@ import (
 	"strconv"
 
 	"github.com/ViBiOh/httputils"
+	"github.com/gorilla/websocket"
 )
 
-const off = `{"on":false,"transitiontime":30}`
-const dimmed = `{"on":true,"transitiontime":30,"sat":0,"bri":0}`
-const bright = `{"on":true,"transitiontime":30,"sat":0,"bri":254}`
+var states = map[string]string{
+	`off`:    `{"on":false,"transitiontime":30}`,
+	`dimmed`: `{"on":true,"transitiontime":30,"sat":0,"bri":0}`,
+	`bright`: `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
+}
 
 type light struct {
 	Name  string
@@ -27,8 +30,8 @@ func getURL(bridgeIP, username string) string {
 	return `http://` + bridgeIP + `/api/` + username + `/lights`
 }
 
-func listLights(bridgeIP, username string) ([]light, error) {
-	content, err := httputils.GetBody(getURL(bridgeIP, username), nil)
+func listLights(bridgeURL string) ([]light, error) {
+	content, err := httputils.GetBody(bridgeURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting data from bridge: %v`, err)
 	}
@@ -47,8 +50,8 @@ func listLights(bridgeIP, username string) ([]light, error) {
 	return lights, nil
 }
 
-func updateState(bridgeIP, username, light, state string) error {
-	content, err := httputils.MethodBody(getURL(bridgeIP, username)+`/`+light+`/state`, []byte(state), nil, http.MethodPut)
+func updateState(bridgeURL, light, state string) error {
+	content, err := httputils.MethodBody(bridgeURL+`/`+light+`/state`, []byte(state), nil, http.MethodPut)
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending data to bridge: %v`, err)
@@ -61,14 +64,14 @@ func updateState(bridgeIP, username, light, state string) error {
 	return nil
 }
 
-func updateAllState(bridgeIP, username, state string) error {
-	lights, err := listLights(bridgeIP, username)
+func updateAllState(bridgeURL, state string) error {
+	lights, err := listLights(bridgeURL)
 	if err != nil {
 		return fmt.Errorf(`Error while listing lights: %v`, err)
 	}
 
 	for index, light := range lights {
-		if err := updateState(bridgeIP, username, strconv.Itoa(index+1), state); err != nil {
+		if err := updateState(bridgeURL, strconv.Itoa(index+1), state); err != nil {
 			return fmt.Errorf(`Error while updating %s: %v`, light.Name, err)
 		}
 	}
@@ -76,10 +79,57 @@ func updateAllState(bridgeIP, username, state string) error {
 	return nil
 }
 
+func connect(url string, bridgeURL string, secretKey string) {
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
+	if ws != nil {
+		defer ws.Close()
+	}
+	if err != nil {
+		log.Printf(`Error while dialing to websocket %s: %v`, url, err)
+		return
+	}
+
+	ws.WriteMessage(websocket.TextMessage, []byte(secretKey))
+
+	for {
+		messageType, p, err := ws.ReadMessage()
+		if messageType == websocket.CloseMessage {
+			return
+		}
+		if err != nil {
+			log.Printf(`Error while reading from websocket: %v`, url, err)
+			return
+		}
+
+		if messageType == websocket.TextMessage {
+			log.Printf(`Received: %s`, p)
+
+			if state, ok := states[string(p)]; ok {
+				updateAllState(bridgeURL, state)
+			}
+		}
+	}
+}
+
+func handleWebSocket(url string, bridgeURL string, secretKey string) {
+	if url == `` {
+		return
+	}
+
+	connect(url, bridgeURL, secretKey)
+}
+
 func main() {
 	bridgeIP := flag.String(`bridgeIP`, ``, `IP of Hue Bridge`)
 	username := flag.String(`username`, ``, `Username for Hue Bridge`)
+	websocketURL := flag.String(`websocket`, ``, `WebSocket URL`)
+	secretKey := flag.String(`secretKey`, ``, `Secret Key`)
+	state := flag.String(`state`, ``, `State to render`)
 	flag.Parse()
 
-	log.Print(updateAllState(*bridgeIP, *username, bright))
+	if *websocketURL != `` {
+		handleWebSocket(*websocketURL, getURL(*bridgeIP, *username), *secretKey)
+	} else if *state != `` {
+		updateAllState(getURL(*bridgeIP, *username), states[*state])
+	}
 }
