@@ -97,7 +97,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 			return
 		}
 		if err != nil {
-			log.Printf(`Error while reading from websocket: %v`, url, err)
+			log.Printf(`Error while reading from websocket: %v`, err)
 			return
 		}
 

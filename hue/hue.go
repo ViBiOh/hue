@@ -61,6 +61,10 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
+		log.Printf(`New websocket connexion setted up from %s`, r.RemoteAddr)
+		if a.wsConnexion != nil {
+			a.wsConnexion.Close()
+		}
 		a.wsConnexion = ws
 
 		for {
