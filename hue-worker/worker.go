@@ -106,6 +106,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 	}
 
 	ws.WriteMessage(websocket.TextMessage, []byte(secretKey))
+	log.Print(`Connection established`)
 
 	for {
 		messageType, p, err := ws.ReadMessage()
