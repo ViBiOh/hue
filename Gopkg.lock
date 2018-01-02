@@ -38,7 +38,7 @@
     "rate",
     "tools"
   ]
-  revision = "839342d1cec0e61ebaa9484d9b087c818bb5c881"
+  revision = "52bb44eb775aa6a8bedb0501e363b102b0732795"
 
 [[projects]]
   branch = "master"

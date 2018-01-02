@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/httputils/tools"
 	"github.com/gorilla/websocket"
 )
 
@@ -83,7 +84,16 @@ func updateAllState(bridgeURL, state string) error {
 }
 
 func connect(url string, bridgeURL string, secretKey string) {
-	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
+	localIPS, err := tools.GetLocalIPS()
+	if err != nil {
+		log.Printf(`Error while retrieving local ips: %v`, err)
+		return
+	}
+
+	headers := http.Header{}
+	headers.Set(httputils.ForwardedForHeader, localIPS[0].String())
+
+	ws, _, err := websocket.DefaultDialer.Dial(url, headers)
 	if ws != nil {
 		defer func() {
 			log.Print(`Connexion ended`)
@@ -117,17 +127,6 @@ func connect(url string, bridgeURL string, secretKey string) {
 	}
 }
 
-func handleWebSocket(url string, bridgeURL string, secretKey string) {
-	if url == `` {
-		return
-	}
-
-	for {
-		connect(url, bridgeURL, secretKey)
-		time.Sleep(websocketWaitTime)
-	}
-}
-
 func main() {
 	bridgeIP := flag.String(`bridgeIP`, ``, `IP of Hue Bridge`)
 	username := flag.String(`username`, ``, `Username for Hue Bridge`)
@@ -137,7 +136,7 @@ func main() {
 	flag.Parse()
 
 	if *websocketURL != `` {
-		handleWebSocket(*websocketURL, getURL(*bridgeIP, *username), *secretKey)
+		connect(*websocketURL, getURL(*bridgeIP, *username), *secretKey)
 	} else if *state != `` {
 		updateAllState(getURL(*bridgeIP, *username), states[*state])
 	}
