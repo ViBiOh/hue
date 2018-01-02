@@ -81,14 +81,23 @@ func (a *App) WebsocketHandler() http.Handler {
 	})
 }
 
+func handleRedirect(w http.ResponseWriter, r *http.Request, event string, err error) {
+	if err != nil {
+		log.Printf(`Error while querying Hue WebSocket: %v`, err)
+		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Error while requesting Hue`), http.StatusFound)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `success`, fmt.Sprintf(`Lights turned %s`, event)), http.StatusFound)
+	}
+}
+
 // Handler create Handler from Flags' config
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.wsConnexion != nil {
 			if r.URL.Path == `/on` {
-				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`bright`))
+				handleRedirect(w, r, `on`, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`bright`)))
 			} else if r.URL.Path == `/off` {
-				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`off`))
+				handleRedirect(w, r, `off`, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`off`)))
 			} else {
 				httputils.NotFound(w)
 			}
