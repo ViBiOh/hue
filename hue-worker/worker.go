@@ -8,10 +8,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/gorilla/websocket"
 )
+
+const websocketWaitTime = 30 * time.Second
 
 var states = map[string]string{
 	`off`:    `{"on":false,"transitiontime":30}`,
@@ -82,7 +85,10 @@ func updateAllState(bridgeURL, state string) error {
 func connect(url string, bridgeURL string, secretKey string) {
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if ws != nil {
-		defer ws.Close()
+		defer func() {
+			log.Print(`Connexion ended`)
+			ws.Close()
+		}()
 	}
 	if err != nil {
 		log.Printf(`Error while dialing to websocket %s: %v`, url, err)
@@ -116,7 +122,10 @@ func handleWebSocket(url string, bridgeURL string, secretKey string) {
 		return
 	}
 
-	connect(url, bridgeURL, secretKey)
+	for {
+		connect(url, bridgeURL, secretKey)
+		time.Sleep(websocketWaitTime)
+	}
 }
 
 func main() {
