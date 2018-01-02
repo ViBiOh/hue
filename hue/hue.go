@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
@@ -61,7 +62,7 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
-		log.Printf(`New websocket connexion setted up from %s`, r.RemoteAddr)
+		log.Printf(`New websocket connexion setted up from %s`, httputils.GetIP(r))
 		if a.wsConnexion != nil {
 			a.wsConnexion.Close()
 		}
@@ -90,7 +91,7 @@ func handleRedirect(w http.ResponseWriter, r *http.Request, event string, err er
 		log.Printf(`Error while querying Hue WebSocket: %v`, err)
 		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Error while requesting Hue`), http.StatusFound)
 	} else {
-		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `success`, fmt.Sprintf(`Lights turned %s`, event)), http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `success`, fmt.Sprintf(`Lights turned to %s`, event)), http.StatusFound)
 	}
 }
 
@@ -98,13 +99,8 @@ func handleRedirect(w http.ResponseWriter, r *http.Request, event string, err er
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.wsConnexion != nil {
-			if r.URL.Path == `/on` {
-				handleRedirect(w, r, `on`, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`bright`)))
-			} else if r.URL.Path == `/off` {
-				handleRedirect(w, r, `off`, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`off`)))
-			} else {
-				httputils.NotFound(w)
-			}
+			event := strings.TrimPrefix(r.URL.Path, `/`)
+			handleRedirect(w, r, event, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)))
 		} else {
 			w.WriteHeader(http.StatusServiceUnavailable)
 		}
