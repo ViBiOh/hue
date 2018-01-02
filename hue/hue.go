@@ -102,7 +102,7 @@ func (a *App) Handler() http.Handler {
 			event := strings.TrimPrefix(r.URL.Path, `/`)
 			handleRedirect(w, r, event, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)))
 		} else {
-			w.WriteHeader(http.StatusServiceUnavailable)
+			http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Local worker is not listening`), http.StatusFound)
 		}
 	})
 }
