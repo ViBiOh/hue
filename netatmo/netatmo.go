@@ -46,12 +46,22 @@ type netatmoToken struct {
 	AccessToken string `json:"access_token"`
 }
 
-// Client client that store informations for dealing with API
-type Client struct {
+// App stores informations and secret of API
+type App struct {
 	clientID     string
 	clientSecret string
 	accessToken  string
 	refreshToken string
+}
+
+// NewApp create Client from Flags' config
+func NewApp(config map[string]*string) *App {
+	return &App{
+		clientID:     *config[`clientID`],
+		clientSecret: *config[`clientSecret`],
+		accessToken:  *config[`accessToken`],
+		refreshToken: *config[`refreshToken`],
+	}
 }
 
 // Flags add flags for given prefix
@@ -64,20 +74,10 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// NewClient create Client from Flags' config
-func NewClient(config map[string]*string) *Client {
-	return &Client{
-		clientID:     *config[`clientID`],
-		clientSecret: *config[`clientSecret`],
-		accessToken:  *config[`accessToken`],
-		refreshToken: *config[`refreshToken`],
-	}
-}
-
-func (n *Client) refreshAccessToken() error {
+func (a *App) refreshAccessToken() error {
 	log.Print(`Refreshing Netatmo Access Token`)
 
-	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+n.refreshToken+`&client_id=`+n.clientID+`&client_secret=`+n.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
+	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+a.refreshToken+`&client_id=`+a.clientID+`&client_secret=`+a.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
 
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
@@ -88,20 +88,20 @@ func (n *Client) refreshAccessToken() error {
 		return fmt.Errorf(`Error while unmarshalling token: %v`, err)
 	}
 
-	n.accessToken = token.AccessToken
+	a.accessToken = token.AccessToken
 
 	return nil
 }
 
 // GetStationData retrieves Station data of user
-func (n *Client) GetStationData() (*StationData, error) {
-	if n.accessToken == `` {
+func (a *App) GetStationData() (*StationData, error) {
+	if a.accessToken == `` {
 		return nil, nil
 	}
 
 	var infos StationData
 
-	rawData, err := httputils.GetBody(netatmoGetStationDataURL+n.accessToken, nil)
+	rawData, err := httputils.GetBody(netatmoGetStationDataURL+a.accessToken, nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 
@@ -110,10 +110,10 @@ func (n *Client) GetStationData() (*StationData, error) {
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
-			if err := n.refreshAccessToken(); err != nil {
+			if err := a.refreshAccessToken(); err != nil {
 				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
-			return n.GetStationData()
+			return a.GetStationData()
 		}
 
 		return nil, fmt.Errorf(`Error while getting data: %v`, err)

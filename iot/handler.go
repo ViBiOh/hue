@@ -17,8 +17,8 @@ type message struct {
 }
 
 // RenderDashboard render dashboard
-func RenderDashboard(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoClient *netatmo.Client, message *message) {
-	netatmoData, err := netatmoClient.GetStationData()
+func RenderDashboard(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoApp *netatmo.App, message *message) {
+	netatmoData, err := netatmoApp.GetStationData()
 	if err != nil {
 		log.Printf(`Error while reading Netatmo data: %v`, err)
 	}
@@ -43,24 +43,24 @@ func handleAuthFail(w http.ResponseWriter, r *http.Request, err error, authURL s
 	}
 }
 
-func handleAuthSuccess(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoClient *netatmo.Client) {
+func handleAuthSuccess(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoApp *netatmo.App) {
 	values := r.URL.Query()
 	messageContent := values.Get(`message_content`)
 
 	if messageContent != `` {
-		RenderDashboard(w, r, tpl, netatmoClient, &message{Level: values.Get(`message_level`), Content: messageContent})
+		RenderDashboard(w, r, tpl, netatmoApp, &message{Level: values.Get(`message_level`), Content: messageContent})
 	} else {
-		RenderDashboard(w, r, tpl, netatmoClient, nil)
+		RenderDashboard(w, r, tpl, netatmoApp, nil)
 	}
 }
 
 // Handler create Handler from Flags' config
-func Handler(authConfig map[string]*string, netatmoClient *netatmo.Client) http.Handler {
+func Handler(authConfig map[string]*string, netatmoApp *netatmo.App) http.Handler {
 	authURL := *authConfig[`url`]
 	tpl := template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
 
 	return auth.HandlerWithFail(authConfig, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
-		handleAuthSuccess(w, r, tpl, netatmoClient)
+		handleAuthSuccess(w, r, tpl, netatmoApp)
 	}, func(w http.ResponseWriter, r *http.Request, err error) {
 		handleAuthFail(w, r, err, authURL)
 	})

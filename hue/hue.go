@@ -19,6 +19,19 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// App stores informations and secret of API
+type App struct {
+	secretKey   string
+	wsConnexion *websocket.Conn
+}
+
+// NewApp creates new App from Flags' config
+func NewApp(config map[string]*string) *App {
+	return &App{
+		secretKey: *config[`secretKey`],
+	}
+}
+
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
@@ -26,10 +39,8 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-// WebsocketHandler create Websockethandler from Flags' config
-func WebsocketHandler(config map[string]*string) http.Handler {
-	secretKey := *config[`secretKey`]
-
+// WebsocketHandler create Websockethandler
+func (a *App) WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if ws != nil {
@@ -43,16 +54,14 @@ func WebsocketHandler(config map[string]*string) http.Handler {
 		messageType, p, err := ws.ReadMessage()
 		if err != nil {
 			ws.WriteMessage(websocket.TextMessage, []byte(fmt.Errorf(`Error while reading first message: %v`, err).Error()))
-			return
-		}
-		if messageType != websocket.TextMessage {
+		} else if messageType != websocket.TextMessage {
 			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be a Text Message`))
-			return
-		}
-		if string(p) != secretKey {
+		} else if string(p) != a.secretKey {
 			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be the Secret Key`))
 			return
 		}
+
+		a.wsConnexion = ws
 
 		for {
 			messageType, p, err := ws.ReadMessage()
@@ -65,17 +74,26 @@ func WebsocketHandler(config map[string]*string) http.Handler {
 				return
 			}
 
-			if err = ws.WriteMessage(messageType, p); err != nil {
-				log.Print(err)
-				return
+			if messageType == websocket.TextMessage {
+				log.Printf(`%s`, p)
 			}
 		}
 	})
 }
 
 // Handler create Handler from Flags' config
-func Handler(config map[string]*string) http.Handler {
+func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		httputils.NotFound(w)
+		if a.wsConnexion != nil {
+			if r.URL.Path == `/on` {
+				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`bright`))
+			} else if r.URL.Path == `/off` {
+				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`off`))
+			} else {
+				httputils.NotFound(w)
+			}
+		} else {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
 	})
 }
