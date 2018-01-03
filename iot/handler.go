@@ -11,7 +11,8 @@ import (
 	"github.com/ViBiOh/iot/netatmo"
 )
 
-type message struct {
+// Message rendered to user
+type Message struct {
 	Level   string
 	Content string
 }
@@ -35,7 +36,7 @@ func NewApp(authConfig map[string]*string, netatmoApp *netatmo.App) *App {
 }
 
 // RenderDashboard render dashboard
-func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *message) {
+func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *Message) {
 	netatmoData, err := a.netatmoApp.GetStationData()
 	if err != nil {
 		log.Printf(`Error while reading Netatmo data: %v`, err)

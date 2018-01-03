@@ -2,14 +2,27 @@ package wemo
 
 import (
 	"flag"
-	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
+	"github.com/ViBiOh/iot/iot"
 )
+
+// App stores informations and secret of API
+type App struct {
+	webHookKey string
+	iotApp     *iot.App
+}
+
+// NewApp creates new App from Flags' config
+func NewApp(config map[string]*string, iotApp *iot.App) *App {
+	return &App{
+		webHookKey: *config[`webhookKey`],
+		iotApp:     iotApp,
+	}
+}
 
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
@@ -19,27 +32,24 @@ func Flags(prefix string) map[string]*string {
 }
 
 // Handler create Handler from Flags' config
-func Handler(config map[string]*string) http.Handler {
-	webHookKey := *config[`webhookKey`]
-
+func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var rawData []byte
 		var err error
 
 		if r.URL.Path == `/on` {
-			rawData, err = httputils.GetBody(`https://maker.ifttt.com/trigger/wemo_plug_on/with/key/`+webHookKey, nil)
+			rawData, err = httputils.GetBody(`https://maker.ifttt.com/trigger/wemo_plug_on/with/key/`+a.webHookKey, nil)
 		} else if r.URL.Path == `/off` {
-			rawData, err = httputils.GetBody(`https://maker.ifttt.com/trigger/wemo_plug_off/with/key/`+webHookKey, nil)
+			rawData, err = httputils.GetBody(`https://maker.ifttt.com/trigger/wemo_plug_off/with/key/`+a.webHookKey, nil)
 		} else {
-			httputils.NotFound(w)
+			a.iotApp.RenderDashboard(w, r, http.StatusNotFound, &iot.Message{Level: `error`, Content: `Unknown command`})
 			return
 		}
 
 		if err != nil || strings.HasPrefix(string(rawData), `<!DOCTYPE`) {
-			log.Printf(`Error while querying IFTTT WebHook: %v`, err)
-			http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Error while requesting WeMo`), http.StatusFound)
+			a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: `Error while requesting WeMo`})
 		} else {
-			http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `success`, rawData), http.StatusFound)
+			a.iotApp.RenderDashboard(w, r, http.StatusOK, nil)
 		}
 	})
 }

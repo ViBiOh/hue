@@ -98,12 +98,13 @@ func main() {
 	log.Printf(`Starting server on port %s`, *port)
 
 	netatmoApp := netatmo.NewApp(netatmoConfig)
-	hueApp := hue.NewApp(hueConfig)
 	iotApp := iot.NewApp(authConfig, netatmoApp)
+	wemoApp := wemo.NewApp(wemoConfig, iotApp)
+	hueApp := hue.NewApp(hueConfig, iotApp)
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	hueWsHandler = http.StripPrefix(huePath, hueApp.WebsocketHandler())
-	wemoHandler = http.StripPrefix(wemoPath, wemo.Handler(wemoConfig))
+	wemoHandler = http.StripPrefix(wemoPath, wemoApp.Handler())
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))

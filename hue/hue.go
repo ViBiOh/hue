@@ -9,6 +9,7 @@ import (
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
+	"github.com/ViBiOh/iot/iot"
 	"github.com/gorilla/websocket"
 )
 
@@ -24,12 +25,14 @@ var upgrader = websocket.Upgrader{
 type App struct {
 	secretKey   string
 	wsConnexion *websocket.Conn
+	iotApp      *iot.App
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) *App {
+func NewApp(config map[string]*string, iotApp *iot.App) *App {
 	return &App{
 		secretKey: *config[`secretKey`],
+		iotApp:    iotApp,
 	}
 }
 
@@ -86,23 +89,18 @@ func (a *App) WebsocketHandler() http.Handler {
 	})
 }
 
-func handleRedirect(w http.ResponseWriter, r *http.Request, event string, err error) {
-	if err != nil {
-		log.Printf(`Error while querying Hue WebSocket: %v`, err)
-		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Error while requesting Hue`), http.StatusFound)
-	} else {
-		http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `success`, fmt.Sprintf(`Lights turned to %s`, event)), http.StatusFound)
-	}
-}
-
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.wsConnexion != nil {
 			event := strings.TrimPrefix(r.URL.Path, `/`)
-			handleRedirect(w, r, event, a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)))
+			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
+				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: fmt.Sprintf(`Error while requesting Hue Worker: %v`, err)})
+			} else {
+				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `succes`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
+			}
 		} else {
-			http.Redirect(w, r, fmt.Sprintf(`/?message_level=%s&message_content=%s`, `error`, `Local worker is not listening`), http.StatusFound)
+			a.iotApp.RenderDashboard(w, r, http.StatusServiceUnavailable, &iot.Message{Level: `error`, Content: `Hue Worker is not listening`})
 		}
 	})
 }
