@@ -93,7 +93,9 @@
   </head>
   <body>
     <header class="header center">
-      <h1 class="title">IoT</h1>
+      <h1 class="title">
+        <a href="/" class="no-style">IoT</a>
+      </h1>
     </header>
 
     {{- template "message" .Message -}}
@@ -216,6 +218,15 @@
 
   .estomp {
     opacity: 0.5;
+  }
+
+  .no-style,
+  .no-style:active,
+  .no-style:visited,
+  .no-style:focus {
+    color: ghostwhite;
+    outline: none;
+    text-decoration: none;
   }
 
   @media print {

@@ -127,7 +127,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 			}
 
 			if err != nil {
-				log.Printf(`Error while reading from websocket: %v`, err)
+				log.Printf(`Error while reading from WebSocket: %v`, err)
 				close(done)
 				return
 			}
@@ -148,8 +148,6 @@ func connect(url string, bridgeURL string, secretKey string) {
 				close(done)
 			}
 		case msg := <-input:
-			log.Printf(`Received: %s`, msg)
-
 			if msg == `status` {
 				lights, err := listLights(bridgeURL)
 				if err != nil {
@@ -165,7 +163,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 				}
 
-				ws.WriteMessage(websocket.TextMessage, lightsJSON)
+				ws.WriteMessage(websocket.TextMessage, append(hue.LightsPrefix, lightsJSON...))
 			}
 
 			if state, ok := states[msg]; ok {

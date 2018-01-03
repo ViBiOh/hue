@@ -15,7 +15,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var lightsPrefix = []byte(`lights `)
+// LightsPrefix prefix for passing lights status
+var LightsPrefix = []byte(`lights `)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -88,6 +89,8 @@ func (a *App) WebsocketHandler() http.Handler {
 		}
 		a.wsConnexion = ws
 
+		ws.WriteMessage(websocket.TextMessage, []byte(`status`))
+
 		for {
 			messageType, p, err := ws.ReadMessage()
 			if messageType == websocket.CloseMessage {
@@ -100,10 +103,10 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, []byte(lightsPrefix)) {
+				if bytes.HasPrefix(p, []byte(LightsPrefix)) {
 					var lights []Light
 
-					if err := json.Unmarshal(bytes.TrimPrefix(lightsPrefix, p), &lights); err != nil {
+					if err := json.Unmarshal(bytes.TrimPrefix(LightsPrefix, p), &lights); err != nil {
 						log.Printf(`Error while unmarshalling lights: %v`, err)
 					} else {
 						a.lights = lights
