@@ -2,49 +2,46 @@ package iot
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"path"
 
 	"github.com/ViBiOh/auth/auth"
 	"github.com/ViBiOh/httputils"
-	"github.com/ViBiOh/iot/netatmo"
+	"github.com/ViBiOh/iot/provider"
 )
-
-// Message rendered to user
-type Message struct {
-	Level   string
-	Content string
-}
 
 // App stores informations and secret of API
 type App struct {
 	authConfig map[string]*string
 	authURL    string
 	tpl        *template.Template
-	netatmoApp *netatmo.App
+	providers  map[string]provider.Provider
 }
 
 // NewApp creates new App from dependencies and Flags' config
-func NewApp(authConfig map[string]*string, netatmoApp *netatmo.App) *App {
-	return &App{
+func NewApp(authConfig map[string]*string, providers map[string]provider.Provider) *App {
+	app := &App{
 		authConfig: authConfig,
 		authURL:    *authConfig[`url`],
 		tpl:        template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
-		netatmoApp: netatmoApp,
+		providers:  providers,
 	}
+
+	for _, provider := range providers {
+		provider.SetRenderer(app)
+	}
+
+	return app
 }
 
 // RenderDashboard render dashboard
-func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *Message) {
-	netatmoData, err := a.netatmoApp.GetStationData()
-	if err != nil {
-		log.Printf(`Error while reading Netatmo data: %v`, err)
+func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *provider.Message) {
+	response := map[string]interface{}{
+		`Message`: message,
 	}
 
-	response := map[string]interface{}{
-		`Netatmo`: netatmoData,
-		`Message`: message,
+	for name, provider := range a.providers {
+		response[name] = provider.GetData()
 	}
 
 	if err := httputils.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {

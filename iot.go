@@ -19,6 +19,7 @@ import (
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/iot"
 	"github.com/ViBiOh/iot/netatmo"
+	"github.com/ViBiOh/iot/provider"
 	"github.com/ViBiOh/iot/wemo"
 )
 
@@ -98,9 +99,13 @@ func main() {
 	log.Printf(`Starting server on port %s`, *port)
 
 	netatmoApp := netatmo.NewApp(netatmoConfig)
-	iotApp := iot.NewApp(authConfig, netatmoApp)
-	wemoApp := wemo.NewApp(wemoConfig, iotApp)
-	hueApp := hue.NewApp(hueConfig, iotApp)
+	wemoApp := wemo.NewApp(wemoConfig)
+	hueApp := hue.NewApp(hueConfig)
+	iotApp := iot.NewApp(authConfig, map[string]provider.Provider{
+		`Netatmo`: netatmoApp,
+		`Wemo`:    wemoApp,
+		`Hue`:     hueApp,
+	})
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	hueWsHandler = http.StripPrefix(huePath, hueApp.WebsocketHandler())

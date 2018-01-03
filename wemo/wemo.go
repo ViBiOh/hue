@@ -8,20 +8,19 @@ import (
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
-	"github.com/ViBiOh/iot/iot"
+	"github.com/ViBiOh/iot/provider"
 )
 
 // App stores informations and secret of API
 type App struct {
 	webHookKey string
-	iotApp     *iot.App
+	renderer   provider.Renderer
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, iotApp *iot.App) *App {
+func NewApp(config map[string]*string) *App {
 	return &App{
 		webHookKey: *config[`webhookKey`],
-		iotApp:     iotApp,
 	}
 }
 
@@ -43,14 +42,24 @@ func (a *App) Handler() http.Handler {
 		} else if r.URL.Path == `/off` {
 			rawData, err = httputils.GetBody(`https://maker.ifttt.com/trigger/wemo_plug_off/with/key/`+a.webHookKey, nil)
 		} else {
-			a.iotApp.RenderDashboard(w, r, http.StatusNotFound, &iot.Message{Level: `error`, Content: `Unknown command`})
+			a.renderer.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: `Unknown command`})
 			return
 		}
 
 		if err != nil || strings.HasPrefix(string(rawData), `<!DOCTYPE`) {
-			a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: `Error while requesting WeMo`})
+			a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `Error while requesting WeMo`})
 		} else {
-			a.iotApp.RenderDashboard(w, r, http.StatusOK, &iot.Message{Level: `success`, Content: fmt.Sprintf(`%s`, rawData)})
+			a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s`, rawData)})
 		}
 	})
+}
+
+// SetRenderer handle store of Renderer
+func (a *App) SetRenderer(r provider.Renderer) {
+	a.renderer = r
+}
+
+// GetData return data provided to renderer
+func (a *App) GetData() interface{} {
+	return nil
 }

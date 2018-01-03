@@ -8,6 +8,7 @@ import (
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
+	"github.com/ViBiOh/iot/provider"
 )
 
 const netatmoGetStationDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
@@ -124,4 +125,18 @@ func (a *App) GetStationData() (*StationData, error) {
 	}
 
 	return &infos, nil
+}
+
+// SetRenderer handle store of Renderer
+func (a *App) SetRenderer(r provider.Renderer) {
+}
+
+// GetData return data provided to renderer
+func (a *App) GetData() interface{} {
+	data, err := a.GetStationData()
+	if err != nil {
+		log.Printf(`Error while reading Netatmo data: %v`, err)
+	}
+
+	return data
 }

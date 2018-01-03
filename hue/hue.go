@@ -1,6 +1,8 @@
 package hue
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -9,9 +11,11 @@ import (
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
-	"github.com/ViBiOh/iot/iot"
+	"github.com/ViBiOh/iot/provider"
 	"github.com/gorilla/websocket"
 )
+
+var lightsPrefix = []byte(`lights `)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -21,18 +25,26 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// Light description
+type Light struct {
+	Name  string
+	State struct {
+		On bool
+	}
+}
+
 // App stores informations and secret of API
 type App struct {
 	secretKey   string
 	wsConnexion *websocket.Conn
-	iotApp      *iot.App
+	renderer    provider.Renderer
+	lights      []Light
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, iotApp *iot.App) *App {
+func NewApp(config map[string]*string) *App {
 	return &App{
 		secretKey: *config[`secretKey`],
-		iotApp:    iotApp,
 	}
 }
 
@@ -48,6 +60,11 @@ func (a *App) WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if ws != nil {
+			if a.wsConnexion == ws {
+				a.wsConnexion = nil
+			}
+
+			log.Print(`WebSocket connection ended`)
 			defer ws.Close()
 		}
 		if err != nil {
@@ -83,7 +100,15 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
-				log.Printf(`%s`, p)
+				if bytes.HasPrefix(p, []byte(lightsPrefix)) {
+					var lights []Light
+
+					if err := json.Unmarshal(bytes.TrimPrefix(lightsPrefix, p), &lights); err != nil {
+						log.Printf(`Error while unmarshalling lights: %v`, err)
+					} else {
+						a.lights = lights
+					}
+				}
 			}
 		}
 	})
@@ -95,12 +120,30 @@ func (a *App) Handler() http.Handler {
 		if a.wsConnexion != nil {
 			event := strings.TrimPrefix(r.URL.Path, `/`)
 			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
-				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: fmt.Sprintf(`Error while requesting Hue Worker: %v`, err)})
+				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`Error while talking to Worker: %v`, err)})
 			} else {
-				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `success`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
+				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`status`))
+				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
 			}
 		} else {
-			a.iotApp.RenderDashboard(w, r, http.StatusServiceUnavailable, &iot.Message{Level: `error`, Content: `Hue Worker is not listening`})
+			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
 		}
 	})
+}
+
+// SetRenderer handle store of Renderer
+func (a *App) SetRenderer(r provider.Renderer) {
+	a.renderer = r
+}
+
+// GetData return data provided to renderer
+func (a *App) GetData() interface{} {
+	on := 0
+	for _, light := range a.lights {
+		if light.State.On {
+			on++
+		}
+	}
+
+	return fmt.Sprintf(`%d / %d`, on, len(a.lights))
 }

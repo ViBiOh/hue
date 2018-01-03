@@ -12,6 +12,7 @@ import (
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
+	"github.com/ViBiOh/iot/hue"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,29 +24,22 @@ var states = map[string]string{
 	`bright`: `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
 }
 
-type light struct {
-	Name  string
-	State struct {
-		On bool
-	}
-}
-
 func getURL(bridgeIP, username string) string {
 	return `http://` + bridgeIP + `/api/` + username + `/lights`
 }
 
-func listLights(bridgeURL string) ([]light, error) {
+func listLights(bridgeURL string) ([]hue.Light, error) {
 	content, err := httputils.GetBody(bridgeURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting data from bridge: %v`, err)
 	}
 
-	var rawLights map[string]light
+	var rawLights map[string]hue.Light
 	if err := json.Unmarshal(content, &rawLights); err != nil {
 		return nil, fmt.Errorf(`Error while parsing data from bridge: %v`, err)
 	}
 
-	lights := make([]light, len(rawLights))
+	lights := make([]hue.Light, len(rawLights))
 	for key, value := range rawLights {
 		i, _ := strconv.Atoi(key)
 		lights[i-1] = value
@@ -96,7 +90,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 	ws, _, err := websocket.DefaultDialer.Dial(url, headers)
 	if ws != nil {
 		defer func() {
-			log.Print(`Connexion ended`)
+			log.Print(`WebSocket Connection ended`)
 			ws.Close()
 		}()
 	}
