@@ -97,7 +97,7 @@ func (a *App) Handler() http.Handler {
 			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
 				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: fmt.Sprintf(`Error while requesting Hue Worker: %v`, err)})
 			} else {
-				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `succes`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
+				a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `success`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
 			}
 		} else {
 			a.iotApp.RenderDashboard(w, r, http.StatusServiceUnavailable, &iot.Message{Level: `error`, Content: `Hue Worker is not listening`})

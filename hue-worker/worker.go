@@ -108,25 +108,55 @@ func connect(url string, bridgeURL string, secretKey string) {
 	ws.WriteMessage(websocket.TextMessage, []byte(secretKey))
 	log.Print(`Connection established`)
 
+	done := make(chan struct{})
+	input := make(chan string)
+	ping := make(chan int)
+
 	go func() {
-		time.Sleep(pingDelay)
-		ws.WriteMessage(websocket.PingMessage, nil)
+		for {
+			select {
+			case <-done:
+				return
+			default:
+				time.Sleep(pingDelay)
+				ping <- 1
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			messageType, p, err := ws.ReadMessage()
+			if messageType == websocket.CloseMessage {
+				close(done)
+				return
+			}
+
+			if err != nil {
+				log.Printf(`Error while reading from websocket: %v`, err)
+				close(done)
+				return
+			}
+
+			if messageType == websocket.TextMessage {
+				input <- string(p)
+			}
+		}
 	}()
 
 	for {
-		messageType, p, err := ws.ReadMessage()
-		if messageType == websocket.CloseMessage {
+		select {
+		case <-done:
 			return
-		}
-		if err != nil {
-			log.Printf(`Error while reading from websocket: %v`, err)
-			return
-		}
+		case <-ping:
+			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+				log.Printf(`Error while sending ping: %s`, err)
+				close(done)
+			}
+		case msg := <-input:
+			log.Printf(`Received: %s`, msg)
 
-		if messageType == websocket.TextMessage {
-			log.Printf(`Received: %s`, p)
-
-			if string(p) == `status` {
+			if msg == `status` {
 				lights, err := listLights(bridgeURL)
 				if err != nil {
 					err = fmt.Errorf(`Error while listing lights: %v`, err)
@@ -144,7 +174,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 				ws.WriteMessage(websocket.TextMessage, lightsJSON)
 			}
 
-			if state, ok := states[string(p)]; ok {
+			if state, ok := states[msg]; ok {
 				updateAllState(bridgeURL, state)
 			}
 		}

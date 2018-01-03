@@ -2,6 +2,7 @@ package wemo
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"strings"
 
