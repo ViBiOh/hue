@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const websocketWaitTime = 30 * time.Second
+const pingDelay = 60 * time.Second
 
 var states = map[string]string{
 	`off`:    `{"on":false,"transitiontime":30}`,
@@ -108,6 +108,11 @@ func connect(url string, bridgeURL string, secretKey string) {
 	ws.WriteMessage(websocket.TextMessage, []byte(secretKey))
 	log.Print(`Connection established`)
 
+	go func() {
+		time.Sleep(pingDelay)
+		ws.WriteMessage(websocket.PingMessage, nil)
+	}()
+
 	for {
 		messageType, p, err := ws.ReadMessage()
 		if messageType == websocket.CloseMessage {
@@ -120,6 +125,24 @@ func connect(url string, bridgeURL string, secretKey string) {
 
 		if messageType == websocket.TextMessage {
 			log.Printf(`Received: %s`, p)
+
+			if string(p) == `status` {
+				lights, err := listLights(bridgeURL)
+				if err != nil {
+					err = fmt.Errorf(`Error while listing lights: %v`, err)
+					log.Print(err)
+					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
+				}
+
+				lightsJSON, err := json.Marshal(lights)
+				if err != nil {
+					err = fmt.Errorf(`Error while marshalling lights: %v`, err)
+					log.Print(err)
+					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
+				}
+
+				ws.WriteMessage(websocket.TextMessage, lightsJSON)
+			}
 
 			if state, ok := states[string(p)]; ok {
 				updateAllState(bridgeURL, state)
