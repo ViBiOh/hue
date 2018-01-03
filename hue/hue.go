@@ -95,7 +95,7 @@ func handleRedirect(w http.ResponseWriter, r *http.Request, event string, err er
 	}
 }
 
-// Handler create Handler from Flags' config
+// Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.wsConnexion != nil {

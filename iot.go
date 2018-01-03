@@ -22,10 +22,12 @@ import (
 	"github.com/ViBiOh/iot/wemo"
 )
 
-const websocketPath = `/ws`
-const healthcheckPath = `/health`
-const wemoPath = `/wemo`
-const huePath = `/hue`
+const (
+	websocketPath   = `/ws`
+	healthcheckPath = `/health`
+	wemoPath        = `/wemo`
+	huePath         = `/hue`
+)
 
 var (
 	apiHandler http.Handler
@@ -97,11 +99,12 @@ func main() {
 
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	hueApp := hue.NewApp(hueConfig)
+	iotApp := iot.NewApp(authConfig, netatmoApp)
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	hueWsHandler = http.StripPrefix(huePath, hueApp.WebsocketHandler())
 	wemoHandler = http.StripPrefix(wemoPath, wemo.Handler(wemoConfig))
-	iotHandler = gziphandler.GzipHandler(iot.Handler(authConfig, netatmoApp))
+	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{

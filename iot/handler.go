@@ -16,9 +16,27 @@ type message struct {
 	Content string
 }
 
+// App stores informations and secret of API
+type App struct {
+	authConfig map[string]*string
+	authURL    string
+	tpl        *template.Template
+	netatmoApp *netatmo.App
+}
+
+// NewApp creates new App from dependencies and Flags' config
+func NewApp(authConfig map[string]*string, netatmoApp *netatmo.App) *App {
+	return &App{
+		authConfig: authConfig,
+		authURL:    *authConfig[`url`],
+		tpl:        template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
+		netatmoApp: netatmoApp,
+	}
+}
+
 // RenderDashboard render dashboard
-func RenderDashboard(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoApp *netatmo.App, message *message) {
-	netatmoData, err := netatmoApp.GetStationData()
+func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *message) {
+	netatmoData, err := a.netatmoApp.GetStationData()
 	if err != nil {
 		log.Printf(`Error while reading Netatmo data: %v`, err)
 	}
@@ -28,9 +46,18 @@ func RenderDashboard(w http.ResponseWriter, r *http.Request, tpl *template.Templ
 		`Message`: message,
 	}
 
-	if err := httputils.WriteHTMLTemplate(tpl.Lookup(`iot`), w, response); err != nil {
+	if err := httputils.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
 		httputils.InternalServerError(w, err)
 	}
+}
+
+// Handler create Handler with given App context
+func (a *App) Handler() http.Handler {
+	return auth.HandlerWithFail(a.authConfig, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+		a.RenderDashboard(w, r, http.StatusOK, nil)
+	}, func(w http.ResponseWriter, r *http.Request, err error) {
+		handleAuthFail(w, r, err, a.authURL)
+	})
 }
 
 func handleAuthFail(w http.ResponseWriter, r *http.Request, err error, authURL string) {
@@ -41,27 +68,4 @@ func handleAuthFail(w http.ResponseWriter, r *http.Request, err error, authURL s
 	} else {
 		httputils.Unauthorized(w, err)
 	}
-}
-
-func handleAuthSuccess(w http.ResponseWriter, r *http.Request, tpl *template.Template, netatmoApp *netatmo.App) {
-	values := r.URL.Query()
-	messageContent := values.Get(`message_content`)
-
-	if messageContent != `` {
-		RenderDashboard(w, r, tpl, netatmoApp, &message{Level: values.Get(`message_level`), Content: messageContent})
-	} else {
-		RenderDashboard(w, r, tpl, netatmoApp, nil)
-	}
-}
-
-// Handler create Handler from Flags' config
-func Handler(authConfig map[string]*string, netatmoApp *netatmo.App) http.Handler {
-	authURL := *authConfig[`url`]
-	tpl := template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`))
-
-	return auth.HandlerWithFail(authConfig, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
-		handleAuthSuccess(w, r, tpl, netatmoApp)
-	}, func(w http.ResponseWriter, r *http.Request, err error) {
-		handleAuthFail(w, r, err, authURL)
-	})
 }
