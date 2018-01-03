@@ -44,6 +44,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 		response[name] = provider.GetData()
 	}
 
+	w.Header().Add(`Cache-Control`, `no-cache`)
 	if err := httputils.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
 		httputils.InternalServerError(w, err)
 	}

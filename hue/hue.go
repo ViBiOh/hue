@@ -108,9 +108,10 @@ func (a *App) WebsocketHandler() http.Handler {
 			if messageType == websocket.TextMessage {
 				if bytes.HasPrefix(p, []byte(LightsPrefix)) {
 					var lights []Light
+					jsonData := bytes.TrimPrefix(LightsPrefix, p)
 
-					if err := json.Unmarshal(bytes.TrimPrefix(LightsPrefix, p), &lights); err != nil {
-						log.Printf(`Error while unmarshalling lights: %v`, err)
+					if err := json.Unmarshal(jsonData, &lights); err != nil {
+						log.Printf(`Error while unmarshalling lights "%s": %v`, jsonData, err)
 					} else {
 						a.lights = lights
 					}
