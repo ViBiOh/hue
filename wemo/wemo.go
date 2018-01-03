@@ -49,7 +49,7 @@ func (a *App) Handler() http.Handler {
 		if err != nil || strings.HasPrefix(string(rawData), `<!DOCTYPE`) {
 			a.iotApp.RenderDashboard(w, r, http.StatusInternalServerError, &iot.Message{Level: `error`, Content: `Error while requesting WeMo`})
 		} else {
-			a.iotApp.RenderDashboard(w, r, http.StatusOK, nil)
+			a.iotApp.RenderDashboard(w, r, http.StatusOK, &iot.Message{Level: `success`, Content: fmt.Sprintf(`%s`, rawData)})
 		}
 	})
 }
