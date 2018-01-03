@@ -103,7 +103,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 	log.Print(`Connection established`)
 
 	done := make(chan struct{})
-	input := make(chan string)
+	input := make(chan []byte)
 	ping := make(chan int)
 
 	go func() {
@@ -133,7 +133,8 @@ func connect(url string, bridgeURL string, secretKey string) {
 			}
 
 			if messageType == websocket.TextMessage {
-				input <- string(p)
+				log.Printf(`Received event %s`, p)
+				input <- p
 			}
 		}
 	}()
@@ -148,7 +149,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 				close(done)
 			}
 		case msg := <-input:
-			if msg == `status` {
+			if bytes.Equal(msg, hue.StatusRequest) {
 				lights, err := listLights(bridgeURL)
 				if err != nil {
 					err = fmt.Errorf(`Error while listing lights: %v`, err)
@@ -164,9 +165,7 @@ func connect(url string, bridgeURL string, secretKey string) {
 				}
 
 				ws.WriteMessage(websocket.TextMessage, append(hue.LightsPrefix, lightsJSON...))
-			}
-
-			if state, ok := states[msg]; ok {
+			} else if state, ok := states[string(msg)]; ok {
 				updateAllState(bridgeURL, state)
 			}
 		}

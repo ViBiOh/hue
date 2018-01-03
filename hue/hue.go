@@ -18,6 +18,9 @@ import (
 // LightsPrefix prefix for passing lights status
 var LightsPrefix = []byte(`lights `)
 
+// StatusRequest payload
+var StatusRequest = []byte(`status`)
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -89,7 +92,7 @@ func (a *App) WebsocketHandler() http.Handler {
 		}
 		a.wsConnexion = ws
 
-		ws.WriteMessage(websocket.TextMessage, []byte(`status`))
+		ws.WriteMessage(websocket.TextMessage, StatusRequest)
 
 		for {
 			messageType, p, err := ws.ReadMessage()
@@ -120,16 +123,20 @@ func (a *App) WebsocketHandler() http.Handler {
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if a.wsConnexion != nil {
+		if r.Method != http.MethodGet {
+			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Unknown command`})
+		} else if a.wsConnexion == nil {
+			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
+		} else {
 			event := strings.TrimPrefix(r.URL.Path, `/`)
+			log.Printf(`Triggering event %s`, event)
+
 			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
 				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`Error while talking to Worker: %v`, err)})
 			} else {
-				a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(`status`))
+				a.wsConnexion.WriteMessage(websocket.TextMessage, StatusRequest)
 				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
 			}
-		} else {
-			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
 		}
 	})
 }
