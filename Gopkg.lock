@@ -24,7 +24,7 @@
     "auth",
     "cookie"
   ]
-  revision = "7b63807fdfe5b3bb2140a89f89717a500fb5340c"
+  revision = "b31457984916b91d5d09f6c2d3f985c90c14e677"
 
 [[projects]]
   branch = "master"
@@ -38,7 +38,7 @@
     "rate",
     "tools"
   ]
-  revision = "aa8c1e9b12ee01cb4ae60f9fc34f22b7b8e9478b"
+  revision = "fa93fc0999b8df153b7f1b46c7c92a404f833efb"
 
 [[projects]]
   branch = "master"

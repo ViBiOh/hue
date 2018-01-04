@@ -2,25 +2,51 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/provider"
+	hue_worker "github.com/ViBiOh/iot/worker/hue"
 	"github.com/gorilla/websocket"
 )
 
 const pingDelay = 60 * time.Second
 
-func writeTextMessage(ws *websocket.Conn, content []byte) bool {
-	if err := ws.WriteMessage(websocket.TextMessage, content); err != nil {
+// App stores informations and secret of API
+type App struct {
+	bridgeURL    string
+	websocketURL string
+	secretKey    string
+	done         chan struct{}
+	wsConn       *websocket.Conn
+}
+
+// NewApp creates new App from Flags' config
+func NewApp(config map[string]*string) *App {
+	return &App{
+		bridgeURL:    hue_worker.GetURL(*config[`bridgeIP`], *config[`username`]),
+		websocketURL: *config[`websocketURL`],
+		secretKey:    *config[`secretKey`],
+	}
+}
+
+// Flags add flags for given prefix
+func Flags(prefix string) map[string]*string {
+	return map[string]*string{
+		`bridgeIP`:     flag.String(tools.ToCamel(prefix+`bridgeIP`), ``, `[hue] IP of Bridge`),
+		`username`:     flag.String(tools.ToCamel(prefix+`username`), ``, `[hue] Username for Bridge`),
+		`websocketURL`: flag.String(tools.ToCamel(prefix+`websocket`), ``, `WebSocket URL`),
+		`secretKey`:    flag.String(tools.ToCamel(prefix+`secretKey`), ``, `Secret Key`),
+	}
+}
+
+func (a *App) writeTextMessage(content []byte) bool {
+	if err := a.wsConn.WriteMessage(websocket.TextMessage, content); err != nil {
 		log.Printf(`Error while writing text message %s: %v`, content, err)
 		return false
 	}
@@ -28,172 +54,105 @@ func writeTextMessage(ws *websocket.Conn, content []byte) bool {
 	return true
 }
 
-func getURL(bridgeIP, username string) string {
-	return `http://` + bridgeIP + `/api/` + username + `/lights`
+func (a *App) logger() {
+	if a.writeTextMessage([]byte(a.secretKey)) {
+		close(a.done)
+	}
 }
 
-func listLights(bridgeURL string) ([]hue.Light, error) {
-	content, err := httputils.GetBody(bridgeURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf(`Error while getting data from bridge: %v`, err)
-	}
+func (a *App) pinger() {
+	for {
+		time.Sleep(pingDelay)
 
-	var rawLights map[string]hue.Light
-	if err := json.Unmarshal(content, &rawLights); err != nil {
-		return nil, fmt.Errorf(`Error while parsing data from bridge: %v`, err)
-	}
+		select {
+		case <-a.done:
+			return
+		default:
+			if err := a.wsConn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				log.Printf(`Error while sending ping to websocket: %v`, err)
 
-	lights := make([]hue.Light, len(rawLights))
-	for key, value := range rawLights {
-		i, _ := strconv.Atoi(key)
-		lights[i-1] = value
-	}
-
-	return lights, nil
-}
-
-func listLightsJSON(bridgeURL string) ([]byte, error) {
-	lights, err := listLights(bridgeURL)
-	if err != nil {
-		err = fmt.Errorf(`Error while listing lights: %v`, err)
-		return nil, err
-	}
-
-	lightsJSON, err := json.Marshal(lights)
-	if err != nil {
-		err = fmt.Errorf(`Error while marshalling lights: %v`, err)
-		return nil, err
-	}
-
-	return lightsJSON, nil
-}
-
-func updateState(bridgeURL, light, state string) error {
-	content, err := httputils.MethodBody(bridgeURL+`/`+light+`/state`, []byte(state), nil, http.MethodPut)
-
-	if err != nil {
-		return fmt.Errorf(`Error while sending data to bridge: %v`, err)
-	}
-
-	if bytes.Contains(content, []byte(`error`)) {
-		return fmt.Errorf(`Error while updating state: %s`, content)
-	}
-
-	return nil
-}
-
-func updateAllState(bridgeURL, state string) error {
-	lights, err := listLights(bridgeURL)
-	if err != nil {
-		return fmt.Errorf(`Error while listing lights: %v`, err)
-	}
-
-	for index, light := range lights {
-		if err := updateState(bridgeURL, strconv.Itoa(index+1), state); err != nil {
-			return fmt.Errorf(`Error while updating %s: %v`, light.Name, err)
+				close(a.done)
+				return
+			}
 		}
 	}
-
-	return nil
 }
 
-func connect(url string, bridgeURL string, secretKey string) {
-	localIPS, err := tools.GetLocalIPS()
+func (a *App) connect() {
+	localIP, err := tools.GetLocalIP()
 	if err != nil {
 		log.Printf(`Error while retrieving local ips: %v`, err)
 		return
 	}
 
 	headers := http.Header{}
-	headers.Set(httputils.ForwardedForHeader, localIPS[0].String())
+	headers.Set(httputils.ForwardedForHeader, localIP.String())
 
-	ws, _, err := websocket.DefaultDialer.Dial(url, headers)
+	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, headers)
 	if ws != nil {
-		defer func() {
-			log.Print(`WebSocket Connection ended`)
-			ws.Close()
-		}()
+		defer ws.Close()
 	}
 	if err != nil {
-		log.Printf(`Error while dialing to websocket %s: %v`, url, err)
+		log.Printf(`Error while dialing to websocket %s: %v`, a.websocketURL, err)
 		return
 	}
 
-	ws.WriteMessage(websocket.TextMessage, []byte(secretKey))
+	a.wsConn = ws
+	a.done = make(chan struct{})
 	log.Print(`Connection established`)
 
-	done := make(chan struct{})
-	input := make(chan []byte)
-	ping := make(chan int)
+	a.logger()
+	go a.pinger()
 
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			default:
-				time.Sleep(pingDelay)
-				ping <- 1
-			}
-		}
-	}()
+	input := make(chan []byte)
 
 	go func() {
 		for {
 			messageType, p, err := ws.ReadMessage()
 			if messageType == websocket.CloseMessage {
-				close(done)
+				close(a.done)
 				return
 			}
 
 			if err != nil {
-				log.Printf(`Error while reading from WebSocket: %v`, err)
-				close(done)
+				log.Printf(`Error while reading from websocket: %v`, err)
+				close(a.done)
 				return
 			}
 
 			if messageType == websocket.TextMessage {
-				input <- p
+				if bytes.HasPrefix(p, provider.ErrorPrefix) {
+					log.Printf(`Error received from API: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
+				} else {
+					input <- p
+				}
 			}
 		}
 	}()
 
 	for {
 		select {
-		case <-done:
-			close(ping)
+		case <-a.done:
 			close(input)
 			return
-		case <-ping:
-			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Printf(`Error while sending ping: %s`, err)
-				close(done)
-			}
 		case msg := <-input:
 			if bytes.Equal(msg, hue.StatusRequest) {
-				if lights, err := listLightsJSON(bridgeURL); err != nil && !writeTextMessage(ws, append(provider.ErrorPrefix, lights...)) {
-					close(done)
-				} else if !writeTextMessage(ws, append(hue.LightsPrefix, lights...)) {
-					close(done)
+				if lights, err := hue_worker.ListLightsJSON(a.bridgeURL); err != nil && !provider.WriteErrorMessage(ws, err) {
+					close(a.done)
+				} else if !a.writeTextMessage(append(hue.LightsPrefix, lights...)) {
+					close(a.done)
 				}
 			} else if state, ok := hue.States[string(msg)]; ok {
-				updateAllState(bridgeURL, state)
+				hue_worker.UpdateAllState(a.bridgeURL, state)
 			}
 		}
 	}
 }
 
 func main() {
-	bridgeIP := flag.String(`bridgeIP`, ``, `IP of Hue Bridge`)
-	username := flag.String(`username`, ``, `Username for Hue Bridge`)
-	websocketURL := flag.String(`websocket`, ``, `WebSocket URL`)
-	secretKey := flag.String(`secretKey`, ``, `Secret Key`)
-	state := flag.String(`state`, ``, `State to render`)
+	workerConfig := Flags(``)
 	flag.Parse()
 
-	if *websocketURL != `` {
-		connect(*websocketURL, getURL(*bridgeIP, *username), *secretKey)
-	} else if *state != `` {
-		updateAllState(getURL(*bridgeIP, *username), hue.States[*state])
-	}
+	app := NewApp(workerConfig)
+	app.connect()
 }

@@ -3,6 +3,7 @@ package hue
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -74,6 +75,24 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
+func (a *App) checkWorker(ws *websocket.Conn) bool {
+	messageType, p, err := ws.ReadMessage()
+	if err != nil {
+		provider.WriteErrorMessage(ws, fmt.Errorf(`Error while reading first message: %v`, err))
+		return false
+	}
+	if messageType != websocket.TextMessage {
+		provider.WriteErrorMessage(ws, errors.New(`First message should be a Text Message`))
+		return false
+	}
+	if string(p) != a.secretKey {
+		provider.WriteErrorMessage(ws, errors.New(`First message should be the Secret Key`))
+		return false
+	}
+
+	return true
+}
+
 // WebsocketHandler create Websockethandler
 func (a *App) WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +102,6 @@ func (a *App) WebsocketHandler() http.Handler {
 				a.wsConnexion = nil
 			}
 
-			log.Print(`WebSocket connection ended`)
 			defer ws.Close()
 		}
 		if err != nil {
@@ -91,17 +109,11 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
-		messageType, p, err := ws.ReadMessage()
-		if err != nil {
-			ws.WriteMessage(websocket.TextMessage, []byte(fmt.Errorf(`Error while reading first message: %v`, err).Error()))
-		} else if messageType != websocket.TextMessage {
-			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be a Text Message`))
-		} else if string(p) != a.secretKey {
-			ws.WriteMessage(websocket.TextMessage, []byte(`First message should be the Secret Key`))
+		if !a.checkWorker(ws) {
 			return
 		}
 
-		log.Printf(`New websocket connexion setted up from %s`, httputils.GetIP(r))
+		log.Printf(`Worker connection from %s and %s`, httputils.GetIP(r), ws.RemoteAddr())
 		if a.wsConnexion != nil {
 			a.wsConnexion.Close()
 		}
