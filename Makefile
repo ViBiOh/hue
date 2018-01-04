@@ -28,7 +28,7 @@ bench:
 
 build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot iot.go
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/hue-worker hue-worker/worker.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker worker/worker.go
 
 docker-deps:
 	curl -s -o cacert.pem https://curl.haxx.se/ca/cacert.pem

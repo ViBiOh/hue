@@ -13,15 +13,19 @@ import (
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/provider"
 	"github.com/gorilla/websocket"
 )
 
 const pingDelay = 60 * time.Second
 
-var states = map[string]string{
-	`off`:    `{"on":false,"transitiontime":30}`,
-	`dimmed`: `{"on":true,"transitiontime":30,"sat":0,"bri":0}`,
-	`bright`: `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
+func writeTextMessage(ws *websocket.Conn, content []byte) bool {
+	if err := ws.WriteMessage(websocket.TextMessage, content); err != nil {
+		log.Printf(`Error while writing text message %s: %v`, content, err)
+		return false
+	}
+
+	return true
 }
 
 func getURL(bridgeIP, username string) string {
@@ -46,6 +50,22 @@ func listLights(bridgeURL string) ([]hue.Light, error) {
 	}
 
 	return lights, nil
+}
+
+func listLightsJSON(bridgeURL string) ([]byte, error) {
+	lights, err := listLights(bridgeURL)
+	if err != nil {
+		err = fmt.Errorf(`Error while listing lights: %v`, err)
+		return nil, err
+	}
+
+	lightsJSON, err := json.Marshal(lights)
+	if err != nil {
+		err = fmt.Errorf(`Error while marshalling lights: %v`, err)
+		return nil, err
+	}
+
+	return lightsJSON, nil
 }
 
 func updateState(bridgeURL, light, state string) error {
@@ -141,6 +161,8 @@ func connect(url string, bridgeURL string, secretKey string) {
 	for {
 		select {
 		case <-done:
+			close(ping)
+			close(input)
 			return
 		case <-ping:
 			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
@@ -149,22 +171,12 @@ func connect(url string, bridgeURL string, secretKey string) {
 			}
 		case msg := <-input:
 			if bytes.Equal(msg, hue.StatusRequest) {
-				lights, err := listLights(bridgeURL)
-				if err != nil {
-					err = fmt.Errorf(`Error while listing lights: %v`, err)
-					log.Print(err)
-					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
+				if lights, err := listLightsJSON(bridgeURL); err != nil && !writeTextMessage(ws, append(provider.ErrorPrefix, lights...)) {
+					close(done)
+				} else if !writeTextMessage(ws, append(hue.LightsPrefix, lights...)) {
+					close(done)
 				}
-
-				lightsJSON, err := json.Marshal(lights)
-				if err != nil {
-					err = fmt.Errorf(`Error while marshalling lights: %v`, err)
-					log.Print(err)
-					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
-				}
-
-				ws.WriteMessage(websocket.TextMessage, append(hue.LightsPrefix, lightsJSON...))
-			} else if state, ok := states[string(msg)]; ok {
+			} else if state, ok := hue.States[string(msg)]; ok {
 				updateAllState(bridgeURL, state)
 			}
 		}
@@ -182,6 +194,6 @@ func main() {
 	if *websocketURL != `` {
 		connect(*websocketURL, getURL(*bridgeIP, *username), *secretKey)
 	} else if *state != `` {
-		updateAllState(getURL(*bridgeIP, *username), states[*state])
+		updateAllState(getURL(*bridgeIP, *username), hue.States[*state])
 	}
 }

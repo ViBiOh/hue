@@ -2,6 +2,9 @@ package provider
 
 import "net/http"
 
+// ErrorPrefix for sending back error
+var ErrorPrefix = []byte(`error `)
+
 // Message rendered to user
 type Message struct {
 	Level   string

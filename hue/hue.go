@@ -15,11 +15,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// LightsPrefix prefix for passing lights status
-var LightsPrefix = []byte(`lights `)
+var (
+	// LightsPrefix prefix for passing lights status
+	LightsPrefix = []byte(`lights `)
 
-// StatusRequest payload
-var StatusRequest = []byte(`status`)
+	// StatusRequest payload
+	StatusRequest = []byte(`status`)
+
+	// States available states of lights
+	States = map[string]string{
+		`off`:    `{"on":false,"transitiontime":30}`,
+		`dimmed`: `{"on":true,"transitiontime":30,"sat":0,"bri":0}`,
+		`bright`: `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
+	}
+)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -112,15 +121,17 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, []byte(LightsPrefix)) {
+				if bytes.HasPrefix(p, LightsPrefix) {
 					var lights []Light
-					jsonData := bytes.TrimPrefix(LightsPrefix, p)
+					jsonData := bytes.TrimPrefix(p, LightsPrefix)
 
 					if err := json.Unmarshal(jsonData, &lights); err != nil {
 						log.Printf(`Error while unmarshalling lights "%s": %v`, jsonData, err)
 					} else {
 						a.lights = lights
 					}
+				} else if bytes.HasPrefix(p, provider.ErrorPrefix) {
+					log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
 				}
 			}
 		}
