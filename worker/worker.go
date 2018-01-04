@@ -19,27 +19,25 @@ const pingDelay = 60 * time.Second
 
 // App stores informations and secret of API
 type App struct {
-	bridgeURL    string
 	websocketURL string
 	secretKey    string
+	hueApp       *hue_worker.App
 	done         chan struct{}
 	wsConn       *websocket.Conn
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) *App {
+func NewApp(config map[string]*string, hueApp *hue_worker.App) *App {
 	return &App{
-		bridgeURL:    hue_worker.GetURL(*config[`bridgeIP`], *config[`username`]),
 		websocketURL: *config[`websocketURL`],
 		secretKey:    *config[`secretKey`],
+		hueApp:       hueApp,
 	}
 }
 
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`bridgeIP`:     flag.String(tools.ToCamel(prefix+`bridgeIP`), ``, `[hue] IP of Bridge`),
-		`username`:     flag.String(tools.ToCamel(prefix+`username`), ``, `[hue] Username for Bridge`),
 		`websocketURL`: flag.String(tools.ToCamel(prefix+`websocket`), ``, `WebSocket URL`),
 		`secretKey`:    flag.String(tools.ToCamel(prefix+`secretKey`), ``, `Secret Key`),
 	}
@@ -137,17 +135,15 @@ func (a *App) connect() {
 			return
 		case msg := <-input:
 			if bytes.Equal(msg, hue.StatusRequest) {
-				if groups, err := hue_worker.GetGroupsJSON(a.bridgeURL); err != nil && !provider.WriteErrorMessage(ws, err) {
+				if groups, err := a.hueApp.GetGroupsJSON(); err != nil && !provider.WriteErrorMessage(ws, err) {
 					close(a.done)
 				} else if !a.writeTextMessage(append(hue.GroupsPrefix, groups...)) {
 					close(a.done)
 				}
 			} else {
-				parts := bytes.Split(msg, []byte(`|`))
-
-				if len(parts) == 2 {
+				if parts := bytes.Split(msg, []byte(`|`)); len(parts) == 2 {
 					if state, ok := hue.States[string(parts[1])]; ok {
-						hue_worker.UpdateGroupState(a.bridgeURL, string(parts[0]), state)
+						a.hueApp.UpdateGroupState(string(parts[0]), state)
 					}
 				}
 			}
@@ -157,8 +153,11 @@ func (a *App) connect() {
 
 func main() {
 	workerConfig := Flags(``)
+	hueConfig := hue_worker.Flags(``)
 	flag.Parse()
 
-	app := NewApp(workerConfig)
+	hueApp := hue_worker.NewApp(hueConfig)
+	app := NewApp(workerConfig, hueApp)
+
 	app.connect()
 }
