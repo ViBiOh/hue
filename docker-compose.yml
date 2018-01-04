@@ -46,8 +46,6 @@ services:
     - vibioh:admin,eponae:admin
     - -csp
     - default-src 'self'; style-src 'self' 'unsafe-inline'
-    - -wemoWebHook
-    - ${IFTTT_WEBHOOK_KEY}
     - -hueSecretKey
     - ${HUE_SECRET_KEY}
     - -netatmoAccessToken

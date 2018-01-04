@@ -54,8 +54,8 @@ func (a *App) writeTextMessage(content []byte) bool {
 	return true
 }
 
-func (a *App) logger() {
-	if a.writeTextMessage([]byte(a.secretKey)) {
+func (a *App) auth() {
+	if !a.writeTextMessage([]byte(a.secretKey)) {
 		close(a.done)
 	}
 }
@@ -101,7 +101,7 @@ func (a *App) connect() {
 	a.done = make(chan struct{})
 	log.Print(`Connection established`)
 
-	a.logger()
+	a.auth()
 	go a.pinger()
 
 	input := make(chan []byte)
@@ -137,13 +137,19 @@ func (a *App) connect() {
 			return
 		case msg := <-input:
 			if bytes.Equal(msg, hue.StatusRequest) {
-				if lights, err := hue_worker.ListLightsJSON(a.bridgeURL); err != nil && !provider.WriteErrorMessage(ws, err) {
+				if groups, err := hue_worker.GetGroupsJSON(a.bridgeURL); err != nil && !provider.WriteErrorMessage(ws, err) {
 					close(a.done)
-				} else if !a.writeTextMessage(append(hue.LightsPrefix, lights...)) {
+				} else if !a.writeTextMessage(append(hue.GroupsPrefix, groups...)) {
 					close(a.done)
 				}
-			} else if state, ok := hue.States[string(msg)]; ok {
-				hue_worker.UpdateAllState(a.bridgeURL, state)
+			} else {
+				parts := bytes.Split(msg, []byte(`|`))
+
+				if len(parts) == 2 {
+					if state, ok := hue.States[string(parts[1])]; ok {
+						hue_worker.UpdateGroupState(a.bridgeURL, string(parts[0]), state)
+					}
+				}
 			}
 		}
 	}

@@ -57,4 +57,12 @@ start-api:
 		-tls=false \
 		-authUrl http://localhost:1081 \
 		-authUsers admin:admin \
+		-hueSecretKey SECRET_KEY \
 		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
+
+start-worker:
+	go run worker/worker.go \
+		-websocket ws://localhost:1080/ws/hue \
+		-secretKey SECRET_KEY \
+		-username USERNAME \
+		-bridgeIP BRIDGE_IP

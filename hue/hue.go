@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
@@ -17,8 +16,8 @@ import (
 )
 
 var (
-	// LightsPrefix prefix for passing lights status
-	LightsPrefix = []byte(`lights `)
+	// GroupsPrefix prefix for dealing with groups
+	GroupsPrefix = []byte(`groups `)
 
 	// StatusRequest payload
 	StatusRequest = []byte(`status`)
@@ -26,8 +25,8 @@ var (
 	// States available states of lights
 	States = map[string]string{
 		`off`:    `{"on":false,"transitiontime":30}`,
+		`on`:     `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
 		`dimmed`: `{"on":true,"transitiontime":30,"sat":0,"bri":0}`,
-		`bright`: `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
 	}
 )
 
@@ -39,26 +38,34 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Data stores data fo renderer
-type Data struct {
-	Online bool
-	Status string
+// Group description
+type Group struct {
+	Name   string
+	OnOff  bool
+	Lights []string
+	State  struct {
+		On bool
+	}
 }
 
 // Light description
 type Light struct {
-	Name  string
-	State struct {
-		On bool
-	}
+	Type string
+}
+
+// Data stores data fo renderer
+type Data struct {
+	Online bool
+	Groups map[string]*Group
 }
 
 // App stores informations and secret of API
 type App struct {
 	secretKey   string
+	heaterGroup string
 	wsConnexion *websocket.Conn
 	renderer    provider.Renderer
-	lights      []Light
+	groups      map[string]*Group
 }
 
 // NewApp creates new App from Flags' config
@@ -113,7 +120,7 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
-		log.Printf(`Worker connection from %s and %s`, httputils.GetIP(r), ws.RemoteAddr())
+		log.Printf(`Worker connection from %s`, httputils.GetIP(r))
 		if a.wsConnexion != nil {
 			a.wsConnexion.Close()
 		}
@@ -128,19 +135,14 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if err != nil {
-				log.Print(err)
+				log.Printf(`Error while reading from websocket: %v`, err)
 				return
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, LightsPrefix) {
-					var lights []Light
-					jsonData := bytes.TrimPrefix(p, LightsPrefix)
-
-					if err := json.Unmarshal(jsonData, &lights); err != nil {
-						log.Printf(`Error while unmarshalling lights "%s": %v`, jsonData, err)
-					} else {
-						a.lights = lights
+				if bytes.HasPrefix(p, GroupsPrefix) {
+					if err := json.Unmarshal(bytes.TrimPrefix(p, GroupsPrefix), &a.groups); err != nil {
+						log.Printf(`Error while unmarshalling groups: %v`, err)
 					}
 				} else if bytes.HasPrefix(p, provider.ErrorPrefix) {
 					log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
@@ -157,13 +159,16 @@ func (a *App) Handler() http.Handler {
 			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Unknown command`})
 		} else if a.wsConnexion == nil {
 			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
-		} else {
-			event := strings.TrimPrefix(r.URL.Path, `/`)
-			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
+		} else if r.URL.Path == `/state` {
+			params := r.URL.Query()
+
+			group := params.Get(`group`)
+			state := params.Get(`value`)
+
+			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`%s|%s`, group, state))); err != nil {
 				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`Error while talking to Worker: %v`, err)})
 			} else {
-				a.wsConnexion.WriteMessage(websocket.TextMessage, StatusRequest)
-				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`Lights turned to %s`, event)})
+				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state)})
 			}
 		}
 	})
@@ -176,22 +181,8 @@ func (a *App) SetRenderer(r provider.Renderer) {
 
 // GetData return data provided to renderer
 func (a *App) GetData() interface{} {
-	data := &Data{
+	return &Data{
 		Online: a.wsConnexion != nil,
-		Status: ``,
+		Groups: a.groups,
 	}
-
-	if len(a.lights) == 0 {
-		return data
-	}
-
-	on := 0
-	for _, light := range a.lights {
-		if light.State.On {
-			on++
-		}
-	}
-
-	data.Status = fmt.Sprintf(`%d / %d`, on, len(a.lights))
-	return data
 }

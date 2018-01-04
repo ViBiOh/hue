@@ -69,6 +69,4 @@ Usage of iot:
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
-  -wemoWebHook string
-      [wemo] WebHook Key
 ```

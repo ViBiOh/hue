@@ -20,13 +20,11 @@ import (
 	"github.com/ViBiOh/iot/iot"
 	"github.com/ViBiOh/iot/netatmo"
 	"github.com/ViBiOh/iot/provider"
-	"github.com/ViBiOh/iot/wemo"
 )
 
 const (
 	websocketPath   = `/ws`
 	healthcheckPath = `/health`
-	wemoPath        = `/wemo`
 	huePath         = `/hue`
 )
 
@@ -36,7 +34,6 @@ var (
 
 	hueHandler   http.Handler
 	hueWsHandler http.Handler
-	wemoHandler  http.Handler
 )
 
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
@@ -45,8 +42,6 @@ func restHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, healthcheckPath) {
 			healthcheckHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, wemoPath) {
-			wemoHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
 		} else {
@@ -89,7 +84,6 @@ func main() {
 	corsConfig := cors.Flags(`cors`)
 
 	netatmoConfig := netatmo.Flags(`netatmo`)
-	wemoConfig := wemo.Flags(`wemo`)
 	hueConfig := hue.Flags(`hue`)
 
 	flag.Parse()
@@ -99,17 +93,14 @@ func main() {
 	log.Printf(`Starting server on port %s`, *port)
 
 	netatmoApp := netatmo.NewApp(netatmoConfig)
-	wemoApp := wemo.NewApp(wemoConfig)
 	hueApp := hue.NewApp(hueConfig)
 	iotApp := iot.NewApp(authConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
-		`Wemo`:    wemoApp,
 		`Hue`:     hueApp,
 	})
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	hueWsHandler = http.StripPrefix(huePath, hueApp.WebsocketHandler())
-	wemoHandler = http.StripPrefix(wemoPath, wemoApp.Handler())
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
