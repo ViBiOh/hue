@@ -133,7 +133,6 @@ func connect(url string, bridgeURL string, secretKey string) {
 			}
 
 			if messageType == websocket.TextMessage {
-				log.Printf(`Received event %s`, p)
 				input <- p
 			}
 		}

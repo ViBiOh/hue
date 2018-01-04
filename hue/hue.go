@@ -29,6 +29,12 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// Data stores data fo renderer
+type Data struct {
+	Online bool
+	Status string
+}
+
 // Light description
 type Light struct {
 	Name  string
@@ -130,8 +136,6 @@ func (a *App) Handler() http.Handler {
 			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
 		} else {
 			event := strings.TrimPrefix(r.URL.Path, `/`)
-			log.Printf(`Triggering event %s`, event)
-
 			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(event)); err != nil {
 				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`Error while talking to Worker: %v`, err)})
 			} else {
@@ -149,6 +153,15 @@ func (a *App) SetRenderer(r provider.Renderer) {
 
 // GetData return data provided to renderer
 func (a *App) GetData() interface{} {
+	data := &Data{
+		Online: a.wsConnexion != nil,
+		Status: ``,
+	}
+
+	if len(a.lights) == 0 {
+		return data
+	}
+
 	on := 0
 	for _, light := range a.lights {
 		if light.State.On {
@@ -156,5 +169,6 @@ func (a *App) GetData() interface{} {
 		}
 	}
 
-	return fmt.Sprintf(`%d / %d`, on, len(a.lights))
+	data.Status = fmt.Sprintf(`%d / %d`, on, len(a.lights))
+	return data
 }

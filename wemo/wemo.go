@@ -61,5 +61,5 @@ func (a *App) SetRenderer(r provider.Renderer) {
 
 // GetData return data provided to renderer
 func (a *App) GetData() interface{} {
-	return nil
+	return true
 }
