@@ -64,6 +64,7 @@ func (a *App) getGroups() (map[string]*hue.Group, error) {
 
 	for _, value := range groups {
 		value.OnOff = true
+		value.On = false
 
 		for _, lightID := range value.Lights {
 			light, err := a.getLight(lightID)
@@ -73,7 +74,9 @@ func (a *App) getGroups() (map[string]*hue.Group, error) {
 
 			if !strings.HasPrefix(light.Type, `On/Off`) {
 				value.OnOff = false
-				break
+			}
+			if light.State.On {
+				value.On = true
 			}
 		}
 	}

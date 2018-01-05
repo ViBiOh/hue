@@ -44,6 +44,7 @@ var upgrader = websocket.Upgrader{
 // Group description
 type Group struct {
 	Name   string
+	On     bool
 	OnOff  bool
 	Lights []string
 	State  struct {
@@ -53,7 +54,10 @@ type Group struct {
 
 // Light description
 type Light struct {
-	Type string
+	Type  string
+	State struct {
+		On bool
+	}
 }
 
 // Data stores data fo renderer
@@ -183,6 +187,7 @@ func (a *App) Handler() http.Handler {
 			if !a.writeWorker(append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...)) {
 				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `Error while talking to Worker`})
 			} else {
+				a.writeWorker(GroupsPrefix)
 				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state)})
 			}
 		}
