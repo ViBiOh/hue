@@ -17,17 +17,22 @@ import (
 
 const pingDelay = 60 * time.Second
 
+// WorkerApp app that plugs to worker
+type WorkerApp interface {
+	Handle([]byte) ([]byte, error)
+}
+
 // App stores informations and secret of API
 type App struct {
 	websocketURL string
 	secretKey    string
-	hueApp       *hue_worker.App
+	hueApp       WorkerApp
 	done         chan struct{}
 	wsConn       *websocket.Conn
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, hueApp *hue_worker.App) *App {
+func NewApp(config map[string]*string, hueApp WorkerApp) *App {
 	return &App{
 		websocketURL: *config[`websocketURL`],
 		secretKey:    *config[`secretKey`],
@@ -43,17 +48,8 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-func (a *App) writeTextMessage(content []byte) bool {
-	if err := a.wsConn.WriteMessage(websocket.TextMessage, content); err != nil {
-		log.Printf(`Error while writing text message %s: %v`, content, err)
-		return false
-	}
-
-	return true
-}
-
 func (a *App) auth() {
-	if !a.writeTextMessage([]byte(a.secretKey)) {
+	if !provider.WriteTextMessage(a.wsConn, []byte(a.secretKey)) {
 		close(a.done)
 	}
 }
@@ -133,19 +129,16 @@ func (a *App) connect() {
 		case <-a.done:
 			close(input)
 			return
-		case msg := <-input:
-			if bytes.Equal(msg, hue.StatusRequest) {
-				if groups, err := a.hueApp.GetGroupsJSON(); err != nil && !provider.WriteErrorMessage(ws, err) {
+		case p := <-input:
+			if bytes.HasPrefix(p, hue.WebSocketPrefix) {
+				output, err := a.hueApp.Handle(bytes.TrimPrefix(p, hue.WebSocketPrefix))
+				if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 					close(a.done)
-				} else if !a.writeTextMessage(append(hue.GroupsPrefix, groups...)) {
+				} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
 					close(a.done)
 				}
 			} else {
-				if parts := bytes.Split(msg, []byte(`|`)); len(parts) == 2 {
-					if state, ok := hue.States[string(parts[1])]; ok {
-						a.hueApp.UpdateGroupState(string(parts[0]), state)
-					}
-				}
+				log.Printf(`Unknown request: %s`, p)
 			}
 		}
 	}

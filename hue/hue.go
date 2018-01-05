@@ -16,11 +16,14 @@ import (
 )
 
 var (
-	// GroupsPrefix prefix for dealing with groups
+	// WebSocketPrefix ws message prefix for all hue commands
+	WebSocketPrefix = []byte(`hue `)
+
+	// GroupsPrefix ws message prefix for groups command
 	GroupsPrefix = []byte(`groups `)
 
-	// StatusRequest payload
-	StatusRequest = []byte(`status`)
+	// StatePrefix ws message prefix for state command
+	StatePrefix = []byte(`state `)
 
 	// States available states of lights
 	States = map[string]string{
@@ -63,7 +66,7 @@ type Data struct {
 type App struct {
 	secretKey   string
 	heaterGroup string
-	wsConnexion *websocket.Conn
+	wsConn      *websocket.Conn
 	renderer    provider.Renderer
 	groups      map[string]*Group
 }
@@ -100,14 +103,18 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	return true
 }
 
+func (a *App) writeWorker(content []byte) bool {
+	return !provider.WriteTextMessage(a.wsConn, append(WebSocketPrefix, content...))
+}
+
 // WebsocketHandler create Websockethandler
 func (a *App) WebsocketHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if ws != nil {
 			defer func() {
-				if a.wsConnexion == ws {
-					a.wsConnexion = nil
+				if a.wsConn == ws {
+					a.wsConn = nil
 				}
 
 				ws.Close()
@@ -123,12 +130,14 @@ func (a *App) WebsocketHandler() http.Handler {
 		}
 
 		log.Printf(`Worker connection from %s`, httputils.GetIP(r))
-		if a.wsConnexion != nil {
-			a.wsConnexion.Close()
+		if a.wsConn != nil {
+			a.wsConn.Close()
 		}
-		a.wsConnexion = ws
+		a.wsConn = ws
 
-		ws.WriteMessage(websocket.TextMessage, StatusRequest)
+		if !a.writeWorker(GroupsPrefix) {
+			return
+		}
 
 		for {
 			messageType, p, err := ws.ReadMessage()
@@ -159,7 +168,7 @@ func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Unknown command`})
-		} else if a.wsConnexion == nil {
+		} else if a.wsConn == nil {
 			a.renderer.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Worker is not listening`})
 		} else if r.URL.Path == `/state` {
 			params := r.URL.Query()
@@ -167,8 +176,8 @@ func (a *App) Handler() http.Handler {
 			group := params.Get(`group`)
 			state := params.Get(`value`)
 
-			if err := a.wsConnexion.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`%s|%s`, group, state))); err != nil {
-				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`Error while talking to Worker: %v`, err)})
+			if !a.writeWorker(append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...)) {
+				a.renderer.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `Error while talking to Worker`})
 			} else {
 				a.renderer.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state)})
 			}
@@ -184,7 +193,7 @@ func (a *App) SetRenderer(r provider.Renderer) {
 // GetData return data provided to renderer
 func (a *App) GetData() interface{} {
 	return &Data{
-		Online: a.wsConnexion != nil,
+		Online: a.wsConn != nil,
 		Groups: a.groups,
 	}
 }

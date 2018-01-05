@@ -112,3 +112,22 @@ func (a *App) UpdateGroupState(groupID, state string) error {
 
 	return nil
 }
+
+// Handle handle worker requests for Hue
+func (a *App) Handle(p []byte) ([]byte, error) {
+	if bytes.HasPrefix(p, hue.GroupsPrefix) {
+		groups, err := a.GetGroupsJSON()
+		if err != nil {
+			return nil, err
+		}
+		return append(hue.GroupsPrefix, groups...), nil
+	} else if bytes.HasPrefix(p, hue.StatePrefix) {
+		if parts := bytes.Split(bytes.TrimPrefix(p, hue.StatePrefix), []byte(`|`)); len(parts) == 2 {
+			if state, ok := hue.States[string(parts[1])]; ok {
+				return nil, a.UpdateGroupState(string(parts[0]), state)
+			}
+		}
+	}
+
+	return nil, fmt.Errorf(`Unknown request: %s`, p)
+}
