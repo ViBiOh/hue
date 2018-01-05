@@ -104,7 +104,7 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 }
 
 func (a *App) writeWorker(content []byte) bool {
-	return !provider.WriteTextMessage(a.wsConn, append(WebSocketPrefix, content...))
+	return provider.WriteTextMessage(a.wsConn, append(WebSocketPrefix, content...))
 }
 
 // WebsocketHandler create Websockethandler
