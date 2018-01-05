@@ -151,9 +151,13 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, GroupsPrefix) {
-					if err := json.Unmarshal(bytes.TrimPrefix(p, GroupsPrefix), &a.groups); err != nil {
-						log.Printf(`Error while unmarshalling groups: %v`, err)
+				if bytes.HasPrefix(p, WebSocketPrefix) {
+					payload := bytes.TrimPrefix(p, WebSocketPrefix)
+
+					if bytes.HasPrefix(payload, GroupsPrefix) {
+						if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &a.groups); err != nil {
+							log.Printf(`Error while unmarshalling groups: %v`, err)
+						}
 					}
 				} else if bytes.HasPrefix(p, provider.ErrorPrefix) {
 					log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
