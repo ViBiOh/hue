@@ -25,7 +25,10 @@ import (
 const (
 	websocketPath   = `/ws`
 	healthcheckPath = `/health`
+	faviconPath     = `/favicon`
 	huePath         = `/hue`
+
+	webDirectory = `./web`
 )
 
 var (
@@ -44,6 +47,8 @@ func restHandler() http.Handler {
 			healthcheckHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
+		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
+			http.ServeFile(w, r, webDirectory+r.URL.Path)
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
