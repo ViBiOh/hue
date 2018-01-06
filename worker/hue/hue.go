@@ -85,7 +85,7 @@ func (a *App) getGroups() (map[string]*hue.Group, error) {
 }
 
 // GetGroupsJSON get lists of groups in JSON
-func (a *App) GetGroupsJSON() ([]byte, error) {
+func (a *App) GetGroupsPayload() ([]byte, error) {
 	groups, err := a.getGroups()
 	if err != nil {
 		err = fmt.Errorf(`Error while listing groups: %v`, err)
@@ -98,7 +98,7 @@ func (a *App) GetGroupsJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	return groupsJSON, nil
+	return append(hue.GroupsPrefix, groupsJSON...), nil
 }
 
 // UpdateGroupState update state of group
@@ -119,16 +119,18 @@ func (a *App) UpdateGroupState(groupID, state string) error {
 // Handle handle worker requests for Hue
 func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
-		groups, err := a.GetGroupsJSON()
-		if err != nil {
-			return nil, err
-		}
-		return append(hue.GroupsPrefix, groups...), nil
+		return a.GetGroupsPayload()
 	} else if bytes.HasPrefix(p, hue.StatePrefix) {
 		if parts := bytes.Split(bytes.TrimPrefix(p, hue.StatePrefix), []byte(`|`)); len(parts) == 2 {
-			if state, ok := hue.States[string(parts[1])]; ok {
-				return nil, a.UpdateGroupState(string(parts[0]), state)
+			state, ok := hue.States[string(parts[1])]
+			if !ok {
+				return nil, fmt.Errorf(`Unknown state %s`, parts[1])
 			}
+
+			if err := a.UpdateGroupState(string(parts[0]), state); err != nil {
+				return nil, err
+			}
+			return a.GetGroupsPayload()
 		}
 	}
 
