@@ -41,8 +41,6 @@ Usage of iot:
       [owasp] X-Frame-Options (default "deny")
   -hsts
       [owasp] Indicate Strict Transport Security (default true)
-  -hueSecretKey string
-      [hue] Secret Key between worker and API
   -netatmoAccessToken string
       [netatmo] Access Token
   -netatmoClientID string
@@ -61,6 +59,8 @@ Usage of iot:
       [prometheus] Prefix (default "http")
   -rateCount uint
       [rate] IP limit (default 5000)
+  -secretKey string
+      [iot] Secret Key between worker and API
   -tls
       Serve TLS content (default true)
   -tlsCert string
