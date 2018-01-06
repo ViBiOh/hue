@@ -62,11 +62,11 @@ func (a *App) pinger() {
 		case <-a.done:
 			return
 		default:
-			if err := a.wsConn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Printf(`Error while sending ping to websocket: %v`, err)
-
+			output, err := a.hueApp.Handle(hue.GroupsPrefix)
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 				close(a.done)
-				return
+			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+				close(a.done)
 			}
 		}
 	}
