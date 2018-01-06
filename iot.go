@@ -33,10 +33,10 @@ const (
 
 var (
 	apiHandler http.Handler
-	iotHandler http.Handler
+	wsHandler  http.Handler
 
-	hueHandler   http.Handler
-	hueWsHandler http.Handler
+	iotHandler http.Handler
+	hueHandler http.Handler
 )
 
 var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
@@ -55,22 +55,10 @@ func restHandler() http.Handler {
 	})
 }
 
-func wsHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, huePath) {
-			hueWsHandler.ServeHTTP(w, r)
-		} else {
-			httputils.NotFound(w)
-		}
-	})
-}
-
 func handler() http.Handler {
-	websocket := http.StripPrefix(websocketPath, wsHandler())
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, websocketPath) {
-			websocket.ServeHTTP(w, r)
+			wsHandler.ServeHTTP(w, r)
 		} else {
 			apiHandler.ServeHTTP(w, r)
 		}
@@ -88,8 +76,8 @@ func main() {
 	owaspConfig := owasp.Flags(``)
 	corsConfig := cors.Flags(`cors`)
 
+	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
-	hueConfig := hue.Flags(`hue`)
 
 	flag.Parse()
 
@@ -98,15 +86,15 @@ func main() {
 	log.Printf(`Starting server on port %s`, *port)
 
 	netatmoApp := netatmo.NewApp(netatmoConfig)
-	hueApp := hue.NewApp(hueConfig)
-	iotApp := iot.NewApp(authConfig, map[string]provider.Provider{
+	hueApp := hue.NewApp()
+	iotApp := iot.NewApp(iotConfig, authConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 	})
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
-	hueWsHandler = http.StripPrefix(huePath, hueApp.WebsocketHandler())
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
+	wsHandler = http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{

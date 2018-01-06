@@ -76,17 +76,15 @@ func Flags(prefix string) map[string]*string {
 }
 
 func (a *App) refreshAccessToken() error {
-	log.Print(`Refreshing Netatmo Access Token`)
-
 	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+a.refreshToken+`&client_id=`+a.clientID+`&client_secret=`+a.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
 
 	if err != nil {
-		return fmt.Errorf(`Error while refreshing token: %v`, err)
+		return fmt.Errorf(`[netatmo] Error while refreshing token: %v`, err)
 	}
 
 	var token netatmoToken
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`Error while unmarshalling token: %v`, err)
+		return fmt.Errorf(`[netatmo] Error while unmarshalling token: %v`, err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -107,36 +105,46 @@ func (a *App) GetStationData() (*StationData, error) {
 		var netatmoErrorValue netatmoError
 
 		if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling error: %v`, err)
+			return nil, fmt.Errorf(`[netatmo] Error while unmarshalling error: %v`, err)
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
 			if err := a.refreshAccessToken(); err != nil {
-				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
+				return nil, fmt.Errorf(`[netatmo] Error while refreshing access token: %v`, err)
 			}
 			return a.GetStationData()
 		}
 
-		return nil, fmt.Errorf(`Error while getting data: %v`, err)
+		return nil, fmt.Errorf(`[netatmo] Error while getting data: %v`, err)
 	}
 
 	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data: %v`, err)
+		return nil, fmt.Errorf(`[netatmo] Error while unmarshalling data: %v`, err)
 	}
 
 	return &infos, nil
 }
 
-// SetRenderer handle store of Renderer
-func (a *App) SetRenderer(r provider.Renderer) {
+// SetHub receive Hub during init of it
+func (a *App) SetHub(provider.Hub) {
 }
 
-// GetData return data provided to renderer
+// GetWorkerPrefix get prefix of message in websocket
+func (a *App) GetWorkerPrefix() []byte {
+	return nil
+}
+
+// GetData return data for Dashboard rendering
 func (a *App) GetData() interface{} {
 	data, err := a.GetStationData()
 	if err != nil {
-		log.Printf(`Error while reading Netatmo data: %v`, err)
+		log.Printf(`[netatmo] Error while getting station data: %v`, err)
 	}
 
 	return data
+}
+
+// WorkerHandler handle commands receive from worker
+func (a *App) WorkerHandler(payload []byte) {
+	log.Printf(`[netatmo] Unknown worker command: %s`, payload)
 }

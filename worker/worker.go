@@ -56,8 +56,6 @@ func (a *App) auth() {
 
 func (a *App) pinger() {
 	for {
-		time.Sleep(pingDelay)
-
 		select {
 		case <-a.done:
 			return
@@ -69,6 +67,8 @@ func (a *App) pinger() {
 				close(a.done)
 			}
 		}
+
+		time.Sleep(pingDelay)
 	}
 }
 

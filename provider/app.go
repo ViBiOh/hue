@@ -18,12 +18,15 @@ type Message struct {
 
 // Provider for IoT
 type Provider interface {
-	SetRenderer(Renderer)
+	SetHub(Hub)
+	GetWorkerPrefix() []byte
 	GetData() interface{}
+	WorkerHandler([]byte)
 }
 
-// Renderer for rendering UI
-type Renderer interface {
+// Hub for rendering UI
+type Hub interface {
+	SendToWorker([]byte) bool
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
