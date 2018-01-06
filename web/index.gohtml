@@ -95,7 +95,7 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <title>My House</title>
+    <title>House</title>
     <meta charset="utf-8">
     <meta name="format-detection" content="telephone=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -116,12 +116,11 @@
       {{- if .Netatmo -}}
         {{- template "netatmo" .Netatmo -}}
       {{- end -}}
-      {{- if .Hue -}}
-        {{- if not .Hue.Online -}}
-          {{- template "worker-off" .Hue -}}
-        {{- else -}}
-          {{- template "hue" .Hue -}}
-        {{- end -}}
+
+      {{- if .Online -}}
+        {{- template "hue" .Hue -}}
+      {{- else -}}
+        {{- template "worker-off" .Hue -}}
       {{- end -}}
     </div>
 </html>
