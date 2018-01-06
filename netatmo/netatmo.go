@@ -11,8 +11,15 @@ import (
 	"github.com/ViBiOh/iot/provider"
 )
 
-const netatmoGetStationDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
-const netatmoRefreshTokenURL = `https://api.netatmo.com/oauth2/token`
+const (
+	netatmoGetStationDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
+	netatmoRefreshTokenURL   = `https://api.netatmo.com/oauth2/token`
+)
+
+var (
+	// WebSocketPrefix ws message prefix for all hue commands
+	WebSocketPrefix = []byte(`netatmo `)
+)
 
 // StationData contains data retrieved when getting stations datas
 type StationData struct {
@@ -131,7 +138,7 @@ func (a *App) SetHub(provider.Hub) {
 
 // GetWorkerPrefix get prefix of message in websocket
 func (a *App) GetWorkerPrefix() []byte {
-	return nil
+	return WebSocketPrefix
 }
 
 // GetData return data for Dashboard rendering
