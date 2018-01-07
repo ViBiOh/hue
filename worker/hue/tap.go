@@ -1,7 +1,6 @@
 package hue
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -23,26 +22,6 @@ type tapButton struct {
 	OffRule *rule
 }
 
-type rule struct {
-	ID         string
-	Status     string
-	Name       string
-	Actions    []*ruleAction
-	Conditions []*ruleCondition
-}
-
-type ruleAction struct {
-	Address string
-	Body    map[string]interface{}
-	Method  string
-}
-
-type ruleCondition struct {
-	Address  string
-	Operator string
-	Value    string
-}
-
 var (
 	tapButtonMapping = map[string]string{
 		`1`: `34`,
@@ -55,15 +34,15 @@ var (
 func (a *App) listRulesOfSensor(tapID string) (map[string]*rule, error) {
 	content, err := httputils.GetRequest(a.bridgeURL+`/rules`, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting rules from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while getting rules: %v`, err)
 	}
 
 	var rawRules map[string]*rule
 	if err := json.Unmarshal(content, &rawRules); err != nil {
-		return nil, fmt.Errorf(`Error while parsing rules from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while parsing rules: %v`, err)
 	}
 
-	var rules map[string]*rule
+	rules := make(map[string]*rule)
 	addressCondition := fmt.Sprintf(`/sensors/%s`, tapID)
 
 	for id, r := range rawRules {
@@ -84,46 +63,26 @@ func (a *App) listRulesOfSensor(tapID string) (map[string]*rule, error) {
 	return rules, nil
 }
 
-func (a *App) createRule(r *rule) error {
-	content, err := httputils.RequestJSON(a.bridgeURL+`/rules`, r, nil, http.MethodPost)
-	if err != nil || !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while creating rule: %s`, err)
-	}
-
-	var response []map[string]map[string]string
-	if err := json.Unmarshal(content, &response); err != nil {
-		return fmt.Errorf(`Error while unmarshalling create rule response: %s`, err)
-	}
-
-	r.ID = response[0][`success`][`id`]
-
-	return nil
-}
-
-func (a *App) updateRule(r *rule) error {
-	content, err := httputils.RequestJSON(a.bridgeURL+`/rules/`+r.ID, r, nil, http.MethodPut)
-	if err != nil || !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while creating rule: %s`, err)
-	}
-
-	var response []map[string]map[string]string
-	if err := json.Unmarshal(content, &response); err != nil {
-		return fmt.Errorf(`Error while unmarshalling create rule response: %s`, err)
-	}
-
-	r.ID = response[0][`success`][`id`]
-
-	return nil
-}
-
 func (a *App) createRuleDescription(button *tapButton, on bool) *rule {
 	name := `On`
+	status := `enabled`
+	body := map[string]interface{}{
+		`on`:             true,
+		`transitiontime`: 30,
+		`sat`:            0,
+		`bri`:            254,
+	}
+
 	if !on {
 		name = `Off`
+		status = `disabled`
+		body = map[string]interface{}{
+			`on`: false,
+		}
 	}
 
 	newRule := &rule{
-		Status: `disabled`,
+		Status: status,
 		Name:   fmt.Sprintf(`Tap %s.%s - %s`, a.tap.ID, button.ID, name),
 		Conditions: []*ruleCondition{
 			&ruleCondition{
@@ -139,40 +98,11 @@ func (a *App) createRuleDescription(button *tapButton, on bool) *rule {
 		newRule.Actions[index] = &ruleAction{
 			Address: fmt.Sprintf(`/groups/%s/action`, group),
 			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`on`:             on,
-				`transitiontime`: 30,
-				`sat`:            0,
-				`bri`:            254,
-			},
+			Body:    body,
 		}
 	}
 
 	return newRule
-}
-
-func (a *App) deleteRule(id string) error {
-	if _, err := httputils.Request(a.bridgeURL+`/rules+`+id, nil, nil, http.MethodDelete); err != nil {
-		return fmt.Errorf(`Error while deleting rule from bridge: %v`, err)
-	}
-
-	return nil
-}
-
-func (a *App) cleanRules() error {
-	rules, err := a.listRulesOfSensor(a.tap.ID)
-
-	if err != nil {
-		return fmt.Errorf(`Error while listing rules: %v`, err)
-	}
-
-	for key := range rules {
-		if err := a.deleteRule(key); err != nil {
-			return fmt.Errorf(`Error while deleting rule: %v`, err)
-		}
-	}
-
-	return nil
 }
 
 func (a *App) configureTap() {
@@ -192,35 +122,41 @@ func (a *App) configureTap() {
 			log.Printf(`[hue] Error while creating off rule: %v`, err)
 		}
 
+		off.Actions = append(off.Actions, &ruleAction{
+			Address: fmt.Sprintf(`/rules/%s`, off.ID),
+			Method:  http.MethodPut,
+			Body: map[string]interface{}{
+				`status`: `disabled`,
+			},
+		}, &ruleAction{
+			Address: fmt.Sprintf(`/rules/%s`, on.ID),
+			Method:  http.MethodPut,
+			Body: map[string]interface{}{
+				`status`: `enabled`,
+			},
+		})
+		if err := a.updateRule(off); err != nil {
+			log.Printf(`[hue] Error while updating off rule: %v`, err)
+		}
+
+		on.Actions = append(on.Actions, &ruleAction{
+			Address: fmt.Sprintf(`/rules/%s`, on.ID),
+			Method:  http.MethodPut,
+			Body: map[string]interface{}{
+				`status`: `disabled`,
+			},
+		}, &ruleAction{
+			Address: fmt.Sprintf(`/rules/%s`, off.ID),
+			Method:  http.MethodPut,
+			Body: map[string]interface{}{
+				`status`: `enabled`,
+			},
+		})
+		if err := a.updateRule(on); err != nil {
+			log.Printf(`[hue] Error while updating on rule: %v`, err)
+		}
+
 		button.OnRule = on
 		button.OffRule = off
-
-		button.OnRule.Actions = append(button.OnRule.Actions, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, button.OnRule.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `disabled`,
-			},
-		}, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, button.OffRule.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `enabled`,
-			},
-		})
-
-		button.OffRule.Actions = append(button.OffRule.Actions, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, button.OffRule.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `disabled`,
-			},
-		}, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, button.OnRule.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `enabled`,
-			},
-		})
 	}
 }

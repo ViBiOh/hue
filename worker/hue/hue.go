@@ -35,6 +35,10 @@ func NewApp(config map[string]*string) (*App, error) {
 		if err := json.Unmarshal(rawTapConfig, &app.tap); err != nil {
 			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
 		}
+
+		app.cleanSchedules()
+		app.cleanScenes()
+		app.configureTap()
 	}
 
 	return app, nil
@@ -56,12 +60,12 @@ func getURL(bridgeIP, username string) string {
 func (a *App) getLight(lightID string) (*hue.Light, error) {
 	content, err := httputils.GetRequest(a.bridgeURL+`/lights/`+lightID, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting light from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while getting light: %v`, err)
 	}
 
 	var light hue.Light
 	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, fmt.Errorf(`Error while parsing light data from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while parsing light data: %v`, err)
 	}
 
 	return &light, nil
@@ -70,12 +74,12 @@ func (a *App) getLight(lightID string) (*hue.Light, error) {
 func (a *App) getGroups() (map[string]*hue.Group, error) {
 	content, err := httputils.GetRequest(a.bridgeURL+`/groups`, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting groups from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while getting groups: %v`, err)
 	}
 
 	var groups map[string]*hue.Group
 	if err := json.Unmarshal(content, &groups); err != nil {
-		return nil, fmt.Errorf(`Error while parsing groups from bridge: %v`, err)
+		return nil, fmt.Errorf(`Error while parsing groups: %v`, err)
 	}
 
 	for _, value := range groups {
