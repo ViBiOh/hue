@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
@@ -83,7 +84,7 @@ func Flags(prefix string) map[string]*string {
 }
 
 func (a *App) refreshAccessToken() error {
-	rawData, err := httputils.PostBody(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+a.refreshToken+`&client_id=`+a.clientID+`&client_secret=`+a.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`})
+	rawData, err := httputils.Request(netatmoRefreshTokenURL, []byte(`grant_type=refresh_token&refresh_token=`+a.refreshToken+`&client_id=`+a.clientID+`&client_secret=`+a.clientSecret), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
 
 	if err != nil {
 		return fmt.Errorf(`[netatmo] Error while refreshing token: %v`, err)
@@ -107,7 +108,7 @@ func (a *App) GetStationData() (*StationData, error) {
 
 	var infos StationData
 
-	rawData, err := httputils.GetBody(netatmoGetStationDataURL+a.accessToken, nil)
+	rawData, err := httputils.GetRequest(netatmoGetStationDataURL+a.accessToken, nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 

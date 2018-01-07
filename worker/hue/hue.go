@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -16,20 +17,35 @@ import (
 // App stores informations and secret of API
 type App struct {
 	bridgeURL string
+	tap       *tapConfig
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) *App {
-	return &App{
+func NewApp(config map[string]*string) (*App, error) {
+	app := &App{
 		bridgeURL: getURL(*config[`bridgeIP`], *config[`username`]),
 	}
+
+	if *config[`tapConfig`] != `` {
+		rawTapConfig, err := ioutil.ReadFile(*config[`tapConfig`])
+		if err != nil {
+			return nil, fmt.Errorf(`Error while reading tap config filename: %v`, err)
+		}
+
+		if err := json.Unmarshal(rawTapConfig, &app.tap); err != nil {
+			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
+		}
+	}
+
+	return app, nil
 }
 
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`bridgeIP`: flag.String(tools.ToCamel(prefix+`bridgeIP`), ``, `[hue] IP of Bridge`),
-		`username`: flag.String(tools.ToCamel(prefix+`username`), ``, `[hue] Username for Bridge`),
+		`bridgeIP`:  flag.String(tools.ToCamel(prefix+`BridgeIP`), ``, `[hue] IP of Bridge`),
+		`username`:  flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
+		`tapConfig`: flag.String(tools.ToCamel(prefix+`TapConfig`), ``, `[hue] Tap configuration filename`),
 	}
 }
 
@@ -38,7 +54,7 @@ func getURL(bridgeIP, username string) string {
 }
 
 func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := httputils.GetBody(a.bridgeURL+`/lights/`+lightID, nil)
+	content, err := httputils.GetRequest(a.bridgeURL+`/lights/`+lightID, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting light from bridge: %v`, err)
 	}
@@ -52,7 +68,7 @@ func (a *App) getLight(lightID string) (*hue.Light, error) {
 }
 
 func (a *App) getGroups() (map[string]*hue.Group, error) {
-	content, err := httputils.GetBody(a.bridgeURL+`/groups`, nil)
+	content, err := httputils.GetRequest(a.bridgeURL+`/groups`, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting groups from bridge: %v`, err)
 	}
@@ -84,7 +100,7 @@ func (a *App) getGroups() (map[string]*hue.Group, error) {
 	return groups, nil
 }
 
-// GetGroupsJSON get lists of groups in JSON
+// GetGroupsPayload get lists of groups in websocket format
 func (a *App) GetGroupsPayload() ([]byte, error) {
 	groups, err := a.getGroups()
 	if err != nil {
@@ -103,7 +119,7 @@ func (a *App) GetGroupsPayload() ([]byte, error) {
 
 // UpdateGroupState update state of group
 func (a *App) UpdateGroupState(groupID, state string) error {
-	content, err := httputils.MethodBody(a.bridgeURL+`/groups/`+groupID+`/action`, []byte(state), nil, http.MethodPut)
+	content, err := httputils.Request(a.bridgeURL+`/groups/`+groupID+`/action`, []byte(state), nil, http.MethodPut)
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending data to bridge: %v`, err)

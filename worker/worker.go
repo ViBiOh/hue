@@ -149,7 +149,11 @@ func main() {
 	hueConfig := hue_worker.Flags(``)
 	flag.Parse()
 
-	hueApp := hue_worker.NewApp(hueConfig)
+	hueApp, err := hue_worker.NewApp(hueConfig)
+	if err != nil {
+		log.Fatalf(`Error while creating hue app: %s`, err)
+	}
+
 	app := NewApp(workerConfig, hueApp)
 
 	app.connect()
