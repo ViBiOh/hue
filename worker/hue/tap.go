@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/ViBiOh/iot/hue"
 )
 
 type tapConfig struct {
@@ -12,10 +14,10 @@ type tapConfig struct {
 }
 
 type tapButton struct {
-	ID      string
-	Groups  []string
-	OnRule  *rule
-	OffRule *rule
+	ID     string
+	State  string
+	Groups []string
+	Rule   *rule
 }
 
 var (
@@ -27,27 +29,10 @@ var (
 	}
 )
 
-func (a *App) createRuleDescription(button *tapButton, on bool) *rule {
-	name := `On`
-	status := `enabled`
-	body := map[string]interface{}{
-		`on`:             true,
-		`transitiontime`: 30,
-		`sat`:            0,
-		`bri`:            254,
-	}
-
-	if !on {
-		name = `Off`
-		status = `disabled`
-		body = map[string]interface{}{
-			`on`: false,
-		}
-	}
-
+func (a *App) createRuleDescription(button *tapButton) *rule {
 	newRule := &rule{
-		Status: status,
-		Name:   fmt.Sprintf(`Tap %s.%s - %s`, a.tap.ID, button.ID, name),
+		Status: `enabled`,
+		Name:   fmt.Sprintf(`Tap %s.%s`, a.tap.ID, button.ID),
 		Conditions: []*ruleCondition{
 			&ruleCondition{
 				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, a.tap.ID),
@@ -62,7 +47,7 @@ func (a *App) createRuleDescription(button *tapButton, on bool) *rule {
 		newRule.Actions[index] = &ruleAction{
 			Address: fmt.Sprintf(`/groups/%s/action`, group),
 			Method:  http.MethodPut,
-			Body:    body,
+			Body:    hue.States[button.State],
 		}
 	}
 
@@ -75,52 +60,10 @@ func (a *App) configureTap() {
 	}
 
 	for _, button := range a.tap.Buttons {
-		on := a.createRuleDescription(button, true)
-		if err := a.createRule(on); err != nil {
-			log.Printf(`[hue] Error while creating on rule: %v`, err)
+		button.Rule = a.createRuleDescription(button)
+		if err := a.createRule(button.Rule); err != nil {
+			log.Printf(`[hue] Error while creating rule: %v`, err)
 			return
 		}
-
-		off := a.createRuleDescription(button, false)
-		if err := a.createRule(off); err != nil {
-			log.Printf(`[hue] Error while creating off rule: %v`, err)
-		}
-
-		off.Actions = append(off.Actions, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, off.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `disabled`,
-			},
-		}, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, on.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `enabled`,
-			},
-		})
-		if err := a.updateRule(off); err != nil {
-			log.Printf(`[hue] Error while updating off rule: %v`, err)
-		}
-
-		on.Actions = append(on.Actions, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, on.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `disabled`,
-			},
-		}, &ruleAction{
-			Address: fmt.Sprintf(`/rules/%s`, off.ID),
-			Method:  http.MethodPut,
-			Body: map[string]interface{}{
-				`status`: `enabled`,
-			},
-		})
-		if err := a.updateRule(on); err != nil {
-			log.Printf(`[hue] Error while updating on rule: %v`, err)
-		}
-
-		button.OnRule = on
-		button.OffRule = off
 	}
 }

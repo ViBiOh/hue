@@ -21,10 +21,23 @@ var (
 	StatePrefix = []byte(`state `)
 
 	// States available states of lights
-	States = map[string]string{
-		`off`:    `{"on":false,"transitiontime":30}`,
-		`on`:     `{"on":true,"transitiontime":30,"sat":0,"bri":254}`,
-		`dimmed`: `{"on":true,"transitiontime":30,"sat":0,"bri":0}`,
+	States = map[string]map[string]interface{}{
+		`off`: {
+			`on`:             false,
+			`transitiontime`: 30,
+		},
+		`on`: {
+			`on`:             true,
+			`transitiontime`: 30,
+			`sat`:            0,
+			`bri`:            254,
+		},
+		`dimmed`: {
+			`on`:             true,
+			`transitiontime`: 30,
+			`sat`:            0,
+			`bri`:            0,
+		},
 	}
 )
 

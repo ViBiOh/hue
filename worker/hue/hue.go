@@ -127,8 +127,8 @@ func (a *App) GetGroupsPayload() ([]byte, error) {
 }
 
 // UpdateGroupState update state of group
-func (a *App) UpdateGroupState(groupID, state string) error {
-	content, err := httputils.Request(a.bridgeURL+`/groups/`+groupID+`/action`, []byte(state), nil, http.MethodPut)
+func (a *App) UpdateGroupState(groupID string, state map[string]interface{}) error {
+	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/groups/%s/action`, a.bridgeURL, groupID), state, nil, http.MethodPut)
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending data to bridge: %v`, err)
