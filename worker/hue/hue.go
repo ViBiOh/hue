@@ -54,7 +54,7 @@ func Flags(prefix string) map[string]interface{} {
 		`bridgeIP`:  flag.String(tools.ToCamel(prefix+`BridgeIP`), ``, `[hue] IP of Bridge`),
 		`username`:  flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
 		`tapConfig`: flag.String(tools.ToCamel(prefix+`TapConfig`), ``, `[hue] Tap configuration filename`),
-		`clean`:     flag.String(tools.ToCamel(prefix+`Clean`), ``, `[hue] Clean Hue`),
+		`clean`:     flag.Bool(tools.ToCamel(prefix+`Clean`), false, `[hue] Clean Hue`),
 	}
 }
 
