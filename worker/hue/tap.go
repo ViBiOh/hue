@@ -31,8 +31,7 @@ var (
 
 func (a *App) createRuleDescription(button *tapButton) *rule {
 	newRule := &rule{
-		Status: `enabled`,
-		Name:   fmt.Sprintf(`Tap %s.%s`, a.tap.ID, button.ID),
+		Name: fmt.Sprintf(`Tap %s.%s`, a.tap.ID, button.ID),
 		Conditions: []*ruleCondition{
 			&ruleCondition{
 				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, a.tap.ID),
