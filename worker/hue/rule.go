@@ -29,6 +29,20 @@ type ruleCondition struct {
 	Value    string `json:"value,omitempty"`
 }
 
+func (a *App) listRules() (map[string]*rule, error) {
+	content, err := httputils.GetRequest(a.bridgeURL+`/rules`, nil)
+	if err != nil {
+		return nil, fmt.Errorf(`Error while getting rules: %v`, err)
+	}
+
+	var rules map[string]*rule
+	if err := json.Unmarshal(content, &rules); err != nil {
+		return nil, fmt.Errorf(`Error while parsing rules: %v`, err)
+	}
+
+	return rules, nil
+}
+
 func (a *App) createRule(r *rule) error {
 	content, err := httputils.RequestJSON(a.bridgeURL+`/rules`, r, nil, http.MethodPost)
 	if err != nil {
@@ -73,7 +87,7 @@ func (a *App) deleteRule(id string) error {
 }
 
 func (a *App) cleanRules() error {
-	rules, err := a.listRulesOfSensor(a.tap.ID)
+	rules, err := a.listRules()
 	if err != nil {
 		return fmt.Errorf(`Error while listing rules: %v`, err)
 	}

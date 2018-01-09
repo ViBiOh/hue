@@ -1,13 +1,9 @@
 package hue
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/ViBiOh/httputils"
 )
 
 type tapConfig struct {
@@ -30,38 +26,6 @@ var (
 		`4`: `18`,
 	}
 )
-
-func (a *App) listRulesOfSensor(tapID string) (map[string]*rule, error) {
-	content, err := httputils.GetRequest(a.bridgeURL+`/rules`, nil)
-	if err != nil {
-		return nil, fmt.Errorf(`Error while getting rules: %v`, err)
-	}
-
-	var rawRules map[string]*rule
-	if err := json.Unmarshal(content, &rawRules); err != nil {
-		return nil, fmt.Errorf(`Error while parsing rules: %v`, err)
-	}
-
-	rules := make(map[string]*rule)
-	addressCondition := fmt.Sprintf(`/sensors/%s`, tapID)
-
-	for id, r := range rawRules {
-		match := false
-
-		for _, condition := range r.Conditions {
-			if strings.Contains(condition.Address, addressCondition) {
-				match = true
-				break
-			}
-		}
-
-		if match {
-			rules[id] = r
-		}
-	}
-
-	return rules, nil
-}
 
 func (a *App) createRuleDescription(button *tapButton, on bool) *rule {
 	name := `On`

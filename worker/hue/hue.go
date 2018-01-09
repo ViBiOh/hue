@@ -21,13 +21,19 @@ type App struct {
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) (*App, error) {
+func NewApp(config map[string]interface{}) (*App, error) {
 	app := &App{
-		bridgeURL: getURL(*config[`bridgeIP`], *config[`username`]),
+		bridgeURL: getURL(*config[`bridgeIP`].(*string), *config[`username`].(*string)),
 	}
 
-	if *config[`tapConfig`] != `` {
-		rawTapConfig, err := ioutil.ReadFile(*config[`tapConfig`])
+	if *config[`clean`].(*bool) {
+		app.cleanSchedules()
+		app.cleanScenes()
+		app.cleanRules()
+	}
+
+	if *config[`tapConfig`].(*string) != `` {
+		rawTapConfig, err := ioutil.ReadFile(*config[`tapConfig`].(*string))
 		if err != nil {
 			return nil, fmt.Errorf(`Error while reading tap config filename: %v`, err)
 		}
@@ -36,8 +42,6 @@ func NewApp(config map[string]*string) (*App, error) {
 			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
 		}
 
-		app.cleanSchedules()
-		app.cleanScenes()
 		app.configureTap()
 	}
 
@@ -45,11 +49,12 @@ func NewApp(config map[string]*string) (*App, error) {
 }
 
 // Flags add flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
+func Flags(prefix string) map[string]interface{} {
+	return map[string]interface{}{
 		`bridgeIP`:  flag.String(tools.ToCamel(prefix+`BridgeIP`), ``, `[hue] IP of Bridge`),
 		`username`:  flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
 		`tapConfig`: flag.String(tools.ToCamel(prefix+`TapConfig`), ``, `[hue] Tap configuration filename`),
+		`clean`:     flag.String(tools.ToCamel(prefix+`Clean`), ``, `[hue] Clean Hue`),
 	}
 }
 
