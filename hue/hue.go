@@ -46,17 +46,21 @@ type Group struct {
 	Name   string
 	OnOff  bool
 	Lights []string
-	State  struct {
-		AnyOn bool `json:"any_on"`
-	}
+	State  *groupState
+}
+
+type groupState struct {
+	AnyOn bool `json:"any_on"`
 }
 
 // Light description
 type Light struct {
 	Type  string
-	State struct {
-		On bool
-	}
+	State *lightState
+}
+
+type lightState struct {
+	On bool
 }
 
 // Data stores data fo hub
