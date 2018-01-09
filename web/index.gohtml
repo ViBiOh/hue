@@ -86,7 +86,7 @@
           </a>
         {{- end -}}
       </div>
-      <div class="header center {{ if $group.On -}}success{{- end -}}">Currently {{ if $group.On -}}On{{- else -}}Off{{- end -}}</div>
+      <div class="header center {{ if $group.State.AnyOn -}}success{{- end -}}">Currently {{ if $group.State.AnyOn -}}On{{- else -}}Off{{- end -}}</div>
     </span>
   {{- end -}}
 {{- end -}}

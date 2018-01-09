@@ -44,11 +44,10 @@ var (
 // Group description
 type Group struct {
 	Name   string
-	On     bool
 	OnOff  bool
 	Lights []string
 	State  struct {
-		On bool
+		AnyOn bool `json:"any_on"`
 	}
 }
 
