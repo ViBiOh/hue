@@ -38,15 +38,21 @@ var (
 			`sat`:            0,
 			`bri`:            0,
 		},
+		`long_on`: {
+			`on`:             true,
+			`transitiontime`: 300,
+			`sat`:            0,
+			`bri`:            254,
+		},
 	}
 )
 
 // Group description
 type Group struct {
-	Name   string
-	OnOff  bool
-	Lights []string
-	State  *groupState
+	Name   string      `json:"name"`
+	OnOff  bool        `json:"-"`
+	Lights []string    `json:"lights"`
+	State  *groupState `json:"state"`
 }
 
 type groupState struct {
@@ -55,12 +61,27 @@ type groupState struct {
 
 // Light description
 type Light struct {
-	Type  string
-	State *lightState
+	Type  string      `json:"type"`
+	State *lightState `json:"state"`
 }
 
 type lightState struct {
-	On bool
+	On bool `json:"on"`
+}
+
+// Scene description
+type Scene struct {
+	ID     string   `json:"-"`
+	Name   string   `json:"name"`
+	Lights []string `json:"lights"`
+}
+
+// Schedule description
+type Schedule struct {
+	ID        string   `json:"-"`
+	Name      string   `json:"name"`
+	Localtime string   `json:"localtime"`
+	Lights    []string `json:"lights"`
 }
 
 // Data stores data fo hub

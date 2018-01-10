@@ -10,7 +10,7 @@ import (
 )
 
 func (a *App) listScenes() (map[string]interface{}, error) {
-	content, err := httputils.GetRequest(a.bridgeURL+`/scenes`, nil)
+	content, err := httputils.GetRequest(fmt.Sprintf(`%s/scenes`, a.bridgeURL), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting scenes: %v`, err)
 	}
@@ -24,7 +24,7 @@ func (a *App) listScenes() (map[string]interface{}, error) {
 }
 
 func (a *App) deleteScene(id string) error {
-	content, err := httputils.Request(a.bridgeURL+`/scenes/`+id, nil, nil, http.MethodDelete)
+	content, err := httputils.Request(fmt.Sprintf(`%s/scenes/%s`, a.bridgeURL, id), nil, nil, http.MethodDelete)
 	if err != nil {
 		return fmt.Errorf(`Error while deleting scene: %v`, err)
 	}

@@ -146,7 +146,7 @@ func (a *App) connect() {
 
 func main() {
 	workerConfig := Flags(``)
-	hueConfig := hue_worker.Flags(``)
+	hueConfig := hue_worker.Flags(`hue`)
 	flag.Parse()
 
 	hueApp, err := hue_worker.NewApp(hueConfig)

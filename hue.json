@@ -1,0 +1,33 @@
+{
+  "schedules": [{
+    "name": "Wake Up",
+    "localtime": "W124/T22:07:00",
+    "group": "2",
+    "state": "long_on"
+  }],
+  "taps": [{
+    "id": "2",
+    "buttons": [
+      {
+        "id": "1",
+        "state": "off",
+        "groups": ["1", "2"]
+      },
+      {
+        "id": "2",
+        "state": "on",
+        "groups": ["1"]
+      },
+      {
+        "id": "3",
+        "state": "on",
+        "groups": ["3"]
+      },
+      {
+        "id": "4",
+        "state": "on",
+        "groups": ["2"]
+      }
+    ]
+  }]
+}

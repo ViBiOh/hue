@@ -29,12 +29,12 @@ var (
 	}
 )
 
-func (a *App) createRuleDescription(button *tapButton) *rule {
+func (a *App) createRuleDescription(tapID string, button *tapButton) *rule {
 	newRule := &rule{
-		Name: fmt.Sprintf(`Tap %s.%s`, a.tap.ID, button.ID),
+		Name: fmt.Sprintf(`Tap %s.%s`, tapID, button.ID),
 		Conditions: []*ruleCondition{
 			&ruleCondition{
-				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, a.tap.ID),
+				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, tapID),
 				Operator: `eq`,
 				Value:    tapButtonMapping[button.ID],
 			},
@@ -53,16 +53,13 @@ func (a *App) createRuleDescription(button *tapButton) *rule {
 	return newRule
 }
 
-func (a *App) configureTap() {
-	if err := a.cleanRules(); err != nil {
-		log.Printf(`[hue] Error while cleaning rules: %v`, err)
-	}
-
-	for _, button := range a.tap.Buttons {
-		button.Rule = a.createRuleDescription(button)
-		if err := a.createRule(button.Rule); err != nil {
-			log.Printf(`[hue] Error while creating rule: %v`, err)
-			return
+func (a *App) configureTap(taps []*tapConfig) {
+	for _, tap := range taps {
+		for _, button := range tap.Buttons {
+			button.Rule = a.createRuleDescription(tap.ID, button)
+			if err := a.createRule(button.Rule); err != nil {
+				log.Printf(`[hue] Error while creating rule: %v`, err)
+			}
 		}
 	}
 }

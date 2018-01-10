@@ -30,7 +30,7 @@ type ruleCondition struct {
 }
 
 func (a *App) listRules() (map[string]*rule, error) {
-	content, err := httputils.GetRequest(a.bridgeURL+`/rules`, nil)
+	content, err := httputils.GetRequest(fmt.Sprintf(`%s/rules`, a.bridgeURL), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting rules: %v`, err)
 	}
@@ -44,7 +44,7 @@ func (a *App) listRules() (map[string]*rule, error) {
 }
 
 func (a *App) createRule(r *rule) error {
-	content, err := httputils.RequestJSON(a.bridgeURL+`/rules`, r, nil, http.MethodPost)
+	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules`, a.bridgeURL), r, nil, http.MethodPost)
 	if err != nil {
 		return fmt.Errorf(`Error while creating rule: %v`, err)
 	}
@@ -63,7 +63,7 @@ func (a *App) createRule(r *rule) error {
 }
 
 func (a *App) updateRule(r *rule) error {
-	content, err := httputils.RequestJSON(a.bridgeURL+`/rules/`+r.ID, r, nil, http.MethodPut)
+	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, r.ID), r, nil, http.MethodPut)
 	if err != nil {
 		return fmt.Errorf(`Error while updating rule: %v`, err)
 	}
@@ -75,7 +75,7 @@ func (a *App) updateRule(r *rule) error {
 }
 
 func (a *App) deleteRule(id string) error {
-	content, err := httputils.Request(a.bridgeURL+`/rules/`+id, nil, nil, http.MethodDelete)
+	content, err := httputils.Request(fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, id), nil, nil, http.MethodDelete)
 	if err != nil {
 		return fmt.Errorf(`Error while deleting rule: %v`, err)
 	}
