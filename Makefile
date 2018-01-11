@@ -64,4 +64,6 @@ start-worker:
 	go run worker/worker.go \
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
-		-hueConfig ./hue.json
+		-hueConfig ./hue.json \
+		-hueUsername USERNAME \
+		-hueBridgeIP BRIDGE_IP

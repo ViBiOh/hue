@@ -3,7 +3,7 @@ package hue
 // Group description
 type Group struct {
 	Name   string      `json:"name"`
-	OnOff  bool        `json:"-"`
+	Tap    bool        `json:"tap"`
 	Lights []string    `json:"lights"`
 	State  *groupState `json:"state"`
 }
