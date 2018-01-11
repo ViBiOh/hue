@@ -8,7 +8,7 @@ import (
 
 func (a *App) listRules() (map[string]*hue.Rule, error) {
 	var response map[string]*hue.Rule
-	return response, get(fmt.Sprintf(`%s/rules`, a.bridgeURL), response)
+	return response, get(fmt.Sprintf(`%s/rules`, a.bridgeURL), &response)
 }
 
 func (a *App) createRule(o *hue.Rule) error {

@@ -15,7 +15,7 @@ func get(url string, response interface{}) error {
 		return fmt.Errorf(`Error while sending get request: %v`, err)
 	}
 
-	if err := json.Unmarshal(content, response); err != nil {
+	if err := json.Unmarshal(content, &response); err != nil {
 		return fmt.Errorf(`Error while parsing response: %v`, err)
 	}
 

@@ -3,6 +3,7 @@ package hue
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/ViBiOh/iot/hue"
 )
@@ -16,7 +17,7 @@ type scheduleConfig struct {
 
 func (a *App) listSchedules() (map[string]interface{}, error) {
 	var response map[string]interface{}
-	return response, get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), response)
+	return response, get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response)
 }
 
 func (a *App) createSchedule(o *hue.Schedule) error {
@@ -28,10 +29,6 @@ func (a *App) createSchedule(o *hue.Schedule) error {
 	o.ID = *id
 
 	return nil
-}
-
-func (a *App) updateScheduleLightState(o *hue.Schedule, lightID string, state map[string]interface{}) error {
-	return update(fmt.Sprintf(`%s/schedules/%s/lightstates/%s`, a.bridgeURL, o.ID, lightID), state)
 }
 
 func (a *App) deleteSchedule(id string) error {
@@ -54,7 +51,7 @@ func (a *App) cleanSchedules() error {
 }
 
 func (a *App) configureSchedule(schedules []*scheduleConfig) {
-	groups, err := a.getGroups()
+	groups, err := a.listGroups()
 	if err != nil {
 		log.Printf(`[hue] Error while retrieving groups for configuring schedules: %v`, err)
 		return
@@ -73,18 +70,36 @@ func (a *App) configureSchedule(schedules []*scheduleConfig) {
 			continue
 		}
 
+		scene := &hue.Scene{
+			Name:    config.Name,
+			Lights:  group.Lights,
+			Recycle: false,
+		}
+
+		if err := a.createScene(scene); err != nil {
+			log.Printf(`[hue] Error while creating scene: %v`, err)
+			continue
+		}
+
+		for _, light := range scene.Lights {
+			a.updateSceneLightState(scene, light, state)
+		}
+
 		schedule := &hue.Schedule{
 			Name:      config.Name,
 			Localtime: config.Localtime,
-			Lights:    group.Lights,
+			Command: &hue.Action{
+				Address: fmt.Sprintf(`/api/%s/groups/%s/action`, a.bridgeUsername, config.Group),
+				Body: map[string]interface{}{
+					`scene`: scene.ID,
+				},
+				Method: http.MethodPut,
+			},
 		}
 
 		if err := a.createSchedule(schedule); err != nil {
 			log.Printf(`[hue] Error while creating schedule: %v`, err)
-		}
-
-		for _, light := range schedule.Lights {
-			a.updateScheduleLightState(schedule, light, state)
+			continue
 		}
 	}
 }

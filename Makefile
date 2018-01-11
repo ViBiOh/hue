@@ -65,5 +65,6 @@ start-worker:
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
 		-hueConfig ./hue.json \
-		-hueUsername USERNAME \
-		-hueBridgeIP BRIDGE_IP
+		-hueUsername ${BRIDGE_USERNAME} \
+		-hueBridgeIP ${BRIDGE_IP} \
+		-hueClean

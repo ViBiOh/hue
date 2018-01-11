@@ -24,17 +24,18 @@ type lightState struct {
 
 // Scene description
 type Scene struct {
-	ID     string   `json:"-"`
-	Name   string   `json:"name"`
-	Lights []string `json:"lights"`
+	ID      string   `json:"-"`
+	Name    string   `json:"name"`
+	Lights  []string `json:"lights"`
+	Recycle bool     `json:"recycle"`
 }
 
 // Schedule description
 type Schedule struct {
-	ID        string   `json:"-"`
-	Name      string   `json:"name"`
-	Localtime string   `json:"localtime"`
-	Lights    []string `json:"lights"`
+	ID        string  `json:"-"`
+	Name      string  `json:"name"`
+	Localtime string  `json:"localtime"`
+	Command   *Action `json:"command"`
 }
 
 // Rule description

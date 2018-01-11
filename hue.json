@@ -1,8 +1,13 @@
 {
   "schedules": [{
-    "name": "Wake Up",
-    "localtime": "W124/T22:07:00",
+    "name": "Wake Up - Bedroom",
+    "localtime": "W124/T06:55:00",
     "group": "2",
+    "state": "long_on"
+  }, {
+    "name": "Wake Up - Living Room",
+    "localtime": "W124/T07:00:00",
+    "group": "1",
     "state": "long_on"
   }],
   "taps": [{

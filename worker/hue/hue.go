@@ -6,8 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"strings"
 
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
@@ -21,14 +19,18 @@ type hueConfig struct {
 
 // App stores informations and secret of API
 type App struct {
-	bridgeURL string
-	config    *hueConfig
+	bridgeURL      string
+	bridgeUsername string
+	config         *hueConfig
 }
 
 // NewApp creates new App from Flags' config
 func NewApp(config map[string]interface{}) (*App, error) {
+	username := *config[`username`].(*string)
+
 	app := &App{
-		bridgeURL: getURL(*config[`bridgeIP`].(*string), *config[`username`].(*string)),
+		bridgeUsername: username,
+		bridgeURL:      getURL(*config[`bridgeIP`].(*string), username),
 	}
 
 	if *config[`clean`].(*bool) {
@@ -47,7 +49,7 @@ func NewApp(config map[string]interface{}) (*App, error) {
 			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
 		}
 
-		// app.configureSchedule(app.config.Schedules)
+		app.configureSchedule(app.config.Schedules)
 		app.configureTap(app.config.Taps)
 	}
 
@@ -82,38 +84,9 @@ func (a *App) getLight(lightID string) (*hue.Light, error) {
 	return &light, nil
 }
 
-func (a *App) getGroups() (map[string]*hue.Group, error) {
-	content, err := httputils.GetRequest(a.bridgeURL+`/groups`, nil)
-	if err != nil {
-		return nil, fmt.Errorf(`Error while getting groups: %v`, err)
-	}
-
-	var groups map[string]*hue.Group
-	if err := json.Unmarshal(content, &groups); err != nil {
-		return nil, fmt.Errorf(`Error while parsing groups: %v`, err)
-	}
-
-	for _, value := range groups {
-		value.Tap = false
-
-		for _, lightID := range value.Lights {
-			light, err := a.getLight(lightID)
-			if err != nil {
-				return nil, fmt.Errorf(`Error while getting light data of group: %v`, err)
-			}
-
-			if strings.HasPrefix(light.Type, `On/Off`) {
-				value.Tap = true
-			}
-		}
-	}
-
-	return groups, nil
-}
-
 // GetGroupsPayload get lists of groups in websocket format
 func (a *App) GetGroupsPayload() ([]byte, error) {
-	groups, err := a.getGroups()
+	groups, err := a.listGroups()
 	if err != nil {
 		err = fmt.Errorf(`Error while listing groups: %v`, err)
 		return nil, err
@@ -128,21 +101,6 @@ func (a *App) GetGroupsPayload() ([]byte, error) {
 	return append(hue.GroupsPrefix, groupsJSON...), nil
 }
 
-// UpdateGroupState update state of group
-func (a *App) UpdateGroupState(groupID string, state map[string]interface{}) error {
-	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/groups/%s/action`, a.bridgeURL, groupID), state, nil, http.MethodPut)
-
-	if err != nil {
-		return fmt.Errorf(`Error while sending data to bridge: %v`, err)
-	}
-
-	if bytes.Contains(content, []byte(`error`)) {
-		return fmt.Errorf(`Error while updating state: %s`, content)
-	}
-
-	return nil
-}
-
 // Handle handle worker requests for Hue
 func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
@@ -154,7 +112,7 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 				return nil, fmt.Errorf(`Unknown state %s`, parts[1])
 			}
 
-			if err := a.UpdateGroupState(string(parts[0]), state); err != nil {
+			if err := a.updateGroupState(string(parts[0]), state); err != nil {
 				return nil, err
 			}
 			return a.GetGroupsPayload()
