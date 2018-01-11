@@ -69,7 +69,7 @@ func getURL(bridgeIP, username string) string {
 }
 
 func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := httputils.GetRequest(a.bridgeURL+`/lights/`+lightID, nil)
+	content, err := httputils.GetRequest(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting light: %v`, err)
 	}

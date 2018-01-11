@@ -7,68 +7,49 @@ import (
 	"net/http"
 
 	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/iot/hue"
 )
 
-type rule struct {
-	ID         string           `json:"-"`
-	Status     string           `json:"status,omitempty"`
-	Name       string           `json:"name,omitempty"`
-	Actions    []*ruleAction    `json:"actions,omitempty"`
-	Conditions []*ruleCondition `json:"conditions,omitempty"`
-}
-
-type ruleAction struct {
-	Address string                 `json:"address,omitempty"`
-	Body    map[string]interface{} `json:"body,omitempty"`
-	Method  string                 `json:"method,omitempty"`
-}
-
-type ruleCondition struct {
-	Address  string `json:"address,omitempty"`
-	Operator string `json:"operator,omitempty"`
-	Value    string `json:"value,omitempty"`
-}
-
-func (a *App) listRules() (map[string]*rule, error) {
+func (a *App) listRules() (map[string]*hue.Rule, error) {
 	content, err := httputils.GetRequest(fmt.Sprintf(`%s/rules`, a.bridgeURL), nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting rules: %v`, err)
+		return nil, fmt.Errorf(`Error while sending get request: %v`, err)
 	}
 
-	var rules map[string]*rule
-	if err := json.Unmarshal(content, &rules); err != nil {
-		return nil, fmt.Errorf(`Error while parsing rules: %v`, err)
+	var response map[string]*hue.Rule
+	if err := json.Unmarshal(content, &response); err != nil {
+		return nil, fmt.Errorf(`Error while parsing response: %v`, err)
 	}
 
-	return rules, nil
+	return response, nil
 }
 
-func (a *App) createRule(r *rule) error {
-	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules`, a.bridgeURL), r, nil, http.MethodPost)
+func (a *App) createRule(o *hue.Rule) error {
+	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules`, a.bridgeURL), o, nil, http.MethodPost)
 	if err != nil {
-		return fmt.Errorf(`Error while creating rule: %v`, err)
+		return fmt.Errorf(`Error while sending post request: %v`, err)
 	}
 	if !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while creating rule: %s`, content)
+		return fmt.Errorf(`Error while sending post request: %s`, content)
 	}
 
 	var response []map[string]map[string]string
 	if err := json.Unmarshal(content, &response); err != nil {
-		return fmt.Errorf(`Error while unmarshalling create rule response: %s`, err)
+		return fmt.Errorf(`Error while parsing result: %s`, err)
 	}
 
-	r.ID = response[0][`success`][`id`]
+	o.ID = response[0][`success`][`id`]
 
 	return nil
 }
 
-func (a *App) updateRule(r *rule) error {
-	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, r.ID), r, nil, http.MethodPut)
+func (a *App) updateRule(o *hue.Rule) error {
+	content, err := httputils.RequestJSON(fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, o.ID), o, nil, http.MethodPut)
 	if err != nil {
-		return fmt.Errorf(`Error while updating rule: %v`, err)
+		return fmt.Errorf(`Error while sending put request: %v`, err)
 	}
 	if !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while updating rule: %s`, content)
+		return fmt.Errorf(`Error while sending put request: %s`, content)
 	}
 
 	return nil
@@ -77,10 +58,10 @@ func (a *App) updateRule(r *rule) error {
 func (a *App) deleteRule(id string) error {
 	content, err := httputils.Request(fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, id), nil, nil, http.MethodDelete)
 	if err != nil {
-		return fmt.Errorf(`Error while deleting rule: %v`, err)
+		return fmt.Errorf(`Error while sending delete request: %v`, err)
 	}
 	if !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while deleting rule: %s`, content)
+		return fmt.Errorf(`Error while sending delete request: %s`, content)
 	}
 
 	return nil

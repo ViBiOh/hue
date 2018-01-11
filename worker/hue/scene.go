@@ -12,24 +12,24 @@ import (
 func (a *App) listScenes() (map[string]interface{}, error) {
 	content, err := httputils.GetRequest(fmt.Sprintf(`%s/scenes`, a.bridgeURL), nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting scenes: %v`, err)
+		return nil, fmt.Errorf(`Error while sending get request: %v`, err)
 	}
 
-	var scenes map[string]interface{}
-	if err := json.Unmarshal(content, &scenes); err != nil {
-		return nil, fmt.Errorf(`Error while parsing scenes: %v`, err)
+	var response map[string]interface{}
+	if err := json.Unmarshal(content, &response); err != nil {
+		return nil, fmt.Errorf(`Error while parsing response: %v`, err)
 	}
 
-	return scenes, nil
+	return response, nil
 }
 
 func (a *App) deleteScene(id string) error {
 	content, err := httputils.Request(fmt.Sprintf(`%s/scenes/%s`, a.bridgeURL, id), nil, nil, http.MethodDelete)
 	if err != nil {
-		return fmt.Errorf(`Error while deleting scene: %v`, err)
+		return fmt.Errorf(`Error while sending delete request: %v`, err)
 	}
 	if !bytes.Contains(content, []byte(`success`)) {
-		return fmt.Errorf(`Error while deleting scene: %s`, content)
+		return fmt.Errorf(`Error while sending delete request: %s`, content)
 	}
 
 	return nil

@@ -17,7 +17,7 @@ type tapButton struct {
 	ID     string
 	State  string
 	Groups []string
-	Rule   *rule
+	Rule   *hue.Rule
 }
 
 var (
@@ -29,21 +29,21 @@ var (
 	}
 )
 
-func (a *App) createRuleDescription(tapID string, button *tapButton) *rule {
-	newRule := &rule{
+func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
+	newRule := &hue.Rule{
 		Name: fmt.Sprintf(`Tap %s.%s`, tapID, button.ID),
-		Conditions: []*ruleCondition{
-			&ruleCondition{
+		Conditions: []*hue.Condition{
+			&hue.Condition{
 				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, tapID),
 				Operator: `eq`,
 				Value:    tapButtonMapping[button.ID],
 			},
 		},
-		Actions: make([]*ruleAction, len(button.Groups)),
+		Actions: make([]*hue.Action, len(button.Groups)),
 	}
 
 	for index, group := range button.Groups {
-		newRule.Actions[index] = &ruleAction{
+		newRule.Actions[index] = &hue.Action{
 			Address: fmt.Sprintf(`/groups/%s/action`, group),
 			Method:  http.MethodPut,
 			Body:    hue.States[button.State],

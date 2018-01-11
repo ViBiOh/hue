@@ -47,43 +47,6 @@ var (
 	}
 )
 
-// Group description
-type Group struct {
-	Name   string      `json:"name"`
-	OnOff  bool        `json:"-"`
-	Lights []string    `json:"lights"`
-	State  *groupState `json:"state"`
-}
-
-type groupState struct {
-	AnyOn bool `json:"any_on"`
-}
-
-// Light description
-type Light struct {
-	Type  string      `json:"type"`
-	State *lightState `json:"state"`
-}
-
-type lightState struct {
-	On bool `json:"on"`
-}
-
-// Scene description
-type Scene struct {
-	ID     string   `json:"-"`
-	Name   string   `json:"name"`
-	Lights []string `json:"lights"`
-}
-
-// Schedule description
-type Schedule struct {
-	ID        string   `json:"-"`
-	Name      string   `json:"name"`
-	Localtime string   `json:"localtime"`
-	Lights    []string `json:"lights"`
-}
-
 // Data stores data fo hub
 type Data struct {
 	Groups map[string]*Group
