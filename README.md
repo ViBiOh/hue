@@ -15,9 +15,9 @@ export NETATMO_SCOPES=read_station
 curl -X POST https://api.netatmo.com/oauth2/token --data "grant_type=password&username=${NETATMO_USER}&password=${NETATMO_PASS}&client_id=${NETATMO_CLIENT_ID}&client_secret=${NETATMO_CLIENT_SECRET}&scope=${NETATMO_SCOPES}"
 ```
 
-## Usage
+## Usage of Web server
 
-```
+```bash
 Usage of iot:
   -authUrl string
       [auth] Auth URL
@@ -69,4 +69,22 @@ Usage of iot:
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
+```
+
+## Usage of IoT worker
+
+```bash
+Usage of worker:
+  -hueBridgeIP string
+      [hue] IP of Bridge
+  -hueClean
+      [hue] Clean Hue
+  -hueConfig string
+      [hue] Configuration filename
+  -hueUsername string
+      [hue] Username for Bridge
+  -secretKey string
+      Secret Key
+  -websocket string
+      WebSocket URL
 ```
