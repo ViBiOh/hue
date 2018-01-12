@@ -12,11 +12,6 @@ import (
 	"github.com/ViBiOh/iot/hue"
 )
 
-type hueConfig struct {
-	Schedules []*scheduleConfig
-	Taps      []*tapConfig
-}
-
 // App stores informations and secret of API
 type App struct {
 	bridgeURL      string

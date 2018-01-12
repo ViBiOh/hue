@@ -8,18 +8,6 @@ import (
 	"github.com/ViBiOh/iot/hue"
 )
 
-type tapConfig struct {
-	ID      string
-	Buttons []*tapButton
-}
-
-type tapButton struct {
-	ID     string
-	State  string
-	Groups []string
-	Rule   *hue.Rule
-}
-
 var (
 	tapButtonMapping = map[string]string{
 		`1`: `34`,

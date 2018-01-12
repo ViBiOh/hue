@@ -8,13 +8,6 @@ import (
 	"github.com/ViBiOh/iot/hue"
 )
 
-type scheduleConfig struct {
-	Name      string
-	Localtime string
-	Group     string
-	State     string
-}
-
 func (a *App) listSchedules() (map[string]interface{}, error) {
 	var response map[string]interface{}
 	return response, get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response)
