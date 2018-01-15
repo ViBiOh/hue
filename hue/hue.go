@@ -40,7 +40,7 @@ var (
 		},
 		`long_on`: {
 			`on`:             true,
-			`transitiontime`: 300,
+			`transitiontime`: 3000,
 			`sat`:            0,
 			`bri`:            254,
 		},
