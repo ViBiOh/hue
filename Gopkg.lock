@@ -24,7 +24,7 @@
     "auth",
     "cookie"
   ]
-  revision = "eaa068aebe20a4feedfb4de5f33f0a20034d3719"
+  revision = "241cd9c1fe9bbb1528da9f2e926503a145a3e92f"
 
 [[projects]]
   branch = "master"
@@ -38,7 +38,7 @@
     "rate",
     "tools"
   ]
-  revision = "78483570250a7c785bf6b15b68238e5cc3527dff"
+  revision = "d9e777753ee5ba376805fcc97fe07d1d76d22dad"
 
 [[projects]]
   branch = "master"
@@ -71,7 +71,7 @@
     "prometheus",
     "prometheus/promhttp"
   ]
-  revision = "180b8fdc22b4ea7750bcb43c925277654a1ea2f3"
+  revision = "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada"
 
 [[projects]]
   branch = "master"

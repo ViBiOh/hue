@@ -85,12 +85,13 @@ func main() {
 
 	log.Printf(`Starting server on port %s`, *port)
 
+	authApp := auth.NewApp(authConfig)
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	hueApp := hue.NewApp()
-	iotApp := iot.NewApp(iotConfig, authConfig, map[string]provider.Provider{
+	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
-	})
+	}, authApp)
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())

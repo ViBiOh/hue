@@ -27,22 +27,20 @@ var upgrader = websocket.Upgrader{
 
 // App stores informations and secret of API
 type App struct {
-	authConfig map[string]*string
-	authURL    string
-	tpl        *template.Template
-	providers  map[string]provider.Provider
-	secretKey  string
-	wsConn     *websocket.Conn
+	authApp   *auth.App
+	tpl       *template.Template
+	providers map[string]provider.Provider
+	secretKey string
+	wsConn    *websocket.Conn
 }
 
 // NewApp creates new App from dependencies and Flags' config
-func NewApp(config map[string]*string, authConfig map[string]*string, providers map[string]provider.Provider) *App {
+func NewApp(config map[string]*string, providers map[string]provider.Provider, authApp *auth.App) *App {
 	app := &App{
-		authConfig: authConfig,
-		authURL:    *authConfig[`url`],
-		tpl:        template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
-		providers:  providers,
-		secretKey:  *config[`secretKey`],
+		authApp:   authApp,
+		tpl:       template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
+		providers: providers,
+		secretKey: *config[`secretKey`],
 	}
 
 	for _, provider := range providers {
@@ -157,18 +155,18 @@ func (a *App) WebsocketHandler() http.Handler {
 
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
-	return auth.HandlerWithFail(a.authConfig, func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+	return a.authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
 		a.RenderDashboard(w, r, http.StatusOK, nil)
 	}, func(w http.ResponseWriter, r *http.Request, err error) {
-		handleAuthFail(w, r, err, a.authURL)
+		a.handleAuthFail(w, r, err)
 	})
 }
 
-func handleAuthFail(w http.ResponseWriter, r *http.Request, err error, authURL string) {
+func (a *App) handleAuthFail(w http.ResponseWriter, r *http.Request, err error) {
 	if auth.IsForbiddenErr(err) {
 		httputils.Forbidden(w)
 	} else if err == auth.ErrEmptyAuthorization {
-		http.Redirect(w, r, path.Join(authURL, `/redirect/github`), http.StatusFound)
+		http.Redirect(w, r, path.Join(a.authApp.URL, `/redirect/github`), http.StatusFound)
 	} else {
 		httputils.Unauthorized(w, err)
 	}
