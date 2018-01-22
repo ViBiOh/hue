@@ -22,9 +22,10 @@
   name = "github.com/ViBiOh/auth"
   packages = [
     "auth",
-    "cookie"
+    "cookie",
+    "provider"
   ]
-  revision = "241cd9c1fe9bbb1528da9f2e926503a145a3e92f"
+  revision = "444a0422bb9092ab12a3694d966ca074b4276e85"
 
 [[projects]]
   branch = "master"

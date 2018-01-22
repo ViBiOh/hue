@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -66,7 +67,7 @@ func handler() http.Handler {
 }
 
 func main() {
-	port := flag.String(`port`, `1080`, `Listen port`)
+	port := flag.Int(`port`, 1080, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
 	alcotestConfig := alcotest.Flags(``)
 	authConfig := auth.Flags(`auth`)
@@ -83,9 +84,9 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	log.Printf(`Starting server on port %s`, *port)
+	log.Printf(`Starting server on port %d`, *port)
 
-	authApp := auth.NewApp(authConfig)
+	authApp := auth.NewApp(authConfig, nil)
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	hueApp := hue.NewApp()
 	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
@@ -99,7 +100,7 @@ func main() {
 
 	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
 	server := &http.Server{
-		Addr:    `:` + *port,
+		Addr:    fmt.Sprintf(`:%d`, *port),
 		Handler: handler(),
 	}
 

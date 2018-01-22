@@ -11,6 +11,7 @@ import (
 	"path"
 
 	"github.com/ViBiOh/auth/auth"
+	authProvider "github.com/ViBiOh/auth/provider"
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
@@ -155,7 +156,7 @@ func (a *App) WebsocketHandler() http.Handler {
 
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
-	return a.authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *auth.User) {
+	return a.authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *authProvider.User) {
 		a.RenderDashboard(w, r, http.StatusOK, nil)
 	}, func(w http.ResponseWriter, r *http.Request, err error) {
 		a.handleAuthFail(w, r, err)
