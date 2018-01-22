@@ -88,3 +88,38 @@ Usage of worker:
   -websocket string
       WebSocket URL
 ```
+
+## Create systemd service for worker
+
+Get username for Hue API by browsing `http://192.168.1.25/debug/clip.html`
+
+```
+POST /api
+Body: {"devicetype":"iot-worker"}
+```
+
+Create file `sudo vi /lib/systemd/system/iot-worker.service`
+
+```
+[Unit]
+Description=iot-worker
+After=network.target
+
+[Service]
+Type=simple
+User=vibioh
+ExecStart=/home/vibioh/code/bin/worker -secretKey SECRET_KEY -websocket wss://iot.vibioh.fr -hueBridgeIP 192.168.1.25 -hueUsername HUE_USERNAME -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean
+Restart=always
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start service
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start iot-worker.service
+journalctl -u iot-worker.service
+```
