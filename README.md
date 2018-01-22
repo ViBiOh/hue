@@ -91,6 +91,12 @@ Usage of worker:
 
 ## Create systemd service for worker
 
+Compile go binary
+
+```bash
+go install github.com/ViBiOh/iot/worker
+```
+
 Get username for Hue API by browsing `http://192.168.1.25/debug/clip.html`
 
 ```
