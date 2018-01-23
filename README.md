@@ -126,6 +126,7 @@ Enable and start service
 
 ```bash
 sudo systemctl daemon-reload
+sudo systemctl enable iot-worker.service
 sudo systemctl start iot-worker.service
 journalctl -u iot-worker.service
 ```

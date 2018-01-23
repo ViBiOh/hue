@@ -60,7 +60,17 @@ func (a *App) pinger() {
 		case <-a.done:
 			return
 		default:
-			output, err := a.hueApp.Handle(hue.GroupsPrefix)
+			var output []byte
+			var err error
+
+			output, err = a.hueApp.Handle(hue.GroupsPrefix)
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+				close(a.done)
+			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+				close(a.done)
+			}
+
+			output, err = a.hueApp.Handle(hue.SchedulesPrefix)
 			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 				close(a.done)
 			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {

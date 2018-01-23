@@ -96,10 +96,29 @@ func (a *App) GetGroupsPayload() ([]byte, error) {
 	return append(hue.GroupsPrefix, groupsJSON...), nil
 }
 
+// GetSchedulesPayload get lists of schedules in websocket format
+func (a *App) GetSchedulesPayload() ([]byte, error) {
+	schedules, err := a.listSchedules()
+	if err != nil {
+		err = fmt.Errorf(`Error while listing schedules: %v`, err)
+		return nil, err
+	}
+
+	schedulesJSON, err := json.Marshal(schedules)
+	if err != nil {
+		err = fmt.Errorf(`Error while marshalling schedules: %v`, err)
+		return nil, err
+	}
+
+	return append(hue.SchedulesPrefix, schedulesJSON...), nil
+}
+
 // Handle handle worker requests for Hue
 func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
 		return a.GetGroupsPayload()
+	} else if bytes.HasPrefix(p, hue.SchedulesPrefix) {
+		return a.GetSchedulesPayload()
 	} else if bytes.HasPrefix(p, hue.StatePrefix) {
 		if parts := bytes.Split(bytes.TrimPrefix(p, hue.StatePrefix), []byte(`|`)); len(parts) == 2 {
 			state, ok := hue.States[string(parts[1])]

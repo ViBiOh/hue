@@ -17,6 +17,9 @@ var (
 	// GroupsPrefix ws message prefix for groups command
 	GroupsPrefix = []byte(`groups `)
 
+	// SchedulesPrefix ws message prefix for schedules command
+	SchedulesPrefix = []byte(`schedules `)
+
 	// StatePrefix ws message prefix for state command
 	StatePrefix = []byte(`state `)
 
@@ -49,13 +52,15 @@ var (
 
 // Data stores data fo hub
 type Data struct {
-	Groups map[string]*Group
+	Groups    map[string]*Group
+	Schedules map[string]*Schedule
 }
 
 // App stores informations and secret of API
 type App struct {
-	hub    provider.Hub
-	groups map[string]*Group
+	hub       provider.Hub
+	groups    map[string]*Group
+	schedules map[string]*Schedule
 }
 
 // NewApp creates new App from Flags' config
@@ -100,7 +105,8 @@ func (a *App) GetWorkerPrefix() []byte {
 // GetData return data for Dashboard rendering
 func (a *App) GetData() interface{} {
 	return &Data{
-		Groups: a.groups,
+		Groups:    a.groups,
+		Schedules: a.schedules,
 	}
 }
 
@@ -109,6 +115,10 @@ func (a *App) WorkerHandler(payload []byte) {
 	if bytes.HasPrefix(payload, GroupsPrefix) {
 		if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &a.groups); err != nil {
 			log.Printf(`[hue] Error while unmarshalling groups: %v`, err)
+		}
+	} else if bytes.HasPrefix(payload, SchedulesPrefix) {
+		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &a.schedules); err != nil {
+			log.Printf(`[hue] Error while unmarshalling schedules: %v`, err)
 		}
 	} else {
 		log.Printf(`[hue] Unknown command`)

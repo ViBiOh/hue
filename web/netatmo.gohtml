@@ -1,0 +1,37 @@
+{{- define "netatmo" -}}
+  {{- if . -}}
+    <span class="container">
+      <h2 class="center">Weather</h2>
+      {{- if len .Body.Devices -}}
+        {{- range .Body.Devices -}}
+          {{- range .Modules -}}
+            <div class="flex flex-wrap">
+              <div class="header center full">{{ .ModuleName }}</div>
+              <span class="inline-block half center padding">
+                <strong>{{ .DashboardData.Temperature }}°c</strong>
+              </span>
+              <span class="inline-block half center padding">
+                <strong>{{ .DashboardData.Humidity }}%</strong>
+              </span>
+            </div>
+          {{- end -}}
+          <div class="flex flex-wrap">
+            <div class="header center full">{{ .StationName }}</div>
+            <span class="inline-block half center padding">
+              <strong>{{ .DashboardData.Temperature }}°c</strong>
+            </span>
+            <span class="inline-block half center padding">
+              <strong>{{ .DashboardData.Humidity }}%</strong>
+            </span>
+            <span class="inline-block half center padding">
+              <strong>{{ .DashboardData.Noise }}dB</strong>
+            </span>
+            <span class="inline-block half center padding">
+              <strong>{{ .DashboardData.CO2 }}ppm</strong>
+            </span>
+          </div>
+        {{- end -}}
+      {{- end -}}
+    </span>
+  {{- end -}}
+{{- end -}}
