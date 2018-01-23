@@ -41,22 +41,13 @@ docker-push:
 	docker push ${DOCKER_USER}/iot
 
 start-deps:
-	go get -u github.com/ViBiOh/auth
 	go get -u github.com/ViBiOh/auth/bcrypt
-
-start-auth:
-	auth \
-		-tls=false \
-		-basicUsers "1:admin:`bcrypt admin`" \
-		-corsHeaders Content-Type,Authorization \
-		-port 1081 \
-		-corsCredentials
 
 start-api:
 	go run iot.go \
 		-tls=false \
-		-authUrl http://localhost:1081 \
 		-authUsers admin:admin \
+		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
 		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
 

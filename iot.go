@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/ViBiOh/alcotest/alcotest"
 	"github.com/ViBiOh/alcotest/healthcheck"
 	"github.com/ViBiOh/auth/auth"
+	authProvider "github.com/ViBiOh/auth/provider"
+	"github.com/ViBiOh/auth/provider/basic"
+	authService "github.com/ViBiOh/auth/service"
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/cert"
 	"github.com/ViBiOh/httputils/cors"
@@ -40,18 +44,33 @@ var (
 	hueHandler http.Handler
 )
 
-var healthcheckHandler = http.StripPrefix(healthcheckPath, healthcheck.Handler())
+func restHandler(authApp *auth.App) http.Handler {
+	healthcheckHandler := http.StripPrefix(healthcheckPath, healthcheck.Handler())
 
-func restHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, healthcheckPath) {
-			healthcheckHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, huePath) {
+	authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *authProvider.User) {
+		if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
 			http.ServeFile(w, r, webDirectory+r.URL.Path)
 		} else {
 			iotHandler.ServeHTTP(w, r)
+		}
+	}, func(w http.ResponseWriter, r *http.Request, err error) {
+		if auth.IsForbiddenErr(err) {
+			httputils.Forbidden(w)
+		} else if err == auth.ErrEmptyAuthorization && authApp.URL != `` {
+			http.Redirect(w, r, path.Join(authApp.URL, `/redirect/github`), http.StatusFound)
+		} else {
+			w.Header().Add(`WWW-Authenticate`, `Basic`)
+			httputils.Unauthorized(w, err)
+		}
+	})
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, healthcheckPath) {
+			healthcheckHandler.ServeHTTP(w, r)
+		} else {
+			authHandler.ServeHTTP(w, r)
 		}
 	})
 }
@@ -70,12 +89,14 @@ func main() {
 	port := flag.Int(`port`, 1080, `Listen port`)
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
 	alcotestConfig := alcotest.Flags(``)
-	authConfig := auth.Flags(`auth`)
 	certConfig := cert.Flags(`tls`)
 	prometheusConfig := prometheus.Flags(`prometheus`)
 	rateConfig := rate.Flags(`rate`)
 	owaspConfig := owasp.Flags(``)
 	corsConfig := cors.Flags(`cors`)
+
+	authConfig := auth.Flags(`auth`)
+	authBasicConfig := basic.Flags(`basic`)
 
 	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
@@ -86,19 +107,19 @@ func main() {
 
 	log.Printf(`Starting server on port %d`, *port)
 
-	authApp := auth.NewApp(authConfig, nil)
+	authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	hueApp := hue.NewApp()
 	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
-	}, authApp)
+	})
 
 	hueHandler = http.StripPrefix(huePath, hueApp.Handler())
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
 	wsHandler = http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
-	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler()))))
+	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler(authApp)))))
 	server := &http.Server{
 		Addr:    fmt.Sprintf(`:%d`, *port),
 		Handler: handler(),
@@ -111,6 +132,7 @@ func main() {
 			log.Print(`Listening with TLS enabled`)
 			serveError <- cert.ListenAndServeTLS(certConfig, server)
 		} else {
+			log.Print(`⚠ iot is running without secure connection ⚠`)
 			serveError <- server.ListenAndServe()
 		}
 	}()

@@ -8,10 +8,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path"
 
-	"github.com/ViBiOh/auth/auth"
-	authProvider "github.com/ViBiOh/auth/provider"
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
@@ -28,7 +25,6 @@ var upgrader = websocket.Upgrader{
 
 // App stores informations and secret of API
 type App struct {
-	authApp   *auth.App
 	tpl       *template.Template
 	providers map[string]provider.Provider
 	secretKey string
@@ -36,9 +32,8 @@ type App struct {
 }
 
 // NewApp creates new App from dependencies and Flags' config
-func NewApp(config map[string]*string, providers map[string]provider.Provider, authApp *auth.App) *App {
+func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	app := &App{
-		authApp:   authApp,
 		tpl:       template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
 		providers: providers,
 		secretKey: *config[`secretKey`],
@@ -156,19 +151,7 @@ func (a *App) WebsocketHandler() http.Handler {
 
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
-	return a.authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *authProvider.User) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		a.RenderDashboard(w, r, http.StatusOK, nil)
-	}, func(w http.ResponseWriter, r *http.Request, err error) {
-		a.handleAuthFail(w, r, err)
 	})
-}
-
-func (a *App) handleAuthFail(w http.ResponseWriter, r *http.Request, err error) {
-	if auth.IsForbiddenErr(err) {
-		httputils.Forbidden(w)
-	} else if err == auth.ErrEmptyAuthorization {
-		http.Redirect(w, r, path.Join(a.authApp.URL, `/redirect/github`), http.StatusFound)
-	} else {
-		httputils.Unauthorized(w, err)
-	}
 }
