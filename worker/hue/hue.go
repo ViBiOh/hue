@@ -29,9 +29,17 @@ func NewApp(config map[string]interface{}) (*App, error) {
 	}
 
 	if *config[`clean`].(*bool) {
-		app.cleanSchedules()
-		app.cleanScenes()
-		app.cleanRules()
+		if err := app.cleanSchedules(); err != nil {
+			return nil, fmt.Errorf(`Error while cleaning schedules: %v`, err)
+		}
+
+		if err := app.cleanScenes(); err != nil {
+			return nil, fmt.Errorf(`Error while cleaning scenes: %v`, err)
+		}
+
+		if err := app.cleanRules(); err != nil {
+			return nil, fmt.Errorf(`Error while cleaning rules: %v`, err)
+		}
 	}
 
 	if *config[`config`].(*string) != `` {

@@ -94,7 +94,11 @@ func (a *App) connect() {
 
 	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, headers)
 	if ws != nil {
-		defer ws.Close()
+		defer func() {
+			if err := ws.Close(); err != nil {
+				log.Printf(`Error while closing connection: %v`, err)
+			}
+		}()
 	}
 	if err != nil {
 		log.Printf(`Error while dialing to websocket %s: %v`, a.websocketURL, err)

@@ -106,7 +106,9 @@ func (a *App) WebsocketHandler() http.Handler {
 					a.wsConn = nil
 				}
 
-				ws.Close()
+				if err := ws.Close(); err != nil {
+					log.Printf(`Error while closing connection: %v`, err)
+				}
 			}()
 		}
 		if err != nil {
@@ -120,7 +122,10 @@ func (a *App) WebsocketHandler() http.Handler {
 
 		log.Printf(`Worker connection from %s`, httputils.GetIP(r))
 		if a.wsConn != nil {
-			a.wsConn.Close()
+			if err := a.wsConn.Close(); err != nil {
+				log.Printf(`Error while closing connection: %v`, err)
+			}
+
 		}
 		a.wsConn = ws
 

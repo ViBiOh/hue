@@ -75,7 +75,9 @@ func (a *App) configureSchedule(schedules []*scheduleConfig) {
 		}
 
 		for _, light := range scene.Lights {
-			a.updateSceneLightState(scene, light, state)
+			if err := a.updateSceneLightState(scene, light, state); err != nil {
+				log.Printf(`[hue] Error while updating scene light state: %v`, err)
+			}
 		}
 
 		schedule := &hue.Schedule{

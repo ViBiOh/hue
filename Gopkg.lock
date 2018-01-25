@@ -43,7 +43,7 @@
     "tools",
     "uuid"
   ]
-  revision = "d9e777753ee5ba376805fcc97fe07d1d76d22dad"
+  revision = "d4377b875d3d705711b30964e5015a2e3e325c09"
 
 [[projects]]
   branch = "master"
@@ -100,10 +100,10 @@
   packages = [
     ".",
     "internal/util",
-    "nfsd",
+    "nfs",
     "xfs"
   ]
-  revision = "85fadb6e89903ef7cca6f6a804474cd5ea85b6e1"
+  revision = "cb4147076ac75738c9a7d279075a253c0cc5acbd"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -147,7 +147,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
+  revision = "0ed95abb35c445290478a5348a7b38bb154135fd"
 
 [[projects]]
   branch = "master"
