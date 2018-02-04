@@ -22,6 +22,13 @@
   </span>
 {{- end -}}
 
+{{- define "worker-error" -}}
+  <span class="container center">
+    <h2 class="center">Worker</h2>
+    <div class="header center error">Worker is in error</div>
+  </span>
+{{- end -}}
+
 {{- define "iot" -}}
 <!doctype html>
 <html lang="fr">
@@ -50,9 +57,13 @@
       {{- end -}}
 
       {{- if .Online -}}
-        {{- template "hue" .Hue -}}
+        {{- if .Error -}
+          {{- template "worker-error" . }}
+        {{- else -}}
+          {{- template "hue" .Hue -}}
+        {{- end -}}
       {{- else -}}
-        {{- template "worker-off" .Hue -}}
+        {{- template "worker-off" . -}}
       {{- end -}}
     </div>
 </html>

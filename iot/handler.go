@@ -15,6 +15,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const maxAllowedErrors = 5
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -25,10 +27,11 @@ var upgrader = websocket.Upgrader{
 
 // App stores informations and secret of API
 type App struct {
-	tpl       *template.Template
-	providers map[string]provider.Provider
-	secretKey string
-	wsConn    *websocket.Conn
+	tpl        *template.Template
+	providers  map[string]provider.Provider
+	secretKey  string
+	wsConn     *websocket.Conn
+	wsErrCount uint
 }
 
 // NewApp creates new App from dependencies and Flags' config
@@ -83,6 +86,7 @@ func (a *App) SendToWorker(payload []byte) bool {
 func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *provider.Message) {
 	response := map[string]interface{}{
 		`Online`:  a.wsConn != nil,
+		`Error`:   a.wsErrCount >= maxAllowedErrors,
 		`Message`: message,
 	}
 
@@ -129,6 +133,8 @@ func (a *App) WebsocketHandler() http.Handler {
 		}
 		a.wsConn = ws
 
+		a.wsErrCount = 0
+
 		for {
 			messageType, p, err := ws.ReadMessage()
 			if messageType == websocket.CloseMessage {
@@ -141,12 +147,17 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
+				if bytes.HasPrefix(p, provider.ErrorPrefix) {
+					log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
+					a.wsErrCount++
+					break
+				}
+
 				for _, value := range a.providers {
 					if bytes.HasPrefix(p, value.GetWorkerPrefix()) {
 						value.WorkerHandler(bytes.TrimPrefix(p, value.GetWorkerPrefix()))
+						a.wsErrCount = 0
 						break
-					} else if bytes.HasPrefix(p, provider.ErrorPrefix) {
-						log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
 					}
 				}
 			}
