@@ -20,6 +20,10 @@ services:
       traefik.frontend.rule: 'Host: iot-auth.vibioh.fr'
       traefik.protocol: 'https'
       traefik.port: '1080'
+      traefik.frontend.rateLimit.extractorFunc: 'client.ip'
+      traefik.frontend.rateLimit.rateSet.first.period: 60
+      traefik.frontend.rateLimit.rateSet.first.average: 100
+      traefik.frontend.rateLimit.rateSet.first.burst: 200
     logging:
       driver: json-file
       options:
@@ -55,6 +59,10 @@ services:
       traefik.frontend.rule: 'Host: iot.vibioh.fr'
       traefik.protocol: 'https'
       traefik.port: '1080'
+      traefik.frontend.rateLimit.extractorFunc: 'client.ip'
+      traefik.frontend.rateLimit.rateSet.first.period: 60
+      traefik.frontend.rateLimit.rateSet.first.average: 100
+      traefik.frontend.rateLimit.rateSet.first.burst: 200
     logging:
       driver: json-file
       options:
