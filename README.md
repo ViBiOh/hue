@@ -51,14 +51,6 @@ Usage of iot:
       [netatmo] Refresh Token
   -port string
       Listen port (default "1080")
-  -prometheusMetricsHost string
-      [prometheus] Allowed hostname to call metrics endpoint (default "localhost")
-  -prometheusMetricsPath string
-      [prometheus] Metrics endpoint path (default "/metrics")
-  -prometheusPrefix string
-      [prometheus] Prefix (default "http")
-  -rateCount uint
-      [rate] IP limit (default 5000)
   -secretKey string
       [iot] Secret Key between worker and API
   -tls

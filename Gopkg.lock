@@ -28,7 +28,7 @@
     "provider/github",
     "service"
   ]
-  revision = "7624e3aedb90fbbd709a84a85aec090c58401dd8"
+  revision = "a8637ce2e6c6d97370be8996ca3cd156dc4be64f"
 
 [[projects]]
   branch = "master"
@@ -41,13 +41,7 @@
     "tools",
     "uuid"
   ]
-  revision = "7f6cf68d4f7a03d977ce59f64a3c64722db4bc5a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/beorn7/perks"
-  packages = ["quantile"]
-  revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+  revision = "25bff7e5ea008fefc07a5467745b73ade0eba52c"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -60,12 +54,6 @@
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
-
-[[projects]]
-  name = "github.com/matttproud/golang_protobuf_extensions"
-  packages = ["pbutil"]
-  revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -100,7 +88,7 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "1875d0a70c90e57f11972aefd42276df65e895b9"
+  revision = "d9133f5469342136e669e85192a26056b587f503"
 
 [[projects]]
   branch = "master"
@@ -138,6 +126,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aed710531d0664d0febf7e2dfa83f9a6acab7562e2ff47ae47f72c81e89a6829"
+  inputs-digest = "cc5b4d51b1443ceab6d2b6928ff5d5786e522ed3fcfcb47430f7a01434a97c05"
   solver-name = "gps-cdcl"
   solver-version = 1
