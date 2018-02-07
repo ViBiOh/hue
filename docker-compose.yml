@@ -7,10 +7,6 @@ services:
     - -corsHeaders
     - Authorization
     - -corsCredentials
-    - -prometheusMetricsHost
-    - iot-auth:1080
-    - -rateCount
-    - '60'
     - -cookieDomain
     - vibioh.fr
     - -authRedirect
@@ -38,8 +34,6 @@ services:
   api:
     image: vibioh/iot
     command:
-    - -prometheusMetricsHost
-    - iot:1080
     - -authUrl
     - https://iot-auth.vibioh.fr
     - -authUsers

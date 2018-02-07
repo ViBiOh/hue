@@ -19,8 +19,6 @@ import (
 	"github.com/ViBiOh/httputils/cert"
 	"github.com/ViBiOh/httputils/cors"
 	"github.com/ViBiOh/httputils/owasp"
-	"github.com/ViBiOh/httputils/prometheus"
-	"github.com/ViBiOh/httputils/rate"
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/iot"
 	"github.com/ViBiOh/iot/netatmo"
@@ -90,8 +88,6 @@ func main() {
 	tls := flag.Bool(`tls`, true, `Serve TLS content`)
 	alcotestConfig := alcotest.Flags(``)
 	certConfig := cert.Flags(`tls`)
-	prometheusConfig := prometheus.Flags(`prometheus`)
-	rateConfig := rate.Flags(`rate`)
 	owaspConfig := owasp.Flags(``)
 	corsConfig := cors.Flags(`cors`)
 
@@ -119,7 +115,7 @@ func main() {
 	iotHandler = gziphandler.GzipHandler(iotApp.Handler())
 	wsHandler = http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
-	apiHandler = prometheus.Handler(prometheusConfig, rate.Handler(rateConfig, owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler(authApp)))))
+	apiHandler = owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler(authApp)))
 	server := &http.Server{
 		Addr:    fmt.Sprintf(`:%d`, *port),
 		Handler: handler(),
