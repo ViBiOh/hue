@@ -16,8 +16,13 @@
 #   source = "github.com/myfork/project2"
 #
 # [[override]]
-#  name = "github.com/x/y"
-#  version = "2.4.0"
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
 
 
 [[constraint]]
@@ -26,12 +31,16 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/ViBiOh/alcotest"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/ViBiOh/auth"
 
 [[constraint]]
   branch = "master"
   name = "github.com/ViBiOh/httputils"
+
+[[constraint]]
+  name = "github.com/gorilla/websocket"
+  version = "1.2.0"
+
+[prune]
+  go-tests = true
+  unused-packages = true

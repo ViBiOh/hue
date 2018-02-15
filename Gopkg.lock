@@ -9,16 +9,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/ViBiOh/alcotest"
-  packages = [
-    "alcotest",
-    "healthcheck",
-    "httpclient"
-  ]
-  revision = "7820b5444e1a46e9edefbc45d504df7723bb0ca8"
-
-[[projects]]
-  branch = "master"
   name = "github.com/ViBiOh/auth"
   packages = [
     "auth",
@@ -28,20 +18,22 @@
     "provider/github",
     "service"
   ]
-  revision = "312f74f701b7ea605c6d61efe02b1691b90e52f6"
+  revision = "e29a7a30fed7f4860c2f0bbbba839f2fea0de457"
 
 [[projects]]
   branch = "master"
   name = "github.com/ViBiOh/httputils"
   packages = [
     ".",
+    "alcotest",
     "cert",
     "cors",
+    "healthcheck",
     "owasp",
     "tools",
     "uuid"
   ]
-  revision = "e9aa2ab22a9232ec862b0a40201db24ab63804fe"
+  revision = "5ba574fa9b59230694a75168d2219f0d7f2f5190"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -126,6 +118,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cc5b4d51b1443ceab6d2b6928ff5d5786e522ed3fcfcb47430f7a01434a97c05"
+  inputs-digest = "99c08ee0a6ff723e062222c186607ea4d1bead34551dfae2ac083525a396d834"
   solver-name = "gps-cdcl"
   solver-version = 1
