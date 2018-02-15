@@ -39,6 +39,7 @@ services:
   api:
     image: vibioh/iot
     command:
+    - -tls
     - -authUrl
     - https://iot-auth.vibioh.fr
     - -authUsers
