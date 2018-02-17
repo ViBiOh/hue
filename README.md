@@ -89,7 +89,7 @@ Compile go binary
 go install github.com/ViBiOh/iot/worker
 ```
 
-Get username for Hue API by browsing `http://192.168.1.25/debug/clip.html`
+Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html`
 
 ```
 POST /api
@@ -106,7 +106,7 @@ After=network.target
 [Service]
 Type=simple
 User=vibioh
-ExecStart=/home/vibioh/code/bin/worker -secretKey SECRET_KEY -websocket wss://iot.vibioh.fr -hueBridgeIP 192.168.1.25 -hueUsername HUE_USERNAME -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean
+ExecStart=/home/vibioh/code/bin/worker -secretKey SECRET_KEY -websocket wss://iot.vibioh.fr -hueBridgeIP 192.168.1.10 -hueUsername HUE_USERNAME -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean
 Restart=always
 RestartSec=60s
 
