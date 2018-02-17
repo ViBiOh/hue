@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ViBiOh/iot/provider"
 )
@@ -76,18 +77,38 @@ func (a *App) sendToWorker(payload []byte) bool {
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
-			a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `Unknown command`})
-		} else if r.URL.Path == `/state` {
+			a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown method`})
+			return
+		}
+
+		if r.URL.Path == `/state` {
 			params := r.URL.Query()
 
 			group := params.Get(`group`)
 			state := params.Get(`value`)
 
 			if !a.sendToWorker(append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...)) {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `Error while sending command to Worker`})
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
 			} else {
 				a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state)})
 			}
+
+			return
+		} else if strings.HasPrefix(r.URL.Path, `/schedules`) {
+			parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
+
+			if len(parts) != 2 {
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Invalid request for updating schedules: %v`, strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`))})
+				return
+			}
+
+			if !a.sendToWorker(append(SchedulesPrefix, []byte(strings.Join(parts, `|`))...)) {
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
+			} else {
+				a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1])})
+			}
+		} else {
+			a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown command`})
 		}
 	})
 }

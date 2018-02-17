@@ -126,6 +126,12 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
 		return a.GetGroupsPayload()
 	} else if bytes.HasPrefix(p, hue.SchedulesPrefix) {
+		if parts := bytes.Split(bytes.TrimPrefix(p, hue.SchedulesPrefix), []byte(`|`)); len(parts) == 2 {
+			if err := a.updateScheduleStatus(string(parts[0]), string(parts[1])); err != nil {
+				return nil, err
+			}
+		}
+
 		return a.GetSchedulesPayload()
 	} else if bytes.HasPrefix(p, hue.StatePrefix) {
 		if parts := bytes.Split(bytes.TrimPrefix(p, hue.StatePrefix), []byte(`|`)); len(parts) == 2 {
@@ -137,8 +143,9 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.updateGroupState(string(parts[0]), state); err != nil {
 				return nil, err
 			}
-			return a.GetGroupsPayload()
 		}
+
+		return a.GetGroupsPayload()
 	}
 
 	return nil, fmt.Errorf(`Unknown request: %s`, p)

@@ -45,7 +45,7 @@ type lightState struct {
 
 // Scene description
 type Scene struct {
-	ID      string   `json:"-"`
+	ID      string   `json:"id,omitempty"`
 	Name    string   `json:"name"`
 	Lights  []string `json:"lights"`
 	Recycle bool     `json:"recycle"`
@@ -53,10 +53,11 @@ type Scene struct {
 
 // Schedule description
 type Schedule struct {
-	ID        string  `json:"-"`
+	ID        string  `json:"id,omitempty"`
 	Name      string  `json:"name"`
 	Localtime string  `json:"localtime"`
 	Command   *Action `json:"command"`
+	Status    string  `json:"status,omitempty"`
 }
 
 // FormatLocalTime formats local time of schedules to human readable version

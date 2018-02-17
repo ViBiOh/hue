@@ -36,6 +36,13 @@
         <span class="inline-block half center padding">
           <strong>{{ $schedule.FormatLocalTime }}</strong>
         </span>
+        <a class="center full" href="/hue/schedules/{{- $schedule.ID -}}/{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}">
+          {{- if eq $schedule.Status "enabled" -}}
+            {{- template "toggle-on" . -}}
+          {{- else -}}
+            {{- template "toggle-off" . -}}
+          {{- end -}}
+        </a>
       </div>
     </span>
   {{- end -}}

@@ -8,9 +8,18 @@ import (
 	"github.com/ViBiOh/iot/hue"
 )
 
-func (a *App) listSchedules() (map[string]interface{}, error) {
-	var response map[string]interface{}
-	return response, get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response)
+func (a *App) listSchedules() (map[string]*hue.Schedule, error) {
+	var response map[string]*hue.Schedule
+
+	if err := get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response); err != nil {
+		return response, nil
+	}
+
+	for id, schedule := range response {
+		schedule.ID = id
+	}
+
+	return response, nil
 }
 
 func (a *App) createSchedule(o *hue.Schedule) error {
@@ -22,6 +31,12 @@ func (a *App) createSchedule(o *hue.Schedule) error {
 	o.ID = *id
 
 	return nil
+}
+
+func (a *App) updateScheduleStatus(id, status string) error {
+	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), map[string]string{
+		`status`: status,
+	})
 }
 
 func (a *App) deleteSchedule(id string) error {
