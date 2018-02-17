@@ -9,7 +9,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/httputils/httperror"
+	"github.com/ViBiOh/httputils/request"
+	"github.com/ViBiOh/httputils/templates"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
 	"github.com/gorilla/websocket"
@@ -95,8 +97,8 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	w.Header().Add(`Cache-Control`, `no-cache`)
-	if err := httputils.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
-		httputils.InternalServerError(w, err)
+	if err := templates.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
+		httperror.InternalServerError(w, err)
 	}
 }
 
@@ -124,7 +126,7 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
-		log.Printf(`Worker connection from %s`, httputils.GetIP(r))
+		log.Printf(`Worker connection from %s`, request.GetIP(r))
 		if a.wsConn != nil {
 			if err := a.wsConn.Close(); err != nil {
 				log.Printf(`Error while closing connection: %v`, err)

@@ -13,6 +13,7 @@ import (
 	"github.com/ViBiOh/httputils"
 	"github.com/ViBiOh/httputils/cors"
 	"github.com/ViBiOh/httputils/healthcheck"
+	"github.com/ViBiOh/httputils/httperror"
 	"github.com/ViBiOh/httputils/owasp"
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/iot"
@@ -62,12 +63,12 @@ func main() {
 			}
 		}, func(w http.ResponseWriter, r *http.Request, err error) {
 			if auth.IsForbiddenErr(err) {
-				httputils.Forbidden(w)
+				httperror.Forbidden(w)
 			} else if err == auth.ErrEmptyAuthorization && authApp.URL != `` {
 				http.Redirect(w, r, path.Join(authApp.URL, `/redirect/github`), http.StatusFound)
 			} else {
 				w.Header().Add(`WWW-Authenticate`, `Basic`)
-				httputils.Unauthorized(w, err)
+				httperror.Unauthorized(w, err)
 			}
 		})
 

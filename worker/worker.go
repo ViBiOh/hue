@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/httputils/request"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/provider"
@@ -90,7 +90,7 @@ func (a *App) connect() {
 	}
 
 	headers := http.Header{}
-	headers.Set(httputils.ForwardedForHeader, localIP.String())
+	headers.Set(request.ForwardedForHeader, localIP.String())
 
 	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, headers)
 	if ws != nil {

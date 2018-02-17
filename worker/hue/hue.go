@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/ViBiOh/httputils"
+	"github.com/ViBiOh/httputils/request"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
 )
@@ -74,7 +74,7 @@ func getURL(bridgeIP, username string) string {
 }
 
 func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := httputils.GetRequest(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
+	content, err := request.GetRequest(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting light: %v`, err)
 	}
