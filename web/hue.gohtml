@@ -1,20 +1,22 @@
 {{- define "hue-new-schedule" -}}
-  <div class="modal-content">
-    <h2 class="modal-header">Create new Hue schedule</h2>
+  <div id="new-schedule" class="modal full flex flex-center">
+    <div class="modal-content">
+      <h2 class="modal-header">Create new Hue schedule</h2>
 
-    <form method="POST" action="/hue/schedules">
-      <p class="center">
-        <label for="name">Name</label>
-        <input id="name" type="text" name="name" />
-      </p>
+      <form method="POST" action="/hue/schedules">
+        <p class="center">
+          <label for="name">Name</label>
+          <input id="name" type="text" name="name" />
+        </p>
 
-      <p class="center">
-        <a href="#" class="button">
-          Cancel
-        </a>
-        <button type="submit" class="button bg-important">Create</button>
-      </p>
-    </form>
+        <p class="center">
+          <a href="#" class="button">
+            Cancel
+          </a>
+          <button type="submit" class="button bg-important">Create</button>
+        </p>
+      </form>
+    </div>
   </div>
 {{- end -}}
 

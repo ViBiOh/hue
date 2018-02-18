@@ -148,7 +148,6 @@
     }
 
     .modal-header {
-      background-color: ghostwhite;
       color: dimgray;
       padding: 0.5rem 1rem;
     }
@@ -178,6 +177,10 @@
 
     #new-schedule:target {
       display: flex;
+    }
+
+    #new-schedule:target ~ .content {
+      pointer-events: none;
     }
 
     .message {
