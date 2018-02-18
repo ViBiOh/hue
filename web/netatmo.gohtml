@@ -5,7 +5,7 @@
       {{- if len .Body.Devices -}}
         {{- range .Body.Devices -}}
           {{- range .Modules -}}
-            <div class="flex flex-wrap">
+            <div class="flex flex-center flex-wrap">
               <div class="header center full">{{ .ModuleName }}</div>
               <span class="inline-block half center padding">
                 <strong>{{ .DashboardData.Temperature }}°c</strong>
@@ -15,7 +15,7 @@
               </span>
             </div>
           {{- end -}}
-          <div class="flex flex-wrap">
+          <div class="flex flex-center flex-wrap">
             <div class="header center full">{{ .StationName }}</div>
             <span class="inline-block half center padding">
               <strong>{{ .DashboardData.Temperature }}°c</strong>

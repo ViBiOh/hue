@@ -43,6 +43,8 @@
     {{- template "style" . -}}
   </head>
   <body>
+    {{- template "menu" . -}}
+
     <header class="header center">
       <h1 class="title">
         <a href="/" class="no-style">IoT</a>
@@ -51,7 +53,7 @@
 
     {{- template "message" .Message -}}
 
-    <div class="flex flex-wrap">
+    <div class="flex flex-center flex-wrap">
       {{- if .Netatmo -}}
         {{- template "netatmo" .Netatmo -}}
       {{- end -}}
