@@ -52,7 +52,7 @@ func NewApp(config map[string]interface{}) (*App, error) {
 			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
 		}
 
-		app.configureSchedule(app.config.Schedules)
+		app.configureSchedules(app.config.Schedules)
 		app.configureTap(app.config.Taps)
 	}
 
@@ -125,16 +125,24 @@ func (a *App) GetSchedulesPayload() ([]byte, error) {
 func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
 		return a.GetGroupsPayload()
-	} else if bytes.HasPrefix(p, hue.SchedulesPrefix) {
-		if parts := bytes.Split(bytes.TrimPrefix(p, hue.SchedulesPrefix), []byte(`|`)); len(parts) == 2 {
+	}
+
+	if bytes.HasPrefix(p, hue.SchedulesPrefix) {
+		request := bytes.TrimPrefix(p, hue.SchedulesPrefix)
+
+		if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
 			if err := a.updateScheduleStatus(string(parts[0]), string(parts[1])); err != nil {
 				return nil, err
 			}
 		}
 
 		return a.GetSchedulesPayload()
-	} else if bytes.HasPrefix(p, hue.StatePrefix) {
-		if parts := bytes.Split(bytes.TrimPrefix(p, hue.StatePrefix), []byte(`|`)); len(parts) == 2 {
+	}
+
+	if bytes.HasPrefix(p, hue.StatePrefix) {
+		request := bytes.TrimPrefix(p, hue.StatePrefix)
+
+		if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
 			state, ok := hue.States[string(parts[1])]
 			if !ok {
 				return nil, fmt.Errorf(`Unknown state %s`, parts[1])

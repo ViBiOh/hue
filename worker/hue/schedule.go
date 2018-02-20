@@ -33,6 +33,60 @@ func (a *App) createSchedule(o *hue.Schedule) error {
 	return nil
 }
 
+func (a *App) createScheduleFromConfig(config *hue.ScheduleConfig, groups map[string]*hue.Group) error {
+	if groups == nil {
+		var err error
+
+		if groups, err = a.listGroups(); err != nil {
+			return fmt.Errorf(`Error while retrieving groups for configuring schedule: %v`, err)
+		}
+	}
+
+	group, ok := groups[config.Group]
+	if !ok {
+		return fmt.Errorf(`Unknown group id: %s`, config.Group)
+	}
+
+	state, ok := hue.States[config.State]
+	if !ok {
+		return fmt.Errorf(`Unknown state name: %s`, config.State)
+	}
+
+	scene := &hue.Scene{
+		Name:    config.Name,
+		Lights:  group.Lights,
+		Recycle: false,
+	}
+
+	if err := a.createScene(scene); err != nil {
+		return fmt.Errorf(`Error while creating scene for config %+v: %v`, config, err)
+	}
+
+	for _, light := range scene.Lights {
+		if err := a.updateSceneLightState(scene, light, state); err != nil {
+			return fmt.Errorf(`Error while updating scene light state for config %+v: %v`, config, err)
+		}
+	}
+
+	schedule := &hue.Schedule{
+		Name:      config.Name,
+		Localtime: config.Localtime,
+		Command: &hue.Action{
+			Address: fmt.Sprintf(`/api/%s/groups/%s/action`, a.bridgeUsername, config.Group),
+			Body: map[string]interface{}{
+				`scene`: scene.ID,
+			},
+			Method: http.MethodPut,
+		},
+	}
+
+	if err := a.createSchedule(schedule); err != nil {
+		return fmt.Errorf(`Error while creating schedule for %+v: %v`, config, err)
+	}
+
+	return nil
+}
+
 func (a *App) updateScheduleStatus(id, status string) error {
 	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), map[string]string{
 		`status`: status,
@@ -58,7 +112,7 @@ func (a *App) cleanSchedules() error {
 	return nil
 }
 
-func (a *App) configureSchedule(schedules []*scheduleConfig) {
+func (a *App) configureSchedules(schedules []*hue.ScheduleConfig) {
 	groups, err := a.listGroups()
 	if err != nil {
 		log.Printf(`[hue] Error while retrieving groups for configuring schedules: %v`, err)
@@ -66,50 +120,8 @@ func (a *App) configureSchedule(schedules []*scheduleConfig) {
 	}
 
 	for _, config := range schedules {
-		group, ok := groups[config.Group]
-		if !ok {
-			log.Printf(`[hue] Unknown group id: %s`, config.Group)
-			continue
-		}
-
-		state, ok := hue.States[config.State]
-		if !ok {
-			log.Printf(`[hue] Unknown state name: %s`, config.State)
-			continue
-		}
-
-		scene := &hue.Scene{
-			Name:    config.Name,
-			Lights:  group.Lights,
-			Recycle: false,
-		}
-
-		if err := a.createScene(scene); err != nil {
-			log.Printf(`[hue] Error while creating scene: %v`, err)
-			continue
-		}
-
-		for _, light := range scene.Lights {
-			if err := a.updateSceneLightState(scene, light, state); err != nil {
-				log.Printf(`[hue] Error while updating scene light state: %v`, err)
-			}
-		}
-
-		schedule := &hue.Schedule{
-			Name:      config.Name,
-			Localtime: config.Localtime,
-			Command: &hue.Action{
-				Address: fmt.Sprintf(`/api/%s/groups/%s/action`, a.bridgeUsername, config.Group),
-				Body: map[string]interface{}{
-					`scene`: scene.ID,
-				},
-				Method: http.MethodPut,
-			},
-		}
-
-		if err := a.createSchedule(schedule); err != nil {
-			log.Printf(`[hue] Error while creating schedule: %v`, err)
-			continue
+		if err := a.createScheduleFromConfig(config, groups); err != nil {
+			log.Printf(`[hue] %v`, err)
 		}
 	}
 }

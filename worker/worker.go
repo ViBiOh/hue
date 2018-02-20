@@ -146,6 +146,7 @@ func (a *App) connect() {
 		case p := <-input:
 			if bytes.HasPrefix(p, hue.WebSocketPrefix) {
 				output, err := a.hueApp.Handle(bytes.TrimPrefix(p, hue.WebSocketPrefix))
+
 				if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 					close(a.done)
 				} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {

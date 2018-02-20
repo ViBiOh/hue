@@ -24,6 +24,12 @@ var (
 	// StatePrefix ws message prefix for state command
 	StatePrefix = []byte(`state `)
 
+	// CreatePrefix ws message prefix for create command
+	CreatePrefix = []byte(`create `)
+
+	// UpdatePrefix ws message prefix for update command
+	UpdatePrefix = []byte(`update `)
+
 	// States available states of lights
 	States = map[string]map[string]interface{}{
 		`off`: {

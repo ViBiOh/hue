@@ -60,6 +60,14 @@ type Schedule struct {
 	Status    string  `json:"status,omitempty"`
 }
 
+// ScheduleConfig configuration (made simple)
+type ScheduleConfig struct {
+	Name      string
+	Localtime string
+	Group     string
+	State     string
+}
+
 // FormatLocalTime formats local time of schedules to human readable version
 func (s *Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, `W`) {

@@ -3,15 +3,8 @@ package hue
 import "github.com/ViBiOh/iot/hue"
 
 type hueConfig struct {
-	Schedules []*scheduleConfig
+	Schedules []*hue.ScheduleConfig
 	Taps      []*tapConfig
-}
-
-type scheduleConfig struct {
-	Name      string
-	Localtime string
-	Group     string
-	State     string
 }
 
 type tapConfig struct {
