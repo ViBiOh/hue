@@ -17,7 +17,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const maxAllowedErrors = 5
+const (
+	maxAllowedErrors = 5
+	hoursInDay       = 24
+	minutesInHours   = 60
+)
+
+var (
+	hours   []string
+	minutes []string
+)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -34,6 +43,18 @@ type App struct {
 	secretKey  string
 	wsConn     *websocket.Conn
 	wsErrCount uint
+}
+
+func init() {
+	hours = make([]string, hoursInDay)
+	for i := 0; i < hoursInDay; i++ {
+		hours[i] = fmt.Sprintf(`%02d`, i)
+	}
+
+	minutes = make([]string, minutesInHours)
+	for i := 0; i < minutesInHours; i++ {
+		minutes[i] = fmt.Sprintf(`%02d`, i)
+	}
 }
 
 // NewApp creates new App from dependencies and Flags' config
@@ -90,6 +111,8 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 		`Online`:  a.wsConn != nil,
 		`Error`:   a.wsErrCount >= maxAllowedErrors,
 		`Message`: message,
+		`Hours`:   hours,
+		`Minutes`: minutes,
 	}
 
 	for name, provider := range a.providers {

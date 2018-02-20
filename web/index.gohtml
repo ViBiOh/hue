@@ -46,7 +46,7 @@
     {{- template "menu" . -}}
 
     {{- if and .Online (not .Error) -}}
-      {{- template "hue-new-schedule" .Hue -}}
+      {{- template "hue-new-schedule" . -}}
     {{- end -}}
 
     <div class="content">

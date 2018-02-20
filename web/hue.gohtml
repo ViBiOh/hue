@@ -12,7 +12,18 @@
         <div class="padding">
           <div class="flex flex-center">
             <span class="flex-half">Time</span>
-            <input class="flex-half" type="time" name="time" />
+            <span class="flex-half">
+              <select name="hours">
+                {{- range .Hours -}}
+                  <option value="{{- . -}}">{{- . -}}</option>
+                {{- end -}}
+              </select>
+              <select name="minutes">
+                {{- range .Minute -}}
+                  <option value="{{- . -}}">{{- . -}}</option>
+                {{- end -}}
+              </select>
+            </span>
           </div>
         </div>
 
@@ -77,7 +88,7 @@
         <div class="flex flex-center padding">
           <label class="flex-half">Group</label>
           <select class="flex-half" name="group">
-            {{- range $id, $group := .Groups -}}
+            {{- range $id, $group := .Hue.Groups -}}
               <option value="{{- $id -}}">{{- $group.Name -}}</option>
             {{- end -}}
           </select>
