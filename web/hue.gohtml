@@ -5,15 +5,15 @@
 
       <form class="padding" method="POST" action="/hue/schedules">
         <div class="flex flex-center padding">
-          <label class="flex-half">Name</label>
-          <input class="flex-half" type="text" name="name" placeholder="Schedule name" />
+          <label for="name" class="flex-half">Name</label>
+          <input id="name" class="flex-half" type="text" name="name" placeholder="Schedule name" />
         </div>
 
         <div class="padding">
           <div class="flex flex-center">
-            <span class="flex-half">Time</span>
+            <label for="hours" class="flex-half">Time</span>
             <span class="flex-half">
-              <select name="hours">
+              <select id="hours" name="hours">
                 {{- range .Hours -}}
                   <option value="{{- . -}}">{{- . -}}</option>
                 {{- end -}}
@@ -32,63 +32,63 @@
           <div class="flex flex-center">
             <span class="flex-half">Recurrence</span>
             <span class="flex-half">
-              <input class="inline-block" type="checkbox" name="days[]" value="mon" />
-              <label>Monday</label>
+              <input class="inline-block" type="checkbox" name="days[]" id="mon" value="mon" />
+              <label for="mon">Monday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="tue" />
-              <label>Tuesday</label>
+              <input type="checkbox" name="days[]" id="tue" value="tue" />
+              <label for="tue">Tuesday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="wed" />
-              <label>Wednesday</label>
+              <input type="checkbox" name="days[]" id="wed" value="wed" />
+              <label for="wed">Wednesday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="thu" />
-              <label>Thursday</label>
+              <input type="checkbox" name="days[]" id="thu" value="thu" />
+              <label for="thu">Thursday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="fri" />
-              <label>Friday</label>
+              <input type="checkbox" name="days[]" id="fri" value="fri" />
+              <label for="fri">Friday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="sat" />
-              <label>Saturday</label>
+              <input type="checkbox" name="days[]" id="sat" value="sat" />
+              <label for="sat">Saturday</label>
             </span>
           </div>
 
           <div class="flex flex-center">
             <span class="flex-half">&nbsp;</span>
             <span class="flex-half">
-              <input type="checkbox" name="days[]" value="sun" />
-              <label>Sunday</label>
+              <input type="checkbox" name="days[]" id="sun" value="sun" />
+              <label for="sun">Sunday</label>
             </span>
           </div>
         </div>
 
         <div class="flex flex-center padding">
-          <label class="flex-half">Group</label>
-          <select class="flex-half" name="group">
+          <label for="group" class="flex-half">Group</label>
+          <select id="group" class="flex-half" name="group">
             {{- range $id, $group := .Hue.Groups -}}
               <option value="{{- $id -}}">{{- $group.Name -}}</option>
             {{- end -}}
