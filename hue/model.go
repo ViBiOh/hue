@@ -43,21 +43,31 @@ type lightState struct {
 	On bool `json:"on"`
 }
 
-// Scene description
-type Scene struct {
-	ID      string   `json:"id,omitempty"`
+// APIScene describe scene as from Hue API
+type APIScene struct {
 	Name    string   `json:"name"`
 	Lights  []string `json:"lights"`
 	Recycle bool     `json:"recycle"`
 }
 
-// Schedule description
-type Schedule struct {
-	ID        string  `json:"id,omitempty"`
+// Scene description
+type Scene struct {
+	ID string `json:"id,omitempty"`
+	*APIScene
+}
+
+// APISchedule describe schedule as from Hue API
+type APISchedule struct {
 	Name      string  `json:"name"`
 	Localtime string  `json:"localtime"`
 	Command   *Action `json:"command"`
 	Status    string  `json:"status,omitempty"`
+}
+
+// Schedule description
+type Schedule struct {
+	ID string `json:"id,omitempty"`
+	*APISchedule
 }
 
 // ScheduleConfig configuration (made simple)

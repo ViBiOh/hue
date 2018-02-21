@@ -178,9 +178,11 @@ func (a *App) WebsocketHandler() http.Handler {
 					break
 				}
 
-				for _, value := range a.providers {
+				for name, value := range a.providers {
 					if bytes.HasPrefix(p, value.GetWorkerPrefix()) {
-						value.WorkerHandler(bytes.TrimPrefix(p, value.GetWorkerPrefix()))
+						if err := value.WorkerHandler(bytes.TrimPrefix(p, value.GetWorkerPrefix())); err != nil {
+							log.Printf(`[%s] %v`, name, err)
+						}
 						a.wsErrCount = 0
 						break
 					}

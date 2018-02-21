@@ -21,7 +21,7 @@ type Provider interface {
 	SetHub(Hub)
 	GetWorkerPrefix() []byte
 	GetData() interface{}
-	WorkerHandler([]byte)
+	WorkerHandler([]byte) error
 }
 
 // Hub for rendering UI

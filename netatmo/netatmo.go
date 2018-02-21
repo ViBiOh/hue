@@ -153,6 +153,6 @@ func (a *App) GetData() interface{} {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(payload []byte) {
-	log.Printf(`[netatmo] Unknown worker command: %s`, payload)
+func (a *App) WorkerHandler(payload []byte) error {
+	return fmt.Errorf(`[netatmo] Unknown worker command: %s`, payload)
 }

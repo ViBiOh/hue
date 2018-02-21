@@ -3,11 +3,11 @@ package hue
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 
-	"github.com/ViBiOh/httputils/request"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
 )
@@ -25,7 +25,7 @@ func NewApp(config map[string]interface{}) (*App, error) {
 
 	app := &App{
 		bridgeUsername: username,
-		bridgeURL:      getURL(*config[`bridgeIP`].(*string), username),
+		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config[`bridgeIP`].(*string), username),
 	}
 
 	if *config[`clean`].(*bool) {
@@ -45,11 +45,11 @@ func NewApp(config map[string]interface{}) (*App, error) {
 	if *config[`config`].(*string) != `` {
 		rawConfig, err := ioutil.ReadFile(*config[`config`].(*string))
 		if err != nil {
-			return nil, fmt.Errorf(`Error while reading tap config filename: %v`, err)
+			return nil, fmt.Errorf(`Error while reading config filename: %v`, err)
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling tap config: %v`, err)
+			return nil, fmt.Errorf(`Error while unmarshalling config: %v`, err)
 		}
 
 		app.configureSchedules(app.config.Schedules)
@@ -67,24 +67,6 @@ func Flags(prefix string) map[string]interface{} {
 		`config`:   flag.String(tools.ToCamel(prefix+`Config`), ``, `[hue] Configuration filename`),
 		`clean`:    flag.Bool(tools.ToCamel(prefix+`Clean`), false, `[hue] Clean Hue`),
 	}
-}
-
-func getURL(bridgeIP, username string) string {
-	return `http://` + bridgeIP + `/api/` + username
-}
-
-func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := request.GetRequest(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
-	if err != nil {
-		return nil, fmt.Errorf(`Error while getting light: %v`, err)
-	}
-
-	var light hue.Light
-	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, fmt.Errorf(`Error while parsing light data: %v`, err)
-	}
-
-	return &light, nil
 }
 
 // GetGroupsPayload get lists of groups in websocket format
@@ -139,7 +121,21 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.createScheduleFromConfig(config, nil); err != nil {
 				return nil, fmt.Errorf(`Error while creating schedule from config: %v`, err)
 			}
+		} else if bytes.HasPrefix(request, hue.UpdatePrefix) {
+			var config *hue.Schedule
+			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.UpdatePrefix), config); err != nil {
+				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+			}
+
+			if config.ID == `` {
+				return nil, errors.New(`Error while updating schedule config: ID is missing`)
+			}
+
+			if err := a.updateSchedule(config); err != nil {
+				return nil, err
+			}
 		} else if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
+			// TODO Delete me when worker is updated
 			if err := a.updateScheduleStatus(string(parts[0]), string(parts[1])); err != nil {
 				return nil, err
 			}

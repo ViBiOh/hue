@@ -22,6 +22,38 @@ func (a *App) createScene(o *hue.Scene) error {
 	return nil
 }
 
+func (a *App) createSceneFromScheduleConfig(config *hue.ScheduleConfig, groups map[string]*hue.Group) (*hue.Scene, error) {
+	group, ok := groups[config.Group]
+	if !ok {
+		return nil, fmt.Errorf(`Unknown group id: %s`, config.Group)
+	}
+
+	state, ok := hue.States[config.State]
+	if !ok {
+		return nil, fmt.Errorf(`Unknown state name: %s`, config.State)
+	}
+
+	scene := &hue.Scene{
+		APIScene: &hue.APIScene{
+			Name:    config.Name,
+			Lights:  group.Lights,
+			Recycle: false,
+		},
+	}
+
+	if err := a.createScene(scene); err != nil {
+		return nil, fmt.Errorf(`Error while creating scene for config %+v: %v`, config, err)
+	}
+
+	for _, light := range scene.Lights {
+		if err := a.updateSceneLightState(scene, light, state); err != nil {
+			return nil, fmt.Errorf(`Error while updating scene light state for config %+v: %v`, config, err)
+		}
+	}
+
+	return scene, nil
+}
+
 func (a *App) updateSceneLightState(o *hue.Scene, lightID string, state map[string]interface{}) error {
 	return update(fmt.Sprintf(`%s/scenes/%s/lightstates/%s`, a.bridgeURL, o.ID, lightID), state)
 }

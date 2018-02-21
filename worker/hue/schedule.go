@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -42,55 +43,49 @@ func (a *App) createScheduleFromConfig(config *hue.ScheduleConfig, groups map[st
 		}
 	}
 
-	group, ok := groups[config.Group]
-	if !ok {
-		return fmt.Errorf(`Unknown group id: %s`, config.Group)
-	}
-
-	state, ok := hue.States[config.State]
-	if !ok {
-		return fmt.Errorf(`Unknown state name: %s`, config.State)
-	}
-
-	scene := &hue.Scene{
-		Name:    config.Name,
-		Lights:  group.Lights,
-		Recycle: false,
-	}
-
-	if err := a.createScene(scene); err != nil {
-		return fmt.Errorf(`Error while creating scene for config %+v: %v`, config, err)
-	}
-
-	for _, light := range scene.Lights {
-		if err := a.updateSceneLightState(scene, light, state); err != nil {
-			return fmt.Errorf(`Error while updating scene light state for config %+v: %v`, config, err)
-		}
+	scene, err := a.createSceneFromScheduleConfig(config, groups)
+	if err != nil {
+		return fmt.Errorf(`Error while creating scene for schedule config %+v: %v`, config, err)
 	}
 
 	schedule := &hue.Schedule{
-		Name:      config.Name,
-		Localtime: config.Localtime,
-		Command: &hue.Action{
-			Address: fmt.Sprintf(`/api/%s/groups/%s/action`, a.bridgeUsername, config.Group),
-			Body: map[string]interface{}{
-				`scene`: scene.ID,
+		APISchedule: &hue.APISchedule{
+			Name:      config.Name,
+			Localtime: config.Localtime,
+			Command: &hue.Action{
+				Address: fmt.Sprintf(`/api/%s/groups/%s/action`, a.bridgeUsername, config.Group),
+				Body: map[string]interface{}{
+					`scene`: scene.ID,
+				},
+				Method: http.MethodPut,
 			},
-			Method: http.MethodPut,
 		},
 	}
 
 	if err := a.createSchedule(schedule); err != nil {
-		return fmt.Errorf(`Error while creating schedule for %+v: %v`, config, err)
+		return fmt.Errorf(`Error while creating schedule from config %+v: %v`, config, err)
 	}
 
 	return nil
 }
 
+// TODO Delete me
 func (a *App) updateScheduleStatus(id, status string) error {
 	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), map[string]string{
 		`status`: status,
 	})
+}
+
+func (a *App) updateSchedule(schedule *hue.Schedule) error {
+	if schedule == nil {
+		return errors.New(`A schedule is required to update`)
+	}
+
+	if schedule.ID == `` {
+		return errors.New(`A schedule ID is required to update`)
+	}
+
+	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, schedule.ID), schedule.APISchedule)
 }
 
 func (a *App) deleteSchedule(id string) error {

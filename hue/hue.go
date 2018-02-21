@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -138,16 +137,22 @@ func (a *App) GetData() interface{} {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(payload []byte) {
+func (a *App) WorkerHandler(payload []byte) error {
 	if bytes.HasPrefix(payload, GroupsPrefix) {
 		if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &a.groups); err != nil {
-			log.Printf(`[hue] Error while unmarshalling groups: %v`, err)
+			return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
 		}
-	} else if bytes.HasPrefix(payload, SchedulesPrefix) {
-		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &a.schedules); err != nil {
-			log.Printf(`[hue] Error while unmarshalling schedules: %v`, err)
-		}
-	} else {
-		log.Printf(`[hue] Unknown command`)
+
+		return nil
 	}
+
+	if bytes.HasPrefix(payload, SchedulesPrefix) {
+		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &a.schedules); err != nil {
+			return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf(`[hue] Unknown command`)
 }
