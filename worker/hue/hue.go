@@ -130,7 +130,16 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.SchedulesPrefix) {
 		request := bytes.TrimPrefix(p, hue.SchedulesPrefix)
 
-		if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
+		if bytes.HasPrefix(request, hue.CreatePrefix) {
+			var config *hue.ScheduleConfig
+			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.CreatePrefix), config); err != nil {
+				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+			}
+
+			if err := a.createScheduleFromConfig(config, nil); err != nil {
+				return nil, fmt.Errorf(`Error while creating schedule from config: %v`, err)
+			}
+		} else if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
 			if err := a.updateScheduleStatus(string(parts[0]), string(parts[1])); err != nil {
 				return nil, err
 			}
