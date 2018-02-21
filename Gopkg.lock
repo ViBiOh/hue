@@ -18,7 +18,7 @@
     "provider/github",
     "service"
   ]
-  revision = "74feea8d2ec00d4ff1aced25ced0447071973343"
+  revision = "8ae37b8a43d51d92eec3008ad5117da229558ffc"
 
 [[projects]]
   branch = "master"
@@ -38,7 +38,7 @@
     "tools",
     "uuid"
   ]
-  revision = "05e38ed40e0b1c5fbcb363de04dd630fa2f53bf8"
+  revision = "ffedff675f711425bed74940efee7021ba098536"
 
 [[projects]]
   name = "github.com/golang/protobuf"

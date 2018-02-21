@@ -10,7 +10,7 @@ import (
 )
 
 func get(url string, response interface{}) error {
-	content, err := request.GetRequest(url, nil)
+	content, err := request.Get(url, nil)
 	if err != nil {
 		return fmt.Errorf(`Error while sending get request: %v`, err)
 	}
@@ -23,7 +23,7 @@ func get(url string, response interface{}) error {
 }
 
 func create(url string, payload interface{}) (*string, error) {
-	content, err := request.RequestJSON(url, payload, nil, http.MethodPost)
+	content, err := request.DoJSON(url, payload, nil, http.MethodPost)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while sending post request: %v`, err)
 	}
@@ -40,7 +40,7 @@ func create(url string, payload interface{}) (*string, error) {
 }
 
 func update(url string, payload interface{}) error {
-	content, err := request.RequestJSON(url, payload, nil, http.MethodPut)
+	content, err := request.DoJSON(url, payload, nil, http.MethodPut)
 	if err != nil {
 		return fmt.Errorf(`Error while sending put request: %v`, err)
 	}
@@ -52,7 +52,7 @@ func update(url string, payload interface{}) error {
 }
 
 func delete(url string) error {
-	content, err := request.Request(url, nil, nil, http.MethodDelete)
+	content, err := request.Do(url, nil, nil, http.MethodDelete)
 	if err != nil {
 		return fmt.Errorf(`Error while sending delete request: %v`, err)
 	}

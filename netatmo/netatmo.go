@@ -84,7 +84,7 @@ func Flags(prefix string) map[string]*string {
 }
 
 func (a *App) refreshAccessToken() error {
-	rawData, err := request.Request(netatmoRefreshTokenURL, []byte(fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
+	rawData, err := request.Do(netatmoRefreshTokenURL, []byte(fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
 
 	if err != nil {
 		return fmt.Errorf(`[netatmo] Error while refreshing token: %v`, err)
@@ -108,7 +108,7 @@ func (a *App) GetStationData() (*StationData, error) {
 
 	var infos StationData
 
-	rawData, err := request.GetRequest(netatmoGetStationDataURL+a.accessToken, nil)
+	rawData, err := request.Get(netatmoGetStationDataURL+a.accessToken, nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 

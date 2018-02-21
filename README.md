@@ -20,11 +20,11 @@ curl -X POST https://api.netatmo.com/oauth2/token --data "grant_type=password&us
 ```bash
 Usage of iot:
   -authUrl string
-      [auth] Auth URL
+      [auth] Auth URL, if remote
   -authUsers string
       [auth] List of allowed users and profiles (e.g. user:profile1|profile2,user2:profile3)
-  -c string
-      [health] URL to check
+  -basicUsers string
+      [Basic] Users in the form "id:username:password,id2:username2:password2"
   -corsCredentials
       [cors] Access-Control-Allow-Credentials
   -corsExpose string
@@ -54,13 +54,15 @@ Usage of iot:
   -secretKey string
       [iot] Secret Key between worker and API
   -tls
-      Serve TLS content (default true)
+      Serve TLS content
   -tlsCert string
       [tls] PEM Certificate file
   -tlsHosts string
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
+  -url string
+      [health] URL to check
 ```
 
 ## Usage of IoT worker

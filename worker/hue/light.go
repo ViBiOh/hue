@@ -9,7 +9,7 @@ import (
 )
 
 func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := request.GetRequest(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
+	content, err := request.Get(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting light: %v`, err)
 	}
