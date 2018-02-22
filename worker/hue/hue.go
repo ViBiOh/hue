@@ -113,25 +113,25 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 		request := bytes.TrimPrefix(p, hue.SchedulesPrefix)
 
 		if bytes.HasPrefix(request, hue.CreatePrefix) {
-			var config *hue.ScheduleConfig
-			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.CreatePrefix), config); err != nil {
+			var config hue.ScheduleConfig
+			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.CreatePrefix), &config); err != nil {
 				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
 			}
 
-			if err := a.createScheduleFromConfig(config, nil); err != nil {
+			if err := a.createScheduleFromConfig(&config, nil); err != nil {
 				return nil, fmt.Errorf(`Error while creating schedule from config: %v`, err)
 			}
 		} else if bytes.HasPrefix(request, hue.UpdatePrefix) {
-			var config *hue.Schedule
-			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.UpdatePrefix), config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+			var config hue.Schedule
+			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.UpdatePrefix), &config); err != nil {
+				return nil, fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
 			}
 
 			if config.ID == `` {
 				return nil, errors.New(`Error while updating schedule config: ID is missing`)
 			}
 
-			if err := a.updateSchedule(config); err != nil {
+			if err := a.updateSchedule(&config); err != nil {
 				return nil, err
 			}
 		}
