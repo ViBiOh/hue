@@ -9,6 +9,10 @@ import (
 	"github.com/ViBiOh/httputils/request"
 )
 
+func hasError(content []byte) bool {
+	return !bytes.Contains(content, []byte(`success`))
+}
+
 func get(url string, response interface{}) error {
 	content, err := request.Get(url, nil)
 	if err != nil {
@@ -27,7 +31,8 @@ func create(url string, payload interface{}) (*string, error) {
 	if err != nil {
 		return nil, fmt.Errorf(`Error while sending post request: %v`, err)
 	}
-	if !bytes.Contains(content, []byte(`success`)) {
+
+	if hasError(content) {
 		return nil, fmt.Errorf(`Error while sending post request: %s`, content)
 	}
 
@@ -44,7 +49,8 @@ func update(url string, payload interface{}) error {
 	if err != nil {
 		return fmt.Errorf(`Error while sending put request: %v`, err)
 	}
-	if !bytes.Contains(content, []byte(`success`)) {
+
+	if hasError(content) {
 		return fmt.Errorf(`Error while sending put request: %s`, content)
 	}
 
@@ -56,7 +62,8 @@ func delete(url string) error {
 	if err != nil {
 		return fmt.Errorf(`Error while sending delete request: %v`, err)
 	}
-	if !bytes.Contains(content, []byte(`success`)) {
+
+	if hasError(content) {
 		return fmt.Errorf(`Error while sending delete request: %s`, content)
 	}
 

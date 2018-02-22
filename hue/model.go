@@ -23,10 +23,10 @@ const (
 
 // Group description
 type Group struct {
-	Name   string      `json:"name"`
-	Tap    bool        `json:"tap"`
-	Lights []string    `json:"lights"`
-	State  *groupState `json:"state"`
+	Name   string      `json:"name,omitempty"`
+	Tap    bool        `json:"tap,omitempty"`
+	Lights []string    `json:"lights,omitempty"`
+	State  *groupState `json:"state,omitempty"`
 }
 
 type groupState struct {
@@ -35,18 +35,18 @@ type groupState struct {
 
 // Light description
 type Light struct {
-	Type  string      `json:"type"`
-	State *lightState `json:"state"`
+	Type  string      `json:"type,omitempty"`
+	State *lightState `json:"state,omitempty"`
 }
 
 type lightState struct {
-	On bool `json:"on"`
+	On bool `json:"on,omitempty"`
 }
 
 // APIScene describe scene as from Hue API
 type APIScene struct {
-	Name    string   `json:"name"`
-	Lights  []string `json:"lights"`
+	Name    string   `json:"name,omitempty"`
+	Lights  []string `json:"lights,omitempty"`
 	Recycle bool     `json:"recycle"`
 }
 
@@ -58,9 +58,9 @@ type Scene struct {
 
 // APISchedule describe schedule as from Hue API
 type APISchedule struct {
-	Name      string  `json:"name"`
-	Localtime string  `json:"localtime"`
-	Command   *Action `json:"command"`
+	Name      string  `json:"name,omitempty"`
+	Localtime string  `json:"localtime,omitempty"`
+	Command   *Action `json:"command,omitempty"`
 	Status    string  `json:"status,omitempty"`
 }
 
