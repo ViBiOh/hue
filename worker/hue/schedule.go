@@ -69,13 +69,6 @@ func (a *App) createScheduleFromConfig(config *hue.ScheduleConfig, groups map[st
 	return nil
 }
 
-// TODO Delete me
-func (a *App) updateScheduleStatus(id, status string) error {
-	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), map[string]string{
-		`status`: status,
-	})
-}
-
 func (a *App) updateSchedule(schedule *hue.Schedule) error {
 	if schedule == nil {
 		return errors.New(`A schedule is required to update`)

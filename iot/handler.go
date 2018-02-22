@@ -115,6 +115,10 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 		`Minutes`: minutes,
 	}
 
+	if message != nil && message.Level == `error` {
+		log.Printf(message.Content)
+	}
+
 	for name, provider := range a.providers {
 		response[name] = provider.GetData()
 	}

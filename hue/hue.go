@@ -107,7 +107,16 @@ func (a *App) Handler() http.Handler {
 				return
 			}
 
-			if !a.sendToWorker(append(SchedulesPrefix, []byte(strings.Join(parts, `|`))...)) {
+			schedule := &Schedule{
+				ID: parts[0],
+				APISchedule: &APISchedule{
+					Status: parts[1],
+				},
+			}
+
+			if payload, err := json.Marshal(schedule); err != nil {
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
+			} else if !a.sendToWorker(append(SchedulesPrefix, append(UpdatePrefix, payload...)...)) {
 				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
 			} else {
 				a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1])})

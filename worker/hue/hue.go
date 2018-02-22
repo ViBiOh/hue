@@ -134,11 +134,6 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.updateSchedule(config); err != nil {
 				return nil, err
 			}
-		} else if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
-			// TODO Delete me when worker is updated
-			if err := a.updateScheduleStatus(string(parts[0]), string(parts[1])); err != nil {
-				return nil, err
-			}
 		}
 
 		return a.GetSchedulesPayload()
