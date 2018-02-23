@@ -99,7 +99,7 @@ func (s *Schedule) FormatLocalTime() string {
 	} else if recurrence == weekend {
 		recurrenceStr = `Weekend`
 	} else {
-		days := make([]string, 5)
+		days := make([]string, 0)
 
 		if recurrence&monday != 0 {
 			days = append(days, `Mon`)
