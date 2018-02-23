@@ -60,6 +60,7 @@ var (
 type Data struct {
 	Groups    map[string]*Group
 	Schedules map[string]*Schedule
+	States    map[string]map[string]interface{}
 }
 
 // App stores informations and secret of API
@@ -98,13 +99,12 @@ func (a *App) Handler() http.Handler {
 
 		if strings.HasPrefix(r.URL.Path, `/schedules`) {
 			if r.Method == http.MethodPost {
-				values := r.Form
 
 				config := &ScheduleConfig{
-					Name:      strings.Join(values[`name`], ``),
-					Group:     strings.Join(values[`group`], ``),
-					Localtime: ComputeScheduleReccurence(values[`days`], strings.Join(values[`hours`], ``), strings.Join(values[`minutes`], ``)),
-					State:     `enabled`,
+					Name:      r.FormValue(`name`),
+					Group:     r.FormValue(`group`),
+					Localtime: ComputeScheduleReccurence(r.Form[`days[]`], r.FormValue(`hours`), r.FormValue(`minutes`)),
+					State:     r.FormValue(`state`),
 				}
 
 				if payload, err := json.Marshal(config); err != nil {
@@ -162,6 +162,7 @@ func (a *App) GetData() interface{} {
 	return &Data{
 		Groups:    a.groups,
 		Schedules: a.schedules,
+		States:    States,
 	}
 }
 

@@ -32,6 +32,11 @@ type Hub interface {
 
 // WriteTextMessage writes content as text message on websocket
 func WriteTextMessage(ws *websocket.Conn, content []byte) bool {
+	if ws == nil {
+		log.Printf(`No websocket connection provided for sending: %s`, content)
+		return false
+	}
+
 	if err := ws.WriteMessage(websocket.TextMessage, content); err != nil {
 		log.Printf(`Error while sending text message %s: %v`, content, err)
 		return false

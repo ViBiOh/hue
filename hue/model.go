@@ -157,7 +157,7 @@ func ComputeScheduleReccurence(days []string, hours, minutes string) string {
 		}
 	}
 
-	return fmt.Sprintf(`W%dT%s:%s:00`, recurrence, hours, minutes)
+	return fmt.Sprintf(`W%03d/T%02s:%02s:00`, recurrence, hours, minutes)
 }
 
 // Rule description

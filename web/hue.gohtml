@@ -9,6 +9,24 @@
           <input id="name" class="flex-half" type="text" name="name" placeholder="Schedule name" />
         </div>
 
+        <div class="flex flex-center padding">
+          <label for="group" class="flex-half">Group</label>
+          <select id="group" class="flex-half" name="group">
+            {{- range $id, $group := .Hue.Groups -}}
+              <option value="{{- $id -}}">{{- $group.Name -}}</option>
+            {{- end -}}
+          </select>
+        </div>
+
+        <div class="flex flex-center padding">
+          <label for="group" class="flex-half">State</label>
+          <select id="group" class="flex-half" name="state">
+            {{- range $id, $state := .Hue.States -}}
+              <option value="{{- $id -}}">{{- $id -}}</option>
+            {{- end -}}
+          </select>
+        </div>
+
         <div class="padding">
           <div class="flex flex-center">
             <label for="hours" class="flex-half">Time</label>
@@ -84,15 +102,6 @@
               <label for="sun">Sunday</label>
             </span>
           </div>
-        </div>
-
-        <div class="flex flex-center padding">
-          <label for="group" class="flex-half">Group</label>
-          <select id="group" class="flex-half" name="group">
-            {{- range $id, $group := .Hue.Groups -}}
-              <option value="{{- $id -}}">{{- $group.Name -}}</option>
-            {{- end -}}
-          </select>
         </div>
 
         <p class="center">
