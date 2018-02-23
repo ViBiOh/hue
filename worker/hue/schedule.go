@@ -23,6 +23,16 @@ func (a *App) listSchedules() (map[string]*hue.Schedule, error) {
 	return response, nil
 }
 
+func (a *App) getSchedule(id string) (*hue.Schedule, error) {
+	var response hue.Schedule
+
+	if err := get(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), &response); err != nil {
+		return &response, nil
+	}
+
+	return &response, nil
+}
+
 func (a *App) createSchedule(o *hue.Schedule) error {
 	id, err := create(fmt.Sprintf(`%s/schedules`, a.bridgeURL), o)
 	if err != nil {

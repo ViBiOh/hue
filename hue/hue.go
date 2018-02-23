@@ -29,6 +29,9 @@ var (
 	// UpdatePrefix ws message prefix for update command
 	UpdatePrefix = []byte(`update `)
 
+	// DeletePrefix ws message prefix for delete command
+	DeletePrefix = []byte(`delete `)
+
 	// States available states of lights
 	States = map[string]map[string]interface{}{
 		`off`: {
@@ -99,23 +102,34 @@ func (a *App) Handler() http.Handler {
 
 		if strings.HasPrefix(r.URL.Path, `/schedules`) {
 			if r.Method == http.MethodPost {
+				if r.FormValue(`method`) == http.MethodPost {
+					config := &ScheduleConfig{
+						Name:      r.FormValue(`name`),
+						Group:     r.FormValue(`group`),
+						Localtime: ComputeScheduleReccurence(r.Form[`days[]`], r.FormValue(`hours`), r.FormValue(`minutes`)),
+						State:     r.FormValue(`state`),
+					}
 
-				config := &ScheduleConfig{
-					Name:      r.FormValue(`name`),
-					Group:     r.FormValue(`group`),
-					Localtime: ComputeScheduleReccurence(r.Form[`days[]`], r.FormValue(`hours`), r.FormValue(`minutes`)),
-					State:     r.FormValue(`state`),
+					if payload, err := json.Marshal(config); err != nil {
+						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
+					} else if !a.sendToWorker(append(SchedulesPrefix, append(CreatePrefix, payload...)...)) {
+						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
+					} else {
+						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, config.Name)})
+					}
+
+					return
 				}
 
-				if payload, err := json.Marshal(config); err != nil {
-					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
-				} else if !a.sendToWorker(append(SchedulesPrefix, append(CreatePrefix, payload...)...)) {
-					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-				} else {
-					a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, config.Name)})
-				}
+				if r.FormValue(`method`) == http.MethodDelete {
+					if !a.sendToWorker(append(SchedulesPrefix, append(DeletePrefix, []byte(strings.TrimPrefix(r.URL.Path, `/schedules/`))...)...)) {
+						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
+					} else {
+						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, r.FormValue(`name`))})
+					}
 
-				return
+					return
+				}
 			} else if r.Method == http.MethodGet {
 				parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
 
@@ -169,17 +183,25 @@ func (a *App) GetData() interface{} {
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(payload []byte) error {
 	if bytes.HasPrefix(payload, GroupsPrefix) {
-		if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &a.groups); err != nil {
+		var newGroups map[string]*Group
+
+		if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &newGroups); err != nil {
 			return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
 		}
+
+		a.groups = newGroups
 
 		return nil
 	}
 
 	if bytes.HasPrefix(payload, SchedulesPrefix) {
-		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &a.schedules); err != nil {
+		var newSchedule map[string]*Schedule
+
+		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &newSchedule); err != nil {
 			return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
 		}
+
+		a.schedules = newSchedule
 
 		return nil
 	}

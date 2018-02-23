@@ -2,6 +2,8 @@ package iot
 
 import (
 	"bytes"
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
@@ -60,7 +62,16 @@ func init() {
 // NewApp creates new App from dependencies and Flags' config
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	app := &App{
-		tpl:       template.Must(template.New(`iot`).ParseGlob(`./web/*.gohtml`)),
+		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
+			`sha`: func(content interface{}) string {
+				hasher := sha1.New()
+				if _, err := hasher.Write([]byte(fmt.Sprintf(`%v`, content))); err != nil {
+					log.Printf(`Error while generating hash for %s: %v`, content, err)
+				}
+
+				return hex.EncodeToString(hasher.Sum(nil))
+			},
+		}).ParseGlob(`./web/*.gohtml`)),
 		providers: providers,
 		secretKey: *config[`secretKey`],
 	}

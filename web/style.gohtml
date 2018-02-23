@@ -95,6 +95,10 @@
       padding: 1rem;
     }
 
+    .margin-left {
+      margin-left: 1rem;
+    }
+
     .title {
       margin: 0;
       padding: 0;
@@ -130,13 +134,11 @@
     }
 
     .icon {
-      height: 8rem;
-      width: 5rem;
+      width: 4rem;
     }
 
-    .icon-large {
-      height: 4rem;
-      width: 4rem;
+    .icon-small {
+      width: 3rem;
     }
 
     .modal {
@@ -150,11 +152,11 @@
 
     .modal-header {
       color: dimgray;
-      padding: 0.5rem 1rem;
     }
 
     .modal-content {
       background-color: whitesmoke;
+      padding: 0.5rem 1rem;
       pointer-events: auto;
     }
 
@@ -172,14 +174,23 @@
       right: 0;
     }
 
+    {{- range $id, $schedule := .Hue.Schedules }}
+      #hue-delete-schedule-{{- sha $schedule -}},
+    {{- end -}}
     #new-schedule {
       display: none;
     }
 
+    {{- range $id, $schedule := .Hue.Schedules }}
+      #hue-delete-schedule-{{- sha $schedule -}}:target,
+    {{- end -}}
     #new-schedule:target {
       display: flex;
     }
 
+    {{- range $id, $schedule := .Hue.Schedules }}
+      #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
+    {{- end -}}
     #new-schedule:target ~ .content {
       pointer-events: none;
     }

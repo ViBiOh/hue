@@ -134,6 +134,23 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.updateSchedule(&config); err != nil {
 				return nil, err
 			}
+		} else if bytes.HasPrefix(request, hue.DeletePrefix) {
+			id := string(bytes.TrimPrefix(request, hue.DeletePrefix))
+
+			schedule, err := a.getSchedule(id)
+			if err != nil {
+				return nil, fmt.Errorf(`Error while getting schedule: %v`, err)
+			}
+
+			if err := a.deleteSchedule(id); err != nil {
+				return nil, fmt.Errorf(`Error while deleting schedule: %v`, err)
+			}
+
+			if sceneID, ok := schedule.Command.Body[`scene`]; ok {
+				if err := a.deleteScene(sceneID.(string)); err != nil {
+					return nil, fmt.Errorf(`Error while deleting scene: %v`, err)
+				}
+			}
 		}
 
 		return a.GetSchedulesPayload()
