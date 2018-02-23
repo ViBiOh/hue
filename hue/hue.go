@@ -81,12 +81,7 @@ func (a *App) sendToWorker(payload []byte) bool {
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown method`})
-			return
-		}
-
-		if r.URL.Path == `/state` {
+		if strings.HasPrefix(r.URL.Path, `/state`) {
 			params := r.URL.Query()
 
 			group := params.Get(`group`)
@@ -99,31 +94,56 @@ func (a *App) Handler() http.Handler {
 			}
 
 			return
-		} else if strings.HasPrefix(r.URL.Path, `/schedules`) {
-			parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
+		}
 
-			if len(parts) != 2 {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Invalid request for updating schedules: %v`, strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`))})
+		if strings.HasPrefix(r.URL.Path, `/schedules`) {
+			if r.Method == http.MethodPost {
+				values := r.Form
+
+				config := &ScheduleConfig{
+					Name:      strings.Join(values[`name`], ``),
+					Group:     strings.Join(values[`group`], ``),
+					Localtime: ComputeScheduleReccurence(values[`days`], strings.Join(values[`hours`], ``), strings.Join(values[`minutes`], ``)),
+					State:     `enabled`,
+				}
+
+				if payload, err := json.Marshal(config); err != nil {
+					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
+				} else if !a.sendToWorker(append(SchedulesPrefix, append(CreatePrefix, payload...)...)) {
+					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
+				} else {
+					a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, config.Name)})
+				}
+
+				return
+			} else if r.Method == http.MethodGet {
+				parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
+
+				if len(parts) != 2 {
+					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Invalid request for updating schedules: %v`, strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`))})
+					return
+				}
+
+				schedule := &Schedule{
+					ID: parts[0],
+					APISchedule: &APISchedule{
+						Status: parts[1],
+					},
+				}
+
+				if payload, err := json.Marshal(schedule); err != nil {
+					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
+				} else if !a.sendToWorker(append(SchedulesPrefix, append(UpdatePrefix, payload...)...)) {
+					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
+				} else {
+					a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1])})
+				}
+
 				return
 			}
-
-			schedule := &Schedule{
-				ID: parts[0],
-				APISchedule: &APISchedule{
-					Status: parts[1],
-				},
-			}
-
-			if payload, err := json.Marshal(schedule); err != nil {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
-			} else if !a.sendToWorker(append(SchedulesPrefix, append(UpdatePrefix, payload...)...)) {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-			} else {
-				a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1])})
-			}
-		} else {
-			a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown command`})
 		}
+
+		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown command`})
 	})
 }
 

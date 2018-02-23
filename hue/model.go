@@ -129,6 +129,37 @@ func (s *Schedule) FormatLocalTime() string {
 	return fmt.Sprintf(`%s at %s`, recurrenceStr, s.Localtime[6:])
 }
 
+// ComputeScheduleReccurence formats local time of schedules to API version
+func ComputeScheduleReccurence(days []string, hours, minutes string) string {
+	var recurrence int
+
+	for _, day := range days {
+		if day == `Mon` {
+			recurrence |= monday
+		}
+		if day == `Tue` {
+			recurrence |= tuesday
+		}
+		if day == `Wed` {
+			recurrence |= wednesday
+		}
+		if day == `Thu` {
+			recurrence |= thursday
+		}
+		if day == `Fri` {
+			recurrence |= friday
+		}
+		if day == `Sat` {
+			recurrence |= saturday
+		}
+		if day == `Sun` {
+			recurrence |= sunday
+		}
+	}
+
+	return fmt.Sprintf(`W%dT%s:%s:00`, recurrence, hours, minutes)
+}
+
 // Rule description
 type Rule struct {
 	ID         string       `json:"-"`
