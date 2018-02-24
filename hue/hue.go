@@ -1,7 +1,6 @@
 package hue
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,27 +10,6 @@ import (
 )
 
 var (
-	// WebSocketPrefix ws message prefix for all hue commands
-	WebSocketPrefix = []byte(`hue `)
-
-	// GroupsPrefix ws message prefix for groups command
-	GroupsPrefix = []byte(`groups `)
-
-	// SchedulesPrefix ws message prefix for schedules command
-	SchedulesPrefix = []byte(`schedules `)
-
-	// StatePrefix ws message prefix for state command
-	StatePrefix = []byte(`state `)
-
-	// CreatePrefix ws message prefix for create command
-	CreatePrefix = []byte(`create `)
-
-	// UpdatePrefix ws message prefix for update command
-	UpdatePrefix = []byte(`update `)
-
-	// DeletePrefix ws message prefix for delete command
-	DeletePrefix = []byte(`delete `)
-
 	// States available states of lights
 	States = map[string]map[string]interface{}{
 		`off`: {
@@ -62,6 +40,7 @@ var (
 // Data stores data fo hub
 type Data struct {
 	Groups    map[string]*Group
+	Scenes    map[string]*Scene
 	Schedules map[string]*Schedule
 	States    map[string]map[string]interface{}
 }
@@ -70,6 +49,7 @@ type Data struct {
 type App struct {
 	hub       provider.Hub
 	groups    map[string]*Group
+	scenes    map[string]*Scene
 	schedules map[string]*Schedule
 }
 
@@ -78,12 +58,8 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) sendToWorker(payload []byte) bool {
-	return a.hub.SendToWorker(append(WebSocketPrefix, payload...))
-}
-
-func (a *App) performWorkerAction(w http.ResponseWriter, r *http.Request, payload []byte, commandName, successMessage string) {
-	if !a.sendToWorker(payload) {
+func (a *App) sendToWorker(w http.ResponseWriter, r *http.Request, payload []byte, commandName, successMessage string) {
+	if !a.hub.SendToWorker(append(WebSocketPrefix, payload...)) {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   `error`,
 			Content: fmt.Sprintf(`[hue] Error while sending command %s to Worker`, commandName),
@@ -96,6 +72,57 @@ func (a *App) performWorkerAction(w http.ResponseWriter, r *http.Request, payloa
 	}
 }
 
+func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		postMethod := r.FormValue(`method`)
+
+		if postMethod == http.MethodPost {
+			config := &ScheduleConfig{
+				Name:      r.FormValue(`name`),
+				Group:     r.FormValue(`group`),
+				Localtime: ComputeScheduleReccurence(r.Form[`days[]`], r.FormValue(`hours`), r.FormValue(`minutes`)),
+				State:     r.FormValue(`state`),
+			}
+
+			payload, err := json.Marshal(config)
+			if err != nil {
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
+				return
+			}
+
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `create schedule`, fmt.Sprintf(`%s schedule has been created`, config.Name))
+			return
+		}
+
+		id := strings.TrimPrefix(r.URL.Path, `/schedules/`)
+
+		if postMethod == http.MethodPatch {
+			schedule := &Schedule{
+				ID: id,
+				APISchedule: &APISchedule{
+					Status: r.FormValue(`status`),
+				},
+			}
+
+			payload, err := json.Marshal(schedule)
+			if err != nil {
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
+				return
+			}
+
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `update schedule`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			return
+		}
+
+		if postMethod == http.MethodDelete {
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(id)...)...), `delete schedule`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			return
+		}
+	}
+
+	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown schedule command`})
+}
+
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -105,60 +132,13 @@ func (a *App) Handler() http.Handler {
 			group := params.Get(`group`)
 			state := params.Get(`value`)
 
-			a.performWorkerAction(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `update state`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
+			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `update state`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
 			return
 		}
 
 		if strings.HasPrefix(r.URL.Path, `/schedules`) {
-			if r.Method == http.MethodPost {
-				if r.FormValue(`method`) == http.MethodPost {
-					config := &ScheduleConfig{
-						Name:      r.FormValue(`name`),
-						Group:     r.FormValue(`group`),
-						Localtime: ComputeScheduleReccurence(r.Form[`days[]`], r.FormValue(`hours`), r.FormValue(`minutes`)),
-						State:     r.FormValue(`state`),
-					}
-
-					payload, err := json.Marshal(config)
-					if err != nil {
-						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
-						return
-					}
-
-					a.performWorkerAction(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `create schedule`, fmt.Sprintf(`%s schedule has been created`, config.Name))
-					return
-				}
-
-				if r.FormValue(`method`) == http.MethodDelete {
-					a.performWorkerAction(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(strings.TrimPrefix(r.URL.Path, `/schedules/`))...)...), `delete schedule`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
-					return
-				}
-			}
-
-			if r.Method == http.MethodGet {
-				parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
-
-				if len(parts) != 2 {
-					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Invalid request for updating schedules: %v`, strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`))})
-					return
-				}
-
-				schedule := &Schedule{
-					ID: parts[0],
-					APISchedule: &APISchedule{
-						Status: parts[1],
-					},
-				}
-
-				payload, err := json.Marshal(schedule)
-				if err != nil {
-					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
-					return
-				}
-
-				a.performWorkerAction(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `update schedule`, fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1]))
-				return
-			}
+			a.handleSchedule(w, r)
+			return
 		}
 
 		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown command`})
@@ -179,36 +159,8 @@ func (a *App) GetWorkerPrefix() []byte {
 func (a *App) GetData() interface{} {
 	return &Data{
 		Groups:    a.groups,
+		Scenes:    a.scenes,
 		Schedules: a.schedules,
 		States:    States,
 	}
-}
-
-// WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(payload []byte) error {
-	if bytes.HasPrefix(payload, GroupsPrefix) {
-		var newGroups map[string]*Group
-
-		if err := json.Unmarshal(bytes.TrimPrefix(payload, GroupsPrefix), &newGroups); err != nil {
-			return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
-		}
-
-		a.groups = newGroups
-
-		return nil
-	}
-
-	if bytes.HasPrefix(payload, SchedulesPrefix) {
-		var newSchedule map[string]*Schedule
-
-		if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &newSchedule); err != nil {
-			return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
-		}
-
-		a.schedules = newSchedule
-
-		return nil
-	}
-
-	return fmt.Errorf(`[hue] Unknown command`)
 }

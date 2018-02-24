@@ -76,6 +76,13 @@ func (a *App) pinger() {
 			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
 				close(a.done)
 			}
+
+			output, err = a.hueApp.Handle(hue.ScenesPrefix)
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+				close(a.done)
+			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+				close(a.done)
+			}
 		}
 
 		time.Sleep(pingDelay)

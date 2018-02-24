@@ -103,10 +103,31 @@ func (a *App) GetSchedulesPayload() ([]byte, error) {
 	return append(hue.SchedulesPrefix, schedulesJSON...), nil
 }
 
+// GetScenesPayload get lists of scenes in websocket format
+func (a *App) GetScenesPayload() ([]byte, error) {
+	scenes, err := a.listScenes()
+	if err != nil {
+		err = fmt.Errorf(`Error while listing scenes: %v`, err)
+		return nil, err
+	}
+
+	scenesJSON, err := json.Marshal(scenes)
+	if err != nil {
+		err = fmt.Errorf(`Error while marshalling scenes: %v`, err)
+		return nil, err
+	}
+
+	return append(hue.ScenesPrefix, scenesJSON...), nil
+}
+
 // Handle handle worker requests for Hue
 func (a *App) Handle(p []byte) ([]byte, error) {
 	if bytes.HasPrefix(p, hue.GroupsPrefix) {
 		return a.GetGroupsPayload()
+	}
+
+	if bytes.HasPrefix(p, hue.ScenesPrefix) {
+		return a.GetScenesPayload()
 	}
 
 	if bytes.HasPrefix(p, hue.SchedulesPrefix) {

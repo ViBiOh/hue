@@ -8,7 +8,32 @@ import (
 
 func (a *App) listScenes() (map[string]*hue.Scene, error) {
 	var response map[string]*hue.Scene
-	return response, get(fmt.Sprintf(`%s/scenes`, a.bridgeURL), &response)
+
+	if err := get(fmt.Sprintf(`%s/scenes`, a.bridgeURL), &response); err != nil {
+		return nil, err
+	}
+
+	for id := range response {
+		scene, err := a.getScene(id)
+		if err != nil {
+			return nil, fmt.Errorf(`Error while fetching scene %s: %v`, id, err)
+		}
+
+		response[id] = scene
+	}
+
+	return response, nil
+}
+
+func (a *App) getScene(id string) (*hue.Scene, error) {
+	var response hue.Scene
+	if err := get(fmt.Sprintf(`%s/scenes/%s`, a.bridgeURL, id), &response); err != nil {
+		return nil, err
+	}
+
+	response.ID = id
+
+	return &response, nil
 }
 
 func (a *App) createScene(o *hue.Scene) error {

@@ -45,9 +45,10 @@ type lightState struct {
 
 // APIScene describe scene as from Hue API
 type APIScene struct {
-	Name    string   `json:"name,omitempty"`
-	Lights  []string `json:"lights,omitempty"`
-	Recycle bool     `json:"recycle"`
+	Name        string                            `json:"name,omitempty"`
+	Lights      []string                          `json:"lights,omitempty"`
+	Lightstates map[string]map[string]interface{} `json:"lightstates,omitempty"`
+	Recycle     bool                              `json:"recycle"`
 }
 
 // Scene description
@@ -127,6 +128,28 @@ func (s *Schedule) FormatLocalTime() string {
 	}
 
 	return fmt.Sprintf(`%s at %s`, recurrenceStr, s.Localtime[6:])
+}
+
+func formatStateValue(state map[string]interface{}) string {
+	return fmt.Sprintf(`%v|%v|%v|%v`, state[`on`], state[`transitiontime`], state[`sat`], state[`bri`])
+}
+
+func (s *Schedule) FindStateName(scenes map[string]*Scene) string {
+	if sceneID, ok := s.Command.Body[`scene`]; ok {
+		if scene, ok := scenes[sceneID.(string)]; ok {
+			for _, lightState := range scene.Lightstates {
+				lightStateValue := formatStateValue(lightState)
+
+				for stateName, state := range States {
+					if lightStateValue == formatStateValue(state) {
+						return stateName
+					}
+				}
+			}
+		}
+	}
+
+	return `unknown`
 }
 
 // ComputeScheduleReccurence formats local time of schedules to API version
