@@ -6,28 +6,28 @@
         {{- range .Body.Devices -}}
           {{- range .Modules -}}
             <div class="flex flex-center flex-wrap">
-              <div class="header center flex-full">{{ .ModuleName }}</div>
+              <div class="header center flex-full">{{- .ModuleName -}}</div>
               <span class="inline-block flex-half center padding">
-                <strong>{{ .DashboardData.Temperature }}°c</strong>
+                <strong>{{- .DashboardData.Temperature -}}°c</strong>
               </span>
               <span class="inline-block flex-half center padding">
-                <strong>{{ .DashboardData.Humidity }}%</strong>
+                <strong>{{- .DashboardData.Humidity -}}%</strong>
               </span>
             </div>
           {{- end -}}
           <div class="flex flex-center flex-wrap">
-            <div class="header center flex-full">{{ .StationName }}</div>
+            <div class="header center flex-full">{{- .StationName -}}</div>
             <span class="inline-block flex-half center padding">
-              <strong>{{ .DashboardData.Temperature }}°c</strong>
+              <strong>{{- .DashboardData.Temperature -}}°c</strong>
             </span>
             <span class="inline-block flex-half center padding">
-              <strong>{{ .DashboardData.Humidity }}%</strong>
+              <strong>{{- .DashboardData.Humidity -}}%</strong>
             </span>
             <span class="inline-block flex-half center padding">
-              <strong>{{ .DashboardData.Noise }}dB</strong>
+              <strong>{{- .DashboardData.Noise -}}dB</strong>
             </span>
             <span class="inline-block flex-half center padding">
-              <strong>{{ .DashboardData.CO2 }}ppm</strong>
+              <strong>{{- .DashboardData.CO2 -}}ppm</strong>
             </span>
           </div>
         {{- end -}}
