@@ -82,6 +82,20 @@ func (a *App) sendToWorker(payload []byte) bool {
 	return a.hub.SendToWorker(append(WebSocketPrefix, payload...))
 }
 
+func (a *App) performWorkerAction(w http.ResponseWriter, r *http.Request, payload []byte, commandName, successMessage string) {
+	if !a.sendToWorker(payload) {
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
+			Level:   `error`,
+			Content: fmt.Sprintf(`[hue] Error while sending command %s to Worker`, commandName),
+		})
+	} else {
+		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
+			Level:   `success`,
+			Content: successMessage,
+		})
+	}
+}
+
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -91,12 +105,7 @@ func (a *App) Handler() http.Handler {
 			group := params.Get(`group`)
 			state := params.Get(`value`)
 
-			if !a.sendToWorker(append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...)) {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-			} else {
-				a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state)})
-			}
-
+			a.performWorkerAction(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `update state`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
 			return
 		}
 
@@ -110,27 +119,23 @@ func (a *App) Handler() http.Handler {
 						State:     r.FormValue(`state`),
 					}
 
-					if payload, err := json.Marshal(config); err != nil {
+					payload, err := json.Marshal(config)
+					if err != nil {
 						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
-					} else if !a.sendToWorker(append(SchedulesPrefix, append(CreatePrefix, payload...)...)) {
-						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-					} else {
-						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, config.Name)})
+						return
 					}
 
+					a.performWorkerAction(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `create schedule`, fmt.Sprintf(`%s schedule has been created`, config.Name))
 					return
 				}
 
 				if r.FormValue(`method`) == http.MethodDelete {
-					if !a.sendToWorker(append(SchedulesPrefix, append(DeletePrefix, []byte(strings.TrimPrefix(r.URL.Path, `/schedules/`))...)...)) {
-						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-					} else {
-						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`))})
-					}
-
+					a.performWorkerAction(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(strings.TrimPrefix(r.URL.Path, `/schedules/`))...)...), `delete schedule`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 					return
 				}
-			} else if r.Method == http.MethodGet {
+			}
+
+			if r.Method == http.MethodGet {
 				parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, `/schedules`), `/`), `/`)
 
 				if len(parts) != 2 {
@@ -145,14 +150,13 @@ func (a *App) Handler() http.Handler {
 					},
 				}
 
-				if payload, err := json.Marshal(schedule); err != nil {
+				payload, err := json.Marshal(schedule)
+				if err != nil {
 					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
-				} else if !a.sendToWorker(append(SchedulesPrefix, append(UpdatePrefix, payload...)...)) {
-					a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
-				} else {
-					a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1])})
+					return
 				}
 
+				a.performWorkerAction(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `update schedule`, fmt.Sprintf(`%s is now %s`, a.schedules[parts[0]].Name, parts[1]))
 				return
 			}
 		}
