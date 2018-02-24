@@ -157,7 +157,7 @@
   {{- range $id, $group := .Groups -}}
     <span class="container center">
       <h2 class="center">{{- $group.Name -}}</h2>
-      <div class="flex flex-center flex-grow">
+      <div class="flex flex-center flex-grow margin-bottom">
         {{- if $group.Tap -}}
           <a href="/hue/state?group={{- $id -}}&value=on">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="yellowgreen" d="M400 54.1c63 45 104 118.6 104 201.9 0 136.8-110.8 247.7-247.5 248C120 504.3 8.2 393 8 256.4 7.9 173.1 48.9 99.3 111.8 54.2c11.7-8.3 28-4.8 35 7.7L162.6 90c5.9 10.5 3.1 23.8-6.6 31-41.5 30.8-68 79.6-68 134.9-.1 92.3 74.5 168.1 168 168.1 91.6 0 168.6-74.2 168-169.1-.3-51.8-24.7-101.8-68.1-134-9.7-7.2-12.4-20.5-6.5-30.9l15.8-28.1c7-12.4 23.2-16.1 34.8-7.8zM296 264V24c0-13.3-10.7-24-24-24h-32c-13.3 0-24 10.7-24 24v240c0 13.3 10.7 24 24 24h32c13.3 0 24-10.7 24-24z"/></svg>
@@ -172,7 +172,7 @@
           <a href="/hue/state?group={{- $id -}}&value=dimmed" class="margin-left">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="silver" d="M272 428v28c0 10.449-6.68 19.334-16 22.629V488c0 13.255-10.745 24-24 24h-80c-13.255 0-24-10.745-24-24v-9.371c-9.32-3.295-16-12.18-16-22.629v-28c0-6.627 5.373-12 12-12h136c6.627 0 12 5.373 12 12zm-143.107-44c-9.907 0-18.826-6.078-22.376-15.327C67.697 267.541 16 277.731 16 176 16 78.803 94.805 0 192 0s176 78.803 176 176c0 101.731-51.697 91.541-90.516 192.673-3.55 9.249-12.47 15.327-22.376 15.327H128.893zM112 176c0-44.112 35.888-80 80-80 8.837 0 16-7.164 16-16s-7.163-16-16-16c-61.757 0-112 50.243-112 112 0 8.836 7.164 16 16 16s16-7.164 16-16z"/></svg>
           </a>
-          <a href="/hue/state?group={{- $id -}}&value=off" class="margin-left margin-bottom">
+          <a href="/hue/state?group={{- $id -}}&value=off" class="margin-left">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="dimgray" d="M283.211 512c78.962 0 151.079-35.925 198.857-94.792 7.068-8.708-.639-21.43-11.562-19.35-124.203 23.654-238.262-71.576-238.262-196.954 0-72.222 38.662-138.635 101.498-174.394 9.686-5.512 7.25-20.197-3.756-22.23A258.156 258.156 0 0 0 283.211 0c-141.309 0-256 114.511-256 256 0 141.309 114.511 256 256 256z"/></svg>
           </a>
         {{- end -}}
@@ -191,7 +191,7 @@
           <strong>{{ $schedule.FormatLocalTime }}</strong>
         </span>
 
-        <div class="center flex-full">
+        <div class="center flex-full margin-bottom">
           <a href="/hue/schedules/{{- $schedule.ID -}}/{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}">
             {{- if eq $schedule.Status "enabled" -}}
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon-small"><path fill="yellowgreen" d="M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128"/></svg>
@@ -200,7 +200,7 @@
             {{- end -}}
           </a>
 
-          <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left margin-bottom">
+          <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon-small"><path fill="tomato" d="M0 84V56c0-13.3 10.7-24 24-24h112l9.4-18.7c4-8.2 12.3-13.3 21.4-13.3h114.3c9.1 0 17.4 5.1 21.5 13.3L312 32h112c13.3 0 24 10.7 24 24v28c0 6.6-5.4 12-12 12H12C5.4 96 0 90.6 0 84zm416 56v324c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V140c0-6.6 5.4-12 12-12h360c6.6 0 12 5.4 12 12zm-272 68c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208z"/></svg>
           </a>
         </div>
