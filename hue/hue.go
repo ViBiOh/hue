@@ -125,7 +125,7 @@ func (a *App) Handler() http.Handler {
 					if !a.sendToWorker(append(SchedulesPrefix, append(DeletePrefix, []byte(strings.TrimPrefix(r.URL.Path, `/schedules/`))...)...)) {
 						a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: `[hue] Error while sending command to Worker`})
 					} else {
-						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been created`, r.FormValue(`name`))})
+						a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`))})
 					}
 
 					return
