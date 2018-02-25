@@ -92,7 +92,7 @@ func (a *App) refreshAccessToken() error {
 
 	var token netatmoToken
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`[netatmo] Error while unmarshalling token: %v`, err)
+		return fmt.Errorf(`[netatmo] Error while unmarshalling token %s: %v`, rawData, err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -113,7 +113,7 @@ func (a *App) GetStationData() (*StationData, error) {
 		var netatmoErrorValue netatmoError
 
 		if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-			return nil, fmt.Errorf(`[netatmo] Error while unmarshalling error: %v`, err)
+			return nil, fmt.Errorf(`[netatmo] Error while unmarshalling error %s: %v`, rawData, err)
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
@@ -127,7 +127,7 @@ func (a *App) GetStationData() (*StationData, error) {
 	}
 
 	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`[netatmo] Error while unmarshalling data: %v`, err)
+		return nil, fmt.Errorf(`[netatmo] Error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &infos, nil

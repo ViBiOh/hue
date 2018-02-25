@@ -19,12 +19,8 @@ func get(url string, response interface{}) error {
 		return fmt.Errorf(`Error while sending get request: %v`, err)
 	}
 
-	if hasError(content) {
-		return fmt.Errorf(`Error while sending get request: %s`, content)
-	}
-
 	if err := json.Unmarshal(content, &response); err != nil {
-		return fmt.Errorf(`Error while parsing response: %v`, err)
+		return fmt.Errorf(`Error while parsing response %s: %v`, content, err)
 	}
 
 	return nil
@@ -42,7 +38,7 @@ func create(url string, payload interface{}) (*string, error) {
 
 	var response []map[string]map[string]*string
 	if err := json.Unmarshal(content, &response); err != nil {
-		return nil, fmt.Errorf(`Error while parsing response: %s`, err)
+		return nil, fmt.Errorf(`Error while parsing response %s: %v`, content, err)
 	}
 
 	return response[0][`success`][`id`], nil

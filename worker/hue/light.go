@@ -16,7 +16,7 @@ func (a *App) getLight(lightID string) (*hue.Light, error) {
 
 	var light hue.Light
 	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, fmt.Errorf(`Error while parsing light data: %v`, err)
+		return nil, fmt.Errorf(`Error while parsing light data %s: %v`, content, err)
 	}
 
 	return &light, nil

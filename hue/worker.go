@@ -36,7 +36,7 @@ func (a *App) handleGroupsFromWorker(payload []byte) error {
 	var newGroups map[string]*Group
 
 	if err := json.Unmarshal(payload, &newGroups); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
+		return fmt.Errorf(`[hue] Error while unmarshalling groups %s: %v`, payload, err)
 	}
 
 	a.groups = newGroups
@@ -48,7 +48,7 @@ func (a *App) handleSchedulesFromWorker(payload []byte) error {
 	var newSchedules map[string]*Schedule
 
 	if err := json.Unmarshal(payload, &newSchedules); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
+		return fmt.Errorf(`[hue] Error while unmarshalling schedules %s: %v`, payload, err)
 	}
 
 	a.schedules = newSchedules
@@ -60,7 +60,7 @@ func (a *App) handleScenesFromWorker(payload []byte) error {
 	var newScenes map[string]*Scene
 
 	if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &newScenes); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling scenes: %v`, err)
+		return fmt.Errorf(`[hue] Error while unmarshalling scenes %s: %v`, payload, err)
 	}
 
 	a.scenes = newScenes

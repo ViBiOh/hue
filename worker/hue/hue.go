@@ -49,7 +49,7 @@ func NewApp(config map[string]interface{}) (*App, error) {
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling config: %v`, err)
+			return nil, fmt.Errorf(`Error while unmarshalling config %s: %v`, rawConfig, err)
 		}
 
 		app.configureSchedules(app.config.Schedules)
@@ -136,7 +136,7 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 		if bytes.HasPrefix(request, hue.CreatePrefix) {
 			var config hue.ScheduleConfig
 			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.CreatePrefix), &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+				return nil, fmt.Errorf(`Error while unmarshalling schedule create config %s: %v`, request, err)
 			}
 
 			if err := a.createScheduleFromConfig(&config, nil); err != nil {
@@ -145,7 +145,7 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 		} else if bytes.HasPrefix(request, hue.UpdatePrefix) {
 			var config hue.Schedule
 			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.UpdatePrefix), &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
+				return nil, fmt.Errorf(`Error while unmarshalling schedule update %s: %v`, request, err)
 			}
 
 			if config.ID == `` {

@@ -134,6 +134,7 @@ func formatStateValue(state map[string]interface{}) string {
 	return fmt.Sprintf(`%v|%v|%v|%v`, state[`on`], state[`transitiontime`], state[`sat`], state[`bri`])
 }
 
+// FindStateName finds matching state's name
 func (s *Schedule) FindStateName(scenes map[string]*Scene) string {
 	if sceneID, ok := s.Command.Body[`scene`]; ok {
 		if scene, ok := scenes[sceneID.(string)]; ok {
