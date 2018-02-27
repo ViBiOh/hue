@@ -134,7 +134,9 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 		response[name] = provider.GetData()
 	}
 
-	w.Header().Add(`Cache-Control`, `no-cache`)
+	w.Header().Set(`Cache-Control`, `no-cache`)
+	w.Header().Set(`X-UA-Compatible`, `IE=edge,chrome=1`)
+	w.Header().Set(`content-language`, `fr`)
 	if err := templates.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
 		httperror.InternalServerError(w, err)
 	}
