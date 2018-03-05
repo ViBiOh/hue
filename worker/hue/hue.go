@@ -12,6 +12,8 @@ import (
 	"github.com/ViBiOh/iot/hue"
 )
 
+var debug = false
+
 // App stores informations and secret of API
 type App struct {
 	bridgeURL      string
@@ -21,6 +23,10 @@ type App struct {
 
 // NewApp creates new App from Flags' config
 func NewApp(config map[string]interface{}) (*App, error) {
+	if *config[`debug`].(*bool) {
+		debug = true
+	}
+
 	username := *config[`username`].(*string)
 
 	app := &App{
@@ -66,6 +72,7 @@ func Flags(prefix string) map[string]interface{} {
 		`username`: flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
 		`config`:   flag.String(tools.ToCamel(prefix+`Config`), ``, `[hue] Configuration filename`),
 		`clean`:    flag.Bool(tools.ToCamel(prefix+`Clean`), false, `[hue] Clean Hue`),
+		`debug`:    flag.Bool(tools.ToCamel(prefix+`debug`), false, `Enable debug logging`),
 	}
 }
 
@@ -189,6 +196,8 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.updateGroupState(string(parts[0]), state); err != nil {
 				return nil, err
 			}
+		} else {
+			return nil, fmt.Errorf(`Invalid state request: %s`, request)
 		}
 
 		return a.GetGroupsPayload()

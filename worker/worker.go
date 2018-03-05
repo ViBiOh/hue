@@ -32,17 +32,17 @@ type App struct {
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, hueApp WorkerApp) *App {
+func NewApp(config map[string]interface{}, hueApp WorkerApp) *App {
 	return &App{
-		websocketURL: *config[`websocketURL`],
-		secretKey:    *config[`secretKey`],
+		websocketURL: *config[`websocketURL`].(*string),
+		secretKey:    *config[`secretKey`].(*string),
 		hueApp:       hueApp,
 	}
 }
 
 // Flags add flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
+func Flags(prefix string) map[string]interface{} {
+	return map[string]interface{}{
 		`websocketURL`: flag.String(tools.ToCamel(prefix+`websocket`), ``, `WebSocket URL`),
 		`secretKey`:    flag.String(tools.ToCamel(prefix+`secretKey`), ``, `Secret Key`),
 	}
