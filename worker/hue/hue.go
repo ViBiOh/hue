@@ -72,7 +72,7 @@ func Flags(prefix string) map[string]interface{} {
 		`username`: flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
 		`config`:   flag.String(tools.ToCamel(prefix+`Config`), ``, `[hue] Configuration filename`),
 		`clean`:    flag.Bool(tools.ToCamel(prefix+`Clean`), false, `[hue] Clean Hue`),
-		`debug`:    flag.Bool(tools.ToCamel(prefix+`debug`), false, `Enable debug logging`),
+		`debug`:    flag.Bool(tools.ToCamel(prefix+`Debug`), false, `Enable debug logging`),
 	}
 }
 
