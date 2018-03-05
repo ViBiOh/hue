@@ -11,6 +11,11 @@ import (
 	"github.com/ViBiOh/iot/utils"
 )
 
+const (
+	groupsRequest    = `/groups`
+	schedulesRequest = `/schedules`
+)
+
 var (
 	// States available states of lights
 	States = map[string]map[string]interface{}{
@@ -122,7 +127,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		id := strings.TrimPrefix(r.URL.Path, `/schedules/`)
+		id := strings.Trim(strings.TrimPrefix(r.URL.Path, schedulesRequest), `/`)
 
 		if postMethod == http.MethodPatch {
 			schedule := &Schedule{
@@ -151,20 +156,36 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown schedule command`})
 }
 
+func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		postMethod := r.FormValue(`method`)
+
+		if postMethod == http.MethodPatch {
+			group := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsRequest), `/`)
+			state := r.FormValue(`state`)
+
+			groupObj, ok := a.groups[group]
+			if !ok {
+				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: `[hue] Unknown group`})
+			}
+
+			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
+			return
+		}
+	}
+
+	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown group command`})
+}
+
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, `/state`) {
-			params := r.URL.Query()
-
-			group := params.Get(`group`)
-			state := params.Get(`value`)
-
-			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `state/update`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
+		if strings.HasPrefix(r.URL.Path, groupsRequest) {
+			a.handleGroup(w, r)
 			return
 		}
 
-		if strings.HasPrefix(r.URL.Path, `/schedules`) {
+		if strings.HasPrefix(r.URL.Path, schedulesRequest) {
 			a.handleSchedule(w, r)
 			return
 		}
