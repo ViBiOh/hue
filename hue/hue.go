@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/iot/utils"
 )
 
 var (
@@ -58,6 +60,32 @@ func NewApp() *App {
 	return &App{}
 }
 
+func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
+	message := &WorkerMessage{
+		ID:      fmt.Sprintf(`%d-%s`, time.Now().Unix(), utils.ShaFingerprint(payload)),
+		Type:    typeName,
+		Payload: payload,
+	}
+
+	messagePayload, err := json.Marshal(message)
+	if err != nil {
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling message to worker: %v`, err)})
+		return
+	}
+
+	if !a.hub.SendToWorker(append(WebSocketPrefix, messagePayload...)) {
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
+			Level:   `error`,
+			Content: fmt.Sprintf(`[hue] Error while sending message %s to Worker`, typeName),
+		})
+	} else {
+		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
+			Level:   `success`,
+			Content: successMessage,
+		})
+	}
+}
+
 func (a *App) sendToWorker(w http.ResponseWriter, r *http.Request, payload []byte, commandName, successMessage string) {
 	if !a.hub.SendToWorker(append(WebSocketPrefix, payload...)) {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
@@ -90,7 +118,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `create schedule`, fmt.Sprintf(`%s schedule has been created`, config.Name))
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `schedule/create`, fmt.Sprintf(`%s schedule has been created`, config.Name))
 			return
 		}
 
@@ -110,12 +138,12 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `update schedule`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `schedule/update`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
 			return
 		}
 
 		if postMethod == http.MethodDelete {
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(id)...)...), `delete schedule`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			a.sendToWorker(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(id)...)...), `schedule/delete`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 			return
 		}
 	}
@@ -132,7 +160,7 @@ func (a *App) Handler() http.Handler {
 			group := params.Get(`group`)
 			state := params.Get(`value`)
 
-			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `update state`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
+			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `state/update`, fmt.Sprintf(`%s is now %s`, a.groups[group].Name, state))
 			return
 		}
 

@@ -2,8 +2,6 @@ package iot
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
@@ -16,6 +14,7 @@ import (
 	"github.com/ViBiOh/httputils/templates"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/iot/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -63,14 +62,7 @@ func init() {
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	app := &App{
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
-			`sha`: func(content interface{}) string {
-				hasher := sha1.New()
-				if _, err := hasher.Write([]byte(fmt.Sprintf(`%v`, content))); err != nil {
-					log.Printf(`Error while generating hash for %s: %v`, content, err)
-				}
-
-				return hex.EncodeToString(hasher.Sum(nil))
-			},
+			`sha`: utils.ShaFingerprint,
 		}).ParseGlob(`./web/*.gohtml`)),
 		providers: providers,
 		secretKey: *config[`secretKey`],

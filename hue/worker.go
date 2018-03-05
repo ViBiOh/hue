@@ -32,6 +32,13 @@ var (
 	DeletePrefix = []byte(`delete `)
 )
 
+// WorkerMessage describe how message are exchanged accross worker
+type WorkerMessage struct {
+	ID      string
+	Type    string
+	Payload interface{}
+}
+
 func (a *App) handleGroupsFromWorker(payload []byte) error {
 	var newGroups map[string]*Group
 
