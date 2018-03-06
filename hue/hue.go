@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/ViBiOh/iot/provider"
 	"github.com/ViBiOh/iot/utils"
 )
 
 const (
+	// HueSource constant for worker message
+	HueSource        = `hue`
 	groupsRequest    = `/groups`
 	schedulesRequest = `/schedules`
 )
@@ -66,36 +67,17 @@ func NewApp() *App {
 }
 
 func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
-	message := &WorkerMessage{
-		ID:      fmt.Sprintf(`%d-%s`, time.Now().Unix(), utils.ShaFingerprint(payload)),
+	message := &provider.WorkerMessage{
+		ID:      utils.ShaFingerprint(payload),
+		Source:  HueSource,
 		Type:    typeName,
 		Payload: payload,
 	}
 
-	messagePayload, err := json.Marshal(message)
-	if err != nil {
-		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling message to worker: %v`, err)})
-		return
-	}
-
-	if !a.hub.SendToWorker(append(WebSocketPrefix, messagePayload...)) {
+	if !a.hub.SendToWorker(message) {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   `error`,
 			Content: fmt.Sprintf(`[hue] Error while sending message %s to Worker`, typeName),
-		})
-	} else {
-		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
-			Level:   `success`,
-			Content: successMessage,
-		})
-	}
-}
-
-func (a *App) sendToWorker(w http.ResponseWriter, r *http.Request, payload []byte, commandName, successMessage string) {
-	if !a.hub.SendToWorker(append(WebSocketPrefix, payload...)) {
-		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
-			Level:   `error`,
-			Content: fmt.Sprintf(`[hue] Error while sending command %s to Worker`, commandName),
 		})
 	} else {
 		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
@@ -123,7 +105,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(CreatePrefix, payload...)...), `schedule/create`, fmt.Sprintf(`%s schedule has been created`, config.Name))
+			a.sendWorkerMessage(w, r, payload, `schedule/create`, fmt.Sprintf(`%s schedule has been created`, config.Name))
 			return
 		}
 
@@ -143,12 +125,12 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(UpdatePrefix, payload...)...), `schedule/update`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			a.sendWorkerMessage(w, r, payload, `schedule/update`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
 			return
 		}
 
 		if postMethod == http.MethodDelete {
-			a.sendToWorker(w, r, append(SchedulesPrefix, append(DeletePrefix, []byte(id)...)...), `schedule/delete`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			a.sendWorkerMessage(w, r, []byte(id), `schedule/delete`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 			return
 		}
 	}
@@ -169,7 +151,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: `[hue] Unknown group`})
 			}
 
-			a.sendToWorker(w, r, append(StatePrefix, []byte(fmt.Sprintf(`%s|%s`, group, state))...), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
 			return
 		}
 	}
@@ -199,9 +181,9 @@ func (a *App) SetHub(hub provider.Hub) {
 	a.hub = hub
 }
 
-// GetWorkerPrefix get prefix of message in websocket
-func (a *App) GetWorkerPrefix() []byte {
-	return WebSocketPrefix
+// GetWorkerSource get source of message in websocket
+func (a *App) GetWorkerSource() string {
+	return HueSource
 }
 
 // GetData return data for Dashboard rendering

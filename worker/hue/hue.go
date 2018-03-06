@@ -1,15 +1,16 @@
 package hue
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/provider"
 )
 
 var debug = false
@@ -76,83 +77,54 @@ func Flags(prefix string) map[string]interface{} {
 	}
 }
 
-// GetGroupsPayload get lists of groups in websocket format
-func (a *App) GetGroupsPayload() ([]byte, error) {
-	groups, err := a.listGroups()
-	if err != nil {
-		err = fmt.Errorf(`Error while listing groups: %v`, err)
-		return nil, err
+func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType string, payload interface{}) *provider.WorkerMessage {
+	return &provider.WorkerMessage{
+		ID:      initial.ID,
+		Source:  hue.HueSource,
+		Type:    messageType,
+		Payload: payload,
 	}
-
-	groupsJSON, err := json.Marshal(groups)
-	if err != nil {
-		err = fmt.Errorf(`Error while marshalling groups: %v`, err)
-		return nil, err
-	}
-
-	return append(hue.GroupsPrefix, groupsJSON...), nil
-}
-
-// GetSchedulesPayload get lists of schedules in websocket format
-func (a *App) GetSchedulesPayload() ([]byte, error) {
-	schedules, err := a.listSchedules()
-	if err != nil {
-		err = fmt.Errorf(`Error while listing schedules: %v`, err)
-		return nil, err
-	}
-
-	schedulesJSON, err := json.Marshal(schedules)
-	if err != nil {
-		err = fmt.Errorf(`Error while marshalling schedules: %v`, err)
-		return nil, err
-	}
-
-	return append(hue.SchedulesPrefix, schedulesJSON...), nil
-}
-
-// GetScenesPayload get lists of scenes in websocket format
-func (a *App) GetScenesPayload() ([]byte, error) {
-	scenes, err := a.listScenes()
-	if err != nil {
-		err = fmt.Errorf(`Error while listing scenes: %v`, err)
-		return nil, err
-	}
-
-	scenesJSON, err := json.Marshal(scenes)
-	if err != nil {
-		err = fmt.Errorf(`Error while marshalling scenes: %v`, err)
-		return nil, err
-	}
-
-	return append(hue.ScenesPrefix, scenesJSON...), nil
 }
 
 // Handle handle worker requests for Hue
-func (a *App) Handle(p []byte) ([]byte, error) {
-	if bytes.HasPrefix(p, hue.GroupsPrefix) {
-		return a.GetGroupsPayload()
+func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	if strings.HasPrefix(p.Type, hue.GroupsPrefix) {
+		output, err := a.listGroups()
+		if err != nil {
+			return nil, err
+		}
+		return a.formatWorkerMessage(p, hue.GroupsPrefix, output), nil
 	}
 
-	if bytes.HasPrefix(p, hue.ScenesPrefix) {
-		return a.GetScenesPayload()
+	if strings.HasPrefix(p.Type, hue.ScenesPrefix) {
+		output, err := a.listScenes()
+		if err != nil {
+			return nil, err
+		}
+
+		return a.formatWorkerMessage(p, hue.ScenesPrefix, output), nil
 	}
 
-	if bytes.HasPrefix(p, hue.SchedulesPrefix) {
-		request := bytes.TrimPrefix(p, hue.SchedulesPrefix)
-
-		if bytes.HasPrefix(request, hue.CreatePrefix) {
+	if strings.HasPrefix(p.Type, hue.SchedulesPrefix) {
+		if strings.HasSuffix(p.Type, hue.CreatePrefix) {
 			var config hue.ScheduleConfig
-			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.CreatePrefix), &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule create config %s: %v`, request, err)
+
+			if convert, err := json.Marshal(p.Payload); err != nil {
+				return nil, fmt.Errorf(`Error while converting schedules payload: %v`, err)
+			} else if err := json.Unmarshal(convert, &config); err != nil {
+				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
 			}
 
 			if err := a.createScheduleFromConfig(&config, nil); err != nil {
 				return nil, fmt.Errorf(`Error while creating schedule from config: %v`, err)
 			}
-		} else if bytes.HasPrefix(request, hue.UpdatePrefix) {
+		} else if strings.HasSuffix(p.Type, hue.UpdatePrefix) {
 			var config hue.Schedule
-			if err := json.Unmarshal(bytes.TrimPrefix(request, hue.UpdatePrefix), &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule update %s: %v`, request, err)
+
+			if convert, err := json.Marshal(p.Payload); err != nil {
+				return nil, fmt.Errorf(`Error while converting schedules payload: %v`, err)
+			} else if err := json.Unmarshal(convert, &config); err != nil {
+				return nil, fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
 			}
 
 			if config.ID == `` {
@@ -162,8 +134,8 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			if err := a.updateSchedule(&config); err != nil {
 				return nil, err
 			}
-		} else if bytes.HasPrefix(request, hue.DeletePrefix) {
-			id := string(bytes.TrimPrefix(request, hue.DeletePrefix))
+		} else if strings.HasSuffix(p.Type, hue.DeletePrefix) {
+			id := string(p.Payload.([]byte))
 
 			schedule, err := a.getSchedule(id)
 			if err != nil {
@@ -181,26 +153,34 @@ func (a *App) Handle(p []byte) ([]byte, error) {
 			}
 		}
 
-		return a.GetSchedulesPayload()
+		output, err := a.listSchedules()
+		if err != nil {
+			return nil, err
+		}
+
+		return a.formatWorkerMessage(p, hue.SchedulesPrefix, output), nil
 	}
 
-	if bytes.HasPrefix(p, hue.StatePrefix) {
-		request := bytes.TrimPrefix(p, hue.StatePrefix)
-
-		if parts := bytes.Split(request, []byte(`|`)); len(parts) == 2 {
-			state, ok := hue.States[string(parts[1])]
+	if strings.HasPrefix(p.Type, hue.StatePrefix) {
+		if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+			state, ok := hue.States[parts[1]]
 			if !ok {
 				return nil, fmt.Errorf(`Unknown state %s`, parts[1])
 			}
 
-			if err := a.updateGroupState(string(parts[0]), state); err != nil {
+			if err := a.updateGroupState(parts[0], state); err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, fmt.Errorf(`Invalid state request: %s`, request)
+			return nil, fmt.Errorf(`Invalid state request: %s`, p.Payload)
 		}
 
-		return a.GetGroupsPayload()
+		output, err := a.listGroups()
+		if err != nil {
+			return nil, err
+		}
+
+		return a.formatWorkerMessage(p, hue.GroupsPrefix, output), nil
 	}
 
 	return nil, fmt.Errorf(`Unknown request: %s`, p)

@@ -1,13 +1,14 @@
 package iot
 
 import (
-	"bytes"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ViBiOh/httputils/httperror"
 	"github.com/ViBiOh/httputils/request"
@@ -104,8 +105,8 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(payload []byte) bool {
-	return provider.WriteTextMessage(a.wsConn, payload)
+func (a *App) SendToWorker(message *provider.WorkerMessage) bool {
+	return provider.WriteMessage(a.wsConn, message)
 }
 
 // RenderDashboard render dashboard
@@ -179,15 +180,16 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, provider.ErrorPrefix) {
-					log.Printf(`Error received from worker: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
+				var workerMessage provider.WorkerMessage
+				if err := json.Unmarshal(p, &workerMessage); err != nil {
+					log.Printf(`Error while unmarshalling worker message: %v`, err)
 					a.wsErrCount++
 					break
 				}
 
 				for name, value := range a.providers {
-					if bytes.HasPrefix(p, value.GetWorkerPrefix()) {
-						if err := value.WorkerHandler(bytes.TrimPrefix(p, value.GetWorkerPrefix())); err != nil {
+					if strings.HasPrefix(workerMessage.Source, value.GetWorkerSource()) {
+						if err := value.WorkerHandler(&workerMessage); err != nil {
 							log.Printf(`[%s] %v`, name, err)
 						}
 						a.wsErrCount = 0

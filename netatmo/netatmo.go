@@ -17,11 +17,6 @@ const (
 	netatmoRefreshTokenURL   = `https://api.netatmo.com/oauth2/token`
 )
 
-var (
-	// WebSocketPrefix ws message prefix for all hue commands
-	WebSocketPrefix = []byte(`netatmo `)
-)
-
 // StationData contains data retrieved when getting stations datas
 type StationData struct {
 	Body struct {
@@ -137,9 +132,9 @@ func (a *App) GetStationData() (*StationData, error) {
 func (a *App) SetHub(provider.Hub) {
 }
 
-// GetWorkerPrefix get prefix of message in websocket
-func (a *App) GetWorkerPrefix() []byte {
-	return WebSocketPrefix
+// GetWorkerSource get source of message in websocket
+func (a *App) GetWorkerSource() string {
+	return `netatmo`
 }
 
 // GetData return data for Dashboard rendering
@@ -153,6 +148,6 @@ func (a *App) GetData() interface{} {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(payload []byte) error {
-	return fmt.Errorf(`[netatmo] Unknown worker command: %s`, payload)
+func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
+	return fmt.Errorf(`[netatmo] Unknown worker command: %s`, message.Type)
 }

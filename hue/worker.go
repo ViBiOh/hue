@@ -1,49 +1,43 @@
 package hue
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+
+	"github.com/ViBiOh/iot/provider"
 )
 
-var (
-	// WebSocketPrefix ws message prefix for all hue commands
-	WebSocketPrefix = []byte(`hue `)
-
+const (
 	// GroupsPrefix ws message prefix for groups command
-	GroupsPrefix = []byte(`groups `)
+	GroupsPrefix = `groups`
 
 	// SchedulesPrefix ws message prefix for schedules command
-	SchedulesPrefix = []byte(`schedules `)
+	SchedulesPrefix = `schedules`
 
 	// ScenesPrefix ws message prefix for scenes command
-	ScenesPrefix = []byte(`scenes `)
+	ScenesPrefix = `scenes`
 
 	// StatePrefix ws message prefix for state command
-	StatePrefix = []byte(`state `)
+	StatePrefix = `state`
 
 	// CreatePrefix ws message prefix for create command
-	CreatePrefix = []byte(`create `)
+	CreatePrefix = `create`
 
 	// UpdatePrefix ws message prefix for update command
-	UpdatePrefix = []byte(`update `)
+	UpdatePrefix = `update`
 
 	// DeletePrefix ws message prefix for delete command
-	DeletePrefix = []byte(`delete `)
+	DeletePrefix = `delete`
 )
 
-// WorkerMessage describe how message are exchanged accross worker
-type WorkerMessage struct {
-	ID      string
-	Type    string
-	Payload interface{}
-}
-
-func (a *App) handleGroupsFromWorker(payload []byte) error {
+func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	var newGroups map[string]*Group
 
-	if err := json.Unmarshal(payload, &newGroups); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling groups %s: %v`, payload, err)
+	if convert, err := json.Marshal(message.Payload); err != nil {
+		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+	} else if err := json.Unmarshal(convert, &newGroups); err != nil {
+		return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
 	}
 
 	a.groups = newGroups
@@ -51,11 +45,13 @@ func (a *App) handleGroupsFromWorker(payload []byte) error {
 	return nil
 }
 
-func (a *App) handleSchedulesFromWorker(payload []byte) error {
+func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	var newSchedules map[string]*Schedule
 
-	if err := json.Unmarshal(payload, &newSchedules); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling schedules %s: %v`, payload, err)
+	if convert, err := json.Marshal(message.Payload); err != nil {
+		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+	} else if err := json.Unmarshal(convert, &newSchedules); err != nil {
+		return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
 	}
 
 	a.schedules = newSchedules
@@ -63,11 +59,13 @@ func (a *App) handleSchedulesFromWorker(payload []byte) error {
 	return nil
 }
 
-func (a *App) handleScenesFromWorker(payload []byte) error {
+func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	var newScenes map[string]*Scene
 
-	if err := json.Unmarshal(bytes.TrimPrefix(payload, SchedulesPrefix), &newScenes); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling scenes %s: %v`, payload, err)
+	if convert, err := json.Marshal(message.Payload); err != nil {
+		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+	} else if err := json.Unmarshal(convert, &newScenes); err != nil {
+		return fmt.Errorf(`[hue] Error while unmarshalling scenes: %v`, err)
 	}
 
 	a.scenes = newScenes
@@ -76,17 +74,17 @@ func (a *App) handleScenesFromWorker(payload []byte) error {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(payload []byte) error {
-	if bytes.HasPrefix(payload, GroupsPrefix) {
-		return a.handleGroupsFromWorker(bytes.TrimPrefix(payload, GroupsPrefix))
+func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
+	if strings.HasPrefix(message.Type, GroupsPrefix) {
+		return a.handleGroupsFromWorker(message)
 	}
 
-	if bytes.HasPrefix(payload, SchedulesPrefix) {
-		return a.handleSchedulesFromWorker(bytes.TrimPrefix(payload, SchedulesPrefix))
+	if strings.HasPrefix(message.Type, SchedulesPrefix) {
+		return a.handleSchedulesFromWorker(message)
 	}
 
-	if bytes.HasPrefix(payload, ScenesPrefix) {
-		return a.handleScenesFromWorker(bytes.TrimPrefix(payload, ScenesPrefix))
+	if strings.HasPrefix(message.Type, ScenesPrefix) {
+		return a.handleScenesFromWorker(message)
 	}
 
 	return fmt.Errorf(`[hue] Unknown command`)
