@@ -1,7 +1,6 @@
 package hue
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -163,13 +162,13 @@ func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error)
 	}
 
 	if strings.HasPrefix(p.Type, hue.StatePrefix) {
-		if parts := bytes.Split(p.Payload.([]byte), []byte(`|`)); len(parts) == 2 {
-			state, ok := hue.States[string(parts[1])]
+		if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+			state, ok := hue.States[parts[1]]
 			if !ok {
 				return nil, fmt.Errorf(`Unknown state %s`, parts[1])
 			}
 
-			if err := a.updateGroupState(string(parts[0]), state); err != nil {
+			if err := a.updateGroupState(parts[0], state); err != nil {
 				return nil, err
 			}
 		} else {

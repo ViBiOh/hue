@@ -151,7 +151,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: `[hue] Unknown group`})
 			}
 
-			a.sendWorkerMessage(w, r, []byte(fmt.Sprintf(`%s|%s`, group, state)), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
 			return
 		}
 	}
