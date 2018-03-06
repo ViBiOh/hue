@@ -70,7 +70,7 @@ func (a *App) pinger() {
 				Source: hue.HueSource,
 				Type:   hue.GroupsPrefix,
 			})
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
 				close(a.done)
 			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
@@ -81,7 +81,7 @@ func (a *App) pinger() {
 				Source: hue.HueSource,
 				Type:   hue.SchedulesPrefix,
 			})
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
 				close(a.done)
 			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
@@ -92,7 +92,7 @@ func (a *App) pinger() {
 				Source: hue.HueSource,
 				Type:   hue.ScenesPrefix,
 			})
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
 				close(a.done)
 			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
@@ -160,7 +160,7 @@ func (a *App) connect() {
 			if p.Source == hue.HueSource {
 				output, err := a.hueApp.Handle(p)
 
-				if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
+				if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
 					close(a.done)
 				} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 					close(a.done)

@@ -64,10 +64,10 @@ func WriteMessage(ws *websocket.Conn, message *WorkerMessage) bool {
 }
 
 // WriteErrorMessage writes error message on websocket
-func WriteErrorMessage(ws *websocket.Conn, errPayload error) bool {
+func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) bool {
 	message := &WorkerMessage{
 		ID:      utils.ShaFingerprint(errPayload),
-		Source:  ErrorPrefix,
+		Source:  source,
 		Type:    ErrorPrefix,
 		Payload: errPayload,
 	}

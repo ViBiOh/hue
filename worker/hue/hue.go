@@ -86,6 +86,74 @@ func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType s
 	}
 }
 
+func (a *App) handleStates(p *provider.WorkerMessage) error {
+	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+		state, ok := hue.States[parts[1]]
+		if !ok {
+			return fmt.Errorf(`Unknown state %s`, parts[1])
+		}
+
+		if err := a.updateGroupState(parts[0], state); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf(`Invalid state request: %s`, p.Payload)
+	}
+
+	return nil
+}
+
+func (a *App) handleSchedules(p *provider.WorkerMessage) error {
+	if strings.HasSuffix(p.Type, hue.CreatePrefix) {
+		var config hue.ScheduleConfig
+
+		if convert, err := json.Marshal(p.Payload); err != nil {
+			return fmt.Errorf(`Error while converting schedules payload: %v`, err)
+		} else if err := json.Unmarshal(convert, &config); err != nil {
+			return fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+		}
+
+		if err := a.createScheduleFromConfig(&config, nil); err != nil {
+			return fmt.Errorf(`Error while creating schedule from config: %v`, err)
+		}
+	} else if strings.HasSuffix(p.Type, hue.UpdatePrefix) {
+		var config hue.Schedule
+
+		if convert, err := json.Marshal(p.Payload); err != nil {
+			return fmt.Errorf(`Error while converting schedules payload: %v`, err)
+		} else if err := json.Unmarshal(convert, &config); err != nil {
+			return fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
+		}
+
+		if config.ID == `` {
+			return errors.New(`Error while updating schedule config: ID is missing`)
+		}
+
+		if err := a.updateSchedule(&config); err != nil {
+			return err
+		}
+	} else if strings.HasSuffix(p.Type, hue.DeletePrefix) {
+		id := string(p.Payload.([]byte))
+
+		schedule, err := a.getSchedule(id)
+		if err != nil {
+			return fmt.Errorf(`Error while getting schedule: %v`, err)
+		}
+
+		if err := a.deleteSchedule(id); err != nil {
+			return fmt.Errorf(`Error while deleting schedule: %v`, err)
+		}
+
+		if sceneID, ok := schedule.Command.Body[`scene`]; ok {
+			if err := a.deleteScene(sceneID.(string)); err != nil {
+				return fmt.Errorf(`Error while deleting scene: %v`, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // Handle handle worker requests for Hue
 func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if strings.HasPrefix(p.Type, hue.GroupsPrefix) {
@@ -106,51 +174,8 @@ func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error)
 	}
 
 	if strings.HasPrefix(p.Type, hue.SchedulesPrefix) {
-		if strings.HasSuffix(p.Type, hue.CreatePrefix) {
-			var config hue.ScheduleConfig
-
-			if convert, err := json.Marshal(p.Payload); err != nil {
-				return nil, fmt.Errorf(`Error while converting schedules payload: %v`, err)
-			} else if err := json.Unmarshal(convert, &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
-			}
-
-			if err := a.createScheduleFromConfig(&config, nil); err != nil {
-				return nil, fmt.Errorf(`Error while creating schedule from config: %v`, err)
-			}
-		} else if strings.HasSuffix(p.Type, hue.UpdatePrefix) {
-			var config hue.Schedule
-
-			if convert, err := json.Marshal(p.Payload); err != nil {
-				return nil, fmt.Errorf(`Error while converting schedules payload: %v`, err)
-			} else if err := json.Unmarshal(convert, &config); err != nil {
-				return nil, fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
-			}
-
-			if config.ID == `` {
-				return nil, errors.New(`Error while updating schedule config: ID is missing`)
-			}
-
-			if err := a.updateSchedule(&config); err != nil {
-				return nil, err
-			}
-		} else if strings.HasSuffix(p.Type, hue.DeletePrefix) {
-			id := string(p.Payload.([]byte))
-
-			schedule, err := a.getSchedule(id)
-			if err != nil {
-				return nil, fmt.Errorf(`Error while getting schedule: %v`, err)
-			}
-
-			if err := a.deleteSchedule(id); err != nil {
-				return nil, fmt.Errorf(`Error while deleting schedule: %v`, err)
-			}
-
-			if sceneID, ok := schedule.Command.Body[`scene`]; ok {
-				if err := a.deleteScene(sceneID.(string)); err != nil {
-					return nil, fmt.Errorf(`Error while deleting scene: %v`, err)
-				}
-			}
+		if err := a.handleSchedules(p); err != nil {
+			return nil, err
 		}
 
 		output, err := a.listSchedules()
@@ -162,17 +187,8 @@ func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error)
 	}
 
 	if strings.HasPrefix(p.Type, hue.StatePrefix) {
-		if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
-			state, ok := hue.States[parts[1]]
-			if !ok {
-				return nil, fmt.Errorf(`Unknown state %s`, parts[1])
-			}
-
-			if err := a.updateGroupState(parts[0], state); err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, fmt.Errorf(`Invalid state request: %s`, p.Payload)
+		if err := a.handleStates(p); err != nil {
+			return nil, err
 		}
 
 		output, err := a.listGroups()

@@ -87,17 +87,17 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	messageType, p, err := ws.ReadMessage()
 
 	if err != nil {
-		provider.WriteErrorMessage(ws, fmt.Errorf(`Error while reading first message: %v`, err))
+		provider.WriteErrorMessage(ws, `iot`, fmt.Errorf(`Error while reading first message: %v`, err))
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
-		provider.WriteErrorMessage(ws, errors.New(`First message should be a Text Message`))
+		provider.WriteErrorMessage(ws, `iot`, errors.New(`First message should be a Text Message`))
 		return false
 	}
 
 	if string(p) != a.secretKey {
-		provider.WriteErrorMessage(ws, errors.New(`First message should be the Secret Key`))
+		provider.WriteErrorMessage(ws, `iot`, errors.New(`First message should be the Secret Key`))
 		return false
 	}
 
@@ -184,6 +184,11 @@ func (a *App) WebsocketHandler() http.Handler {
 				if err := json.Unmarshal(p, &workerMessage); err != nil {
 					log.Printf(`Error while unmarshalling worker message: %v`, err)
 					a.wsErrCount++
+					break
+				}
+
+				if workerMessage.Type == provider.ErrorPrefix {
+					log.Printf(`[%s] %v`, workerMessage.Source, workerMessage.Payload)
 					break
 				}
 
