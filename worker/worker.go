@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
+	"encoding/json"
 	"flag"
 	"log"
-	"net/http"
 	"time"
 
-	"github.com/ViBiOh/httputils/request"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/hue"
 	"github.com/ViBiOh/iot/provider"
@@ -15,11 +13,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const pingDelay = 60 * time.Second
+const (
+	pingID    = `ping`
+	pingDelay = 60 * time.Second
+)
 
 // WorkerApp app that plugs to worker
 type WorkerApp interface {
-	Handle([]byte) ([]byte, error)
+	Handle(*provider.WorkerMessage) (*provider.WorkerMessage, error)
 }
 
 // App stores informations and secret of API
@@ -49,7 +50,8 @@ func Flags(prefix string) map[string]interface{} {
 }
 
 func (a *App) auth() {
-	if !provider.WriteTextMessage(a.wsConn, []byte(a.secretKey)) {
+	if err := a.wsConn.WriteMessage(websocket.TextMessage, []byte(a.secretKey)); err != nil {
+		log.Printf(`Error while sending auth message: %v`, err)
 		close(a.done)
 	}
 }
@@ -60,27 +62,39 @@ func (a *App) pinger() {
 		case <-a.done:
 			return
 		default:
-			var output []byte
+			var output *provider.WorkerMessage
 			var err error
 
-			output, err = a.hueApp.Handle(hue.GroupsPrefix)
+			output, err = a.hueApp.Handle(&provider.WorkerMessage{
+				ID:     pingID,
+				Source: hue.HueSource,
+				Type:   hue.GroupsPrefix,
+			})
 			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 				close(a.done)
-			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
 			}
 
-			output, err = a.hueApp.Handle(hue.SchedulesPrefix)
+			output, err = a.hueApp.Handle(&provider.WorkerMessage{
+				ID:     pingID,
+				Source: hue.HueSource,
+				Type:   hue.SchedulesPrefix,
+			})
 			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 				close(a.done)
-			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
 			}
 
-			output, err = a.hueApp.Handle(hue.ScenesPrefix)
+			output, err = a.hueApp.Handle(&provider.WorkerMessage{
+				ID:     pingID,
+				Source: hue.HueSource,
+				Type:   hue.ScenesPrefix,
+			})
 			if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 				close(a.done)
-			} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 				close(a.done)
 			}
 		}
@@ -90,20 +104,11 @@ func (a *App) pinger() {
 }
 
 func (a *App) connect() {
-	localIP, err := tools.GetLocalIP()
-	if err != nil {
-		log.Printf(`Error while retrieving local ips: %v`, err)
-		return
-	}
-
-	headers := http.Header{}
-	headers.Set(request.ForwardedForHeader, localIP.String())
-
-	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, headers)
+	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, nil)
 	if ws != nil {
 		defer func() {
 			if err := ws.Close(); err != nil {
-				log.Printf(`Error while closing connection: %v`, err)
+				log.Printf(`Error while closing websocket connection: %v`, err)
 			}
 		}()
 	}
@@ -114,12 +119,12 @@ func (a *App) connect() {
 
 	a.wsConn = ws
 	a.done = make(chan struct{})
-	log.Print(`Connection established`)
+	log.Print(`Websocket connection established`)
 
 	a.auth()
 	go a.pinger()
 
-	input := make(chan []byte)
+	input := make(chan *provider.WorkerMessage)
 
 	go func() {
 		for {
@@ -136,10 +141,11 @@ func (a *App) connect() {
 			}
 
 			if messageType == websocket.TextMessage {
-				if bytes.HasPrefix(p, provider.ErrorPrefix) {
-					log.Printf(`Error received from API: %s`, bytes.TrimPrefix(p, provider.ErrorPrefix))
+				var workerMessage provider.WorkerMessage
+				if err := json.Unmarshal(p, &workerMessage); err != nil {
+					log.Printf(`Error while unmarshalling worker message: %v`, err)
 				} else {
-					input <- p
+					input <- &workerMessage
 				}
 			}
 		}
@@ -151,12 +157,12 @@ func (a *App) connect() {
 			close(input)
 			return
 		case p := <-input:
-			if bytes.HasPrefix(p, hue.WebSocketPrefix) {
-				output, err := a.hueApp.Handle(bytes.TrimPrefix(p, hue.WebSocketPrefix))
+			if p.Source == hue.HueSource {
+				output, err := a.hueApp.Handle(p)
 
 				if err != nil && !provider.WriteErrorMessage(a.wsConn, err) {
 					close(a.done)
-				} else if output != nil && !provider.WriteTextMessage(a.wsConn, append(hue.WebSocketPrefix, output...)) {
+				} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
 					close(a.done)
 				}
 			} else {

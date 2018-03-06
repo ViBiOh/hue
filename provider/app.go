@@ -1,14 +1,18 @@
 package provider
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
+	"github.com/ViBiOh/iot/utils"
 	"github.com/gorilla/websocket"
 )
 
 // ErrorPrefix for sending back error
-var ErrorPrefix = []byte(`error `)
+const (
+	ErrorPrefix = `error`
+)
 
 // Message rendered to user
 type Message struct {
@@ -16,39 +20,68 @@ type Message struct {
 	Content string
 }
 
+// WorkerMessage describe how message are exchanged accross worker
+type WorkerMessage struct {
+	ID      string
+	Source  string
+	Type    string
+	Payload interface{}
+}
+
 // Provider for IoT
 type Provider interface {
 	SetHub(Hub)
-	GetWorkerPrefix() []byte
+	GetWorkerSource() string
 	GetData() interface{}
-	WorkerHandler([]byte) error
+	WorkerHandler(*WorkerMessage) error
 }
 
 // Hub for rendering UI
 type Hub interface {
-	SendToWorker([]byte) bool
+	SendToWorker(*WorkerMessage) bool
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
-// WriteTextMessage writes content as text message on websocket
-func WriteTextMessage(ws *websocket.Conn, content []byte) bool {
+// WriteMessage writes content as text message on websocket
+func WriteMessage(ws *websocket.Conn, message *WorkerMessage) bool {
 	if ws == nil {
-		log.Printf(`No websocket connection provided for sending: %s`, content)
+		log.Printf(`No websocket connection provided for sending: %+v`, message)
 		return false
 	}
 
-	if err := ws.WriteMessage(websocket.TextMessage, content); err != nil {
-		log.Printf(`Error while sending text message %s: %v`, content, err)
+	messagePayload, err := json.Marshal(message)
+	if err != nil {
+		log.Printf(`Error while marshalling message to worker: %v`, err)
 		return false
 	}
+
+	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
+		log.Printf(`Error while sending message to worker: %v`, err)
+		return false
+	}
+
 	return true
 }
 
 // WriteErrorMessage writes error message on websocket
 func WriteErrorMessage(ws *websocket.Conn, errPayload error) bool {
-	if err := ws.WriteMessage(websocket.TextMessage, append(ErrorPrefix, []byte(errPayload.Error())...)); err != nil {
-		log.Printf(`Error while sending error message %v: %v`, errPayload, err)
+	message := &WorkerMessage{
+		ID:      utils.ShaFingerprint(errPayload),
+		Source:  ErrorPrefix,
+		Type:    ErrorPrefix,
+		Payload: errPayload,
+	}
+
+	messagePayload, err := json.Marshal(message)
+	if err != nil {
+		log.Printf(`Error while marshalling error message: %v`, err)
 		return false
 	}
+
+	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
+		log.Printf(`Error while sending error message: %v`, err)
+		return false
+	}
+
 	return true
 }
