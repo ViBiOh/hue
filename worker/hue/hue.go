@@ -78,8 +78,13 @@ func Flags(prefix string) map[string]interface{} {
 }
 
 func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType string, payload interface{}) *provider.WorkerMessage {
+	id := ``
+	if initial != nil {
+		id = initial.ID
+	}
+
 	return &provider.WorkerMessage{
-		ID:      initial.ID,
+		ID:      id,
 		Source:  hue.HueSource,
 		Type:    messageType,
 		Payload: payload,
@@ -154,50 +159,75 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 	return nil
 }
 
+func (a *App) workerListGroups(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listGroups()
+	if err != nil {
+		return nil, err
+	}
+	return a.formatWorkerMessage(initial, hue.WorkerGroupsType, output), nil
+}
+
+func (a *App) workerListScenes(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listScenes()
+	if err != nil {
+		return nil, err
+	}
+	return a.formatWorkerMessage(initial, hue.WorkerScenesType, output), nil
+}
+
+func (a *App) workerListSchedules(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listSchedules()
+	if err != nil {
+		return nil, err
+	}
+	return a.formatWorkerMessage(initial, hue.WorkerSchedulesType, output), nil
+}
+
 // Handle handle worker requests for Hue
 func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if strings.HasPrefix(p.Type, hue.GroupsPrefix) {
-		output, err := a.listGroups()
-		if err != nil {
-			return nil, err
-		}
-		return a.formatWorkerMessage(p, hue.GroupsPrefix, output), nil
+	if strings.HasPrefix(p.Type, hue.WorkerGroupsType) {
+		return a.workerListGroups(p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.ScenesPrefix) {
-		output, err := a.listScenes()
-		if err != nil {
-			return nil, err
-		}
-
-		return a.formatWorkerMessage(p, hue.ScenesPrefix, output), nil
+	if strings.HasPrefix(p.Type, hue.WorkerScenesType) {
+		return a.workerListScenes(p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.SchedulesPrefix) {
+	if strings.HasPrefix(p.Type, hue.WorkerSchedulesType) {
 		if err := a.handleSchedules(p); err != nil {
 			return nil, err
 		}
 
-		output, err := a.listSchedules()
-		if err != nil {
-			return nil, err
-		}
-
-		return a.formatWorkerMessage(p, hue.SchedulesPrefix, output), nil
+		return a.workerListSchedules(p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.StatePrefix) {
+	if strings.HasPrefix(p.Type, hue.WorkerStateType) {
 		if err := a.handleStates(p); err != nil {
 			return nil, err
 		}
 
-		output, err := a.listGroups()
-		if err != nil {
-			return nil, err
-		}
-
-		return a.formatWorkerMessage(p, hue.GroupsPrefix, output), nil
+		return a.workerListGroups(p)
 	}
 
 	return nil, fmt.Errorf(`Unknown request: %s`, p)
+}
+
+// Ping send to worker update informations
+func (a *App) Ping() ([]*provider.WorkerMessage, error) {
+	groups, err := a.workerListGroups(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	scenes, err := a.workerListScenes(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	schedules, err := a.workerListSchedules(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return []*provider.WorkerMessage{groups, scenes, schedules}, nil
 }

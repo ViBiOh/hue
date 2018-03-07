@@ -9,9 +9,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// ErrorPrefix for sending back error
+// WorkerErrorType for sending back error
 const (
-	ErrorPrefix = `error`
+	WorkerErrorType = `error`
 )
 
 // Message rendered to user
@@ -68,7 +68,7 @@ func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) bool
 	message := &WorkerMessage{
 		ID:      utils.ShaFingerprint(errPayload),
 		Source:  source,
-		Type:    ErrorPrefix,
+		Type:    WorkerErrorType,
 		Payload: errPayload,
 	}
 

@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	// GroupsPrefix ws message prefix for groups command
-	GroupsPrefix = `groups`
+	// WorkerGroupsType ws message prefix for groups command
+	WorkerGroupsType = `groups`
 
-	// SchedulesPrefix ws message prefix for schedules command
-	SchedulesPrefix = `schedules`
+	// WorkerSchedulesType ws message prefix for schedules command
+	WorkerSchedulesType = `schedules`
 
-	// ScenesPrefix ws message prefix for scenes command
-	ScenesPrefix = `scenes`
+	// WorkerScenesType ws message prefix for scenes command
+	WorkerScenesType = `scenes`
 
-	// StatePrefix ws message prefix for state command
-	StatePrefix = `state`
+	// WorkerStateType ws message prefix for state command
+	WorkerStateType = `state`
 
 	// CreatePrefix ws message prefix for create command
 	CreatePrefix = `create`
@@ -75,15 +75,15 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	if strings.HasPrefix(message.Type, GroupsPrefix) {
+	if strings.HasPrefix(message.Type, WorkerGroupsType) {
 		return a.handleGroupsFromWorker(message)
 	}
 
-	if strings.HasPrefix(message.Type, SchedulesPrefix) {
+	if strings.HasPrefix(message.Type, WorkerSchedulesType) {
 		return a.handleSchedulesFromWorker(message)
 	}
 
-	if strings.HasPrefix(message.Type, ScenesPrefix) {
+	if strings.HasPrefix(message.Type, WorkerScenesType) {
 		return a.handleScenesFromWorker(message)
 	}
 

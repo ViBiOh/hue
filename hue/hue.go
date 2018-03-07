@@ -12,7 +12,8 @@ import (
 
 const (
 	// HueSource constant for worker message
-	HueSource        = `hue`
+	HueSource = `hue`
+
 	groupsRequest    = `/groups`
 	schedulesRequest = `/schedules`
 )

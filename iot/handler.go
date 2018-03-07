@@ -23,6 +23,7 @@ const (
 	maxAllowedErrors = 5
 	hoursInDay       = 24
 	minutesInHours   = 60
+	iotSource        = `iot`
 )
 
 var (
@@ -87,17 +88,17 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	messageType, p, err := ws.ReadMessage()
 
 	if err != nil {
-		provider.WriteErrorMessage(ws, `iot`, fmt.Errorf(`Error while reading first message: %v`, err))
+		provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`Error while reading first message: %v`, err))
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
-		provider.WriteErrorMessage(ws, `iot`, errors.New(`First message should be a Text Message`))
+		provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be a Text Message`))
 		return false
 	}
 
 	if string(p) != a.secretKey {
-		provider.WriteErrorMessage(ws, `iot`, errors.New(`First message should be the Secret Key`))
+		provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be the Secret Key`))
 		return false
 	}
 
@@ -144,12 +145,12 @@ func (a *App) WebsocketHandler() http.Handler {
 				}
 
 				if err := ws.Close(); err != nil {
-					log.Printf(`Error while closing connection: %v`, err)
+					log.Printf(`[iot] Error while closing connection: %v`, err)
 				}
 			}()
 		}
 		if err != nil {
-			log.Printf(`Error while upgrading connection: %v`, err)
+			log.Printf(`[iot] Error while upgrading connection: %v`, err)
 			return
 		}
 
@@ -160,7 +161,7 @@ func (a *App) WebsocketHandler() http.Handler {
 		log.Printf(`Worker connection from %s`, request.GetIP(r))
 		if a.wsConn != nil {
 			if err := a.wsConn.Close(); err != nil {
-				log.Printf(`Error while closing connection: %v`, err)
+				log.Printf(`[iot] Error while closing connection: %v`, err)
 			}
 
 		}
@@ -175,27 +176,27 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if err != nil {
-				log.Printf(`Error while reading from websocket: %v`, err)
+				log.Printf(`[iot] Error while reading from websocket: %v`, err)
 				return
 			}
 
 			if messageType == websocket.TextMessage {
 				var workerMessage provider.WorkerMessage
 				if err := json.Unmarshal(p, &workerMessage); err != nil {
-					log.Printf(`Error while unmarshalling worker message: %v`, err)
+					log.Printf(`[iot] Error while unmarshalling worker message: %v`, err)
 					a.wsErrCount++
 					break
 				}
 
-				if workerMessage.Type == provider.ErrorPrefix {
-					log.Printf(`[%s] %v`, workerMessage.Source, workerMessage.Payload)
+				if workerMessage.Type == provider.WorkerErrorType {
+					log.Printf(`[iot] [%s] %v`, workerMessage.Source, workerMessage.Payload)
 					break
 				}
 
 				for name, value := range a.providers {
 					if strings.HasPrefix(workerMessage.Source, value.GetWorkerSource()) {
 						if err := value.WorkerHandler(&workerMessage); err != nil {
-							log.Printf(`[%s] %v`, name, err)
+							log.Printf(`[iot] [%s] %v`, name, err)
 						}
 						a.wsErrCount = 0
 						break

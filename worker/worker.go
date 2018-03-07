@@ -21,6 +21,7 @@ const (
 // WorkerApp app that plugs to worker
 type WorkerApp interface {
 	Handle(*provider.WorkerMessage) (*provider.WorkerMessage, error)
+	Ping() ([]*provider.WorkerMessage, error)
 }
 
 // App stores informations and secret of API
@@ -62,40 +63,16 @@ func (a *App) pinger() {
 		case <-a.done:
 			return
 		default:
-			var output *provider.WorkerMessage
-			var err error
+			messages, err := a.hueApp.Ping()
 
-			output, err = a.hueApp.Handle(&provider.WorkerMessage{
-				ID:     pingID,
-				Source: hue.HueSource,
-				Type:   hue.GroupsPrefix,
-			})
 			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
 				close(a.done)
-			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
-				close(a.done)
-			}
-
-			output, err = a.hueApp.Handle(&provider.WorkerMessage{
-				ID:     pingID,
-				Source: hue.HueSource,
-				Type:   hue.SchedulesPrefix,
-			})
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
-				close(a.done)
-			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
-				close(a.done)
-			}
-
-			output, err = a.hueApp.Handle(&provider.WorkerMessage{
-				ID:     pingID,
-				Source: hue.HueSource,
-				Type:   hue.ScenesPrefix,
-			})
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
-				close(a.done)
-			} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
-				close(a.done)
+			} else {
+				for _, message := range messages {
+					if !provider.WriteMessage(a.wsConn, message) {
+						close(a.done)
+					}
+				}
 			}
 		}
 
