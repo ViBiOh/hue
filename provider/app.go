@@ -2,7 +2,7 @@ package provider
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/ViBiOh/iot/utils"
@@ -38,33 +38,30 @@ type Provider interface {
 
 // Hub for rendering UI
 type Hub interface {
-	SendToWorker(*WorkerMessage) bool
+	SendToWorker(*WorkerMessage, bool) *WorkerMessage
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
 // WriteMessage writes content as text message on websocket
-func WriteMessage(ws *websocket.Conn, message *WorkerMessage) bool {
+func WriteMessage(ws *websocket.Conn, message *WorkerMessage) error {
 	if ws == nil {
-		log.Printf(`No websocket connection provided for sending: %+v`, message)
-		return false
+		return fmt.Errorf(`No websocket connection provided for sending: %+v`, message)
 	}
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		log.Printf(`Error while marshalling message to worker: %v`, err)
-		return false
+		return fmt.Errorf(`Error while marshalling message to worker: %v`, err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		log.Printf(`Error while sending message to worker: %v`, err)
-		return false
+		return fmt.Errorf(`Error while sending message to worker: %v`, err)
 	}
 
-	return true
+	return nil
 }
 
 // WriteErrorMessage writes error message on websocket
-func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) bool {
+func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) error {
 	message := &WorkerMessage{
 		ID:      utils.ShaFingerprint(errPayload),
 		Source:  source,
@@ -74,14 +71,12 @@ func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) bool
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		log.Printf(`Error while marshalling error message: %v`, err)
-		return false
+		return fmt.Errorf(`Error while marshalling error message: %v`, err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		log.Printf(`Error while sending error message: %v`, err)
-		return false
+		return fmt.Errorf(`Error while sending error message: %v`, err)
 	}
 
-	return true
+	return nil
 }

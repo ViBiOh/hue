@@ -65,11 +65,15 @@ func (a *App) pinger() {
 		default:
 			messages, err := a.hueApp.Ping()
 
-			if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
-				close(a.done)
+			if err != nil {
+				if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
+					log.Print(err)
+					close(a.done)
+				}
 			} else {
 				for _, message := range messages {
-					if !provider.WriteMessage(a.wsConn, message) {
+					if err := provider.WriteMessage(a.wsConn, message); err != nil {
+						log.Print(err)
 						close(a.done)
 					}
 				}
@@ -137,10 +141,16 @@ func (a *App) connect() {
 			if p.Source == hue.HueSource {
 				output, err := a.hueApp.Handle(p)
 
-				if err != nil && !provider.WriteErrorMessage(a.wsConn, hue.HueSource, err) {
-					close(a.done)
-				} else if output != nil && !provider.WriteMessage(a.wsConn, output) {
-					close(a.done)
+				if err != nil {
+					if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
+						log.Print(err)
+						close(a.done)
+					}
+				} else if output != nil {
+					if err := provider.WriteMessage(a.wsConn, output); err != nil {
+						log.Print(err)
+						close(a.done)
+					}
 				}
 			} else {
 				log.Printf(`Unknown request: %s`, p)

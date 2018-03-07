@@ -35,9 +35,9 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	var newGroups map[string]*Group
 
 	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
 	} else if err := json.Unmarshal(convert, &newGroups); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling groups: %v`, err)
+		return fmt.Errorf(`[%s] Error while unmarshalling groups: %v`, HueSource, err)
 	}
 
 	a.groups = newGroups
@@ -49,9 +49,9 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	var newSchedules map[string]*Schedule
 
 	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
 	} else if err := json.Unmarshal(convert, &newSchedules); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling schedules: %v`, err)
+		return fmt.Errorf(`[%s] Error while unmarshalling schedules: %v`, HueSource, err)
 	}
 
 	a.schedules = newSchedules
@@ -63,9 +63,9 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	var newScenes map[string]*Scene
 
 	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[hue] Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
 	} else if err := json.Unmarshal(convert, &newScenes); err != nil {
-		return fmt.Errorf(`[hue] Error while unmarshalling scenes: %v`, err)
+		return fmt.Errorf(`[%s] Error while unmarshalling scenes: %v`, HueSource, err)
 	}
 
 	a.scenes = newScenes
@@ -87,5 +87,5 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 		return a.handleScenesFromWorker(message)
 	}
 
-	return fmt.Errorf(`[hue] Unknown command`)
+	return fmt.Errorf(`[%s] Unknown command`, HueSource)
 }

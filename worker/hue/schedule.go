@@ -113,13 +113,13 @@ func (a *App) cleanSchedules() error {
 func (a *App) configureSchedules(schedules []*hue.ScheduleConfig) {
 	groups, err := a.listGroups()
 	if err != nil {
-		log.Printf(`[hue] Error while retrieving groups for configuring schedules: %v`, err)
+		log.Printf(`[%s] Error while retrieving groups for configuring schedules: %v`, hue.HueSource, err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := a.createScheduleFromConfig(config, groups); err != nil {
-			log.Printf(`[hue] %v`, err)
+			log.Printf(`[%s] %v`, hue.HueSource, err)
 		}
 	}
 }

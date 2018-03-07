@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/ViBiOh/httputils/httperror"
 	"github.com/ViBiOh/httputils/request"
@@ -41,11 +43,12 @@ var upgrader = websocket.Upgrader{
 
 // App stores informations and secret of API
 type App struct {
-	tpl        *template.Template
-	providers  map[string]provider.Provider
-	secretKey  string
-	wsConn     *websocket.Conn
-	wsErrCount uint
+	tpl         *template.Template
+	providers   map[string]provider.Provider
+	secretKey   string
+	wsConn      *websocket.Conn
+	wsErrCount  uint
+	workerCalls sync.Map
 }
 
 func init() {
@@ -66,8 +69,9 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: utils.ShaFingerprint,
 		}).ParseGlob(`./web/*.gohtml`)),
-		providers: providers,
-		secretKey: *config[`secretKey`],
+		providers:   providers,
+		secretKey:   *config[`secretKey`],
+		workerCalls: sync.Map{},
 	}
 
 	for _, provider := range providers {
@@ -88,17 +92,23 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	messageType, p, err := ws.ReadMessage()
 
 	if err != nil {
-		provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`Error while reading first message: %v`, err))
+		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`Error while reading first message: %v`, err)); err != nil {
+			log.Print(err)
+		}
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
-		provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be a Text Message`))
+		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be a Text Message`)); err != nil {
+			log.Print(err)
+		}
 		return false
 	}
 
 	if string(p) != a.secretKey {
-		provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be the Secret Key`))
+		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be the Secret Key`)); err != nil {
+			log.Print(err)
+		}
 		return false
 	}
 
@@ -106,8 +116,34 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(message *provider.WorkerMessage) bool {
-	return provider.WriteMessage(a.wsConn, message)
+func (a *App) SendToWorker(message *provider.WorkerMessage, waitOutput bool) *provider.WorkerMessage {
+	var outputChan chan *provider.WorkerMessage
+
+	if waitOutput {
+		outputChan = make(chan *provider.WorkerMessage)
+		a.workerCalls.Store(message.ID, outputChan)
+
+		defer a.workerCalls.Delete(message.ID)
+	}
+
+	if err := provider.WriteMessage(a.wsConn, message); err != nil {
+		return &provider.WorkerMessage{
+			Source:  message.Source,
+			Type:    provider.WorkerErrorType,
+			Payload: err,
+		}
+	}
+
+	if waitOutput {
+		select {
+		case output := <-outputChan:
+			return output
+		case <-time.After(10 * time.Second):
+			return nil
+		}
+	}
+
+	return nil
 }
 
 // RenderDashboard render dashboard
@@ -186,6 +222,10 @@ func (a *App) WebsocketHandler() http.Handler {
 					log.Printf(`[iot] Error while unmarshalling worker message: %v`, err)
 					a.wsErrCount++
 					break
+				}
+
+				if outputChan, ok := a.workerCalls.Load(workerMessage.ID); ok {
+					outputChan.(chan *provider.WorkerMessage) <- &workerMessage
 				}
 
 				if workerMessage.Type == provider.WorkerErrorType {

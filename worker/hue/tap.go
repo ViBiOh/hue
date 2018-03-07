@@ -46,7 +46,7 @@ func (a *App) configureTap(taps []*tapConfig) {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
 			if err := a.createRule(button.Rule); err != nil {
-				log.Printf(`[hue] Error while creating rule: %v`, err)
+				log.Printf(`[%s] Error while creating rule: %v`, hue.HueSource, err)
 			}
 		}
 	}

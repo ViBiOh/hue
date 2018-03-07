@@ -75,10 +75,17 @@ func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload 
 		Payload: payload,
 	}
 
-	if !a.hub.SendToWorker(message) {
+	output := a.hub.SendToWorker(message, true)
+
+	if output == nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   `error`,
-			Content: fmt.Sprintf(`[hue] Error while sending message %s to Worker`, typeName),
+			Content: fmt.Sprintf(`[%s] Timeout while sending message %s to Worker`, HueSource, typeName),
+		})
+	} else if output.Type == provider.WorkerErrorType {
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
+			Level:   `error`,
+			Content: fmt.Sprintf(`[%s] Error while sending message %s to worker: %v`, HueSource, typeName, output.Payload),
 		})
 	} else {
 		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
@@ -102,7 +109,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 			payload, err := json.Marshal(config)
 			if err != nil {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule config: %v`, err)})
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Error while marshalling schedule config: %v`, HueSource, err)})
 				return
 			}
 
@@ -122,7 +129,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 			payload, err := json.Marshal(schedule)
 			if err != nil {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[hue] Error while marshalling schedule: %v`, err)})
+				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Error while marshalling schedule: %v`, HueSource, err)})
 				return
 			}
 
@@ -136,7 +143,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown schedule command`})
+	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown schedule command`, HueSource)})
 }
 
 func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +156,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 			groupObj, ok := a.groups[group]
 			if !ok {
-				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: `[hue] Unknown group`})
+				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown group`, HueSource)})
 			}
 
 			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
@@ -157,7 +164,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown group command`})
+	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown group command`, HueSource)})
 }
 
 // Handler create Handler with given App context
@@ -173,7 +180,7 @@ func (a *App) Handler() http.Handler {
 			return
 		}
 
-		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: `[hue] Unknown command`})
+		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown command`, HueSource)})
 	})
 }
 
