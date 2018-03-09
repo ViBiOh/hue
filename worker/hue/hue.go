@@ -23,10 +23,8 @@ type App struct {
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]interface{}) (*App, error) {
-	if *config[`debug`].(*bool) {
-		debug = true
-	}
+func NewApp(config map[string]interface{}, debugApp bool) (*App, error) {
+	debug = debugApp
 
 	username := *config[`username`].(*string)
 
@@ -69,11 +67,10 @@ func NewApp(config map[string]interface{}) (*App, error) {
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]interface{} {
 	return map[string]interface{}{
-		`bridgeIP`: flag.String(tools.ToCamel(prefix+`BridgeIP`), ``, `[hue] IP of Bridge`),
-		`username`: flag.String(tools.ToCamel(prefix+`Username`), ``, `[hue] Username for Bridge`),
-		`config`:   flag.String(tools.ToCamel(prefix+`Config`), ``, `[hue] Configuration filename`),
-		`clean`:    flag.Bool(tools.ToCamel(prefix+`Clean`), false, `[hue] Clean Hue`),
-		`debug`:    flag.Bool(tools.ToCamel(prefix+`Debug`), false, `Enable debug logging`),
+		`bridgeIP`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `BridgeIP`)), ``, `[hue] IP of Bridge`),
+		`username`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Username`)), ``, `[hue] Username for Bridge`),
+		`config`:   flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Config`)), ``, `[hue] Configuration filename`),
+		`clean`:    flag.Bool(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Clean`)), false, `[hue] Clean Hue`),
 	}
 }
 
@@ -109,7 +106,7 @@ func (a *App) handleStates(p *provider.WorkerMessage) error {
 }
 
 func (a *App) handleSchedules(p *provider.WorkerMessage) error {
-	if strings.HasSuffix(p.Type, hue.CreatePrefix) {
+	if strings.HasSuffix(p.Type, hue.CreateAction) {
 		var config hue.ScheduleConfig
 
 		if convert, err := json.Marshal(p.Payload); err != nil {
@@ -121,7 +118,11 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 		if err := a.createScheduleFromConfig(&config, nil); err != nil {
 			return fmt.Errorf(`Error while creating schedule from config: %v`, err)
 		}
-	} else if strings.HasSuffix(p.Type, hue.UpdatePrefix) {
+
+		return nil
+	}
+
+	if strings.HasSuffix(p.Type, hue.UpdateAction) {
 		var config hue.Schedule
 
 		if convert, err := json.Marshal(p.Payload); err != nil {
@@ -137,7 +138,10 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 		if err := a.updateSchedule(&config); err != nil {
 			return err
 		}
-	} else if strings.HasSuffix(p.Type, hue.DeletePrefix) {
+		return nil
+	}
+
+	if strings.HasSuffix(p.Type, hue.DeleteAction) {
 		id := string(p.Payload.([]byte))
 
 		schedule, err := a.getSchedule(id)
@@ -154,9 +158,11 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 				return fmt.Errorf(`Error while deleting scene: %v`, err)
 			}
 		}
+
+		return nil
 	}
 
-	return nil
+	return errors.New(`Unknown schedule command`)
 }
 
 func (a *App) workerListGroups(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {

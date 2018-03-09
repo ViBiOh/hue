@@ -21,14 +21,14 @@ const (
 	// WorkerStateType ws message prefix for state command
 	WorkerStateType = `state`
 
-	// CreatePrefix ws message prefix for create command
-	CreatePrefix = `create`
+	// CreateAction ws message prefix for create command
+	CreateAction = `create`
 
-	// UpdatePrefix ws message prefix for update command
-	UpdatePrefix = `update`
+	// UpdateAction ws message prefix for update command
+	UpdateAction = `update`
 
-	// DeletePrefix ws message prefix for delete command
-	DeletePrefix = `delete`
+	// DeleteAction ws message prefix for delete command
+	DeleteAction = `delete`
 )
 
 func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {

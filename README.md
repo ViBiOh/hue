@@ -69,6 +69,8 @@ Usage of iot:
 
 ```bash
 Usage of worker:
+  -debug
+      Enable debug
   -hueBridgeIP string
       [hue] IP of Bridge
   -hueClean

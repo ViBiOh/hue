@@ -57,7 +57,7 @@ func main() {
 			if strings.HasPrefix(r.URL.Path, huePath) {
 				hueHandler.ServeHTTP(w, r)
 			} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-				http.ServeFile(w, r, webDirectory+r.URL.Path)
+				http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
 			} else {
 				iotHandler.ServeHTTP(w, r)
 			}

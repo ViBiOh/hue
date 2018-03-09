@@ -84,7 +84,7 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`secretKey`: flag.String(tools.ToCamel(prefix+`SecretKey`), ``, `[iot] Secret Key between worker and API`),
+		`secretKey`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `SecretKey`)), ``, `[iot] Secret Key between worker and API`),
 	}
 }
 

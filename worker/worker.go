@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
@@ -45,8 +46,9 @@ func NewApp(config map[string]interface{}, hueApp WorkerApp) *App {
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]interface{} {
 	return map[string]interface{}{
-		`websocketURL`: flag.String(tools.ToCamel(prefix+`websocket`), ``, `WebSocket URL`),
-		`secretKey`:    flag.String(tools.ToCamel(prefix+`secretKey`), ``, `Secret Key`),
+		`websocketURL`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `websocket`)), ``, `WebSocket URL`),
+		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `secretKey`)), ``, `Secret Key`),
+		`debug`:        flag.Bool(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Debug`)), false, `Enable debug`),
 	}
 }
 
@@ -164,7 +166,7 @@ func main() {
 	hueConfig := hue_worker.Flags(`hue`)
 	flag.Parse()
 
-	hueApp, err := hue_worker.NewApp(hueConfig)
+	hueApp, err := hue_worker.NewApp(hueConfig, *workerConfig[`debug`].(*bool))
 	if err != nil {
 		log.Fatalf(`Error while creating hue app: %s`, err)
 	}
