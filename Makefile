@@ -30,8 +30,6 @@ bench:
 
 build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot iot.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot-arm iot.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot-arm64 iot.go
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker worker/worker.go
 
 docker-deps:
@@ -39,14 +37,10 @@ docker-deps:
 
 docker-build:
 	docker build -t ${DOCKER_USER}/iot .
-	docker build -t ${DOCKER_USER}/iot:arm -f Dockerfile_arm .
-	docker build -t ${DOCKER_USER}/iot:arm64 -f Dockerfile_arm64 .
 
 docker-push:
 	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 	docker push ${DOCKER_USER}/iot
-	docker push ${DOCKER_USER}/iot:arm
-	docker push ${DOCKER_USER}/iot:arm64
 
 start-deps:
 	go get -u github.com/ViBiOh/auth/bcrypt
