@@ -18,7 +18,7 @@
     "provider/github",
     "service"
   ]
-  revision = "8ae37b8a43d51d92eec3008ad5117da229558ffc"
+  revision = "5660c8ba378b90fc4833165cf25f00b5ae2c46a7"
 
 [[projects]]
   branch = "master"
@@ -30,7 +30,7 @@
     "cors",
     "healthcheck",
     "httperror",
-    "json",
+    "httpjson",
     "owasp",
     "request",
     "server",
@@ -38,7 +38,7 @@
     "tools",
     "uuid"
   ]
-  revision = "ffedff675f711425bed74940efee7021ba098536"
+  revision = "ddb82b61e5aea0d60bdfdb3b7a5fb247e756c63f"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -85,7 +85,7 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "49796115aa4b964c318aad4f3084fdb41e9aa067"
+  revision = "c7dcf104e3a7a1417abc0230cb0d5240d764159d"
 
 [[projects]]
   branch = "master"
@@ -94,7 +94,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
+  revision = "d0aafc73d5cdc42264b0af071c261abac580695e"
 
 [[projects]]
   branch = "master"
@@ -104,7 +104,7 @@
     "github",
     "internal"
   ]
-  revision = "543e37812f10c46c622c9575afd7ad22f22a12ba"
+  revision = "2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0"
 
 [[projects]]
   name = "google.golang.org/appengine"

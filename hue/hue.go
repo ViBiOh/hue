@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
-	"github.com/ViBiOh/iot/utils"
 )
 
 const (
@@ -69,7 +69,7 @@ func NewApp() *App {
 
 func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
 	message := &provider.WorkerMessage{
-		ID:      utils.ShaFingerprint(payload),
+		ID:      tools.Sha1(payload),
 		Source:  HueSource,
 		Type:    typeName,
 		Payload: payload,

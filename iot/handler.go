@@ -17,7 +17,6 @@ import (
 	"github.com/ViBiOh/httputils/templates"
 	"github.com/ViBiOh/httputils/tools"
 	"github.com/ViBiOh/iot/provider"
-	"github.com/ViBiOh/iot/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -67,7 +66,7 @@ func init() {
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	app := &App{
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
-			`sha`: utils.ShaFingerprint,
+			`sha`: tools.Sha1,
 		}).ParseGlob(`./web/*.gohtml`)),
 		providers:   providers,
 		secretKey:   *config[`secretKey`],

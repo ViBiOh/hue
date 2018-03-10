@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/iot/utils"
+	"github.com/ViBiOh/httputils/tools"
 	"github.com/gorilla/websocket"
 )
 
@@ -63,7 +63,7 @@ func WriteMessage(ws *websocket.Conn, message *WorkerMessage) error {
 // WriteErrorMessage writes error message on websocket
 func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) error {
 	message := &WorkerMessage{
-		ID:      utils.ShaFingerprint(errPayload),
+		ID:      tools.Sha1(errPayload),
 		Source:  source,
 		Type:    WorkerErrorType,
 		Payload: errPayload,

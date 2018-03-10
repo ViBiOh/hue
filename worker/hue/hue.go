@@ -135,10 +135,7 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 			return errors.New(`Error while updating schedule config: ID is missing`)
 		}
 
-		if err := a.updateSchedule(&config); err != nil {
-			return err
-		}
-		return nil
+		return a.updateSchedule(&config)
 	}
 
 	if strings.HasSuffix(p.Type, hue.DeleteAction) {
