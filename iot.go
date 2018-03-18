@@ -38,7 +38,7 @@ func main() {
 	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
 
-	httputils.StartMainServer(func() http.Handler {
+	httputils.NewApp(httputils.Flags(``), func() http.Handler {
 		authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 		netatmoApp := netatmo.NewApp(netatmoConfig)
 		hueApp := hue.NewApp()
@@ -89,5 +89,5 @@ func main() {
 				apiHandler.ServeHTTP(w, r)
 			}
 		})
-	}, nil)
+	}, nil).ListenAndServe()
 }

@@ -4,7 +4,6 @@ services:
   auth:
     image: vibioh/auth
     command:
-    - -tls
     - -corsHeaders
     - Authorization
     - -corsCredentials
@@ -39,7 +38,6 @@ services:
   api:
     image: vibioh/iot
     command:
-    - -tls
     - -authUrl
     - https://iot-auth.vibioh.fr
     - -authUsers
