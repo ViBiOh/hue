@@ -36,11 +36,11 @@ docker-deps:
 	curl -s -o cacert.pem https://curl.haxx.se/ca/cacert.pem
 
 docker-build:
-	docker build -t ${DOCKER_USER}/iot .
+	docker build -t $(DOCKER_USER)/iot .
 
 docker-push:
-	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-	docker push ${DOCKER_USER}/iot
+	echo $(DOCKER_PASS) | docker login -u $(DOCKER_USER) --password-stdin
+	docker push $(DOCKER_USER)/iot
 
 start-deps:
 	go get -u github.com/ViBiOh/auth/bcrypt
@@ -58,6 +58,6 @@ start-worker:
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
 		-hueConfig ./hue.json \
-		-hueUsername ${BRIDGE_USERNAME} \
-		-hueBridgeIP ${BRIDGE_IP} \
+		-hueUsername $(BRIDGE_USERNAME) \
+		-hueBridgeIP $(BRIDGE_IP) \
 		-hueClean
