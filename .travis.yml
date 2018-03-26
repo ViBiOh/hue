@@ -1,30 +1,41 @@
-language: go
-sudo: required
-services:
-- docker
-go : '1.10'
-after_success: |
-  bash <(curl -s https://codecov.io/bash)
+jobs:
+  include:
+  - stage: Build
 
-  if [ "${TRAVIS_BRANCH}" == "master" ]; then
-    make docker-push
-    curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
+    language: go
+    sudo: required
+    services:
+    - docker
+    go : '1.10'
+    after_success: |
+      if [ "${TRAVIS_BRANCH}" == "master" ]; then
+        bash <(curl -s https://codecov.io/bash)
+        curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
 
-    sed \
-      -e "s|\${GITHUB_OAUTH_CLIENT_ID}|${GITHUB_OAUTH_CLIENT_ID}|g" \
-      -e "s|\${GITHUB_OAUTH_CLIENT_SECRET}|${GITHUB_OAUTH_CLIENT_SECRET}|g" \
-      -e "s|\${SECRET_KEY}|${SECRET_KEY}|g" \
-      -e "s/\${NETATMO_ACCESS_TOKEN}/${NETATMO_ACCESS_TOKEN}/g" \
-      -e "s/\${NETATMO_CLIENT_ID}/${NETATMO_CLIENT_ID}/g" \
-      -e "s/\${NETATMO_CLIENT_SECRET}/${NETATMO_CLIENT_SECRET}/g" \
-      -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
-      docker-compose.yml > docker-compose-env.yml
-  fi
+        make docker-push
+      fi
+
+  - stage: Deploy
+
+    script: |
+      sed \
+        -e "s|\${GITHUB_OAUTH_CLIENT_ID}|${GITHUB_OAUTH_CLIENT_ID}|g" \
+        -e "s|\${GITHUB_OAUTH_CLIENT_SECRET}|${GITHUB_OAUTH_CLIENT_SECRET}|g" \
+        -e "s|\${SECRET_KEY}|${SECRET_KEY}|g" \
+        -e "s/\${NETATMO_ACCESS_TOKEN}/${NETATMO_ACCESS_TOKEN}/g" \
+        -e "s/\${NETATMO_CLIENT_ID}/${NETATMO_CLIENT_ID}/g" \
+        -e "s/\${NETATMO_CLIENT_SECRET}/${NETATMO_CLIENT_SECRET}/g" \
+        -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
+        docker-compose.yml > docker-compose-env.yml
+    deploy:
+      provider: script
+      skip_cleanup: true
+      script: 'curl -H "Authorization: GitHub ${GITHUB_OAUTH_TOKEN}" -X POST https://dashboard-api.vibioh.fr/containers/iot/ --data-binary @docker-compose-env.yml'
+
+stages:
+  - Build
+  - name: Deploy
+    if: branch = master
+
 notifications:
   email: false
-deploy:
-- provider: script
-  skip_cleanup: true
-  script: "curl -H 'Authorization: GitHub ${GITHUB_OAUTH_TOKEN}' -X POST https://dashboard-api.vibioh.fr/containers/iot/ --data-binary @docker-compose-env.yml"
-  on:
-    branch: master
