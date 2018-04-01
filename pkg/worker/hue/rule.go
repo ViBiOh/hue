@@ -3,7 +3,7 @@ package hue
 import (
 	"fmt"
 
-	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 func (a *App) listRules() (map[string]*hue.Rule, error) {

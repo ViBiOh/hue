@@ -1,6 +1,6 @@
 package hue
 
-import "github.com/ViBiOh/iot/hue"
+import "github.com/ViBiOh/iot/pkg/hue"
 
 type hueConfig struct {
 	Schedules []*hue.ScheduleConfig

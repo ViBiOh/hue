@@ -14,8 +14,8 @@ deps:
 	dep ensure
 
 format:
-	goimports -w **/*.go *.go
-	gofmt -s -w **/*.go *.go
+	goimports -w */*/*.go
+	gofmt -s -w */*/*.go
 
 lint:
 	golint `go list ./... | grep -v vendor`
@@ -29,8 +29,8 @@ bench:
 	go test ./... -bench . -benchmem -run Benchmark.*
 
 build:
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot iot.go
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker worker/worker.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot cmd/api/iot.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker cmd/worker/worker.go
 
 docker-deps:
 	curl -s -o cacert.pem https://curl.haxx.se/ca/cacert.pem
@@ -43,10 +43,10 @@ docker-push:
 	docker push $(DOCKER_USER)/iot
 
 start-deps:
-	go get -u github.com/ViBiOh/auth/bcrypt
+	go get -u github.com/ViBiOh/auth/cmd/bcrypt
 
 start-api:
-	go run iot.go \
+	go run cmd/api/iot.go \
 		-tls=false \
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \
@@ -54,7 +54,7 @@ start-api:
 		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
 
 start-worker:
-	go run worker/worker.go \
+	go run cmd/worker/worker.go \
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
 		-hueConfig ./hue.json \

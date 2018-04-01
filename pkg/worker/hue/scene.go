@@ -3,7 +3,7 @@ package hue
 import (
 	"fmt"
 
-	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 func (a *App) listScenes() (map[string]*hue.Scene, error) {

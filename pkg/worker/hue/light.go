@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/request"
-	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 func (a *App) getLight(lightID string) (*hue.Light, error) {

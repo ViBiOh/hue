@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/request"
-	"github.com/ViBiOh/httputils/tools"
-	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (

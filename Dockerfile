@@ -6,5 +6,5 @@ ENTRYPOINT [ "/iot" ]
 EXPOSE 1080
 
 COPY cacert.pem /etc/ssl/certs/ca-certificates.crt
-COPY web/ /web
+COPY templates/ /templates
 COPY bin/iot /iot

@@ -6,19 +6,19 @@ import (
 	"strings"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/ViBiOh/auth/auth"
-	authProvider "github.com/ViBiOh/auth/provider"
-	"github.com/ViBiOh/auth/provider/basic"
-	authService "github.com/ViBiOh/auth/service"
-	"github.com/ViBiOh/httputils"
-	"github.com/ViBiOh/httputils/cors"
-	"github.com/ViBiOh/httputils/healthcheck"
-	"github.com/ViBiOh/httputils/httperror"
-	"github.com/ViBiOh/httputils/owasp"
-	"github.com/ViBiOh/iot/hue"
-	"github.com/ViBiOh/iot/iot"
-	"github.com/ViBiOh/iot/netatmo"
-	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/auth/pkg/auth"
+	authProvider "github.com/ViBiOh/auth/pkg/provider"
+	"github.com/ViBiOh/auth/pkg/provider/basic"
+	authService "github.com/ViBiOh/auth/pkg/service"
+	"github.com/ViBiOh/httputils/pkg"
+	"github.com/ViBiOh/httputils/pkg/cors"
+	"github.com/ViBiOh/httputils/pkg/healthcheck"
+	"github.com/ViBiOh/httputils/pkg/httperror"
+	"github.com/ViBiOh/httputils/pkg/owasp"
+	"github.com/ViBiOh/iot/pkg/hue"
+	"github.com/ViBiOh/iot/pkg/iot"
+	"github.com/ViBiOh/iot/pkg/netatmo"
+	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 	faviconPath     = `/favicon`
 	huePath         = `/hue`
 
-	webDirectory = `./web`
+	webDirectory = `./templates`
 )
 
 func main() {

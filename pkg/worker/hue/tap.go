@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 var (

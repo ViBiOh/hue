@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ViBiOh/iot/hue"
+	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 func (a *App) listGroups() (map[string]*hue.Group, error) {

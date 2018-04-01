@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (

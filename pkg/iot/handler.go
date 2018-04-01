@@ -12,11 +12,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ViBiOh/httputils/httperror"
-	"github.com/ViBiOh/httputils/request"
-	"github.com/ViBiOh/httputils/templates"
-	"github.com/ViBiOh/httputils/tools"
-	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/httputils/pkg/httperror"
+	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/httputils/pkg/templates"
+	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/gorilla/websocket"
 )
 
@@ -67,7 +67,7 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 	app := &App{
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: tools.Sha1,
-		}).ParseGlob(`./web/*.gohtml`)),
+		}).ParseGlob(`./templates/*.gohtml`)),
 		providers:   providers,
 		secretKey:   *config[`secretKey`],
 		workerCalls: sync.Map{},

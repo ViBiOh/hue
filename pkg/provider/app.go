@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/tools"
+	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/gorilla/websocket"
 )
 

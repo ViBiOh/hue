@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/ViBiOh/httputils/tools"
-	"github.com/ViBiOh/iot/hue"
-	"github.com/ViBiOh/iot/provider"
+	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/hue"
+	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 var debug = false

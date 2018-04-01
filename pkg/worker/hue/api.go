@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/request"
+	"github.com/ViBiOh/httputils/pkg/request"
 )
 
 func hasError(content []byte) bool {
