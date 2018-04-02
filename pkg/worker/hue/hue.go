@@ -109,9 +109,7 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 	if strings.HasSuffix(p.Type, hue.CreateAction) {
 		var config hue.ScheduleConfig
 
-		if convert, err := json.Marshal(p.Payload); err != nil {
-			return fmt.Errorf(`Error while converting schedules payload: %v`, err)
-		} else if err := json.Unmarshal(convert, &config); err != nil {
+		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
 			return fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
 		}
 
@@ -125,9 +123,7 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 	if strings.HasSuffix(p.Type, hue.UpdateAction) {
 		var config hue.Schedule
 
-		if convert, err := json.Marshal(p.Payload); err != nil {
-			return fmt.Errorf(`Error while converting schedules payload: %v`, err)
-		} else if err := json.Unmarshal(convert, &config); err != nil {
+		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
 			return fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
 		}
 

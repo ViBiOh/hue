@@ -72,7 +72,7 @@ func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload 
 		ID:      tools.Sha1(payload),
 		Source:  HueSource,
 		Type:    typeName,
-		Payload: payload,
+		Payload: fmt.Sprintf(`%s`, payload),
 	}
 
 	output := a.hub.SendToWorker(message, true)
@@ -113,7 +113,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, `schedule/create`, fmt.Sprintf(`%s schedule has been created`, config.Name))
+			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, CreateAction), fmt.Sprintf(`%s schedule has been created`, config.Name))
 			return
 		}
 
@@ -133,12 +133,12 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, `schedule/update`, fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, UpdateAction), fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
 			return
 		}
 
 		if postMethod == http.MethodDelete {
-			a.sendWorkerMessage(w, r, []byte(id), `schedule/delete`, fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			a.sendWorkerMessage(w, r, []byte(id), fmt.Sprintf(`%s/%s`, WorkerSchedulesType, DeleteAction), fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 			return
 		}
 	}
@@ -159,7 +159,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown group`, HueSource)})
 			}
 
-			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), `state/update`, fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), fmt.Sprintf(`%s/%s`, WorkerStateType, UpdateAction), fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
 			return
 		}
 	}

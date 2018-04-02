@@ -32,6 +32,7 @@ type App struct {
 	hueApp       WorkerApp
 	done         chan struct{}
 	wsConn       *websocket.Conn
+	debug        bool
 }
 
 // NewApp creates new App from Flags' config
@@ -40,6 +41,7 @@ func NewApp(config map[string]interface{}, hueApp WorkerApp) *App {
 		websocketURL: *config[`websocketURL`].(*string),
 		secretKey:    *config[`secretKey`].(*string),
 		hueApp:       hueApp,
+		debug:        *config[`debug`].(*bool),
 	}
 }
 
@@ -140,6 +142,10 @@ func (a *App) connect() {
 			close(input)
 			return
 		case p := <-input:
+			if a.debug {
+				log.Printf(`[%s] %s: %s`, p.Source, p.Type, p.Payload)
+			}
+
 			if p.Source == hue.HueSource {
 				output, err := a.hueApp.Handle(p)
 

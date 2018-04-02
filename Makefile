@@ -6,6 +6,8 @@ dev: format lint tst bench build
 
 docker: docker-deps docker-build
 
+build: build-api build-worker
+
 deps:
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/golang/lint/golint
@@ -28,8 +30,12 @@ tst:
 bench:
 	go test ./... -bench . -benchmem -run Benchmark.*
 
-build:
+build: build-api build-worker
+
+build-api:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot cmd/api/iot.go
+
+build-worker:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker cmd/worker/worker.go
 
 docker-deps:
@@ -60,4 +66,5 @@ start-worker:
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
-		-hueClean
+		-hueClean \
+		-debug
