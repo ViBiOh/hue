@@ -1,12 +1,8 @@
-default: go docker
+default: api
 
-go: deps dev
+api: deps go
 
-dev: format lint tst bench build
-
-docker: docker-deps docker-build
-
-build: build-api build-worker
+go: format lint tst bench build
 
 deps:
 	go get -u github.com/golang/dep/cmd/dep
@@ -41,11 +37,15 @@ build-worker:
 docker-deps:
 	curl -s -o cacert.pem https://curl.haxx.se/ca/cacert.pem
 
-docker-build:
+docker-login:
+	echo $(DOCKER_PASS) | docker login -u $(DOCKER_USER) --password-stdin
+
+docker-api: docker-build-api docker-bush-api
+
+docker-build-api: docker-deps
 	docker build -t $(DOCKER_USER)/iot .
 
-docker-push:
-	echo $(DOCKER_PASS) | docker login -u $(DOCKER_USER) --password-stdin
+docker-push-api: docker-login
 	docker push $(DOCKER_USER)/iot
 
 start-deps:
@@ -68,3 +68,5 @@ start-worker:
 		-hueBridgeIP $(BRIDGE_IP) \
 		-hueClean \
 		-debug
+
+.PHONY: api go deps format lint tst bench build build-api build-worker docker-deps docker-api docker-login docker-build-api docker-push-api start-deps start-api start-worker

@@ -196,6 +196,7 @@
       #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
     {{- end -}}
     #new-schedule:target ~ .content {
+      filter: blur(1rem);
       pointer-events: none;
     }
 
