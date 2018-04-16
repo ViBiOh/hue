@@ -138,7 +138,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if postMethod == http.MethodDelete {
-			a.sendWorkerMessage(w, r, []byte(id), fmt.Sprintf(`%s/%s`, WorkerSchedulesType, DeleteAction), fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			a.sendWorkerMessage(w, r, id, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, DeleteAction), fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 			return
 		}
 	}

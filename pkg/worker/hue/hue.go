@@ -135,7 +135,7 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 	}
 
 	if strings.HasSuffix(p.Type, hue.DeleteAction) {
-		id := string(p.Payload.([]byte))
+		id := p.Payload.(string)
 
 		schedule, err := a.getSchedule(id)
 		if err != nil {
