@@ -15,6 +15,8 @@ services:
     - ${GITHUB_OAUTH_CLIENT_ID}
     - -githubClientSecret
     - ${GITHUB_OAUTH_CLIENT_SECRET}
+    - -datadogService
+    - iot_auth
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot-auth.vibioh.fr'
@@ -24,6 +26,8 @@ services:
       traefik.frontend.rateLimit.rateSet.first.period: '60s'
       traefik.frontend.rateLimit.rateSet.first.average: '100'
       traefik.frontend.rateLimit.rateSet.first.burst: '200'
+    external_links:
+    - monitoring_agent:dd-agent
     logging:
       driver: json-file
       options:
@@ -54,6 +58,8 @@ services:
     - ${NETATMO_CLIENT_SECRET}
     - -netatmoRefreshToken
     - ${NETATMO_REFRESH_TOKEN}
+    - -datadogService
+    - iot_api
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot.vibioh.fr'
@@ -63,6 +69,8 @@ services:
       traefik.frontend.rateLimit.rateSet.first.period: '60s'
       traefik.frontend.rateLimit.rateSet.first.average: '100'
       traefik.frontend.rateLimit.rateSet.first.burst: '200'
+    external_links:
+    - monitoring_agent:dd-agent
     logging:
       driver: json-file
       options:

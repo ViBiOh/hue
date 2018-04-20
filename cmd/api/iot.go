@@ -12,6 +12,7 @@ import (
 	authService "github.com/ViBiOh/auth/pkg/service"
 	"github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/cors"
+	"github.com/ViBiOh/httputils/pkg/datadog"
 	"github.com/ViBiOh/httputils/pkg/healthcheck"
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/owasp"
@@ -37,6 +38,7 @@ func main() {
 	authBasicConfig := basic.Flags(`basic`)
 	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
+	datadogConfig := datadog.Flags(`datadog`)
 
 	httputils.NewApp(httputils.Flags(``), func() http.Handler {
 		authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
@@ -80,7 +82,7 @@ func main() {
 			}
 		})
 
-		apiHandler := owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler))
+		apiHandler := datadog.NewApp(datadogConfig).Handler(owasp.Handler(owaspConfig, cors.Handler(corsConfig, restHandler)))
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, websocketPath) {
