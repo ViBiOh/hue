@@ -1,4 +1,4 @@
-default: api
+default: api docker-api
 
 api: deps go
 
@@ -40,7 +40,7 @@ docker-deps:
 docker-login:
 	echo $(DOCKER_PASS) | docker login -u $(DOCKER_USER) --password-stdin
 
-docker-api: docker-build-api docker-bush-api
+docker-api: docker-build-api docker-push-api
 
 docker-build-api: docker-deps
 	docker build -t $(DOCKER_USER)/iot .

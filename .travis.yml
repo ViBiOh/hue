@@ -11,8 +11,6 @@ jobs:
       if [ "${TRAVIS_BRANCH}" == "master" ]; then
         bash <(curl -s https://codecov.io/bash)
         curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
-
-        make docker-push
       fi
 
   - stage: Deploy
