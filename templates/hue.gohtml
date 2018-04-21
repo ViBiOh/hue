@@ -146,7 +146,7 @@
 {{- define "hue-modal" -}}
     {{- template "hue-new-schedule" . -}}
 
-    {{- range $id, $schedule := .Hue.Schedules }}
+    {{- range $id, $schedule := .Hue.Schedules -}}
       {{- template "hue-delete-schedule-modal" $schedule -}}
     {{- end -}}
 {{- end -}}

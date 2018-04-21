@@ -1,4 +1,4 @@
-{{- define "style" }}
+{{- define "style" -}}
   <style type="text/css">
     * {
       box-sizing: border-box;
@@ -152,6 +152,7 @@
       pointer-events: none;
       position: fixed;
       top: 0;
+      z-index: 10;
     }
 
     .modal-header {
@@ -176,28 +177,6 @@
       padding: 1rem;
       position: fixed;
       right: 0;
-    }
-
-    {{- range $id, $schedule := .Hue.Schedules }}
-      #hue-delete-schedule-{{- sha $schedule -}},
-    {{- end -}}
-    #new-schedule {
-      display: none;
-    }
-
-    {{- range $id, $schedule := .Hue.Schedules }}
-      #hue-delete-schedule-{{- sha $schedule -}}:target,
-    {{- end -}}
-    #new-schedule:target {
-      display: flex;
-    }
-
-    {{- range $id, $schedule := .Hue.Schedules }}
-      #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
-    {{- end -}}
-    #new-schedule:target ~ .content {
-      filter: blur(1rem);
-      pointer-events: none;
     }
 
     .message {

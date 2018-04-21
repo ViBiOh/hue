@@ -69,7 +69,7 @@ func main() {
 			} else if err == auth.ErrEmptyAuthorization && authApp.URL != `` {
 				http.Redirect(w, r, path.Join(authApp.URL, `/redirect/github`), http.StatusFound)
 			} else {
-				w.Header().Add(`WWW-Authenticate`, `Basic`)
+				w.Header().Add(`WWW-Authenticate`, `Basic charset="UTF-8"`)
 				httperror.Unauthorized(w, err)
 			}
 		})

@@ -9,8 +9,8 @@
 
 {{- define "message" -}}
   {{- if . -}}
-    <p class="message {{ if eq .Level "success" -}}success{{- else -}}error{{- end -}}">
-      {{ .Content }}
+    <p class="message {{- if eq .Level "success" }} success{{- else }} error{{- end -}}">
+      {{- .Content -}}
     </p>
   {{- end -}}
 {{- end -}}
@@ -39,6 +39,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     {{- template "favicon" . -}}
     {{- template "style" . -}}
+    {{- template "style-modal" . -}}
   </head>
   <body>
     {{- template "menu" . -}}
