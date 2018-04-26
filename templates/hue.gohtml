@@ -156,7 +156,7 @@
 
   {{- range $id, $group := .Groups -}}
     <span class="container center">
-      <h2 class="header center no-margin">{{- $group.Name -}}</h2>
+      <h2 class="header center no-margin {{ if $group.State.AnyOn -}}success{{- end -}}">{{- $group.Name -}}</h2>
       <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
         {{- if $group.Tap -}}
           <form method="post" action="/hue/groups/{{- $id -}}">
@@ -200,39 +200,36 @@
           </form>
         {{- end -}}
       </div>
-      <div class="header center {{ if $group.State.AnyOn -}}success{{- else -}}error{{- end -}}">Currently {{ if $group.State.AnyOn -}}On{{- else -}}Off{{- end -}}</div>
     </span>
   {{- end -}}
 
   {{- range $id, $schedule := .Schedules }}
     <span class="container">
       <h2 class="header center no-margin">Hue Schedule</h2>
-      <div class="flex flex-center flex-wrap">
-        <div class="header center flex-full">{{- $schedule.Name -}}</div>
 
-        <span class="inline-block flex-half center padding">
-          <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
-        </span>
+      <div class="header center">{{- $schedule.Name -}}</div>
+      <div class="center padding">
+        <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
+      </div>
 
-        <div class="center flex-full margin-bottom">
-          <form class="inline-block" method="post" action="/hue/schedules/{{- .ID -}}">
-            <input type="hidden" name="method" value="PATCH" />
-            <input type="hidden" name="name" value="{{- .Name -}}" />
-            <input type="hidden" name="status" value="{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}" />
+      <div class="center flex-full flex flex-center flex-evenly margin-bottom">
+        <form class="inline-block" method="post" action="/hue/schedules/{{- .ID -}}">
+          <input type="hidden" name="method" value="PATCH" />
+          <input type="hidden" name="name" value="{{- .Name -}}" />
+          <input type="hidden" name="status" value="{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}" />
 
-            <button type="submit" class="button button-icon">
-              {{- if eq $schedule.Status "enabled" -}}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon-small"><path fill="yellowgreen" d="M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128"/></svg>
-              {{- else -}}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon-small" style="transform: rotate(180deg)"><path fill="tomato" d="M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128"/></svg>
-              {{- end -}}
-            </button>
-          </form>
+          <button type="submit" class="button button-icon">
+            {{- if eq $schedule.Status "enabled" -}}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon-small"><path fill="yellowgreen" d="M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128"/></svg>
+            {{- else -}}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon-small" style="transform: rotate(180deg)"><path fill="tomato" d="M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128"/></svg>
+            {{- end -}}
+          </button>
+        </form>
 
-          <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon-small"><path fill="tomato" d="M0 84V56c0-13.3 10.7-24 24-24h112l9.4-18.7c4-8.2 12.3-13.3 21.4-13.3h114.3c9.1 0 17.4 5.1 21.5 13.3L312 32h112c13.3 0 24 10.7 24 24v28c0 6.6-5.4 12-12 12H12C5.4 96 0 90.6 0 84zm416 56v324c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V140c0-6.6 5.4-12 12-12h360c6.6 0 12 5.4 12 12zm-272 68c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208z"/></svg>
-          </a>
-        </div>
+        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon-small"><path fill="tomato" d="M0 84V56c0-13.3 10.7-24 24-24h112l9.4-18.7c4-8.2 12.3-13.3 21.4-13.3h114.3c9.1 0 17.4 5.1 21.5 13.3L312 32h112c13.3 0 24 10.7 24 24v28c0 6.6-5.4 12-12 12H12C5.4 96 0 90.6 0 84zm416 56v324c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V140c0-6.6 5.4-12 12-12h360c6.6 0 12 5.4 12 12zm-272 68c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208zm96 0c0-8.8-7.2-16-16-16s-16 7.2-16 16v224c0 8.8 7.2 16 16 16s16-7.2 16-16V208z"/></svg>
+        </a>
       </div>
     </span>
   {{- end -}}
