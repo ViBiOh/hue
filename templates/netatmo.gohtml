@@ -1,7 +1,7 @@
 {{- define "netatmo" -}}
   {{- if . -}}
     <span class="container">
-      <h2 class="center">Weather</h2>
+      <h2 class="container__header center padding">Weather</h2>
       {{- if len .Body.Devices -}}
         {{- range .Body.Devices -}}
           {{- range .Modules -}}

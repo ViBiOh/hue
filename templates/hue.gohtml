@@ -156,8 +156,8 @@
 
   {{- range $id, $group := .Groups -}}
     <span class="container center">
-      <h2 class="center">{{- $group.Name -}}</h2>
-      <div class="flex flex-center flex-grow margin-bottom">
+      <h2 class="container__header center padding">{{- $group.Name -}}</h2>
+      <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
         {{- if $group.Tap -}}
           <form method="post" action="/hue/groups/{{- $id -}}">
             <input type="hidden" name="method" value="PATCH" />
