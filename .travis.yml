@@ -28,7 +28,7 @@ jobs:
     deploy:
       provider: script
       skip_cleanup: true
-      script: 'curl -H "Authorization: GitHub ${GITHUB_OAUTH_TOKEN}" -X POST https://dashboard-api.vibioh.fr/containers/iot/ --data-binary @docker-compose-env.yml'
+      script: 'curl -H "Authorization: GitHub ${GITHUB_OAUTH_TOKEN}" -X POST https://dashboard-api.vibioh.fr/deploy/iot/ --data-binary @docker-compose-env.yml'
 
 stages:
   - Build
