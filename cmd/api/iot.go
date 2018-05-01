@@ -55,15 +55,7 @@ func main() {
 
 		healthcheckHandler := http.StripPrefix(healthcheckPath, healthcheck.Handler())
 
-		authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *model.User) {
-			if strings.HasPrefix(r.URL.Path, huePath) {
-				hueHandler.ServeHTTP(w, r)
-			} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-				http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
-			} else {
-				iotHandler.ServeHTTP(w, r)
-			}
-		}, func(w http.ResponseWriter, r *http.Request, err error) {
+		handleAnonymousRequest := func(w http.ResponseWriter, r *http.Request, err error) {
 			if auth.IsForbiddenErr(err) {
 				httperror.Forbidden(w)
 			} else if err == auth.ErrEmptyAuthorization && authApp.URL != `` {
@@ -72,7 +64,21 @@ func main() {
 				w.Header().Add(`WWW-Authenticate`, `Basic charset="UTF-8"`)
 				httperror.Unauthorized(w, err)
 			}
-		})
+		}
+
+		authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *model.User) {
+			if strings.HasPrefix(r.URL.Path, huePath) {
+				hueHandler.ServeHTTP(w, r)
+				return
+			}
+
+			if strings.HasPrefix(r.URL.Path, faviconPath) {
+				http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
+				return
+			}
+
+			iotHandler.ServeHTTP(w, r)
+		}, handleAnonymousRequest)
 
 		restHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, healthcheckPath) {

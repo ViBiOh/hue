@@ -38,10 +38,10 @@ func NewApp(config map[string]*string) *App {
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`accessToken`:  flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `AccessToken`)), ``, `[netatmo] Access Token`),
-		`refreshToken`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `RefreshToken`)), ``, `[netatmo] Refresh Token`),
-		`clientID`:     flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `ClientID`)), ``, `[netatmo] Client ID`),
-		`clientSecret`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `ClientSecret`)), ``, `[netatmo] Client Secret`),
+		`accessToken`:  flag.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[netatmo] Access Token`),
+		`refreshToken`: flag.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[netatmo] Refresh Token`),
+		`clientID`:     flag.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[netatmo] Client ID`),
+		`clientSecret`: flag.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[netatmo] Client Secret`),
 	}
 }
 

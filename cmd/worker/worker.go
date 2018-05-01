@@ -48,9 +48,9 @@ func NewApp(config map[string]interface{}, hueApp WorkerApp) *App {
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]interface{} {
 	return map[string]interface{}{
-		`websocketURL`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `websocket`)), ``, `WebSocket URL`),
-		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `secretKey`)), ``, `Secret Key`),
-		`debug`:        flag.Bool(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Debug`)), false, `Enable debug`),
+		`websocketURL`: flag.String(tools.ToCamel(fmt.Sprintf(`%sWebsocket`, prefix)), ``, `WebSocket URL`),
+		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `Secret Key`),
+		`debug`:        flag.Bool(tools.ToCamel(fmt.Sprintf(`%sDebug`, prefix)), false, `Enable debug`),
 	}
 }
 

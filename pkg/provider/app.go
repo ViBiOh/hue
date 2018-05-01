@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// WorkerErrorType for sending back error
 const (
+	// WorkerErrorType for sending back error
 	WorkerErrorType = `error`
 )
 

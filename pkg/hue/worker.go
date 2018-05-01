@@ -2,6 +2,7 @@ package hue
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -34,10 +35,13 @@ const (
 func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	var newGroups map[string]*Group
 
-	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
-	} else if err := json.Unmarshal(convert, &newGroups); err != nil {
-		return fmt.Errorf(`[%s] Error while unmarshalling groups: %v`, HueSource, err)
+	convert, err := json.Marshal(message.Payload)
+	if err != nil {
+		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+	}
+
+	if err := json.Unmarshal(convert, &newGroups); err != nil {
+		return fmt.Errorf(`Error while unmarshalling groups: %v`, err)
 	}
 
 	a.groups = newGroups
@@ -48,10 +52,13 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	var newSchedules map[string]*Schedule
 
-	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
-	} else if err := json.Unmarshal(convert, &newSchedules); err != nil {
-		return fmt.Errorf(`[%s] Error while unmarshalling schedules: %v`, HueSource, err)
+	convert, err := json.Marshal(message.Payload)
+	if err != nil {
+		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+	}
+
+	if err := json.Unmarshal(convert, &newSchedules); err != nil {
+		return fmt.Errorf(`Error while unmarshalling schedules: %v`, err)
 	}
 
 	a.schedules = newSchedules
@@ -62,10 +69,13 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	var newScenes map[string]*Scene
 
-	if convert, err := json.Marshal(message.Payload); err != nil {
-		return fmt.Errorf(`[%s] Error while converting groups payload: %v`, HueSource, err)
-	} else if err := json.Unmarshal(convert, &newScenes); err != nil {
-		return fmt.Errorf(`[%s] Error while unmarshalling scenes: %v`, HueSource, err)
+	convert, err := json.Marshal(message.Payload)
+	if err != nil {
+		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+	}
+
+	if err := json.Unmarshal(convert, &newScenes); err != nil {
+		return fmt.Errorf(`Error while unmarshalling scenes: %v`, err)
 	}
 
 	a.scenes = newScenes
@@ -87,5 +97,5 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 		return a.handleScenesFromWorker(message)
 	}
 
-	return fmt.Errorf(`[%s] Unknown command`, HueSource)
+	return errors.New(`Unknown command`)
 }

@@ -67,10 +67,10 @@ func NewApp(config map[string]interface{}, debugApp bool) (*App, error) {
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]interface{} {
 	return map[string]interface{}{
-		`bridgeIP`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `BridgeIP`)), ``, `[hue] IP of Bridge`),
-		`username`: flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Username`)), ``, `[hue] Username for Bridge`),
-		`config`:   flag.String(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Config`)), ``, `[hue] Configuration filename`),
-		`clean`:    flag.Bool(tools.ToCamel(fmt.Sprintf(`%s%s`, prefix, `Clean`)), false, `[hue] Clean Hue`),
+		`bridgeIP`: flag.String(tools.ToCamel(fmt.Sprintf(`%sBridgeIP`, prefix)), ``, `[hue] IP of Bridge`),
+		`username`: flag.String(tools.ToCamel(fmt.Sprintf(`%sUsername`, prefix)), ``, `[hue] Username for Bridge`),
+		`config`:   flag.String(tools.ToCamel(fmt.Sprintf(`%sConfig`, prefix)), ``, `[hue] Configuration filename`),
+		`clean`:    flag.Bool(tools.ToCamel(fmt.Sprintf(`%sClean`, prefix)), false, `[hue] Clean Hue`),
 	}
 }
 
