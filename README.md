@@ -36,7 +36,13 @@ Usage of iot:
   -corsOrigin string
       [cors] Access-Control-Allow-Origin (default "*")
   -csp string
-      [owasp] Content-Security-Policy (default "default-src 'self'")
+      [owasp] Content-Security-Policy (default "default-src 'self'; base-uri 'self'")
+  -datadogHostname string
+      Datadog Agent Hostname (default "dd-agent")
+  -datadogPort string
+      Datadog Agent Port (default "8126")
+  -datadogService string
+      Service name
   -frameOptions string
       [owasp] X-Frame-Options (default "deny")
   -hsts
@@ -49,12 +55,12 @@ Usage of iot:
       [netatmo] Client Secret
   -netatmoRefreshToken string
       [netatmo] Refresh Token
-  -port string
-      Listen port (default "1080")
+  -port int
+      Listen port (default 1080)
   -secretKey string
       [iot] Secret Key between worker and API
   -tls
-      Serve TLS content
+      Serve TLS content (default true)
   -tlsCert string
       [tls] PEM Certificate file
   -tlsHosts string

@@ -7,7 +7,7 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/ViBiOh/auth/pkg/auth"
-	authProvider "github.com/ViBiOh/auth/pkg/provider"
+	"github.com/ViBiOh/auth/pkg/model"
 	"github.com/ViBiOh/auth/pkg/provider/basic"
 	authService "github.com/ViBiOh/auth/pkg/service"
 	"github.com/ViBiOh/httputils/pkg"
@@ -55,7 +55,7 @@ func main() {
 
 		healthcheckHandler := http.StripPrefix(healthcheckPath, healthcheck.Handler())
 
-		authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *authProvider.User) {
+		authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *model.User) {
 			if strings.HasPrefix(r.URL.Path, huePath) {
 				hueHandler.ServeHTTP(w, r)
 			} else if strings.HasPrefix(r.URL.Path, faviconPath) {

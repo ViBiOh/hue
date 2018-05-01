@@ -17,39 +17,6 @@ const (
 	netatmoRefreshTokenURL   = `https://api.netatmo.com/oauth2/token`
 )
 
-// StationData contains data retrieved when getting stations datas
-type StationData struct {
-	Body struct {
-		Devices []struct {
-			StationName   string `json:"station_name"`
-			DashboardData struct {
-				Temperature float32
-				Humidity    float32
-				Noise       float32
-				CO2         float32
-			} `json:"dashboard_data"`
-			Modules []struct {
-				ModuleName    string `json:"module_name"`
-				DashboardData struct {
-					Temperature float32
-					Humidity    float32
-				} `json:"dashboard_data"`
-			} `json:"modules"`
-		} `json:"devices"`
-	} `json:"body"`
-}
-
-type netatmoError struct {
-	Error struct {
-		Code    int
-		Message string
-	}
-}
-
-type netatmoToken struct {
-	AccessToken string `json:"access_token"`
-}
-
 // App stores informations and secret of API
 type App struct {
 	clientID     string
@@ -79,15 +46,16 @@ func Flags(prefix string) map[string]*string {
 }
 
 func (a *App) refreshAccessToken() error {
-	rawData, err := request.Do(netatmoRefreshTokenURL, []byte(fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
+	payload := fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)
+	rawData, err := request.Do(netatmoRefreshTokenURL, []byte(payload), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
 
 	if err != nil {
-		return fmt.Errorf(`[netatmo] Error while refreshing token: %v`, err)
+		return fmt.Errorf(`Error while refreshing token: %v`, err)
 	}
 
 	var token netatmoToken
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`[netatmo] Error while unmarshalling token %s: %v`, rawData, err)
+		return fmt.Errorf(`Error while unmarshalling token %s: %v`, rawData, err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -101,28 +69,27 @@ func (a *App) GetStationData() (*StationData, error) {
 		return nil, nil
 	}
 
-	var infos StationData
-
 	rawData, err := request.Get(fmt.Sprintf(`%s%s`, netatmoGetStationDataURL, a.accessToken), nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 
 		if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-			return nil, fmt.Errorf(`[netatmo] Error while unmarshalling error %s: %v`, rawData, err)
+			return nil, fmt.Errorf(`Error while unmarshalling error %s: %v`, rawData, err)
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
 			if err := a.refreshAccessToken(); err != nil {
-				return nil, fmt.Errorf(`[netatmo] Error while refreshing access token: %v`, err)
+				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
 			return a.GetStationData()
 		}
 
-		return nil, fmt.Errorf(`[netatmo] Error while getting data: %v`, err)
+		return nil, fmt.Errorf(`Error while getting data: %v`, err)
 	}
 
+	var infos StationData
 	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`[netatmo] Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &infos, nil
@@ -149,5 +116,5 @@ func (a *App) GetData() interface{} {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`[netatmo] Unknown worker command: %s`, message.Type)
+	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
 }

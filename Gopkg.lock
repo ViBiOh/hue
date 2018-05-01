@@ -23,13 +23,14 @@
   packages = [
     "pkg/auth",
     "pkg/cookie",
+    "pkg/model",
     "pkg/provider",
     "pkg/provider/basic",
     "pkg/provider/github",
     "pkg/provider/twitter",
     "pkg/service"
   ]
-  revision = "887a9abbe77431d9b30b7fb9e48e183670601ae7"
+  revision = "cd621b2808334939907a1c31bab260fccd4f53ca"
 
 [[projects]]
   branch = "master"
@@ -55,8 +56,8 @@
 [[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
-  version = "v1.0.0"
+  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -102,7 +103,7 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "e73bf333ef8920dbb52ad18d4bd38ad9d9bc76d7"
+  revision = "ae8bce0030810cf999bb2b9868ae5c7c58e6343b"
 
 [[projects]]
   branch = "master"
@@ -127,7 +128,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["windows"]
-  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
+  revision = "78d5f264b493f125018180c204871ecf58a2dce1"
 
 [[projects]]
   name = "google.golang.org/appengine"
