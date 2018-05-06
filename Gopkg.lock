@@ -30,7 +30,7 @@
     "pkg/provider/twitter",
     "pkg/service"
   ]
-  revision = "cd621b2808334939907a1c31bab260fccd4f53ca"
+  revision = "6a119930783b1e06488ea356cc620f564cbd6352"
 
 [[projects]]
   branch = "master"
@@ -51,7 +51,7 @@
     "pkg/tools",
     "pkg/uuid"
   ]
-  revision = "ffc550079fc35ebf9b5872c3771e45c3157b6138"
+  revision = "e7c1fd8a46a63382a359fa2164174aa1f33e1d75"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -103,7 +103,7 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "ae8bce0030810cf999bb2b9868ae5c7c58e6343b"
+  revision = "4ec37c66abab2c7e02ae775328b2ff001c3f025a"
 
 [[projects]]
   branch = "master"
@@ -112,7 +112,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
+  revision = "640f4622ab692b87c2f3a94265e6f579fe38263d"
 
 [[projects]]
   branch = "master"
@@ -122,13 +122,13 @@
     "github",
     "internal"
   ]
-  revision = "6881fee410a5daf86371371f9ad451b95e168b71"
+  revision = "cdc340f7c179dbbfa4afd43b7614e8fcadde4269"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["windows"]
-  revision = "78d5f264b493f125018180c204871ecf58a2dce1"
+  revision = "6f686a352de66814cdd080d970febae7767857a3"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -147,6 +147,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8f58537bd3fccf7d13b00b95e83a03cf207ed8c75e076d6ad887015b6eff0b3f"
+  inputs-digest = "30e0cbc0cec194b5b0c9fb5e538e45dc58733e523db29467295151a642b26d14"
   solver-name = "gps-cdcl"
   solver-version = 1
