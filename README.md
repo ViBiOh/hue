@@ -96,7 +96,7 @@ Usage of worker:
 Compile go binary
 
 ```bash
-go install github.com/ViBiOh/iot/worker
+go install github.com/ViBiOh/iot/cmd/worker
 ```
 
 Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html`
