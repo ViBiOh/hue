@@ -40,6 +40,8 @@ func main() {
 	netatmoConfig := netatmo.Flags(`netatmo`)
 	datadogConfig := datadog.Flags(`datadog`)
 
+	healthcheckApp := healthcheck.NewApp()
+
 	httputils.NewApp(httputils.Flags(``), func() http.Handler {
 		authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 		netatmoApp := netatmo.NewApp(netatmoConfig)
@@ -53,7 +55,7 @@ func main() {
 		iotHandler := gziphandler.GzipHandler(iotApp.Handler())
 		wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
-		healthcheckHandler := http.StripPrefix(healthcheckPath, healthcheck.Handler())
+		healthcheckHandler := healthcheckApp.Handler(nil)
 
 		handleAnonymousRequest := func(w http.ResponseWriter, r *http.Request, err error) {
 			if auth.IsForbiddenErr(err) {
@@ -81,7 +83,7 @@ func main() {
 		}, handleAnonymousRequest)
 
 		restHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, healthcheckPath) {
+			if r.URL.Path == `/health` {
 				healthcheckHandler.ServeHTTP(w, r)
 			} else {
 				authHandler.ServeHTTP(w, r)
@@ -97,5 +99,5 @@ func main() {
 				apiHandler.ServeHTTP(w, r)
 			}
 		})
-	}, nil).ListenAndServe()
+	}, nil, healthcheckApp).ListenAndServe()
 }
