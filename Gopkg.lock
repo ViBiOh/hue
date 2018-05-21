@@ -20,7 +20,7 @@
     "pkg/provider/twitter",
     "pkg/service"
   ]
-  revision = "acd4fa56195f886e1188cba649555ff3c24da205"
+  revision = "f75db5a5dc898809306dd38851bc288ec443068a"
 
 [[projects]]
   branch = "master"
@@ -40,7 +40,7 @@
     "pkg/tools",
     "pkg/uuid"
   ]
-  revision = "c31f6daa198242a777750942bd41d092cd438101"
+  revision = "cfc298ce459c9f1977ecab93b1a1345309fe9510"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -53,6 +53,22 @@
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/opentracing-contrib/go-stdlib"
+  packages = ["nethttp"]
+  revision = "36723135187404d2f4002f4f189938565e64cc5c"
+
+[[projects]]
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "ext",
+    "log"
+  ]
+  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -96,7 +112,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "2491c5de3490fced2f6cff376127c667efeed857"
+  revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
 
 [[projects]]
   branch = "master"
@@ -106,7 +122,7 @@
     "github",
     "internal"
   ]
-  revision = "cdc340f7c179dbbfa4afd43b7614e8fcadde4269"
+  revision = "dd5f5d8e78ce062a4aa881dff95a94f2a0fd405a"
 
 [[projects]]
   name = "google.golang.org/appengine"

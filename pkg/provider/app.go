@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -32,7 +33,7 @@ type WorkerMessage struct {
 type Provider interface {
 	SetHub(Hub)
 	GetWorkerSource() string
-	GetData() interface{}
+	GetData(ctx context.Context) interface{}
 	WorkerHandler(*WorkerMessage) error
 }
 

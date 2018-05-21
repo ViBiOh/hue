@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -9,10 +10,10 @@ import (
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) listSchedules() (map[string]*hue.Schedule, error) {
+func (a *App) listSchedules(ctx context.Context) (map[string]*hue.Schedule, error) {
 	var response map[string]*hue.Schedule
 
-	if err := get(fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response); err != nil {
 		return response, nil
 	}
 
@@ -23,18 +24,18 @@ func (a *App) listSchedules() (map[string]*hue.Schedule, error) {
 	return response, nil
 }
 
-func (a *App) getSchedule(id string) (*hue.Schedule, error) {
+func (a *App) getSchedule(ctx context.Context, id string) (*hue.Schedule, error) {
 	var response hue.Schedule
 
-	if err := get(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id), &response); err != nil {
 		return &response, nil
 	}
 
 	return &response, nil
 }
 
-func (a *App) createSchedule(o *hue.Schedule) error {
-	id, err := create(fmt.Sprintf(`%s/schedules`, a.bridgeURL), o)
+func (a *App) createSchedule(ctx context.Context, o *hue.Schedule) error {
+	id, err := create(ctx, fmt.Sprintf(`%s/schedules`, a.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -44,16 +45,16 @@ func (a *App) createSchedule(o *hue.Schedule) error {
 	return nil
 }
 
-func (a *App) createScheduleFromConfig(config *hue.ScheduleConfig, groups map[string]*hue.Group) error {
+func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.ScheduleConfig, groups map[string]*hue.Group) error {
 	if groups == nil {
 		var err error
 
-		if groups, err = a.listGroups(); err != nil {
+		if groups, err = a.listGroups(ctx); err != nil {
 			return fmt.Errorf(`Error while retrieving groups for configuring schedule: %v`, err)
 		}
 	}
 
-	scene, err := a.createSceneFromScheduleConfig(config, groups)
+	scene, err := a.createSceneFromScheduleConfig(ctx, config, groups)
 	if err != nil {
 		return fmt.Errorf(`Error while creating scene for schedule config %+v: %v`, config, err)
 	}
@@ -72,14 +73,14 @@ func (a *App) createScheduleFromConfig(config *hue.ScheduleConfig, groups map[st
 		},
 	}
 
-	if err := a.createSchedule(schedule); err != nil {
+	if err := a.createSchedule(ctx, schedule); err != nil {
 		return fmt.Errorf(`Error while creating schedule from config %+v: %v`, config, err)
 	}
 
 	return nil
 }
 
-func (a *App) updateSchedule(schedule *hue.Schedule) error {
+func (a *App) updateSchedule(ctx context.Context, schedule *hue.Schedule) error {
 	if schedule == nil {
 		return errors.New(`A schedule is required to update`)
 	}
@@ -88,21 +89,21 @@ func (a *App) updateSchedule(schedule *hue.Schedule) error {
 		return errors.New(`A schedule ID is required to update`)
 	}
 
-	return update(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, schedule.ID), schedule.APISchedule)
+	return update(ctx, fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, schedule.ID), schedule.APISchedule)
 }
 
-func (a *App) deleteSchedule(id string) error {
-	return delete(fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id))
+func (a *App) deleteSchedule(ctx context.Context, id string) error {
+	return delete(ctx, fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, id))
 }
 
-func (a *App) cleanSchedules() error {
-	schedules, err := a.listSchedules()
+func (a *App) cleanSchedules(ctx context.Context) error {
+	schedules, err := a.listSchedules(ctx)
 	if err != nil {
 		return fmt.Errorf(`Error while listing schedules: %v`, err)
 	}
 
 	for key := range schedules {
-		if err := a.deleteSchedule(key); err != nil {
+		if err := a.deleteSchedule(ctx, key); err != nil {
 			return fmt.Errorf(`Error while deleting schedule: %v`, err)
 		}
 	}
@@ -110,15 +111,15 @@ func (a *App) cleanSchedules() error {
 	return nil
 }
 
-func (a *App) configureSchedules(schedules []*hue.ScheduleConfig) {
-	groups, err := a.listGroups()
+func (a *App) configureSchedules(ctx context.Context, schedules []*hue.ScheduleConfig) {
+	groups, err := a.listGroups(ctx)
 	if err != nil {
 		log.Printf(`[%s] Error while retrieving groups for configuring schedules: %v`, hue.HueSource, err)
 		return
 	}
 
 	for _, config := range schedules {
-		if err := a.createScheduleFromConfig(config, groups); err != nil {
+		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
 			log.Printf(`[%s] %v`, hue.HueSource, err)
 		}
 	}

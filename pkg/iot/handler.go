@@ -89,7 +89,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	for name, provider := range a.providers {
-		response[name] = provider.GetData()
+		response[name] = provider.GetData(r.Context())
 	}
 
 	w.Header().Set(`content-language`, `fr`)

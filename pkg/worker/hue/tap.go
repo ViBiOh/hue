@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -41,11 +42,11 @@ func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
 	return newRule
 }
 
-func (a *App) configureTap(taps []*tapConfig) {
+func (a *App) configureTap(ctx context.Context, taps []*tapConfig) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
-			if err := a.createRule(button.Rule); err != nil {
+			if err := a.createRule(ctx, button.Rule); err != nil {
 				log.Printf(`[%s] Error while creating rule: %v`, hue.HueSource, err)
 			}
 		}

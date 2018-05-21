@@ -1,6 +1,7 @@
 package netatmo
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -45,9 +46,9 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-func (a *App) refreshAccessToken() error {
+func (a *App) refreshAccessToken(ctx context.Context) error {
 	payload := fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)
-	rawData, err := request.Do(netatmoRefreshTokenURL, []byte(payload), map[string]string{`Content-Type`: `application/x-www-form-urlencoded;charset=UTF-8`}, http.MethodPost)
+	rawData, err := request.Do(ctx, netatmoRefreshTokenURL, []byte(payload), http.Header{`Content-Type`: []string{`application/x-www-form-urlencoded;charset=UTF-8`}}, http.MethodPost)
 
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
@@ -64,12 +65,12 @@ func (a *App) refreshAccessToken() error {
 }
 
 // GetStationData retrieves Station data of user
-func (a *App) GetStationData() (*StationData, error) {
+func (a *App) GetStationData(ctx context.Context) (*StationData, error) {
 	if a.accessToken == `` {
 		return nil, nil
 	}
 
-	rawData, err := request.Get(fmt.Sprintf(`%s%s`, netatmoGetStationDataURL, a.accessToken), nil)
+	rawData, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationDataURL, a.accessToken), nil)
 	if err != nil {
 		var netatmoErrorValue netatmoError
 
@@ -78,10 +79,10 @@ func (a *App) GetStationData() (*StationData, error) {
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
-			if err := a.refreshAccessToken(); err != nil {
+			if err := a.refreshAccessToken(ctx); err != nil {
 				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
-			return a.GetStationData()
+			return a.GetStationData(ctx)
 		}
 
 		return nil, fmt.Errorf(`Error while getting data: %v`, err)
@@ -105,8 +106,8 @@ func (a *App) GetWorkerSource() string {
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData() interface{} {
-	data, err := a.GetStationData()
+func (a *App) GetData(ctx context.Context) interface{} {
+	data, err := a.GetStationData(ctx)
 	if err != nil {
 		log.Printf(`[netatmo] Error while getting station data: %v`, err)
 	}

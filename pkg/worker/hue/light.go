@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -8,8 +9,8 @@ import (
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) getLight(lightID string) (*hue.Light, error) {
-	content, err := request.Get(fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
+func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) {
+	content, err := request.Get(ctx, fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while getting light: %v`, err)
 	}

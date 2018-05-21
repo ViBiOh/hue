@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -195,7 +196,7 @@ func (a *App) GetWorkerSource() string {
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData() interface{} {
+func (a *App) GetData(_ context.Context) interface{} {
 	return &Data{
 		Groups:    a.groups,
 		Scenes:    a.scenes,

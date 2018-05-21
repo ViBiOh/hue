@@ -2,6 +2,7 @@ package hue
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,8 +15,8 @@ func hasError(content []byte) bool {
 	return !bytes.Contains(content, []byte(`success`))
 }
 
-func get(url string, response interface{}) error {
-	content, err := request.Get(url, nil)
+func get(ctx context.Context, url string, response interface{}) error {
+	content, err := request.Get(ctx, url, nil)
 
 	if debug {
 		log.Printf(`GET %s: err=%v, output=%s`, url, err, content)
@@ -32,8 +33,8 @@ func get(url string, response interface{}) error {
 	return nil
 }
 
-func create(url string, payload interface{}) (*string, error) {
-	content, err := request.DoJSON(url, payload, nil, http.MethodPost)
+func create(ctx context.Context, url string, payload interface{}) (*string, error) {
+	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
 
 	if debug {
 		log.Printf(`POST %s: payload=%s, err=%v, output=%s`, url, payload, err, content)
@@ -55,8 +56,8 @@ func create(url string, payload interface{}) (*string, error) {
 	return response[0][`success`][`id`], nil
 }
 
-func update(url string, payload interface{}) error {
-	content, err := request.DoJSON(url, payload, nil, http.MethodPut)
+func update(ctx context.Context, url string, payload interface{}) error {
+	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
 
 	if debug {
 		log.Printf(`PUT %s: payload=%s, err=%v, output=%s`, url, payload, err, content)
@@ -73,8 +74,8 @@ func update(url string, payload interface{}) error {
 	return nil
 }
 
-func delete(url string) error {
-	content, err := request.Do(url, nil, nil, http.MethodDelete)
+func delete(ctx context.Context, url string) error {
+	content, err := request.Do(ctx, url, nil, nil, http.MethodDelete)
 
 	if debug {
 		log.Printf(`DELETE %s: err=%v, output=%s`, url, err, content)

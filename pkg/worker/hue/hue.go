@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -33,16 +34,18 @@ func NewApp(config map[string]interface{}, debugApp bool) (*App, error) {
 		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config[`bridgeIP`].(*string), username),
 	}
 
+	ctx := context.Background()
+
 	if *config[`clean`].(*bool) {
-		if err := app.cleanSchedules(); err != nil {
+		if err := app.cleanSchedules(ctx); err != nil {
 			return nil, fmt.Errorf(`Error while cleaning schedules: %v`, err)
 		}
 
-		if err := app.cleanScenes(); err != nil {
+		if err := app.cleanScenes(ctx); err != nil {
 			return nil, fmt.Errorf(`Error while cleaning scenes: %v`, err)
 		}
 
-		if err := app.cleanRules(); err != nil {
+		if err := app.cleanRules(ctx); err != nil {
 			return nil, fmt.Errorf(`Error while cleaning rules: %v`, err)
 		}
 	}
@@ -57,8 +60,8 @@ func NewApp(config map[string]interface{}, debugApp bool) (*App, error) {
 			return nil, fmt.Errorf(`Error while unmarshalling config %s: %v`, rawConfig, err)
 		}
 
-		app.configureSchedules(app.config.Schedules)
-		app.configureTap(app.config.Taps)
+		app.configureSchedules(ctx, app.config.Schedules)
+		app.configureTap(ctx, app.config.Taps)
 	}
 
 	return app, nil
@@ -88,14 +91,14 @@ func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType s
 	}
 }
 
-func (a *App) handleStates(p *provider.WorkerMessage) error {
+func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
 	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
 			return fmt.Errorf(`Unknown state %s`, parts[1])
 		}
 
-		if err := a.updateGroupState(parts[0], state); err != nil {
+		if err := a.updateGroupState(ctx, parts[0], state); err != nil {
 			return err
 		}
 	} else {
@@ -105,7 +108,7 @@ func (a *App) handleStates(p *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *App) handleSchedules(p *provider.WorkerMessage) error {
+func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) error {
 	if strings.HasSuffix(p.Type, hue.CreateAction) {
 		var config hue.ScheduleConfig
 
@@ -113,7 +116,7 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 			return fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
 		}
 
-		if err := a.createScheduleFromConfig(&config, nil); err != nil {
+		if err := a.createScheduleFromConfig(ctx, &config, nil); err != nil {
 			return fmt.Errorf(`Error while creating schedule from config: %v`, err)
 		}
 
@@ -131,23 +134,23 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 			return errors.New(`Error while updating schedule config: ID is missing`)
 		}
 
-		return a.updateSchedule(&config)
+		return a.updateSchedule(ctx, &config)
 	}
 
 	if strings.HasSuffix(p.Type, hue.DeleteAction) {
 		id := p.Payload.(string)
 
-		schedule, err := a.getSchedule(id)
+		schedule, err := a.getSchedule(ctx, id)
 		if err != nil {
 			return fmt.Errorf(`Error while getting schedule: %v`, err)
 		}
 
-		if err := a.deleteSchedule(id); err != nil {
+		if err := a.deleteSchedule(ctx, id); err != nil {
 			return fmt.Errorf(`Error while deleting schedule: %v`, err)
 		}
 
 		if sceneID, ok := schedule.Command.Body[`scene`]; ok {
-			if err := a.deleteScene(sceneID.(string)); err != nil {
+			if err := a.deleteScene(ctx, sceneID.(string)); err != nil {
 				return fmt.Errorf(`Error while deleting scene: %v`, err)
 			}
 		}
@@ -158,24 +161,24 @@ func (a *App) handleSchedules(p *provider.WorkerMessage) error {
 	return errors.New(`Unknown schedule command`)
 }
 
-func (a *App) workerListGroups(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	output, err := a.listGroups()
+func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listGroups(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return a.formatWorkerMessage(initial, hue.WorkerGroupsType, output), nil
 }
 
-func (a *App) workerListScenes(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	output, err := a.listScenes()
+func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listScenes(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return a.formatWorkerMessage(initial, hue.WorkerScenesType, output), nil
 }
 
-func (a *App) workerListSchedules(initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	output, err := a.listSchedules()
+func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	output, err := a.listSchedules(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -184,28 +187,30 @@ func (a *App) workerListSchedules(initial *provider.WorkerMessage) (*provider.Wo
 
 // Handle handle worker requests for Hue
 func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	ctx := context.Background()
+
 	if strings.HasPrefix(p.Type, hue.WorkerGroupsType) {
-		return a.workerListGroups(p)
+		return a.workerListGroups(ctx, p)
 	}
 
 	if strings.HasPrefix(p.Type, hue.WorkerScenesType) {
-		return a.workerListScenes(p)
+		return a.workerListScenes(ctx, p)
 	}
 
 	if strings.HasPrefix(p.Type, hue.WorkerSchedulesType) {
-		if err := a.handleSchedules(p); err != nil {
+		if err := a.handleSchedules(ctx, p); err != nil {
 			return nil, err
 		}
 
-		return a.workerListSchedules(p)
+		return a.workerListSchedules(ctx, p)
 	}
 
 	if strings.HasPrefix(p.Type, hue.WorkerStateType) {
-		if err := a.handleStates(p); err != nil {
+		if err := a.handleStates(ctx, p); err != nil {
 			return nil, err
 		}
 
-		return a.workerListGroups(p)
+		return a.workerListGroups(ctx, p)
 	}
 
 	return nil, fmt.Errorf(`Unknown request: %s`, p)
@@ -213,17 +218,17 @@ func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error)
 
 // Ping send to worker update informations
 func (a *App) Ping() ([]*provider.WorkerMessage, error) {
-	groups, err := a.workerListGroups(nil)
+	groups, err := a.workerListGroups(nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	scenes, err := a.workerListScenes(nil)
+	scenes, err := a.workerListScenes(nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	schedules, err := a.workerListSchedules(nil)
+	schedules, err := a.workerListSchedules(nil, nil)
 	if err != nil {
 		return nil, err
 	}

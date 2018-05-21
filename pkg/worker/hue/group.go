@@ -1,15 +1,16 @@
 package hue
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) listGroups() (map[string]*hue.Group, error) {
+func (a *App) listGroups(ctx context.Context) (map[string]*hue.Group, error) {
 	var groups map[string]*hue.Group
-	err := get(fmt.Sprintf(`%s/groups`, a.bridgeURL), &groups)
+	err := get(ctx, fmt.Sprintf(`%s/groups`, a.bridgeURL), &groups)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +19,7 @@ func (a *App) listGroups() (map[string]*hue.Group, error) {
 		value.Tap = false
 
 		for _, lightID := range value.Lights {
-			light, err := a.getLight(lightID)
+			light, err := a.getLight(ctx, lightID)
 			if err != nil {
 				return nil, fmt.Errorf(`Error while getting light data of group: %v`, err)
 			}
@@ -32,6 +33,6 @@ func (a *App) listGroups() (map[string]*hue.Group, error) {
 	return groups, nil
 }
 
-func (a *App) updateGroupState(groupID string, state interface{}) error {
-	return update(fmt.Sprintf(`%s/groups/%s/action`, a.bridgeURL, groupID), state)
+func (a *App) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
+	return update(ctx, fmt.Sprintf(`%s/groups/%s/action`, a.bridgeURL, groupID), state)
 }
