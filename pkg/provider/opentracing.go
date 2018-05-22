@@ -36,6 +36,7 @@ func ContextToMessage(ctx context.Context, p *WorkerMessage) {
 
 	tracer := opentracing.GlobalTracer()
 
+	p.Tracing = make(map[string]string)
 	if err := tracer.Inject(opentracing.SpanFromContext(ctx).Context(), opentracing.TextMap, opentracing.TextMapCarrier(p.Tracing)); err != nil {
 		log.Printf(`[tracing] Error while injecting span to WorkerMessage: %v`, err)
 	}
