@@ -10,22 +10,22 @@ import (
 )
 
 // ContextFromMessage enrich given context with span
-func ContextFromMessage(ctx context.Context, p *WorkerMessage) context.Context {
-	if ctx == nil {
-		return ctx
-	}
-
+func ContextFromMessage(ctx context.Context, p *WorkerMessage) (context.Context, opentracing.Span) {
 	tracer := opentracing.GlobalTracer()
+
+	if ctx == nil {
+		return ctx, tracer.StartSpan(fmt.Sprintf(`%s/%s`, p.Source, p.Type))
+	}
 
 	spanContext, err := tracer.Extract(opentracing.TextMap, opentracing.TextMapCarrier(p.Tracing))
 	if err != nil {
 		log.Printf(`[tracing] Error while extracting span from WorkerMessage: %v`, err)
-		return nil
+		return nil, tracer.StartSpan(fmt.Sprintf(`%s/%s`, p.Source, p.Type))
 	}
 
 	span := tracer.StartSpan(fmt.Sprintf(`%s/%s`, p.Source, p.Type), ext.RPCServerOption(spanContext))
 
-	return opentracing.ContextWithSpan(ctx, span)
+	return opentracing.ContextWithSpan(ctx, span), span
 }
 
 // ContextToMessage enrich message with tracing from context

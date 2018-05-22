@@ -90,6 +90,33 @@ func (a *App) pinger() {
 	}
 }
 
+func (a *App) handleMessage(p *provider.WorkerMessage) {
+	if a.debug {
+		log.Printf(`[%s] %s: %s`, p.Source, p.Type, p.Payload)
+	}
+
+	ctx, span := provider.ContextFromMessage(context.Background(), p)
+	defer span.Finish()
+
+	if p.Source == hue.HueSource {
+		output, err := a.hueApp.Handle(ctx, p)
+
+		if err != nil {
+			if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
+				log.Print(err)
+				close(a.done)
+			}
+		} else if output != nil {
+			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
+				log.Print(err)
+				close(a.done)
+			}
+		}
+	} else {
+		log.Printf(`Unknown request: %s`, p)
+	}
+}
+
 func (a *App) connect() {
 	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, nil)
 	if ws != nil {
@@ -144,29 +171,7 @@ func (a *App) connect() {
 			close(input)
 			return
 		case p := <-input:
-			if a.debug {
-				log.Printf(`[%s] %s: %s`, p.Source, p.Type, p.Payload)
-			}
-
-			ctx := provider.ContextFromMessage(context.Background(), p)
-
-			if p.Source == hue.HueSource {
-				output, err := a.hueApp.Handle(ctx, p)
-
-				if err != nil {
-					if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
-						log.Print(err)
-						close(a.done)
-					}
-				} else if output != nil {
-					if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
-						log.Print(err)
-						close(a.done)
-					}
-				}
-			} else {
-				log.Printf(`Unknown request: %s`, p)
-			}
+			a.handleMessage(p)
 		}
 	}
 }
