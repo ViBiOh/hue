@@ -76,7 +76,7 @@ func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload 
 		Payload: fmt.Sprintf(`%s`, payload),
 	}
 
-	output := a.hub.SendToWorker(message, true)
+	output := a.hub.SendToWorker(r.Context(), message, true)
 
 	if output == nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{

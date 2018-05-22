@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -21,7 +23,7 @@ const (
 
 // WorkerApp app that plugs to worker
 type WorkerApp interface {
-	Handle(*provider.WorkerMessage) (*provider.WorkerMessage, error)
+	Handle(context.Context, *provider.WorkerMessage) (*provider.WorkerMessage, error)
 	Ping() ([]*provider.WorkerMessage, error)
 }
 
@@ -76,7 +78,7 @@ func (a *App) pinger() {
 				}
 			} else {
 				for _, message := range messages {
-					if err := provider.WriteMessage(a.wsConn, message); err != nil {
+					if err := provider.WriteMessage(nil, a.wsConn, message); err != nil {
 						log.Print(err)
 						close(a.done)
 					}
@@ -146,8 +148,10 @@ func (a *App) connect() {
 				log.Printf(`[%s] %s: %s`, p.Source, p.Type, p.Payload)
 			}
 
+			ctx := provider.ContextFromMessage(context.Background(), p)
+
 			if p.Source == hue.HueSource {
-				output, err := a.hueApp.Handle(p)
+				output, err := a.hueApp.Handle(ctx, p)
 
 				if err != nil {
 					if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
@@ -155,7 +159,7 @@ func (a *App) connect() {
 						close(a.done)
 					}
 				} else if output != nil {
-					if err := provider.WriteMessage(a.wsConn, output); err != nil {
+					if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
 						log.Print(err)
 						close(a.done)
 					}
@@ -170,6 +174,7 @@ func (a *App) connect() {
 func main() {
 	workerConfig := Flags(``)
 	hueConfig := hue_worker.Flags(`hue`)
+	opentracingConfig := opentracing.Flags(`tracing`)
 	flag.Parse()
 
 	hueApp, err := hue_worker.NewApp(hueConfig, *workerConfig[`debug`].(*bool))
@@ -177,6 +182,7 @@ func main() {
 		log.Fatalf(`Error while creating hue app: %s`, err)
 	}
 
+	opentracing.NewApp(opentracingConfig)
 	app := NewApp(workerConfig, hueApp)
 
 	app.connect()

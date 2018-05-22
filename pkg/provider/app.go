@@ -26,6 +26,7 @@ type WorkerMessage struct {
 	ID      string
 	Source  string
 	Type    string
+	Tracing map[string]string
 	Payload interface{}
 }
 
@@ -39,15 +40,17 @@ type Provider interface {
 
 // Hub for rendering UI
 type Hub interface {
-	SendToWorker(*WorkerMessage, bool) *WorkerMessage
+	SendToWorker(context.Context, *WorkerMessage, bool) *WorkerMessage
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
 // WriteMessage writes content as text message on websocket
-func WriteMessage(ws *websocket.Conn, message *WorkerMessage) error {
+func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessage) error {
 	if ws == nil {
 		return fmt.Errorf(`No websocket connection provided for sending: %+v`, message)
 	}
+
+	ContextToMessage(ctx, message)
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {

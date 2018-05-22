@@ -186,9 +186,7 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 }
 
 // Handle handle worker requests for Hue
-func (a *App) Handle(p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	ctx := context.Background()
-
+func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if strings.HasPrefix(p.Type, hue.WorkerGroupsType) {
 		return a.workerListGroups(ctx, p)
 	}
