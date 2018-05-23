@@ -52,7 +52,7 @@ start-deps:
 	go get -u github.com/ViBiOh/auth/cmd/bcrypt
 
 start-api:
-	go run cmd/api/iot.go \
+	go run -race cmd/api/iot.go \
 		-tls=false \
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \
@@ -60,7 +60,7 @@ start-api:
 		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
 
 start-worker:
-	go run cmd/worker/worker.go \
+	go run -race cmd/worker/worker.go \
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
 		-hueConfig ./hue.json \
