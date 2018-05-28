@@ -20,15 +20,17 @@
     "pkg/provider/twitter",
     "pkg/service"
   ]
-  revision = "2066a2837230bed40fb099f3b4eed72085434d46"
+  revision = "92ab1ff6003fd02a3b925d531109a27fe1364e3d"
 
 [[projects]]
   branch = "master"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
+    "pkg/alcotest",
     "pkg/cert",
     "pkg/cors",
+    "pkg/gzip",
     "pkg/healthcheck",
     "pkg/httperror",
     "pkg/httpjson",
@@ -40,7 +42,7 @@
     "pkg/tools",
     "pkg/uuid"
   ]
-  revision = "102aa71021682a10c43740d54cf8879fb33e59a3"
+  revision = "5f118d9228ef4b0d3a598415e4cccc37b65f5577"
 
 [[projects]]
   branch = "master"
@@ -69,8 +71,8 @@
 [[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
-  revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
-  version = "v1.0.0"
+  revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -128,7 +130,7 @@
     "nfs",
     "xfs"
   ]
-  revision = "8b1c2da0d56deffdbb9e48d4414b4e674bd8083e"
+  revision = "fe93d378a6b03758a2c1b65e86cf630bf78681c0"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -192,7 +194,7 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "159ae71589f303f9fbfd7528413e0fe944b9c1cb"
+  revision = "ab813273cd59e1333f7ae7bff5d027d4aadf528c"
 
 [[projects]]
   branch = "master"
@@ -211,7 +213,7 @@
     "github",
     "internal"
   ]
-  revision = "770e5ebd4ab27c4d70b0983674d138217f5e2c72"
+  revision = "8373c646843f3728aafb0d706e6edb223532ae73"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -230,6 +232,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2dc9f85c3263d029d73964d11fab1e11116ec84f36ca478329fe62dc7bbaa6b7"
+  inputs-digest = "3cda91034f30dead55492da725fe2484b49936e1ae96cad6e9e6cc06d2a679fc"
   solver-name = "gps-cdcl"
   solver-version = 1

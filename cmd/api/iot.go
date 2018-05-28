@@ -6,7 +6,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/NYTimes/gziphandler"
 	"github.com/ViBiOh/auth/pkg/auth"
 	"github.com/ViBiOh/auth/pkg/model"
 	"github.com/ViBiOh/auth/pkg/provider/basic"
@@ -14,6 +13,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
+	"github.com/ViBiOh/httputils/pkg/gzip"
 	"github.com/ViBiOh/httputils/pkg/healthcheck"
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
@@ -55,6 +55,7 @@ func main() {
 	opentracingApp := opentracing.NewApp(opentracingConfig)
 	owaspApp := owasp.NewApp(owaspConfig)
 	corsApp := cors.NewApp(corsConfig)
+	gzipApp := gzip.NewApp()
 
 	authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 	netatmoApp := netatmo.NewApp(netatmoConfig)
@@ -65,7 +66,7 @@ func main() {
 	})
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
-	iotHandler := gziphandler.GzipHandler(iotApp.Handler())
+	iotHandler := iotApp.Handler()
 	wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
 	handleAnonymousRequest := func(w http.ResponseWriter, r *http.Request, err error) {
@@ -89,7 +90,7 @@ func main() {
 		}
 	}, handleAnonymousRequest)
 
-	apiHandler := server.ChainMiddlewares(authHandler, opentracingApp, owaspApp, corsApp)
+	apiHandler := server.ChainMiddlewares(authHandler, opentracingApp, gzipApp, owaspApp, corsApp)
 
 	serverApp.ListenAndServe(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, websocketPath) {
