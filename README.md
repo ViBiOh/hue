@@ -110,7 +110,7 @@ After=network.target
 [Service]
 Type=simple
 User=vibioh
-ExecStart=/home/vibioh/code/bin/worker -secretKey oQYMUpoYsdndP4IG0ymtutkeVWmz3UVL -websocket wss://iot.vibioh.fr/ws -hueBridgeIP 192.168.1.10 -hueUsername NXUypQEie3i1PUnayZUGvllk8DnOWEibJYFi5j91 -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -tracingName iot_worker -tracingAgent vibioh.fr:6831
+ExecStart=/home/vibioh/code/bin/worker -secretKey SECRET_KEY -websocket wss://iot.vibioh.fr/ws -hueBridgeIP 192.168.1.10 -hueUsername NXUypQEie3i1PUnayZUGvllk8DnOWEibJYFi5j91 -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -tracingName iot_worker -tracingAgent vibioh.fr:6831
 Restart=always
 RestartSec=60s
 
