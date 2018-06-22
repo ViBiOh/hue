@@ -54,7 +54,7 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 	app := &App{
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: tools.Sha1,
-		}).ParseGlob(`./templates/*.gohtml`)),
+		}).ParseGlob(`./templates/*.html`)),
 		providers:   providers,
 		secretKey:   *config[`secretKey`],
 		workerCalls: sync.Map{},
