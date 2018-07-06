@@ -19,6 +19,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
 	"github.com/ViBiOh/httputils/pkg/server"
+	"github.com/ViBiOh/iot/pkg/dyson"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/netatmo"
@@ -45,6 +46,7 @@ func main() {
 	authBasicConfig := basic.Flags(`basic`)
 	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
+	dysonConfig := dyson.Flags(`dyson`)
 
 	flag.Parse()
 
@@ -59,10 +61,12 @@ func main() {
 
 	authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 	netatmoApp := netatmo.NewApp(netatmoConfig)
+	dysonApp := dyson.NewApp(dysonConfig)
 	hueApp := hue.NewApp()
 	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
+		`Dyson`:   dysonApp,
 	})
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())

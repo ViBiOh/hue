@@ -37,6 +37,12 @@ Usage of iot:
       [cors] Access-Control-Allow-Origin (default "*")
   -csp string
       [owasp] Content-Security-Policy (default "default-src 'self'; base-uri 'self'")
+  -dysonCountry string
+      Dyson Link Country (default "FR")
+  -dysonEmail string
+      Dyson Link Email
+  -dysonPassword string
+      Dyson Link Password
   -frameOptions string
       [owasp] X-Frame-Options (default "deny")
   -hsts
@@ -61,6 +67,10 @@ Usage of iot:
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
+  -tracingAgent string
+      [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
+  -tracingName string
+      [opentracing] Service name
   -url string
       [health] URL to check
 ```
