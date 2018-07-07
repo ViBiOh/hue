@@ -49,7 +49,7 @@ docker-push-api: docker-login
 	docker push $(DOCKER_USER)/iot
 
 start-deps:
-	go get -u github.com/ViBiOh/auth/cmd/bcrypt
+	go get github.com/ViBiOh/auth/cmd/bcrypt
 
 start-api:
 	go run -race cmd/api/iot.go \

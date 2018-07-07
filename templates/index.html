@@ -62,6 +62,10 @@
           {{- template "netatmo" .Netatmo -}}
         {{- end -}}
 
+        {{- if .Dyson -}}
+          {{- template "dyson" .Dyson -}}
+        {{- end -}}
+
         {{- if .Online -}}
           {{- if .Error -}}
             {{- template "worker-error" . -}}

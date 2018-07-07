@@ -23,6 +23,9 @@ const (
 
 	// API of Dyson Link
 	API = `https://api.cp.dyson.com`
+
+	authenticateEndpoint = `/v1/userregistration/authenticate`
+	devicesEndpoint      = `/v1/provisioningservice/manifest`
 )
 
 var unsafeHTTPClient = http.Client{
@@ -60,17 +63,17 @@ func NewApp(config map[string]*string) *App {
 		`Password`: []string{password},
 	}
 
-	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf(`%s/v1/userregistration/authenticate?country=%s`, API, *config[`country`]), strings.NewReader(data.Encode()))
+	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf(`%s%s?country=%s`, API, authenticateEndpoint, *config[`country`]), strings.NewReader(data.Encode()))
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
-		log.Printf(`[dyson] Error while creating request to authenticate to Dyson: %v`, err)
+		log.Printf(`[dyson] Error while creating request to authenticate: %v`, err)
 		return &App{}
 	}
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
-		log.Printf(`[dyson] Error while authenticating to Dyson: %v`, err)
+		log.Printf(`[dyson] Error while authenticating: %v`, err)
 		return &App{}
 	}
 
@@ -95,6 +98,27 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
+func (a *App) getDevices() ([]*Device, error) {
+	deviceRequest, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s%s`, API, devicesEndpoint), nil)
+	if err != nil {
+		return nil, fmt.Errorf(`[dyson] Error while creating request to list devices: %v`, err)
+	}
+
+	deviceRequest.SetBasicAuth(a.account, a.password)
+
+	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, deviceRequest)
+	if err != nil {
+		return nil, fmt.Errorf(`[dyson] Error while listing devices: %v`, err)
+	}
+
+	var devices []*Device
+	if err = json.Unmarshal(payload, &devices); err != nil {
+		return nil, fmt.Errorf(`[dyson] Error while unmarshalling devices content: %v`, err)
+	}
+
+	return devices, nil
+}
+
 // SetHub receive Hub during init of it
 func (a *App) SetHub(hub provider.Hub) {
 	a.hub = hub
@@ -107,7 +131,12 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	return nil
+	devices, err := a.getDevices()
+	if err != nil {
+		log.Printf(`[dyson] Error while getting devices: %v`, err)
+	}
+
+	return devices
 }
 
 // WorkerHandler handle commands receive from worker
