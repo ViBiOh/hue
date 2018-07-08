@@ -56,6 +56,10 @@ services:
     - ${NETATMO_CLIENT_SECRET}
     - -netatmoRefreshToken
     - ${NETATMO_REFRESH_TOKEN}
+    - -dysonEmail
+    - ${DYSON_EMAIL}
+    - -dysonPassword
+    - ${DYSON_PASSWORD}
     - -tracingName
     - iot_api
     labels:

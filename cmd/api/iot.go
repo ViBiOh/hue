@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"path"
 	"strings"
@@ -77,7 +78,7 @@ func main() {
 		if auth.IsForbiddenErr(err) {
 			httperror.Forbidden(w)
 		} else if err == auth.ErrEmptyAuthorization && authApp.URL != `` {
-			http.Redirect(w, r, path.Join(authApp.URL, `/redirect/github`), http.StatusFound)
+			http.Redirect(w, r, fmt.Sprintf(`%s/redirect/github`, authApp.URL), http.StatusFound)
 		} else {
 			w.Header().Add(`WWW-Authenticate`, `Basic charset="UTF-8"`)
 			httperror.Unauthorized(w, err)

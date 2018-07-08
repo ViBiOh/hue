@@ -24,6 +24,8 @@ jobs:
         -e "s/\${NETATMO_CLIENT_ID}/${NETATMO_CLIENT_ID}/g" \
         -e "s/\${NETATMO_CLIENT_SECRET}/${NETATMO_CLIENT_SECRET}/g" \
         -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
+        -e "s/\${DYSON_EMAIL}/${DYSON_EMAIL}/g" \
+        -e "s/\${DYSON_PASSWORD}/${DYSON_PASSWORD}/g" \
         docker-compose.yml > docker-compose-env.yml
     deploy:
       provider: script
