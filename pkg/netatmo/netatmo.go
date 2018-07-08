@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/httperror"
+	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -118,4 +120,18 @@ func (a *App) GetData(ctx context.Context) interface{} {
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
+}
+
+// Handler for request. Should be use with net/http
+func (a App) Handler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(r.Context()), httpjson.IsPretty(r.URL.RawQuery)); err != nil {
+				httperror.InternalServerError(w, err)
+			}
+			return
+		}
+
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	})
 }
