@@ -2,9 +2,8 @@
   {{- if len . -}}
     {{- range . -}}
       <span class="container">
-        <h2 class="header center no-margin">Dyson</h2>
+        <h2 class="header center">{{- .Name -}}</h2>
         <div class="flex flex-center flex-wrap">
-          <div class="header center flex-full">{{- .Name -}}</div>
         </div>
       </span>
     {{- end -}}

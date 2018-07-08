@@ -205,9 +205,8 @@
 
   {{- range $id, $schedule := .Schedules }}
     <span class="container">
-      <h2 class="header center no-margin">Hue Schedule</h2>
+      <h2 class="header center">{{- $schedule.Name -}}</h2>
 
-      <div class="header center">{{- $schedule.Name -}}</div>
       <div class="center padding">
         <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
       </div>

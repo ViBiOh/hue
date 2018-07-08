@@ -119,6 +119,10 @@ func (a *App) getDevices() ([]*Device, error) {
 	return devices, nil
 }
 
+func (a *App) isReady() bool {
+	return a.account != `` && a.password != ``;
+}
+
 // SetHub receive Hub during init of it
 func (a *App) SetHub(hub provider.Hub) {
 	a.hub = hub
@@ -131,6 +135,10 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
+	if !a.isReady {
+		return nil
+	}
+
 	devices, err := a.getDevices()
 	if err != nil {
 		log.Printf(`[dyson] Error while getting devices: %v`, err)
