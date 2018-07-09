@@ -57,7 +57,7 @@ start-api:
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
-		-csp "default-src 'self'; style-src 'self' 'unsafe-inline'"
+		-csp "default-src 'self'; style-src 'unsafe-inline'"
 
 start-worker:
 	go run -race cmd/worker/worker.go \

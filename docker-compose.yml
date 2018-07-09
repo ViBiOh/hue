@@ -45,7 +45,7 @@ services:
     - -authUsers
     - vibioh:admin,eponae:admin
     - -csp
-    - default-src 'self'; base-uri 'self'; style-src 'self' 'unsafe-inline'
+    - default-src 'self'; base-uri 'self'; style-src 'unsafe-inline'
     - -secretKey
     - ${SECRET_KEY}
     - -netatmoAccessToken

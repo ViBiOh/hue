@@ -3,7 +3,8 @@
     {{- range . -}}
       <span class="container">
         <h2 class="header center no-margin">{{- .Name -}}</h2>
-        <div class="flex flex-center flex-wrap">
+        <div class="flex flex-center flex-wrap full-height">
+          {{- template "throbber" -}}
         </div>
       </span>
     {{- end -}}
