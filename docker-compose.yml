@@ -17,6 +17,12 @@ services:
     - ${GITHUB_OAUTH_CLIENT_SECRET}
     - -tracingName
     - iot_auth
+    - -rollbarToken
+    - ${ROLLBAR_TOKEN}
+    - -rollbarServerRoot
+    - github.com/ViBiOh/auth
+    - -rollbarEnv
+    - prod
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot-auth.vibioh.fr'
@@ -62,6 +68,12 @@ services:
     - ${DYSON_PASSWORD}
     - -tracingName
     - iot_api
+    - -rollbarToken
+    - ${ROLLBAR_TOKEN}
+    - -rollbarServerRoot
+    - github.com/ViBiOh/iot
+    - -rollbarEnv
+    - prod
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot.vibioh.fr'

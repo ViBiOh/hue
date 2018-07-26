@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -50,13 +50,13 @@ type App struct {
 func NewApp(config map[string]*string) *App {
 	email := strings.TrimSpace(*config[`email`])
 	if email == `` {
-		log.Print(`[dyson] No email provided`)
+		rollbar.LogWarning(`[dyson] No email provided`)
 		return &App{}
 	}
 
 	password := strings.TrimSpace(*config[`password`])
 	if password == `` {
-		log.Print(`[dyson] No password provided`)
+		rollbar.LogWarning(`[dyson] No password provided`)
 		return &App{}
 	}
 
@@ -69,19 +69,19 @@ func NewApp(config map[string]*string) *App {
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
-		log.Printf(`[dyson] Error while creating request to authenticate: %v`, err)
+		rollbar.LogError(`[dyson] Error while creating request to authenticate: %v`, err)
 		return &App{}
 	}
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
-		log.Printf(`[dyson] Error while authenticating: %v`, err)
+		rollbar.LogError(`[dyson] Error while authenticating: %v`, err)
 		return &App{}
 	}
 
 	var authentContent map[string]string
 	if err = json.Unmarshal(payload, &authentContent); err != nil {
-		log.Printf(`[dyson] Error while unmarshalling authentication content: %v`, err)
+		rollbar.LogError(`[dyson] Error while unmarshalling authentication content: %v`, err)
 		return &App{}
 	}
 
@@ -143,7 +143,7 @@ func (a *App) GetData(ctx context.Context) interface{} {
 
 	devices, err := a.getDevices()
 	if err != nil {
-		log.Printf(`[dyson] Error while getting devices: %v`, err)
+		rollbar.LogError(`[dyson] Error while getting devices: %v`, err)
 	}
 
 	return devices

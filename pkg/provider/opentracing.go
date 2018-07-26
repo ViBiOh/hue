@@ -3,8 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )
@@ -19,7 +19,7 @@ func ContextFromMessage(ctx context.Context, p *WorkerMessage) (context.Context,
 
 	spanContext, err := tracer.Extract(opentracing.TextMap, opentracing.TextMapCarrier(p.Tracing))
 	if err != nil {
-		log.Printf(`[tracing] Error while extracting span from WorkerMessage: %v`, err)
+		rollbar.LogError(`[tracing] Error while extracting span from WorkerMessage: %v`, err)
 		return nil, tracer.StartSpan(fmt.Sprintf(`%s/%s`, p.Source, p.Type))
 	}
 
@@ -38,6 +38,6 @@ func ContextToMessage(ctx context.Context, p *WorkerMessage) {
 
 	p.Tracing = make(map[string]string)
 	if err := tracer.Inject(opentracing.SpanFromContext(ctx).Context(), opentracing.TextMap, opentracing.TextMapCarrier(p.Tracing)); err != nil {
-		log.Printf(`[tracing] Error while injecting span to WorkerMessage: %v`, err)
+		rollbar.LogError(`[tracing] Error while injecting span to WorkerMessage: %v`, err)
 	}
 }

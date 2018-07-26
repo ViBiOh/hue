@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/gorilla/websocket"
 )
@@ -26,21 +27,21 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 
 	if err != nil {
 		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`Error while reading first message: %v`, err)); err != nil {
-			log.Print(err)
+			rollbar.LogError(`%v`, err)
 		}
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be a Text Message`)); err != nil {
-			log.Print(err)
+			rollbar.LogError(`%v`, err)
 		}
 		return false
 	}
 
 	if string(p) != a.secretKey {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should contains the Secret Key`)); err != nil {
-			log.Print(err)
+			rollbar.LogError(`%v`, err)
 		}
 		return false
 	}
@@ -87,12 +88,12 @@ func (a *App) WebsocketHandler() http.Handler {
 				}
 
 				if err := ws.Close(); err != nil {
-					log.Printf(`Error while closing connection: %v`, err)
+					rollbar.LogError(`Error while closing connection: %v`, err)
 				}
 			}()
 		}
 		if err != nil {
-			log.Printf(`Error while upgrading connection: %v`, err)
+			rollbar.LogError(`Error while upgrading connection: %v`, err)
 			return
 		}
 
@@ -103,7 +104,7 @@ func (a *App) WebsocketHandler() http.Handler {
 		log.Printf(`Worker connection from %s`, request.GetIP(r))
 		if a.wsConn != nil {
 			if err := a.wsConn.Close(); err != nil {
-				log.Printf(`Error while closing connection: %v`, err)
+				rollbar.LogError(`Error while closing connection: %v`, err)
 			}
 
 		}
@@ -118,13 +119,13 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if err != nil {
-				log.Printf(`Error while reading from websocket: %v`, err)
+				rollbar.LogError(`Error while reading from websocket: %v`, err)
 				break
 			}
 
 			if messageType == websocket.TextMessage {
 				if err := a.handleTextMessage(p); err != nil {
-					log.Printf(`%v`, err)
+					rollbar.LogError(`%v`, err)
 					break
 				}
 			}

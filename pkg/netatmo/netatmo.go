@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -111,7 +111,7 @@ func (a *App) GetWorkerSource() string {
 func (a *App) GetData(ctx context.Context) interface{} {
 	data, err := a.GetStationData(ctx)
 	if err != nil {
-		log.Printf(`[netatmo] Error while getting station data: %v`, err)
+		rollbar.LogError(`[netatmo] Error while getting station data: %v`, err)
 	}
 
 	return data

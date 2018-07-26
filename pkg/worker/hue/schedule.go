@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -114,13 +114,13 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 func (a *App) configureSchedules(ctx context.Context, schedules []*hue.ScheduleConfig) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		log.Printf(`[%s] Error while retrieving groups for configuring schedules: %v`, hue.HueSource, err)
+		rollbar.LogError(`[%s] Error while retrieving groups for configuring schedules: %v`, hue.HueSource, err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
-			log.Printf(`[%s] %v`, hue.HueSource, err)
+			rollbar.LogError(`[%s] %v`, hue.HueSource, err)
 		}
 	}
 }

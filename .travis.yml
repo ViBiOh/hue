@@ -26,6 +26,7 @@ jobs:
         -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
         -e "s/\${DYSON_EMAIL}/${DYSON_EMAIL}/g" \
         -e "s/\${DYSON_PASSWORD}/${DYSON_PASSWORD}/g" \
+        -e "s/\${ROLLBAR_TOKEN}/${ROLLBAR_TOKEN}/g" \
         docker-compose.yml > docker-compose-env.yml
     deploy:
       provider: script

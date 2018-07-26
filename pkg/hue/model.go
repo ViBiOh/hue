@@ -2,9 +2,10 @@ package hue
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
+
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 )
 
 const (
@@ -87,7 +88,7 @@ func (s *Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		log.Printf(`Error while parsing local time: %v`, err)
+		rollbar.LogError(`Error while parsing local time: %v`, err)
 		return s.Localtime
 	}
 

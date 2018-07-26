@@ -3,9 +3,9 @@ package hue
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -22,7 +22,7 @@ func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
 	newRule := &hue.Rule{
 		Name: fmt.Sprintf(`Tap %s.%s`, tapID, button.ID),
 		Conditions: []*hue.Condition{
-			&hue.Condition{
+			{
 				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, tapID),
 				Operator: `eq`,
 				Value:    tapButtonMapping[button.ID],
@@ -47,7 +47,7 @@ func (a *App) configureTap(ctx context.Context, taps []*tapConfig) {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
 			if err := a.createRule(ctx, button.Rule); err != nil {
-				log.Printf(`[%s] Error while creating rule: %v`, hue.HueSource, err)
+				rollbar.LogError(`[%s] Error while creating rule: %v`, hue.HueSource, err)
 			}
 		}
 	}
