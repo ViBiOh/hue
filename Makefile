@@ -1,8 +1,17 @@
+VERSION ?= $(shell git log --pretty=format:'%h' -n 1)
+AUTHOR ?= $(shell git log --pretty=format:'%an' -n 1)
+
 default: api docker-api
 
 api: deps go
 
 go: format lint tst bench build
+
+version:
+	@echo -n $(VERSION)
+
+author:
+	@python -c 'import sys; import urllib; sys.stdout.write(urllib.quote_plus(sys.argv[1]))' "$(AUTHOR)"
 
 deps:
 	go get -u github.com/golang/dep/cmd/dep
@@ -69,4 +78,4 @@ start-worker:
 		-hueClean \
 		-debug
 
-.PHONY: api go deps format lint tst bench build build-api build-worker docker-deps docker-api docker-login docker-build-api docker-push-api start-deps start-api start-worker
+.PHONY: api go version author deps format lint tst bench build build-api build-worker docker-deps docker-api docker-login docker-build-api docker-push-api start-deps start-api start-worker
