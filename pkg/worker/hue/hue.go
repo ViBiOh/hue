@@ -14,8 +14,6 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
-var debug = false
-
 // App stores informations and secret of API
 type App struct {
 	bridgeURL      string
@@ -24,9 +22,7 @@ type App struct {
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]interface{}, debugApp bool) (*App, error) {
-	debug = debugApp
-
+func NewApp(config map[string]interface{}) (*App, error) {
 	username := *config[`username`].(*string)
 
 	app := &App{

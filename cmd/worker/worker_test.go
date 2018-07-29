@@ -21,11 +21,6 @@ func Test_Flags(t *testing.T) {
 			`secretKey`,
 			`*string`,
 		},
-		{
-			`should add bool debug param to flags`,
-			`debug`,
-			`*bool`,
-		},
 	}
 
 	for _, testCase := range cases {

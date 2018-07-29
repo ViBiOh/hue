@@ -108,8 +108,8 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 		}
-		a.wsConn = ws
 
+		a.wsConn = ws
 		a.wsErrCount = 0
 
 		for {

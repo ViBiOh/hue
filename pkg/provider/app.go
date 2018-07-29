@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/opentracing"
+	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/gorilla/websocket"
 )
@@ -50,7 +52,10 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 		return fmt.Errorf(`No websocket connection provided for sending: %+v`, message)
 	}
 
-	ContextToMessage(ctx, message)
+	message.Tracing = make(map[string]string)
+	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
+		rollbar.LogError(`%v`, err)
+	}
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {

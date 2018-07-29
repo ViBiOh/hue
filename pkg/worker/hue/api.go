@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/ViBiOh/httputils/pkg/request"
@@ -17,10 +16,6 @@ func hasError(content []byte) bool {
 
 func get(ctx context.Context, url string, response interface{}) error {
 	content, err := request.Get(ctx, url, nil)
-
-	if debug {
-		log.Printf(`GET %s: err=%v, output=%s`, url, err, content)
-	}
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending get request: %v`, err)
@@ -35,10 +30,6 @@ func get(ctx context.Context, url string, response interface{}) error {
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
 	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
-
-	if debug {
-		log.Printf(`POST %s: payload=%s, err=%v, output=%s`, url, payload, err, content)
-	}
 
 	if err != nil {
 		return nil, fmt.Errorf(`Error while sending post request: %v`, err)
@@ -59,10 +50,6 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 func update(ctx context.Context, url string, payload interface{}) error {
 	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
 
-	if debug {
-		log.Printf(`PUT %s: payload=%s, err=%v, output=%s`, url, payload, err, content)
-	}
-
 	if err != nil {
 		return fmt.Errorf(`Error while sending put request: %v`, err)
 	}
@@ -76,10 +63,6 @@ func update(ctx context.Context, url string, payload interface{}) error {
 
 func delete(ctx context.Context, url string) error {
 	content, err := request.Do(ctx, url, nil, nil, http.MethodDelete)
-
-	if debug {
-		log.Printf(`DELETE %s: err=%v, output=%s`, url, err, content)
-	}
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending delete request: %v`, err)

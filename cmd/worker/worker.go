@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/ViBiOh/httputils/pkg/opentracing"
@@ -36,25 +37,22 @@ type App struct {
 	hueApp       WorkerApp
 	done         chan struct{}
 	wsConn       *websocket.Conn
-	debug        bool
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]interface{}, hueApp WorkerApp) *App {
+func NewApp(config map[string]*string, hueApp WorkerApp) *App {
 	return &App{
-		websocketURL: *config[`websocketURL`].(*string),
-		secretKey:    *config[`secretKey`].(*string),
+		websocketURL: strings.TrimSpace(*config[`websocketURL`]),
+		secretKey:    strings.TrimSpace(*config[`secretKey`]),
 		hueApp:       hueApp,
-		debug:        *config[`debug`].(*bool),
 	}
 }
 
 // Flags add flags for given prefix
-func Flags(prefix string) map[string]interface{} {
-	return map[string]interface{}{
+func Flags(prefix string) map[string]*string {
+	return map[string]*string{
 		`websocketURL`: flag.String(tools.ToCamel(fmt.Sprintf(`%sWebsocket`, prefix)), ``, `WebSocket URL`),
 		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `Secret Key`),
-		`debug`:        flag.Bool(tools.ToCamel(fmt.Sprintf(`%sDebug`, prefix)), false, `Enable debug`),
 	}
 }
 
@@ -80,7 +78,7 @@ func (a *App) pinger() {
 				}
 			} else {
 				for _, message := range messages {
-					if err := provider.WriteMessage(nil, a.wsConn, message); err != nil {
+					if err := provider.WriteMessage(context.Background(), a.wsConn, message); err != nil {
 						rollbar.LogError(`%v`, err)
 						close(a.done)
 					}
@@ -93,12 +91,13 @@ func (a *App) pinger() {
 }
 
 func (a *App) handleMessage(p *provider.WorkerMessage) {
-	if a.debug {
-		log.Printf(`[%s] %s: %s`, p.Source, p.Type, p.Payload)
+	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Type)
+	if err != nil {
+		rollbar.LogError(`%v`, err)
 	}
-
-	ctx, span := provider.ContextFromMessage(context.Background(), p)
-	defer span.Finish()
+	if span != nil {
+		defer span.Finish()
+	}
 
 	if p.Source == hue.HueSource {
 		output, err := a.hueApp.Handle(ctx, p)
@@ -184,7 +183,7 @@ func main() {
 	opentracingConfig := opentracing.Flags(`tracing`)
 	flag.Parse()
 
-	hueApp, err := hue_worker.NewApp(hueConfig, *workerConfig[`debug`].(*bool))
+	hueApp, err := hue_worker.NewApp(hueConfig)
 	if err != nil {
 		rollbar.LogError(`Error while creating hue app: %s`, err)
 		os.Exit(1)

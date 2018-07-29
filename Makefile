@@ -61,21 +61,24 @@ start-deps:
 	go get github.com/ViBiOh/auth/cmd/bcrypt
 
 start-api:
-	go run -race cmd/api/iot.go \
+	go run cmd/api/iot.go \
 		-tls=false \
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
-		-csp "default-src 'self'; style-src 'unsafe-inline'"
+		-csp "default-src 'self'; style-src 'unsafe-inline'" \
+		-tracingName "iot_api_dev" \
+		-tracingAgent "$(JAEGER_HOST):$(JAEGER_PORT)"
 
 start-worker:
-	go run -race cmd/worker/worker.go \
+	go run cmd/worker/worker.go \
 		-websocket ws://localhost:1080/ws/hue \
 		-secretKey SECRET_KEY \
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
 		-hueClean \
-		-debug
+		-tracingName "iot_worker_dev" \
+		-tracingAgent "$(JAEGER_HOST):$(JAEGER_PORT)"
 
 .PHONY: api go version author deps format lint tst bench build build-api build-worker docker-deps docker-api docker-login docker-build-api docker-push-api start-deps start-api start-worker
