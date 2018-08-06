@@ -87,8 +87,18 @@ Usage of worker:
       [hue] Configuration filename
   -hueUsername string
       [hue] Username for Bridge
+  -rollbarEnv string
+      [rollbar] Environment (default "prod")
+  -rollbarServerRoot string
+      [rollbar] Server Root
+  -rollbarToken string
+      [rollbar] Token
   -secretKey string
       Secret Key
+  -tracingAgent string
+      [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
+  -tracingName string
+      [opentracing] Service name
   -websocket string
       WebSocket URL
 ```

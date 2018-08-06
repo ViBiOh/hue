@@ -181,6 +181,7 @@ func main() {
 	workerConfig := Flags(``)
 	hueConfig := hue_worker.Flags(`hue`)
 	opentracingConfig := opentracing.Flags(`tracing`)
+	rollbarConfig := rollbar.Flags(`rollbar`)
 	flag.Parse()
 
 	hueApp, err := hue_worker.NewApp(hueConfig)
@@ -190,6 +191,7 @@ func main() {
 	}
 
 	opentracing.NewApp(opentracingConfig)
+	rollbar.NewApp(rollbarConfig)
 	app := NewApp(workerConfig, hueApp)
 
 	app.connect()
