@@ -40,9 +40,9 @@ tst:
 bench:
 	go test ./... -bench . -benchmem -run Benchmark.*
 
-build-api:
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot cmd/api/iot.go
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker cmd/worker/worker.go
+build:
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/$(APP_NAME) cmd/api/iot.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/$(APP_NAME)-worker cmd/worker/worker.go
 
 start-deps:
 	go get github.com/ViBiOh/auth/cmd/bcrypt
