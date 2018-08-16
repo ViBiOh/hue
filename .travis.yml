@@ -2,16 +2,26 @@ jobs:
   include:
   - stage: Build
 
-    language: go
     sudo: required
     services:
     - docker
-    go : '1.10'
+    script: make
     after_success: |
-      if [ "${TRAVIS_BRANCH}" == "master" ]; then
-        bash <(curl -s https://codecov.io/bash)
-        curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
-      fi
+      echo ${DOCKER_PASS} | docker login -u vibioh --password-stdin
+      docker push vibioh/`make name`:`make version`
+
+  - stage: Publish
+
+    sudo: required
+    services:
+    - docker
+    script: |
+      echo ${DOCKER_PASS} | docker login -u vibioh --password-stdin
+      docker pull vibioh/`make name`:`make version`
+      docker tag vibioh/`make name`:`make version` vibioh/`make name`:latest
+      docker push vibioh/`make name`:latest
+    after_success: |
+      curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
 
   - stage: Deploy
 
@@ -35,6 +45,8 @@ jobs:
 
 stages:
   - Build
+  - name: Publish
+    if: branch = master
   - name: Deploy
     if: branch = master
 

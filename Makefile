@@ -1,11 +1,16 @@
+APP_NAME ?= iot
 VERSION ?= $(shell git log --pretty=format:'%h' -n 1)
 AUTHOR ?= $(shell git log --pretty=format:'%an' -n 1)
 
-default: api docker-api
+default:
+	docker build -t vibioh/$(APP_NAME):$(VERSION) .
 
-api: deps go
+$(APP_NAME): deps go
 
 go: format lint tst bench build
+
+name:
+	@echo -n $(APP_NAME)
 
 version:
 	@echo -n $(VERSION)
@@ -35,40 +40,12 @@ tst:
 bench:
 	go test ./... -bench . -benchmem -run Benchmark.*
 
-build: build-api build-worker
-
 build-api:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/iot cmd/api/iot.go
-
-build-worker:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o bin/worker cmd/worker/worker.go
-
-docker-deps:
-	curl -s -o cacert.pem https://curl.haxx.se/ca/cacert.pem
-
-docker-login:
-	echo $(DOCKER_PASS) | docker login -u $(DOCKER_USER) --password-stdin
-
-docker-api: docker-build-api docker-push-api
-
-docker-build-api: docker-deps
-	docker build -t $(DOCKER_USER)/iot .
-
-docker-push-api: docker-login
-	docker push $(DOCKER_USER)/iot
 
 start-deps:
 	go get github.com/ViBiOh/auth/cmd/bcrypt
-
-start-api:
-	go run cmd/api/iot.go \
-		-tls=false \
-		-authUsers admin:admin \
-		-basicUsers "1:admin:`bcrypt admin`" \
-		-secretKey SECRET_KEY \
-		-csp "default-src 'self'; style-src 'unsafe-inline'" \
-		-tracingName "iot_api_dev" \
-		-tracingAgent "$(JAEGER_HOST):$(JAEGER_PORT)"
 
 start-worker:
 	go run cmd/worker/worker.go \
@@ -77,8 +54,14 @@ start-worker:
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
-		-hueClean \
-		-tracingName "iot_worker_dev" \
-		-tracingAgent "$(JAEGER_HOST):$(JAEGER_PORT)"
+		-hueClean
 
-.PHONY: api go version author deps format lint tst bench build build-api build-worker docker-deps docker-api docker-login docker-build-api docker-push-api start-deps start-api start-worker
+start:
+	go run cmd/api/iot.go \
+		-tls=false \
+		-authUsers admin:admin \
+		-basicUsers "1:admin:`bcrypt admin`" \
+		-secretKey SECRET_KEY \
+		-csp "default-src 'self'; style-src 'unsafe-inline'"
+
+.PHONY: $(APP_NAME) go name version author deps format lint tst bench build start-deps start-worker start
