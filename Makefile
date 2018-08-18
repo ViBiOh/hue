@@ -64,4 +64,4 @@ start:
 		-secretKey SECRET_KEY \
 		-csp "default-src 'self'; style-src 'unsafe-inline'"
 
-.PHONY: $(APP_NAME) go name version author deps format lint tst bench build start-deps start-worker start
+.PHONY: docker $(APP_NAME) go name version author deps format lint tst bench build start-deps start-worker start
