@@ -57,6 +57,12 @@ Usage of iot:
       [netatmo] Refresh Token
   -port int
       Listen port (default 1080)
+  -rollbarEnv string
+      [rollbar] Environment (default "prod")
+  -rollbarServerRoot string
+      [rollbar] Server Root
+  -rollbarToken string
+      [rollbar] Token
   -secretKey string
       [iot] Secret Key between worker and API
   -tls
@@ -67,12 +73,16 @@ Usage of iot:
       [tls] Self-signed certificate hosts, comma separated (default "localhost")
   -tlsKey string
       [tls] PEM Key file
+  -tlsOrganization string
+      [tls] Self-signed certificate organization (default "ViBiOh")
   -tracingAgent string
       [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
   -tracingName string
       [opentracing] Service name
   -url string
       [health] URL to check
+  -userAgent string
+      [health] User-Agent used (default "Golang alcotest")
 ```
 
 ## Usage of IoT worker
