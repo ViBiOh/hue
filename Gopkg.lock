@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e604669543596fc59dedc6ee6b51bcc8087eefd576bead54c56ff501e356dac2"
+  digest = "1:017300dd6192cc23ced99b26683d99df5b917a6cec49ef5d9c798e8691598102"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -20,19 +20,19 @@
     "pkg/provider",
     "pkg/provider/basic",
     "pkg/provider/github",
-    "pkg/provider/twitter",
     "pkg/service",
   ]
   pruneopts = "UT"
-  revision = "c9db34479073406bac517ee1af5db88d85b93d24"
+  revision = "150db9542dd44578993615afdd8b6eb9cc49722b"
 
 [[projects]]
   branch = "master"
-  digest = "1:66525c5a5abff6e90378933ef4e6dc837e507fa5d4dbd81381ca60ea7fdbc312"
+  digest = "1:c7be289a0df84533def516f02554a32f1b89f238047fe282b0a199b9bbeecbe1"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
     "pkg/alcotest",
+    "pkg/cache",
     "pkg/cert",
     "pkg/cors",
     "pkg/gzip",
@@ -42,6 +42,7 @@
     "pkg/model",
     "pkg/opentracing",
     "pkg/owasp",
+    "pkg/query",
     "pkg/request",
     "pkg/rollbar",
     "pkg/server",
@@ -50,7 +51,7 @@
     "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "8d254cb6242112efb13968bb93eea04a37c05512"
+  revision = "f3ea8ad8f900dc62836623435ef0daadf32a887a"
 
 [[projects]]
   branch = "master"
@@ -69,20 +70,20 @@
   revision = "3a0bb77429bd3a61596f5e8a3172445844342120"
 
 [[projects]]
-  digest = "1:15042ad3498153684d09f393bbaec6b216c8eec6d61f63dff711de7d64ed8861"
+  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
-  digest = "1:43dd08a10854b2056e615d1b1d22ac94559d822e1f8b6fcc92c1a1057e85188e"
+  digest = "1:cee8e8ac80df6373e7daa11baf1f98c1b6f7242c49ccae7e1ec34a971dc408d9"
   name = "github.com/gorilla/websocket"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
-  version = "v1.2.0"
+  revision = "3ff3320c2a1756a3691521efc290b4701575147c"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
@@ -141,7 +142,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e469cd65badf7694aeb44874518606d93c1d59e7735d3754ad442782437d3cc3"
+  digest = "1:63b68062b8968092eb86bedc4e68894bd096ea6b24920faca8b9dcf451f54bb5"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -149,7 +150,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "7600349dcfe1abd18d72d3a1770870d9800a7801"
+  revision = "c7de2306084e37d54b8be01f3541a8464345e9a5"
 
 [[projects]]
   branch = "master"
@@ -244,7 +245,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
+  revision = "182538f80094b6a8efaade63a8fd8e0d9d5843dd"
 
 [[projects]]
   branch = "master"
@@ -255,11 +256,11 @@
     "context/ctxhttp",
   ]
   pruneopts = "UT"
-  revision = "3673e40ba22529d22c3fd7c93e97b0ce50fa7bdd"
+  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
 
 [[projects]]
   branch = "master"
-  digest = "1:5f9318c009fce7348d52313f3f204bce56da41068d9be3ebcec01076ee8aede9"
+  digest = "1:ada838e8c6151b19b06f90199f5da9771b50fbfd74838d461ad58b96cbf98015"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -267,7 +268,7 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "3d292e4d0cdc3a0113e6d207bb137145ef1de42f"
+  revision = "d2e6202438beef2727060aa7cabdd924d92ebfd9"
 
 [[projects]]
   digest = "1:328b5e4f197d928c444a51a75385f4b978915c0e75521f0ad6a3db976c97a7d3"
