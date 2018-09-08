@@ -1,15 +1,12 @@
 {{- define "sonos" -}}
-  <span class="container">
-    <h2 class="header center no-margin">Sonos</h2>
-    {{- if len . -}}
-      {{- range . -}}
-        <span class="container center">
-          <h2 class="header center no-margin">{{- .ID -}}</h2>
-          <div class="flex flex-center flex-wrap full-height">
-            More to come soon...
-          </div>
-        </span>
-      {{- end -}}
+  {{- if len . -}}
+    {{- range . -}}
+      <span class="container">
+        <h2 class="header center no-margin ellipsis">{{- .ID -}}</h2>
+        <div class="flex flex-center flex-wrap full-height">
+          More to come soon...
+        </div>
+      </span>
     {{- end -}}
-  </span>
+  {{- end -}}
 {{- end -}}
