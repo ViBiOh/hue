@@ -6,6 +6,5 @@ type refreshToken struct {
 
 // Household describe household notion
 type Household struct {
-	ID   string
-	Name string
+	ID string
 }

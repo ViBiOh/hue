@@ -23,10 +23,10 @@ func (a *App) GetHouseholds(ctx context.Context) ([]Household, error) {
 		return nil, fmt.Errorf(`Error while getting households: %v`, err)
 	}
 
-	var data []Household
+	var data map[string][]Household
 	if err := json.Unmarshal(rawData, &data); err != nil {
 		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
 	}
 
-	return data, nil
+	return data[`households`], nil
 }
