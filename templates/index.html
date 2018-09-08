@@ -73,6 +73,10 @@
         {{- else -}}
           {{- template "worker-off" . -}}
         {{- end -}}
+
+        {{- if .Sonos -}}
+          {{- template "sonos" .Sonos -}}
+        {{- end -}}
       </div>
     </div>
 </html>

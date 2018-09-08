@@ -26,6 +26,7 @@ import (
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
 const (
@@ -52,6 +53,7 @@ func main() {
 	iotConfig := iot.Flags(``)
 	netatmoConfig := netatmo.Flags(`netatmo`)
 	dysonConfig := dyson.Flags(`dyson`)
+	sonosConfig := sonos.Flags(`sonos`)
 
 	flag.Parse()
 
@@ -68,11 +70,13 @@ func main() {
 	authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	dysonApp := dyson.NewApp(dysonConfig)
+	sonosApp := sonos.NewApp(sonosConfig)
 	hueApp := hue.NewApp()
 	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 		`Dyson`:   dysonApp,
+		`Sonos`:   sonosApp,
 	})
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())

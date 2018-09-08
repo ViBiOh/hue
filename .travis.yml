@@ -36,6 +36,10 @@ jobs:
         -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
         -e "s/\${DYSON_EMAIL}/${DYSON_EMAIL}/g" \
         -e "s/\${DYSON_PASSWORD}/${DYSON_PASSWORD}/g" \
+        -e "s/\${SONOS_ACCESS_TOKEN}/${SONOS_ACCESS_TOKEN}/g" \
+        -e "s/\${SONOS_CLIENT_ID}/${SONOS_CLIENT_ID}/g" \
+        -e "s/\${SONOS_CLIENT_SECRET}/${SONOS_CLIENT_SECRET}/g" \
+        -e "s/\${SONOS_REFRESH_TOKEN}/${SONOS_REFRESH_TOKEN}/g" \
         -e "s/\${ROLLBAR_TOKEN}/${ROLLBAR_TOKEN}/g" \
         docker-compose.yml > docker-compose-env.yml
     deploy:

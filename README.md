@@ -65,6 +65,14 @@ Usage of iot:
       [rollbar] Token
   -secretKey string
       [iot] Secret Key between worker and API
+  -sonosAccessToken string
+      [sonos] Access Token
+  -sonosClientID string
+      [sonos] Client ID
+  -sonosClientSecret string
+      [sonos] Client Secret
+  -sonosRefreshToken string
+      [sonos] Refresh Token
   -tls
       Serve TLS content (default true)
   -tlsCert string
