@@ -2,22 +2,15 @@ package sonos
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
-	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
-)
-
-const (
-	sonosAPIURL       = `https://api.sonos.com`
-	sonosRefreshToken = `/login/v3/oauth/access`
 )
 
 // App stores informations and secret of API
@@ -48,33 +41,6 @@ func Flags(prefix string) map[string]*string {
 	}
 }
 
-func (a *App) refreshAccessToken(ctx context.Context) error {
-	payload := fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s`, a.refreshToken)
-	rawData, err := request.Do(
-		ctx,
-		fmt.Sprintf(`%s%s`, sonosAPIURL, sonosRefreshToken),
-		[]byte(payload),
-		http.Header{
-			`Authorization`: []string{request.GetBasicAuth(a.clientID, a.clientSecret)},
-			`Content-Type`:  []string{`application/x-www-form-urlencoded;charset=UTF-8`},
-		},
-		http.MethodPost,
-	)
-
-	if err != nil {
-		return fmt.Errorf(`Error while refreshing token: %v`, err)
-	}
-
-	var token refreshToken
-	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`Error while unmarshalling token %s: %v`, rawData, err)
-	}
-
-	a.accessToken = token.AccessToken
-
-	return nil
-}
-
 // SetHub receive Hub during init of it
 func (a *App) SetHub(provider.Hub) {
 }
@@ -86,7 +52,7 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	data, err := a.ListHouseholds(ctx)
+	data, err := a.GetHouseholds(ctx)
 	if err != nil {
 		rollbar.LogError(`[sonos] Error while listing households: %v`, err)
 	}
