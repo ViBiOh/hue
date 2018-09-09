@@ -8,3 +8,17 @@ type refreshToken struct {
 type Household struct {
 	ID string
 }
+
+// Player describe player
+type Player struct {
+	ID   string
+	Name string
+}
+
+// Group describe group notion
+type Group struct {
+	ID            string
+	Name          string
+	PlaybackState string
+	PlayerIds     []string
+}

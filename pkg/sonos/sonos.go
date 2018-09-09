@@ -19,16 +19,28 @@ type App struct {
 	clientSecret string
 	accessToken  string
 	refreshToken string
+
+	households []Household
 }
 
 // NewApp create Client from Flags' config
 func NewApp(config map[string]*string) *App {
-	return &App{
+	app := &App{
 		clientID:     *config[`clientID`],
 		clientSecret: *config[`clientSecret`],
 		accessToken:  *config[`accessToken`],
 		refreshToken: *config[`refreshToken`],
+		households:   make([]Household, 0),
 	}
+
+	households, err := app.GetHouseholds(context.Background())
+	if err != nil {
+		rollbar.LogError(`[sonos] Error while listing households: %v`, err)
+	} else {
+		app.households = households
+	}
+
+	return app
 }
 
 // Flags add flags for given prefix
@@ -52,12 +64,17 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	data, err := a.GetHouseholds(ctx)
-	if err != nil {
-		rollbar.LogError(`[sonos] Error while listing households: %v`, err)
+	groups := make([]Group, 0)
+	for _, household := range a.households {
+		data, err := a.GetGroups(ctx, household.ID)
+		if err != nil {
+			rollbar.LogError(`[sonos] Error while listing groups: %v`, err)
+		} else {
+			groups = append(groups, data.Groups...)
+		}
 	}
 
-	return data
+	return groups
 }
 
 // WorkerHandler handle commands receive from worker
