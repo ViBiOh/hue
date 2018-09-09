@@ -94,7 +94,7 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 }
 
 // Handler for request. Should be use with net/http
-func (a App) Handler() http.Handler {
+func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(r.Context()), httpjson.IsPretty(r)); err != nil {
