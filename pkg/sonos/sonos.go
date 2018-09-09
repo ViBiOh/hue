@@ -19,8 +19,7 @@ type App struct {
 	clientSecret string
 	accessToken  string
 	refreshToken string
-
-	households []Household
+	households   []*Household
 }
 
 // NewApp create Client from Flags' config
@@ -30,7 +29,7 @@ func NewApp(config map[string]*string) *App {
 		clientSecret: *config[`clientSecret`],
 		accessToken:  *config[`accessToken`],
 		refreshToken: *config[`refreshToken`],
-		households:   make([]Household, 0),
+		households:   make([]*Household, 0),
 	}
 
 	households, err := app.GetHouseholds(context.Background())
@@ -64,13 +63,23 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	groups := make([]Group, 0)
+	groups := make([]*Group, 0)
+
 	for _, household := range a.households {
 		data, err := a.GetGroups(ctx, household.ID)
 		if err != nil {
 			rollbar.LogError(`[sonos] Error while listing groups: %v`, err)
 		} else {
 			groups = append(groups, data.Groups...)
+		}
+	}
+
+	for _, group := range groups {
+		data, err := a.GetGroupVolume(ctx, group.ID)
+		if err != nil {
+			rollbar.LogError(`[sonos] Error while getting group volume: %v`, err)
+		} else {
+			group.Volume = data
 		}
 	}
 
