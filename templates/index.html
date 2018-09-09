@@ -59,11 +59,15 @@
 
       {{- template "message" .Message -}}
 
-      <div class="flex flex-center flex-wrap">
-        {{- if .Netatmo -}}
+      {{- if .Netatmo -}}
+        <h2 class="title no-style center">Netatmo</h2>
+        <div class="flex flex-center flex-wrap">
           {{- template "netatmo" .Netatmo -}}
-        {{- end -}}
+        </div>
+      {{- end -}}
 
+      <h2 class="title no-style center">Hue</h2>
+      <div class="flex flex-center flex-wrap">
         {{- if .Online -}}
           {{- if .Error -}}
             {{- template "worker-error" . -}}
@@ -73,11 +77,14 @@
         {{- else -}}
           {{- template "worker-off" . -}}
         {{- end -}}
-
-        {{- if .Sonos -}}
-          {{- template "sonos" .Sonos -}}
-        {{- end -}}
       </div>
+
+      {{- if .Sonos -}}
+        <h2 class="title no-style center">Sonos</h2>
+        <div class="flex flex-center flex-wrap">
+          {{- template "sonos" .Sonos -}}
+        </div>
+      {{- end -}}
     </div>
 </html>
 {{- end -}}
