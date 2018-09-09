@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
@@ -20,6 +21,7 @@ type App struct {
 	accessToken  string
 	refreshToken string
 	households   []*Household
+	tokenMutex   sync.Mutex
 }
 
 // NewApp create Client from Flags' config

@@ -82,6 +82,10 @@ start:
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
-		-csp "default-src 'self'; style-src 'unsafe-inline'"
+		-csp "default-src 'self'; style-src 'unsafe-inline'" \
+		-sonosAccessToken $(SONOS_ACCESS_TOKEN) \
+		-sonosClientID $(SONOS_CLIENT_ID) \
+		-sonosClientSecret $(SONOS_CLIENT_SECRET) \
+		-sonosRefreshToken $(SONOS_REFRESH_TOKEN) 
 
 .PHONY: help $(APP_NAME) go name dist version author deps format lint tst bench build start-deps start-worker start

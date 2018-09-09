@@ -25,7 +25,7 @@ func (a *App) GetHouseholds(ctx context.Context) ([]*Household, error) {
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting households: %v - %s`, err; rawData)
+		return nil, fmt.Errorf(`Error while getting households: %v`, err)
 	}
 
 	var data HouseholdsOutput
