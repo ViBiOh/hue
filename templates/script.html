@@ -1,0 +1,9 @@
+{{- define "script" -}}
+  <script type="text/javascript">
+    document.querySelectorAll('[name="sonos-volume"]').forEach(function(range) {
+      range.addEventListener('input', function(event) {
+        document.querySelector('[for="' + event.target.id +'"]').innerHTML = 'Volume ' + event.target.value;
+      })
+    });
+  </script>
+{{- end -}}
