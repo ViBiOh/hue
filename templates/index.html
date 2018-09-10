@@ -53,21 +53,21 @@
     <div class="content">
       <header class="padding">
         <h1 class="title">
-          <a href="/" class="no-style">IoT</a>
+          <a href="/" class="no-style grey">IoT</a>
         </h1>
       </header>
 
       {{- template "message" .Message -}}
 
       {{- if .Netatmo -}}
-        <h2 class="title no-style center">Netatmo</h2>
-        <div class="flex flex-center flex-wrap">
+        <h2 class="no-margin padding grey">Netatmo</h2>
+        <div class="flex flex-wrap">
           {{- template "netatmo" .Netatmo -}}
         </div>
       {{- end -}}
 
-      <h2 class="title no-style center">Hue</h2>
-      <div class="flex flex-center flex-wrap">
+      <h2 class="no-margin padding grey">Hue</h2>
+      <div class="flex flex-wrap">
         {{- if .Online -}}
           {{- if .Error -}}
             {{- template "worker-error" . -}}
@@ -80,8 +80,8 @@
       </div>
 
       {{- if .Sonos -}}
-        <h2 class="title no-style center">Sonos</h2>
-        <div class="flex flex-center flex-wrap">
+        <h2 class="no-margin padding grey">Sonos</h2>
+        <div class="flex flex-wrap">
           {{- template "sonos" .Sonos -}}
         </div>
       {{- end -}}
