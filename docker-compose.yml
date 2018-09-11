@@ -7,8 +7,6 @@ services:
     - -corsHeaders
     - Authorization
     - -corsCredentials
-    - -csp
-    - "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
     - -cookieDomain
     - vibioh.fr
     - -authRedirect
@@ -53,7 +51,7 @@ services:
     - -authUsers
     - vibioh:admin,eponae:admin
     - -csp
-    - default-src 'self'; base-uri 'self'; style-src 'unsafe-inline'
+    - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
     - -secretKey
     - ${SECRET_KEY}
     - -netatmoAccessToken
