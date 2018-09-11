@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5a0e7a75b791195e46003b59e1945dbd2c0351481f76cf21aeed675dc70cdf16"
+  digest = "1:04a63b0d34be8101358fbb10ab20017f637dd167e65d8d16699a0a5d2bee511c"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -51,7 +51,7 @@
     "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "2e23a6bbb6cb57478d0b09556ee59a8c0cf58a63"
+  revision = "fb865f36bf80f309c5083b2c635ffdeb70a7f07f"
 
 [[projects]]
   branch = "master"
@@ -245,7 +245,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
+  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [[projects]]
   branch = "master"

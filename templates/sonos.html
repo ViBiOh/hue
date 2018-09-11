@@ -5,9 +5,48 @@
         <h2 class="header center no-margin {{ if ne .PlaybackState "PLAYBACK_STATE_IDLE" }}success{{ end }}">{{- .Name -}}</h2>
         <div class="flex flex-center flex-wrap padding full-height">
           <label for="sonos-volume-{{- .ID -}}">Volume {{ .Volume.Volume -}}</label>
-          <input type="range" id="sonos-volume-{{- .ID -}}" name="sonos-volume" min="0" value="{{- .Volume.Volume -}}" max="100" step="1">
+          <input type="range" id="sonos-volume-{{- .ID -}}" data-sonos-group-id="{{- .ID -}}" name="sonos-volume" min="0" value="{{- .Volume.Volume -}}" max="100" step="1">
         </div>
       </span>
     {{- end -}}
   {{- end -}}
+
+  <script type="text/javascript">
+    let inputDebounce;
+
+    /**
+     * Update Sonos group Volume
+     * @param  {String} groupId Group ID
+     * @param  {Number} volume  Group volume
+     */
+    function updateSonosVolume(groupId, volume) {
+      clearTimeout(inputDebounce);
+      inputDebounce = setTimeout(() => {
+        fetch(`/sonos/groups/${groupId}/volume`, {
+          method: 'POST',
+          body: volume,
+          headers: {
+            'Content-Type': 'text/plain;charset=utf8',
+          },
+        }).catch(e => console.error(e));
+      }, 500);
+    }
+
+    /**
+     * Initialize sonos input range.
+     */
+    function initSonos() {
+      document.querySelectorAll('[name="sonos-volume"]').forEach((range) => {
+
+        range.addEventListener('input', (event) => {
+          const volume = event.target.value;
+          document.querySelector('[for="' + event.target.id +'"]').innerHTML = `Volume ${volume}`;
+
+          updateSonosVolume(range.dataset.sonosGroupId, volume);
+        })
+      });
+    }
+
+    initSonos();
+  </script>
 {{- end -}}

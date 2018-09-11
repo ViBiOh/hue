@@ -29,7 +29,7 @@ type Group struct {
 
 // GroupVolume is the volume of a group
 type GroupVolume struct {
-	Volume int
+	Volume int `json:"volume"`
 	Muted  bool
 	Fixed  bool
 }

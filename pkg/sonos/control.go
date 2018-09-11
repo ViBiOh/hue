@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/ViBiOh/httputils/pkg/request"
 )
 
 const (
@@ -18,14 +20,14 @@ type HouseholdsOutput struct {
 
 // GetHouseholds retrieves household
 func (a *App) GetHouseholds(ctx context.Context) ([]*Household, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s/households`, controlURL), nil)
+	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households`, controlURL), nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting households: %v`, err)
+		return nil, fmt.Errorf(`Error while getting households: %v - %s`, err, rawData)
 	}
 
 	var data HouseholdsOutput
@@ -44,14 +46,14 @@ type GroupsOutput struct {
 
 // GetGroups retrieves groups of a Household
 func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s/households/%s/groups`, controlURL, householdID), nil)
+	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households/%s/groups`, controlURL, householdID), nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting groups: %v`, err)
+		return nil, fmt.Errorf(`Error while getting groups: %v - %s`, err, rawData)
 	}
 
 	var data GroupsOutput
@@ -64,14 +66,38 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 
 // GetGroupVolume retrieves volume of a Group
 func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), nil)
+	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`Error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting group volume: %v`, err)
+		return nil, fmt.Errorf(`Error while getting group volume: %v - %s`, err, rawData)
+	}
+
+	var data GroupVolume
+	if err := json.Unmarshal(rawData, &data); err != nil {
+		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+	}
+
+	return &data, nil
+}
+
+// SetGroupVolume retrieves volume of a Group
+func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*GroupVolume, error) {
+	payload := GroupVolume{
+		Volume: volume,
+	}
+
+	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), payload, nil)
+	if err != nil {
+		return nil, fmt.Errorf(`Error while creating request: %v`, err)
+	}
+
+	rawData, err := a.requestWithAuth(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf(`Error while setting group volume: %v - %s`, err, rawData)
 	}
 
 	var data GroupVolume

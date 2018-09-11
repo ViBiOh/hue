@@ -62,7 +62,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 }
 
 func delete(ctx context.Context, url string) error {
-	content, err := request.Do(ctx, url, nil, nil, http.MethodDelete)
+	content, err := request.Do(ctx, http.MethodDelete, url, nil, nil)
 
 	if err != nil {
 		return fmt.Errorf(`Error while sending delete request: %v`, err)

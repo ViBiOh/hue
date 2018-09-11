@@ -5,10 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/httputils/pkg/httpjson"
+	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -93,13 +95,53 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
 }
 
+func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
+	volume, err := strconv.Atoi(string(body))
+	if err != nil {
+		httperror.BadRequest(w, fmt.Errorf(`Volume is not an integer: %v`, err))
+		return
+	}
+
+	_, err = a.SetGroupVolume(r.Context(), urlParts[0], volume)
+	if err != nil {
+		httperror.InternalServerError(w, fmt.Errorf(`Error while setting volume of group %s: %v`, urlParts[0], err))
+	}
+	return
+}
+
+func (a *App) groupHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		body, err := request.ReadBodyRequest(r)
+		if err != nil {
+			httperror.InternalServerError(w, fmt.Errorf(`Error while reading body: %v`, err))
+			return
+		}
+
+		urlParts := strings.Split(strings.Trim(r.URL.Path, `/`), `/`)
+
+		if len(urlParts) == 2 {
+			if urlParts[1] == `volume` {
+				a.volumeHandler(w, r, urlParts, body)
+				return
+			}
+		}
+
+		httperror.NotFound(w)
+	})
+}
+
 // Handler for request. Should be use with net/http
 func (a *App) Handler() http.Handler {
+	strippedGroupHandler := http.StripPrefix(`/groups`, a.groupHandler())
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(r.Context()), httpjson.IsPretty(r)); err != nil {
-				httperror.InternalServerError(w, err)
-			}
+		if strings.HasPrefix(r.URL.Path, `/groups`) {
+			strippedGroupHandler.ServeHTTP(w, r)
 			return
 		}
 

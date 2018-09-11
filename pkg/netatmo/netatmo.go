@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
@@ -49,9 +50,14 @@ func Flags(prefix string) map[string]*string {
 }
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
-	payload := fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s`, a.refreshToken, a.clientID, a.clientSecret)
-	rawData, err := request.Do(ctx, netatmoRefreshTokenURL, []byte(payload), http.Header{`Content-Type`: []string{`application/x-www-form-urlencoded;charset=UTF-8`}}, http.MethodPost)
+	payload := url.Values{
+		`grant_type`:    []string{`refresh_token`},
+		`refresh_token`: []string{a.refreshToken},
+		`client_id`:     []string{a.clientID},
+		`client_secret`: []string{a.clientSecret},
+	}
 
+	rawData, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
 	}

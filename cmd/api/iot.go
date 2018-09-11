@@ -36,6 +36,7 @@ const (
 	huePath         = `/hue`
 	netatmoPath     = `/netatmo`
 	dysonPath       = `/dyson`
+	sonosPath       = `/sonos`
 
 	webDirectory = `./templates`
 )
@@ -82,6 +83,7 @@ func main() {
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
 	netatmoHandler := http.StripPrefix(netatmoPath, netatmoApp.Handler())
 	dysonHandler := http.StripPrefix(dysonPath, dysonApp.Handler())
+	sonosHandler := http.StripPrefix(sonosPath, sonosApp.Handler())
 	iotHandler := iotApp.Handler()
 	wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
@@ -103,6 +105,8 @@ func main() {
 			netatmoHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, dysonPath) {
 			dysonHandler.ServeHTTP(w, r)
+		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
+			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
 			http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
 		} else {

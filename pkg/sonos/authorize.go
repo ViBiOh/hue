@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/request"
@@ -15,18 +16,16 @@ const (
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
-	payload := fmt.Sprintf(`grant_type=refresh_token&refresh_token=%s`, a.refreshToken)
-	rawData, err := request.Do(
-		ctx,
-		refreshTokenURL,
-		[]byte(payload),
-		http.Header{
-			`Authorization`: []string{request.GetBasicAuth(a.clientID, a.clientSecret)},
-			`Content-Type`:  []string{`application/x-www-form-urlencoded;charset=UTF-8`},
-		},
-		http.MethodPost,
-	)
+	payload := url.Values{
+		`grant_type`:    []string{`refresh_token`},
+		`refresh_token`: []string{a.refreshToken},
+	}
 
+	headers := http.Header{
+		`Authorization`: []string{request.GenerateBasicAuth(a.clientID, a.clientSecret)},
+	}
+
+	rawData, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
 	if err != nil {
 		return fmt.Errorf(`Error while refreshing token: %v`, err)
 	}
@@ -44,6 +43,9 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 }
 
 func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, error) {
+	if req.Header == nil {
+		req.Header = http.Header{}
+	}
 	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
 	data, err := request.DoAndRead(ctx, req)
