@@ -2,8 +2,8 @@
   {{- if len . -}}
     {{- range . -}}
       <span class="container">
-        <h2 class="header center no-margin ellipsis {{ if ne .PlaybackState "PLAYBACK_STATE_IDLE" }}success{{ end }}">{{- .Name -}}</h2>
-        <div class="flex flex-center flex-wrap full-height">
+        <h2 class="header center no-margin {{ if ne .PlaybackState "PLAYBACK_STATE_IDLE" }}success{{ end }}">{{- .Name -}}</h2>
+        <div class="flex flex-center flex-wrap padding full-height">
           <label for="sonos-volume-{{- .ID -}}">Volume {{ .Volume.Volume -}}</label>
           <input type="range" id="sonos-volume-{{- .ID -}}" name="sonos-volume" min="0" value="{{- .Volume.Volume -}}" max="100" step="1">
         </div>
