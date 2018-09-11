@@ -7,6 +7,8 @@ services:
     - -corsHeaders
     - Authorization
     - -corsCredentials
+    - -csp
+    - "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
     - -cookieDomain
     - vibioh.fr
     - -authRedirect
