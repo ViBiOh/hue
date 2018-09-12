@@ -51,7 +51,7 @@ services:
     - -authUsers
     - vibioh:admin,eponae:admin
     - -csp
-    - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
+    - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' iot-auth.vibioh.fr
     - -secretKey
     - ${SECRET_KEY}
     - -netatmoAccessToken
