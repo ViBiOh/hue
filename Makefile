@@ -100,7 +100,11 @@ start:
 		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" \
-		-sonosAccessToken $(SONOS_ACCESS_TOKEN) \
-		-sonosClientID $(SONOS_CLIENT_ID) \
-		-sonosClientSecret $(SONOS_CLIENT_SECRET) \
-		-sonosRefreshToken $(SONOS_REFRESH_TOKEN) 
+		-netatmoAccessToken "$(NETATMO_ACCESS_TOKEN)" \
+		-netatmoClientID "$(NETATMO_CLIENT_ID)" \
+		-netatmoClientSecret "$(NETATMO_CLIENT_SECRET)" \
+		-netatmoRefreshToken "$(NETATMO_REFRESH_TOKEN)" \
+		-sonosAccessToken "$(SONOS_ACCESS_TOKEN)" \
+		-sonosClientID "$(SONOS_CLIENT_ID)" \
+		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \
+		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)"

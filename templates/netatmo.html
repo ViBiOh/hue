@@ -1,34 +1,88 @@
 {{- define "netatmo" -}}
-  <span class="container">
-    {{- if len .Body.Devices -}}
-      {{- range .Body.Devices -}}
-        {{- range .Modules -}}
-          <div class="flex flex-center flex-wrap">
-            <div class="header center flex-full">{{- .ModuleName -}}</div>
-            <span class="inline-block flex-half center padding">
-              <strong>{{- .DashboardData.Temperature -}}°c</strong>
-            </span>
-            <span class="inline-block flex-half center padding">
-              <strong>{{- .DashboardData.Humidity -}}%</strong>
-            </span>
-          </div>
-        {{- end -}}
-        <div class="flex flex-center flex-wrap">
-          <div class="header center flex-full">{{- .StationName -}}</div>
-          <span class="inline-block flex-half center padding">
-            <strong>{{- .DashboardData.Temperature -}}°c</strong>
-          </span>
-          <span class="inline-block flex-half center padding">
-            <strong>{{- .DashboardData.Humidity -}}%</strong>
-          </span>
-          <span class="inline-block flex-half center padding">
-            <strong>{{- .DashboardData.Noise -}}dB</strong>
-          </span>
-          <span class="inline-block flex-half center padding">
-            <strong>{{- .DashboardData.CO2 -}}ppm</strong>
-          </span>
-        </div>
-      {{- end -}}
-    {{- end -}}
-  </span>
+  <div style="width: 80px">
+    {{- template "throbber" -}}
+  </div>
+
+  <script type="text/javascript">
+    const netatmoContainer = document.getElementById('netatmo');
+
+    function getNetatmoNameContainer(name) {
+      const container = document.createElement('div');
+      container.classList.add('header');
+      container.classList.add('center');
+      container.classList.add('flex-full');
+      container.innerHTML = name;
+
+      return container;
+    }
+
+    function getNetatmoDashboardContainer(value, units) {
+      const container = document.createElement('span');
+      container.classList.add('inline-block');
+      container.classList.add('flex-half');
+      container.classList.add('center');
+      container.classList.add('padding');
+
+      const valueContainer = document.createElement('strong');
+      container.appendChild(valueContainer);
+      valueContainer.innerHTML = `${value}${units}`;
+
+      return container;
+    }
+
+    /**
+     * Init netatmo content.
+     */
+    function initNetatmoContent() {
+      fetch(`/netatmo`, { method: 'GET' })
+        .then(response => {
+          if (response.status >= 400) {
+            throw new Error(response);
+          }
+
+          return response.json();
+        })
+        .then((data) => {
+          const container = document.createElement('span');
+          container.classList.add('container');
+
+          data.body.devices.forEach(device => {
+            device.modules.forEach(mod => {
+              const moduleContainer = document.createElement('div');
+              moduleContainer.classList.add('flex');
+              moduleContainer.classList.add('flex-center');
+              moduleContainer.classList.add('flex-wrap');
+
+              moduleContainer.appendChild(getNetatmoNameContainer(mod.module_name));
+              moduleContainer.appendChild(getNetatmoDashboardContainer(mod.dashboard_data.Temperature, ' °c'));
+              moduleContainer.appendChild(getNetatmoDashboardContainer(mod.dashboard_data.Humidity, '%'));
+
+              container.appendChild(moduleContainer);
+            });
+
+
+            const deviceContainer = document.createElement('div');
+            deviceContainer.classList.add('flex');
+            deviceContainer.classList.add('flex-center');
+            deviceContainer.classList.add('flex-wrap');
+
+            deviceContainer.appendChild(getNetatmoNameContainer(device.station_name));
+            deviceContainer.appendChild(getNetatmoDashboardContainer(device.dashboard_data.Temperature, ' °c'));
+            deviceContainer.appendChild(getNetatmoDashboardContainer(device.dashboard_data.Humidity, '%'));
+            deviceContainer.appendChild(getNetatmoDashboardContainer(device.dashboard_data.Noise, 'dB'));
+            deviceContainer.appendChild(getNetatmoDashboardContainer(device.dashboard_data.CO2, 'ppm'));
+
+            container.appendChild(deviceContainer)
+          });
+
+          while (netatmoContainer.firstChild) {
+            netatmoContainer.removeChild(netatmoContainer.firstChild);
+          }
+          netatmoContainer.appendChild(container);
+        })
+        .catch(e => console.error(e));
+    }
+
+    initNetatmoContent();
+  </script>
 {{- end -}}

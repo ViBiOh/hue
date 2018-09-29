@@ -61,7 +61,7 @@
 
       {{- if .Netatmo -}}
         <h2 class="no-margin padding grey">Netatmo</h2>
-        <div class="flex flex-wrap">
+        <div id="netatmo" class="flex flex-wrap">
           {{- template "netatmo" .Netatmo -}}
         </div>
       {{- end -}}

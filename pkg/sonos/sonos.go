@@ -121,10 +121,12 @@ func (a *App) groupHandler() http.Handler {
 			groups, err := a.getGroupsData(r.Context())
 			if err != nil {
 				httperror.InternalServerError(w, fmt.Errorf(`Error while getting groups data: %v`, err))
+				return
 			}
 
 			if err = httpjson.ResponseJSON(w, http.StatusOK, groups, httpjson.IsPretty(r)); err != nil {
 				httperror.InternalServerError(w, fmt.Errorf(`Error while marshalling JSON response: %v`, err))
+				return
 			}
 
 		case http.MethodPost:
@@ -144,6 +146,7 @@ func (a *App) groupHandler() http.Handler {
 			}
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
 		}
 	})
 }

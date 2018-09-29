@@ -11,7 +11,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -72,8 +71,7 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 	return nil
 }
 
-// GetStationData retrieves Station data of user
-func (a *App) GetStationData(ctx context.Context) (*StationData, error) {
+func (a *App) getStationData(ctx context.Context) (*StationData, error) {
 	if a.accessToken == `` {
 		return nil, nil
 	}
@@ -90,7 +88,7 @@ func (a *App) GetStationData(ctx context.Context) (*StationData, error) {
 			if err := a.refreshAccessToken(ctx); err != nil {
 				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
 			}
-			return a.GetStationData(ctx)
+			return a.getStationData(ctx)
 		}
 
 		return nil, fmt.Errorf(`Error while getting data: %v`, err)
@@ -115,12 +113,7 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	data, err := a.GetStationData(ctx)
-	if err != nil {
-		rollbar.LogError(`[netatmo] Error while getting station data: %v`, err)
-	}
-
-	return data
+	return true
 }
 
 // WorkerHandler handle commands receive from worker
@@ -131,13 +124,22 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 // Handler for request. Should be use with net/http
 func (a App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(r.Context()), httpjson.IsPretty(r)); err != nil {
-				httperror.InternalServerError(w, err)
+		switch r.Method {
+		case http.MethodGet:
+			data, err := a.getStationData(r.Context())
+			if err != nil {
+				httperror.InternalServerError(w, fmt.Errorf(`Error while getting station data: %v`, err))
+				return
 			}
+
+			if err := httpjson.ResponseJSON(w, http.StatusOK, data, httpjson.IsPretty(r)); err != nil {
+				httperror.InternalServerError(w, err)
+				return
+			}
+
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-
-		w.WriteHeader(http.StatusMethodNotAllowed)
 	})
 }
