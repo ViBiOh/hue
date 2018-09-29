@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
+	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
@@ -67,32 +68,36 @@ func (a *App) GetWorkerSource() string {
 
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
-	groups := make([]*Group, 0)
-
-	for _, household := range a.households {
-		data, err := a.GetGroups(ctx, household.ID)
-		if err != nil {
-			rollbar.LogError(`[sonos] Error while listing groups: %v`, err)
-		} else {
-			groups = append(groups, data.Groups...)
-		}
-	}
-
-	for _, group := range groups {
-		data, err := a.GetGroupVolume(ctx, group.ID)
-		if err != nil {
-			rollbar.LogError(`[sonos] Error while getting group volume: %v`, err)
-		} else {
-			group.Volume = data
-		}
-	}
-
-	return groups
+	return true
 }
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
+}
+
+func (a *App) getGroupsData(ctx context.Context) ([]*Group, error) {
+	groups := make([]*Group, 0)
+
+	for _, household := range a.households {
+		data, err := a.GetGroups(ctx, household.ID)
+		if err != nil {
+			return nil, fmt.Errorf(`[sonos] Error while listing groups: %v`, err)
+		}
+
+		groups = append(groups, data.Groups...)
+	}
+
+	for _, group := range groups {
+		data, err := a.GetGroupVolume(ctx, group.ID)
+		if err != nil {
+			return nil, fmt.Errorf(`[sonos] Error while getting group volume: %v`, err)
+		}
+
+		group.Volume = data
+	}
+
+	return groups, nil
 }
 
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
@@ -111,27 +116,35 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 
 func (a *App) groupHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
+		switch r.Method {
+		case http.MethodGet:
+			groups, err := a.getGroupsData(r.Context())
+			if err != nil {
+				httperror.InternalServerError(w, fmt.Errorf(`Error while getting groups data: %v`, err))
+			}
 
-		body, err := request.ReadBodyRequest(r)
-		if err != nil {
-			httperror.InternalServerError(w, fmt.Errorf(`Error while reading body: %v`, err))
-			return
-		}
+			if err = httpjson.ResponseJSON(w, http.StatusOK, groups, httpjson.IsPretty(r)); err != nil {
+				httperror.InternalServerError(w, fmt.Errorf(`Error while marshalling JSON response: %v`, err))
+			}
 
-		urlParts := strings.Split(strings.Trim(r.URL.Path, `/`), `/`)
-
-		if len(urlParts) == 2 {
-			if urlParts[1] == `volume` {
-				a.volumeHandler(w, r, urlParts, body)
+		case http.MethodPost:
+			body, err := request.ReadBodyRequest(r)
+			if err != nil {
+				httperror.InternalServerError(w, fmt.Errorf(`Error while reading body: %v`, err))
 				return
 			}
-		}
 
-		httperror.NotFound(w)
+			urlParts := strings.Split(strings.Trim(r.URL.Path, `/`), `/`)
+
+			if len(urlParts) == 2 {
+				if urlParts[1] == `volume` {
+					a.volumeHandler(w, r, urlParts, body)
+					return
+				}
+			}
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
 	})
 }
 
