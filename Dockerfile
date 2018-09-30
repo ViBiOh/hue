@@ -20,5 +20,6 @@ HEALTHCHECK --retries=10 CMD [ "/iot", "-url", "https://localhost:1080/health" ]
 ENTRYPOINT [ "/iot" ]
 
 COPY templates/ /templates
+COPY static/ /static
 COPY --from=builder /app/cacert.pem /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /app/${APP_NAME} /

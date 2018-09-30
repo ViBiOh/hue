@@ -51,10 +51,15 @@ func init() {
 
 // NewApp creates new App from dependencies and Flags' config
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
+	filesTemplates, err := templates.GetTemplates(`./templates/`, `.html`)
+	if err != nil {
+		rollbar.LogError(`Error while getting templates: %v`, err)
+	}
+
 	app := &App{
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: tools.Sha1,
-		}).ParseGlob(`./templates/*.html`)),
+		}).ParseFiles(filesTemplates...)),
 		providers:   providers,
 		secretKey:   *config[`secretKey`],
 		workerCalls: sync.Map{},
