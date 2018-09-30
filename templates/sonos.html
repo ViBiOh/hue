@@ -62,10 +62,10 @@
             h2.classList.add('header');
             h2.classList.add('center');
             h2.classList.add('no-margin');
-            if (group.playbackState === 'PLAYBACK_STATE_IDLE') {
+            if (group.PlaybackState === 'PLAYBACK_STATE_IDLE') {
               h2.classList.add('success');
             }
-            h2.innerHTML = group.name
+            h2.innerHTML = group.Name
 
             const div = document.createElement('div');
             container.appendChild(div);
@@ -77,19 +77,19 @@
 
             const label = document.createElement('label');
             div.appendChild(label);
-            label.htmlFor = `sonos-volume-${group.id}`;
-            label.innerHTML = `Volume ${group.volume.value}`;
+            label.htmlFor = `sonos-volume-${group.ID}`;
+            label.innerHTML = `Volume ${group.Volume.Volume}`;
 
             const input = document.createElement('input');
             div.appendChild(input);
-            input.type =  'range';
-            input.id =  `sonos-volume-${group.id}`;
-            input.name =  'sonos-volume';
-            input.min =  0;
-            input.max =  100;
-            input.step =  1;
-            input.value =  group.volume.value;
-            input.dataset.sonosGroupId = group.id;
+            input.type = 'range';
+            input.id = `sonos-volume-${group.ID}`;
+            input.name = 'sonos-volume';
+            input.min = 0;
+            input.max = 100;
+            input.step = 1;
+            input.value = group.Volume.Volume;
+            input.dataset.sonosGroupId = group.ID;
 
             return container;
           });

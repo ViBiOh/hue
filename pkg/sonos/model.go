@@ -6,30 +6,30 @@ type refreshToken struct {
 
 // Household is a set of players on the same network under an account
 type Household struct {
-	ID      string    `json:"id"`
-	Name    string    `json:"name"`
-	Groups  []*Group  `json:"groups"`
-	Players []*Player `json:"players"`
+	ID      string
+	Name    string
+	Groups  []*Group
+	Players []*Player
 }
 
 // Player is a connected device
 type Player struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   string
+	Name string
 }
 
 // Group is a set of players playing the same audio
 type Group struct {
-	ID            string       `json:"id"`
-	Name          string       `json:"name"`
-	PlaybackState string       `json:"playbackState"`
-	PlayerIds     []string     `json:"playersIds"`
-	Volume        *GroupVolume `json:"volume"`
+	ID            string
+	Name          string
+	PlaybackState string
+	PlayerIds     []string
+	Volume        *GroupVolume
 }
 
 // GroupVolume is the volume of a group
 type GroupVolume struct {
-	Volume int  `json:"value"`
-	Muted  bool `json:"muted"`
-	Fixed  bool `json:"fixed"`
+	Volume int
+	Muted  bool
+	Fixed  bool
 }

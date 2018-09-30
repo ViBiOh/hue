@@ -86,8 +86,8 @@ func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume,
 
 // SetGroupVolume retrieves volume of a Group
 func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*GroupVolume, error) {
-	payload := GroupVolume{
-		Volume: volume,
+	payload := map[string]interface{}{
+		`volume`: volume,
 	}
 
 	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), payload, nil)
