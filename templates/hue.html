@@ -163,7 +163,7 @@
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
             <button type="submit" class="button-icon">
-              {{ template "svg-power-off" "yellowgreen" }}
+              <img src="/svg/power-off?fill=yellowgreen" alt="power-on">
             </button>
           </form>
 
@@ -171,7 +171,7 @@
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
             <button type="submit" class="button-icon">
-              {{ template "svg-power-off" "tomato" }}
+              <img src="/svg/power-off?fill=tomato" alt="power-off">
             </button>
           </form>
         {{- else -}}
@@ -179,7 +179,7 @@
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
             <button type="submit" class="button-icon">
-              {{ template "svg-lightbulb" "gold" }}
+              <img src="/svg/lightbulb?fill=gold" alt="bright light">
             </button>
           </form>
 
@@ -187,7 +187,7 @@
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="dimmed" />
             <button type="submit" class="button-icon">
-              {{ template "svg-lightbulb" "silver" }}
+              <img src="/svg/lightbulb?fill=silver" alt="dim light">
             </button>
           </form>
 
@@ -195,7 +195,7 @@
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
             <button type="submit" class="button-icon">
-              {{ template "svg-moon" "dimgray" }}
+              <img src="/svg/moon?fill=dimgray" alt="off light">
             </button>
           </form>
         {{- end -}}
@@ -219,15 +219,15 @@
 
           <button type="submit" class="button button-icon">
             {{- if eq $schedule.Status "enabled" -}}
-              {{ template "svg-toggle-on" "yellowgreen" }}
+              <img src="/svg/toggle-on?fill=yellowgreen" alt="toggled on">
             {{- else -}}
-              {{ template "svg-toggle-on-reverse" "tomato" }}
+              <img src="/svg/toggle-on-reverse?fill=tomato" alt="toggled off">
             {{- end -}}
           </button>
         </form>
 
-        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left">
-          {{ template "svg-trash-alt" "tomato" }}
+        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left button-icon">
+          <img src="/svg/trash-alt?fill=tomato" alt="trash">
         </a>
       </div>
     </span>

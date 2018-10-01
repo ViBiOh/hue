@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
@@ -20,6 +21,8 @@ const (
 	hoursInDay       = 24
 	minutesInHours   = 60
 	iotSource        = `iot`
+
+	svgPath = `/svg`
 )
 
 var (
@@ -103,9 +106,31 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 }
 
+func (a *App) svgHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tpl := a.tpl.Lookup(fmt.Sprintf(`svg-%s`, strings.Trim(r.URL.Path, `/`)))
+		if tpl == nil {
+			httperror.NotFound(w)
+			return
+		}
+
+		w.Header().Set(`Content-Type`, `image/svg+xml`)
+		if err := tpl.Execute(w, r.URL.Query().Get(`fill`)); err != nil {
+			httperror.InternalServerError(w, err)
+		}
+	})
+}
+
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
+	usedSvgHandler := http.StripPrefix(svgPath, a.svgHandler())
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, `/svg`) {
+			usedSvgHandler.ServeHTTP(w, r)
+			return
+		}
+
 		a.RenderDashboard(w, r, http.StatusOK, nil)
 	})
 }

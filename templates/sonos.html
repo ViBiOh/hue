@@ -62,7 +62,7 @@
             h2.classList.add('header');
             h2.classList.add('center');
             h2.classList.add('no-margin');
-            if (group.PlaybackState === 'PLAYBACK_STATE_IDLE') {
+            if (group.PlaybackState === 'PLAYBACK_STATE_PLAYING') {
               h2.classList.add('success');
             }
             h2.innerHTML = group.Name

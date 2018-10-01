@@ -30,7 +30,6 @@ import (
 )
 
 const (
-	staticPath      = `/static`
 	websocketPath   = `/ws`
 	healthcheckPath = `/health`
 	faviconPath     = `/favicon`
@@ -110,8 +109,6 @@ func main() {
 			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
 			http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
-		} else if strings.HasPrefix(r.URL.Path, staticPath) {
-			http.ServeFile(w, r, fmt.Sprintf(`./%s`, r.URL.Path))
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
