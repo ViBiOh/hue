@@ -12,12 +12,12 @@ import (
 func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) {
 	content, err := request.Get(ctx, fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting light: %v`, err)
+		return nil, fmt.Errorf(`error while getting light: %v`, err)
 	}
 
 	var light hue.Light
 	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, fmt.Errorf(`Error while parsing light data %s: %v`, content, err)
+		return nil, fmt.Errorf(`error while parsing light data %s: %v`, content, err)
 	}
 
 	return &light, nil

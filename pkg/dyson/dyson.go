@@ -151,7 +151,7 @@ func (a *App) GetData(ctx context.Context) interface{} {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
+	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 // Handler for request. Should be use with net/http

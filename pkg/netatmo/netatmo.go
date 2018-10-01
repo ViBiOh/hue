@@ -58,12 +58,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 
 	rawData, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
 	if err != nil {
-		return fmt.Errorf(`Error while refreshing token: %v`, err)
+		return fmt.Errorf(`error while refreshing token: %v`, err)
 	}
 
 	var token netatmoToken
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`Error while unmarshalling token %s: %v`, rawData, err)
+		return fmt.Errorf(`error while unmarshalling token %s: %v`, rawData, err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -81,22 +81,22 @@ func (a *App) getStationData(ctx context.Context) (*StationData, error) {
 		var netatmoErrorValue netatmoError
 
 		if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling error %s: %v`, rawData, err)
+			return nil, fmt.Errorf(`error while unmarshalling error %s: %v`, rawData, err)
 		}
 
 		if netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2 {
 			if err := a.refreshAccessToken(ctx); err != nil {
-				return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
+				return nil, fmt.Errorf(`error while refreshing access token: %v`, err)
 			}
 			return a.getStationData(ctx)
 		}
 
-		return nil, fmt.Errorf(`Error while getting data: %v`, err)
+		return nil, fmt.Errorf(`error while getting data: %v`, err)
 	}
 
 	var infos StationData
 	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &infos, nil
@@ -118,7 +118,7 @@ func (a *App) GetData(ctx context.Context) interface{} {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
+	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 // Handler for request. Should be use with net/http
@@ -128,7 +128,7 @@ func (a App) Handler() http.Handler {
 		case http.MethodGet:
 			data, err := a.getStationData(r.Context())
 			if err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`Error while getting station data: %v`, err))
+				httperror.InternalServerError(w, fmt.Errorf(`error while getting station data: %v`, err))
 				return
 			}
 

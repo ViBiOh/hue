@@ -49,7 +49,7 @@ type Hub interface {
 // WriteMessage writes content as text message on websocket
 func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessage) error {
 	if ws == nil {
-		return fmt.Errorf(`No websocket connection provided for sending: %+v`, message)
+		return fmt.Errorf(`no websocket connection provided for sending: %+v`, message)
 	}
 
 	message.Tracing = make(map[string]string)
@@ -59,11 +59,11 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		return fmt.Errorf(`Error while marshalling message to worker: %v`, err)
+		return fmt.Errorf(`error while marshalling message to worker: %v`, err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		return fmt.Errorf(`Error while sending message to worker: %v`, err)
+		return fmt.Errorf(`error while sending message to worker: %v`, err)
 	}
 
 	return nil
@@ -80,11 +80,11 @@ func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) erro
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		return fmt.Errorf(`Error while marshalling error message: %v`, err)
+		return fmt.Errorf(`error while marshalling error message: %v`, err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		return fmt.Errorf(`Error while sending error message: %v`, err)
+		return fmt.Errorf(`error while sending error message: %v`, err)
 	}
 
 	return nil

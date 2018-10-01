@@ -27,12 +27,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 
 	rawData, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
 	if err != nil {
-		return fmt.Errorf(`Error while refreshing token: %v`, err)
+		return fmt.Errorf(`error while refreshing token: %v`, err)
 	}
 
 	var token refreshToken
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`Error while unmarshalling token %s: %v`, rawData, err)
+		return fmt.Errorf(`error while unmarshalling token %s: %v`, rawData, err)
 	}
 
 	a.tokenMutex.Lock()
@@ -52,7 +52,7 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 
 	if err != nil && strings.Contains(string(data), `Incorrect token`) {
 		if err := a.refreshAccessToken(ctx); err != nil {
-			return nil, fmt.Errorf(`Error while refreshing access token: %v`, err)
+			return nil, fmt.Errorf(`error while refreshing access token: %v`, err)
 		}
 
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))

@@ -73,7 +73,7 @@ func (a *App) GetData(ctx context.Context) interface{} {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`Unknown worker command: %s`, message.Type)
+	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 func (a *App) getGroupsData(ctx context.Context) ([]*Group, error) {
@@ -103,13 +103,13 @@ func (a *App) getGroupsData(ctx context.Context) ([]*Group, error) {
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
 	volume, err := strconv.Atoi(string(body))
 	if err != nil {
-		httperror.BadRequest(w, fmt.Errorf(`Volume is not an integer: %v`, err))
+		httperror.BadRequest(w, fmt.Errorf(`volume is not an integer: %v`, err))
 		return
 	}
 
 	_, err = a.SetGroupVolume(r.Context(), urlParts[0], volume)
 	if err != nil {
-		httperror.InternalServerError(w, fmt.Errorf(`Error while setting volume of group %s: %v`, urlParts[0], err))
+		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], err))
 	}
 	return
 }
@@ -120,19 +120,19 @@ func (a *App) groupHandler() http.Handler {
 		case http.MethodGet:
 			groups, err := a.getGroupsData(r.Context())
 			if err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`Error while getting groups data: %v`, err))
+				httperror.InternalServerError(w, fmt.Errorf(`error while getting groups data: %v`, err))
 				return
 			}
 
 			if err = httpjson.ResponseJSON(w, http.StatusOK, groups, httpjson.IsPretty(r)); err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`Error while marshalling JSON response: %v`, err))
+				httperror.InternalServerError(w, fmt.Errorf(`error while marshalling JSON response: %v`, err))
 				return
 			}
 
 		case http.MethodPost:
 			body, err := request.ReadBodyRequest(r)
 			if err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`Error while reading body: %v`, err))
+				httperror.InternalServerError(w, fmt.Errorf(`error while reading body: %v`, err))
 				return
 			}
 

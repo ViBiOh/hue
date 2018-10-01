@@ -26,21 +26,21 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	messageType, p, err := ws.ReadMessage()
 
 	if err != nil {
-		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`Error while reading first message: %v`, err)); err != nil {
+		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`error while reading first message: %v`, err)); err != nil {
 			rollbar.LogError(`%v`, err)
 		}
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
-		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should be a Text Message`)); err != nil {
+		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should be a Text Message`)); err != nil {
 			rollbar.LogError(`%v`, err)
 		}
 		return false
 	}
 
 	if string(p) != a.secretKey {
-		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`First message should contains the Secret Key`)); err != nil {
+		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should contains the Secret Key`)); err != nil {
 			rollbar.LogError(`%v`, err)
 		}
 		return false
@@ -53,7 +53,7 @@ func (a *App) handleTextMessage(p []byte) error {
 	var workerMessage provider.WorkerMessage
 	if err := json.Unmarshal(p, &workerMessage); err != nil {
 		a.wsErrCount++
-		return fmt.Errorf(`Error while unmarshalling worker message: %v`, err)
+		return fmt.Errorf(`error while unmarshalling worker message: %v`, err)
 	}
 
 	if outputChan, ok := a.workerCalls.Load(workerMessage.ID); ok {
@@ -67,14 +67,14 @@ func (a *App) handleTextMessage(p []byte) error {
 	for name, value := range a.providers {
 		if strings.HasPrefix(workerMessage.Source, value.GetWorkerSource()) {
 			if err := value.WorkerHandler(&workerMessage); err != nil {
-				return fmt.Errorf(`Error while handling %s message: %v`, name, err)
+				return fmt.Errorf(`error while handling %s message: %v`, name, err)
 			}
 			a.wsErrCount = 0
 			return nil
 		}
 	}
 
-	return fmt.Errorf(`No provider found for message: %+v`, workerMessage)
+	return fmt.Errorf(`no provider found for message: %+v`, workerMessage)
 }
 
 // WebsocketHandler create Websockethandler

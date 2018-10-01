@@ -22,17 +22,17 @@ type HouseholdsOutput struct {
 func (a *App) GetHouseholds(ctx context.Context) ([]*Household, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households`, controlURL), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while creating request: %v`, err)
+		return nil, fmt.Errorf(`error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting households: %v - %s`, err, rawData)
+		return nil, fmt.Errorf(`error while getting households: %v - %s`, err, rawData)
 	}
 
 	var data HouseholdsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return data.Households, nil
@@ -48,17 +48,17 @@ type GroupsOutput struct {
 func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households/%s/groups`, controlURL, householdID), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while creating request: %v`, err)
+		return nil, fmt.Errorf(`error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting groups: %v - %s`, err, rawData)
+		return nil, fmt.Errorf(`error while getting groups: %v - %s`, err, rawData)
 	}
 
 	var data GroupsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &data, nil
@@ -68,17 +68,17 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while creating request: %v`, err)
+		return nil, fmt.Errorf(`error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while getting group volume: %v - %s`, err, rawData)
+		return nil, fmt.Errorf(`error while getting group volume: %v - %s`, err, rawData)
 	}
 
 	var data GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &data, nil
@@ -92,17 +92,17 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 
 	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), payload, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while creating request: %v`, err)
+		return nil, fmt.Errorf(`error while creating request: %v`, err)
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`Error while setting group volume: %v - %s`, err, rawData)
+		return nil, fmt.Errorf(`error while setting group volume: %v - %s`, err, rawData)
 	}
 
 	var data GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`Error while unmarshalling data %s: %v`, rawData, err)
+		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
 
 	return &data, nil

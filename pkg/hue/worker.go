@@ -37,11 +37,11 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 
 	convert, err := json.Marshal(message.Payload)
 	if err != nil {
-		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`error while converting groups payload: %v`, err)
 	}
 
 	if err := json.Unmarshal(convert, &newGroups); err != nil {
-		return fmt.Errorf(`Error while unmarshalling groups: %v`, err)
+		return fmt.Errorf(`error while unmarshalling groups: %v`, err)
 	}
 
 	a.groups = newGroups
@@ -54,11 +54,11 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 
 	convert, err := json.Marshal(message.Payload)
 	if err != nil {
-		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`error while converting groups payload: %v`, err)
 	}
 
 	if err := json.Unmarshal(convert, &newSchedules); err != nil {
-		return fmt.Errorf(`Error while unmarshalling schedules: %v`, err)
+		return fmt.Errorf(`error while unmarshalling schedules: %v`, err)
 	}
 
 	a.schedules = newSchedules
@@ -71,11 +71,11 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 
 	convert, err := json.Marshal(message.Payload)
 	if err != nil {
-		return fmt.Errorf(`Error while converting groups payload: %v`, err)
+		return fmt.Errorf(`error while converting groups payload: %v`, err)
 	}
 
 	if err := json.Unmarshal(convert, &newScenes); err != nil {
-		return fmt.Errorf(`Error while unmarshalling scenes: %v`, err)
+		return fmt.Errorf(`error while unmarshalling scenes: %v`, err)
 	}
 
 	a.scenes = newScenes
@@ -97,5 +97,5 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 		return a.handleScenesFromWorker(message)
 	}
 
-	return errors.New(`Unknown command`)
+	return errors.New(`unknown command`)
 }

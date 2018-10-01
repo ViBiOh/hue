@@ -50,13 +50,13 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 		var err error
 
 		if groups, err = a.listGroups(ctx); err != nil {
-			return fmt.Errorf(`Error while retrieving groups for configuring schedule: %v`, err)
+			return fmt.Errorf(`error while retrieving groups for configuring schedule: %v`, err)
 		}
 	}
 
 	scene, err := a.createSceneFromScheduleConfig(ctx, config, groups)
 	if err != nil {
-		return fmt.Errorf(`Error while creating scene for schedule config %+v: %v`, config, err)
+		return fmt.Errorf(`error while creating scene for schedule config %+v: %v`, config, err)
 	}
 
 	schedule := &hue.Schedule{
@@ -74,7 +74,7 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 	}
 
 	if err := a.createSchedule(ctx, schedule); err != nil {
-		return fmt.Errorf(`Error while creating schedule from config %+v: %v`, config, err)
+		return fmt.Errorf(`error while creating schedule from config %+v: %v`, config, err)
 	}
 
 	return nil
@@ -82,11 +82,11 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 
 func (a *App) updateSchedule(ctx context.Context, schedule *hue.Schedule) error {
 	if schedule == nil {
-		return errors.New(`A schedule is required to update`)
+		return errors.New(`a schedule is required to update`)
 	}
 
 	if schedule.ID == `` {
-		return errors.New(`A schedule ID is required to update`)
+		return errors.New(`a schedule ID is required to update`)
 	}
 
 	return update(ctx, fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, schedule.ID), schedule.APISchedule)
@@ -99,12 +99,12 @@ func (a *App) deleteSchedule(ctx context.Context, id string) error {
 func (a *App) cleanSchedules(ctx context.Context) error {
 	schedules, err := a.listSchedules(ctx)
 	if err != nil {
-		return fmt.Errorf(`Error while listing schedules: %v`, err)
+		return fmt.Errorf(`error while listing schedules: %v`, err)
 	}
 
 	for key := range schedules {
 		if err := a.deleteSchedule(ctx, key); err != nil {
-			return fmt.Errorf(`Error while deleting schedule: %v`, err)
+			return fmt.Errorf(`error while deleting schedule: %v`, err)
 		}
 	}
 

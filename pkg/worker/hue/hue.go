@@ -34,26 +34,26 @@ func NewApp(config map[string]interface{}) (*App, error) {
 
 	if *config[`clean`].(*bool) {
 		if err := app.cleanSchedules(ctx); err != nil {
-			return nil, fmt.Errorf(`Error while cleaning schedules: %v`, err)
+			return nil, fmt.Errorf(`error while cleaning schedules: %v`, err)
 		}
 
 		if err := app.cleanScenes(ctx); err != nil {
-			return nil, fmt.Errorf(`Error while cleaning scenes: %v`, err)
+			return nil, fmt.Errorf(`error while cleaning scenes: %v`, err)
 		}
 
 		if err := app.cleanRules(ctx); err != nil {
-			return nil, fmt.Errorf(`Error while cleaning rules: %v`, err)
+			return nil, fmt.Errorf(`error while cleaning rules: %v`, err)
 		}
 	}
 
 	if *config[`config`].(*string) != `` {
 		rawConfig, err := ioutil.ReadFile(*config[`config`].(*string))
 		if err != nil {
-			return nil, fmt.Errorf(`Error while reading config filename: %v`, err)
+			return nil, fmt.Errorf(`error while reading config filename: %v`, err)
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return nil, fmt.Errorf(`Error while unmarshalling config %s: %v`, rawConfig, err)
+			return nil, fmt.Errorf(`error while unmarshalling config %s: %v`, rawConfig, err)
 		}
 
 		app.configureSchedules(ctx, app.config.Schedules)
@@ -91,14 +91,14 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
-			return fmt.Errorf(`Unknown state %s`, parts[1])
+			return fmt.Errorf(`unknown state %s`, parts[1])
 		}
 
 		if err := a.updateGroupState(ctx, parts[0], state); err != nil {
 			return err
 		}
 	} else {
-		return fmt.Errorf(`Invalid state request: %s`, p.Payload)
+		return fmt.Errorf(`invalid state request: %s`, p.Payload)
 	}
 
 	return nil
@@ -109,11 +109,11 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		var config hue.ScheduleConfig
 
 		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
-			return fmt.Errorf(`Error while unmarshalling schedule create config: %v`, err)
+			return fmt.Errorf(`error while unmarshalling schedule create config: %v`, err)
 		}
 
 		if err := a.createScheduleFromConfig(ctx, &config, nil); err != nil {
-			return fmt.Errorf(`Error while creating schedule from config: %v`, err)
+			return fmt.Errorf(`error while creating schedule from config: %v`, err)
 		}
 
 		return nil
@@ -123,11 +123,11 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		var config hue.Schedule
 
 		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
-			return fmt.Errorf(`Error while unmarshalling schedule update: %v`, err)
+			return fmt.Errorf(`error while unmarshalling schedule update: %v`, err)
 		}
 
 		if config.ID == `` {
-			return errors.New(`Error while updating schedule config: ID is missing`)
+			return errors.New(`error while updating schedule config: ID is missing`)
 		}
 
 		return a.updateSchedule(ctx, &config)
@@ -138,23 +138,23 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 
 		schedule, err := a.getSchedule(ctx, id)
 		if err != nil {
-			return fmt.Errorf(`Error while getting schedule: %v`, err)
+			return fmt.Errorf(`error while getting schedule: %v`, err)
 		}
 
 		if err := a.deleteSchedule(ctx, id); err != nil {
-			return fmt.Errorf(`Error while deleting schedule: %v`, err)
+			return fmt.Errorf(`error while deleting schedule: %v`, err)
 		}
 
 		if sceneID, ok := schedule.Command.Body[`scene`]; ok {
 			if err := a.deleteScene(ctx, sceneID.(string)); err != nil {
-				return fmt.Errorf(`Error while deleting scene: %v`, err)
+				return fmt.Errorf(`error while deleting scene: %v`, err)
 			}
 		}
 
 		return nil
 	}
 
-	return errors.New(`Unknown schedule command`)
+	return errors.New(`unknown schedule command`)
 }
 
 func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -207,7 +207,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerListGroups(ctx, p)
 	}
 
-	return nil, fmt.Errorf(`Unknown request: %s`, p)
+	return nil, fmt.Errorf(`unknown request: %s`, p)
 }
 
 // Ping send to worker update informations
