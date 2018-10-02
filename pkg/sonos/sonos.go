@@ -107,14 +107,20 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 		return
 	}
 
-	_, err = a.SetGroupVolume(r.Context(), urlParts[0], volume)
-	if err != nil {
+	if _, err = a.SetGroupVolume(r.Context(), urlParts[0], volume); err != nil {
 		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], err))
+		return
 	}
-	return
 }
 
-func (a *App) groupHandler() http.Handler {
+func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []string) {
+	if err := a.SetGroupMute(r.Context(), urlParts[0], urlParts[1] == `mute`); err != nil {
+		httperror.InternalServerError(w, fmt.Errorf(`error while changing mute of group %s: %v`, urlParts[0], err))
+		return
+	}
+}
+
+func (a *App) groupsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -143,6 +149,11 @@ func (a *App) groupHandler() http.Handler {
 					a.volumeHandler(w, r, urlParts, body)
 					return
 				}
+
+				if strings.Contains(urlParts[1], `mute`) {
+					a.muteHandler(w, r, urlParts)
+					return
+				}
 			}
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
@@ -153,11 +164,11 @@ func (a *App) groupHandler() http.Handler {
 
 // Handler for request. Should be use with net/http
 func (a *App) Handler() http.Handler {
-	strippedGroupHandler := http.StripPrefix(`/groups`, a.groupHandler())
+	strippedGroupsHandler := http.StripPrefix(`/groups`, a.groupsHandler())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, `/groups`) {
-			strippedGroupHandler.ServeHTTP(w, r)
+			strippedGroupsHandler.ServeHTTP(w, r)
 			return
 		}
 

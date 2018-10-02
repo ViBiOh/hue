@@ -84,7 +84,7 @@ func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume,
 	return &data, nil
 }
 
-// SetGroupVolume retrieves volume of a Group
+// SetGroupVolume defines volume of a Group
 func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*GroupVolume, error) {
 	payload := map[string]interface{}{
 		`volume`: volume,
@@ -106,4 +106,23 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 	}
 
 	return &data, nil
+}
+
+// SetGroupMute mutes volume of a Group
+func (a *App) SetGroupMute(ctx context.Context, groupID string, muted bool) error {
+	payload := map[string]interface{}{
+		`muted`: muted,
+	}
+
+	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/mute`, controlURL, groupID), payload, nil)
+	if err != nil {
+		return fmt.Errorf(`error while creating request: %v`, err)
+	}
+
+	rawData, err := a.requestWithAuth(ctx, req)
+	if err != nil {
+		return fmt.Errorf(`error while muting group: %v - %s`, err, rawData)
+	}
+
+	return nil
 }
