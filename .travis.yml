@@ -27,8 +27,7 @@ jobs:
 
     script: |
       sed \
-        -e "s|\${GITHUB_OAUTH_CLIENT_ID}|${GITHUB_OAUTH_CLIENT_ID}|g" \
-        -e "s|\${GITHUB_OAUTH_CLIENT_SECRET}|${GITHUB_OAUTH_CLIENT_SECRET}|g" \
+        -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
         -e "s|\${SECRET_KEY}|${SECRET_KEY}|g" \
         -e "s/\${NETATMO_ACCESS_TOKEN}/${NETATMO_ACCESS_TOKEN}/g" \
         -e "s/\${NETATMO_CLIENT_ID}/${NETATMO_CLIENT_ID}/g" \

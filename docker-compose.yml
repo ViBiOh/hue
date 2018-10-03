@@ -1,55 +1,13 @@
 version: '2'
 
 services:
-  auth:
-    image: vibioh/auth
-    command:
-    - -corsHeaders
-    - Authorization
-    - -corsCredentials
-    - -cookieDomain
-    - vibioh.fr
-    - -authRedirect
-    - https://iot.vibioh.fr/
-    - -githubClientId
-    - ${GITHUB_OAUTH_CLIENT_ID}
-    - -githubClientSecret
-    - ${GITHUB_OAUTH_CLIENT_SECRET}
-    - -tracingName
-    - iot_auth
-    - -rollbarToken
-    - ${ROLLBAR_TOKEN}
-    - -rollbarServerRoot
-    - github.com/ViBiOh/auth
-    - -rollbarEnv
-    - prod
-    labels:
-      traefik.frontend.passHostHeader: 'true'
-      traefik.frontend.rule: 'Host: iot-auth.vibioh.fr'
-      traefik.protocol: 'https'
-      traefik.port: '1080'
-      traefik.frontend.rateLimit.extractorFunc: 'client.ip'
-      traefik.frontend.rateLimit.rateSet.first.period: '60s'
-      traefik.frontend.rateLimit.rateSet.first.average: '100'
-      traefik.frontend.rateLimit.rateSet.first.burst: '200'
-    logging:
-      driver: json-file
-      options:
-        max-size: '10m'
-    restart: on-failure:5
-    read_only: true
-    cpu_shares: 128
-    mem_limit: 67108864
-    security_opt:
-    - no-new-privileges
-
   api:
     image: vibioh/iot
     command:
-    - -authUrl
-    - https://iot-auth.vibioh.fr
     - -authUsers
     - vibioh:admin,eponae:admin
+    - -basicUsers
+    - ${BASIC_USERS}
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' iot-auth.vibioh.fr
     - -secretKey
