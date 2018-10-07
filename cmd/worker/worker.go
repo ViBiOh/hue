@@ -14,6 +14,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
+	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/gorilla/websocket"
 )
@@ -61,11 +62,12 @@ func (a *App) auth() {
 }
 
 func (a *App) pingWorkers() {
+	ctx := context.Background()
 	workersCount := len(a.workers)
 
 	inputs, results, errors := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
-			return worker.Ping()
+			return worker.Ping(ctx)
 		}
 
 		return nil, fmt.Errorf(`unrecognized worker type: %+v`, e)
@@ -121,7 +123,7 @@ func (a *App) pinger() {
 }
 
 func (a *App) handleMessage(p *provider.WorkerMessage) {
-	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Type)
+	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Action)
 	if err != nil {
 		rollbar.LogError(`%v`, err)
 	}
@@ -208,19 +210,21 @@ func (a *App) connect() {
 func main() {
 	workerConfig := Flags(``)
 	hueConfig := hue_worker.Flags(`hue`)
+	netatmoConfig := netatmo_worker.Flags(`netatmo`)
 	opentracingConfig := opentracing.Flags(`tracing`)
 	rollbarConfig := rollbar.Flags(`rollbar`)
 	flag.Parse()
+
+	opentracing.NewApp(opentracingConfig)
+	rollbar.NewApp(rollbarConfig)
 
 	hueApp, err := hue_worker.NewApp(hueConfig)
 	if err != nil {
 		rollbar.LogError(`Error while creating hue app: %s`, err)
 		os.Exit(1)
 	}
-
-	opentracing.NewApp(opentracingConfig)
-	rollbar.NewApp(rollbarConfig)
-	app := NewApp(workerConfig, []provider.Worker{hueApp})
+	netatmoApp := netatmo_worker.NewApp(netatmoConfig)
+	app := NewApp(workerConfig, []provider.Worker{hueApp, netatmoApp})
 
 	app.connect()
 }

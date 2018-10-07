@@ -2,7 +2,6 @@ package hue
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -10,17 +9,17 @@ import (
 )
 
 const (
-	// WorkerGroupsType ws message prefix for groups command
-	WorkerGroupsType = `groups`
+	// WorkerGroupsAction ws message prefix for groups command
+	WorkerGroupsAction = `groups`
 
-	// WorkerSchedulesType ws message prefix for schedules command
-	WorkerSchedulesType = `schedules`
+	// WorkerSchedulesAction ws message prefix for schedules command
+	WorkerSchedulesAction = `schedules`
 
-	// WorkerScenesType ws message prefix for scenes command
-	WorkerScenesType = `scenes`
+	// WorkerScenesAction ws message prefix for scenes command
+	WorkerScenesAction = `scenes`
 
-	// WorkerStateType ws message prefix for state command
-	WorkerStateType = `state`
+	// WorkerStateAction ws message prefix for state command
+	WorkerStateAction = `state`
 
 	// CreateAction ws message prefix for create command
 	CreateAction = `create`
@@ -85,17 +84,17 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 
 // WorkerHandler handle commands receive from worker
 func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	if strings.HasPrefix(message.Type, WorkerGroupsType) {
+	if strings.HasPrefix(message.Action, WorkerGroupsAction) {
 		return a.handleGroupsFromWorker(message)
 	}
 
-	if strings.HasPrefix(message.Type, WorkerSchedulesType) {
+	if strings.HasPrefix(message.Action, WorkerSchedulesAction) {
 		return a.handleSchedulesFromWorker(message)
 	}
 
-	if strings.HasPrefix(message.Type, WorkerScenesType) {
+	if strings.HasPrefix(message.Action, WorkerScenesAction) {
 		return a.handleScenesFromWorker(message)
 	}
 
-	return errors.New(`unknown command`)
+	return provider.WorkerUnknownActionErr
 }

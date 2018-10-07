@@ -29,14 +29,14 @@ func NewApp() *App {
 }
 
 func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
-	output := a.hub.SendToWorker(r.Context(), Source, typeName, payload, true)
+	output := a.hub.SendToWorker(r.Context(), ``, Source, typeName, payload, true)
 
 	if output == nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   `error`,
 			Content: fmt.Sprintf(`[%s] Timeout while sending message %s to Worker`, Source, typeName),
 		})
-	} else if output.Type == provider.WorkerErrorType {
+	} else if output.Action == provider.WorkerErrorAction {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   `error`,
 			Content: fmt.Sprintf(`[%s] Error while sending message %s to worker: %v`, Source, typeName, output.Payload),
@@ -67,7 +67,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, CreateAction), fmt.Sprintf(`%s schedule has been created`, config.Name))
+			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, CreateAction), fmt.Sprintf(`%s schedule has been created`, config.Name))
 			return
 		}
 
@@ -87,12 +87,12 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, UpdateAction), fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, UpdateAction), fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
 			return
 		}
 
 		if postMethod == http.MethodDelete {
-			a.sendWorkerMessage(w, r, id, fmt.Sprintf(`%s/%s`, WorkerSchedulesType, DeleteAction), fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
+			a.sendWorkerMessage(w, r, id, fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, DeleteAction), fmt.Sprintf(`%s schedule has been deleted`, r.FormValue(`name`)))
 			return
 		}
 	}
@@ -113,7 +113,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown group`, Source)})
 			}
 
-			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), fmt.Sprintf(`%s/%s`, WorkerStateType, UpdateAction), fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s|%s`, group, state), fmt.Sprintf(`%s/%s`, WorkerStateAction, UpdateAction), fmt.Sprintf(`%s is now %s`, groupObj.Name, state))
 			return
 		}
 	}

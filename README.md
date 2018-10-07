@@ -4,17 +4,6 @@
 [![codecov](https://codecov.io/gh/ViBiOh/iot/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/iot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/iot)](https://goreportcard.com/report/github.com/ViBiOh/iot)
 
-## Generate NetAtmo Token
-
-```bash
-export NETATMO_USER=[YOUR_EMAIL]
-export NETATMO_PASS=[YOUR_PASS]
-export NETATMO_CLIENT_ID=[YOUR_CLIENT_ID]
-export NETATMO_CLIENT_SECRET=[YOUR_SECRET_ID]
-export NETATMO_SCOPES=read_station
-curl -X POST https://api.netatmo.com/oauth2/token --data "grant_type=password&username=${NETATMO_USER}&password=${NETATMO_PASS}&client_id=${NETATMO_CLIENT_ID}&client_secret=${NETATMO_CLIENT_SECRET}&scope=${NETATMO_SCOPES}"
-```
-
 ## Usage of Web server
 
 ```bash
@@ -47,14 +36,6 @@ Usage of iot:
       [owasp] X-Frame-Options (default "deny")
   -hsts
       [owasp] Indicate Strict Transport Security (default true)
-  -netatmoAccessToken string
-      [netatmo] Access Token
-  -netatmoClientID string
-      [netatmo] Client ID
-  -netatmoClientSecret string
-      [netatmo] Client Secret
-  -netatmoRefreshToken string
-      [netatmo] Refresh Token
   -port int
       Listen port (default 1080)
   -rollbarEnv string
@@ -105,6 +86,14 @@ Usage of worker:
       [hue] Configuration filename
   -hueUsername string
       [hue] Username for Bridge
+  -netatmoAccessToken string
+      [netatmo] Access Token
+  -netatmoClientID string
+      [netatmo] Client ID
+  -netatmoClientSecret string
+      [netatmo] Client Secret
+  -netatmoRefreshToken string
+      [netatmo] Refresh Token
   -rollbarEnv string
       [rollbar] Environment (default "prod")
   -rollbarServerRoot string
@@ -146,7 +135,8 @@ After=network.target
 [Service]
 Type=simple
 User=vibioh
-ExecStart=/home/vibioh/code/bin/worker -secretKey SECRET_KEY -websocket wss://iot.vibioh.fr/ws -hueBridgeIP 192.168.1.10 -hueUsername NXUypQEie3i1PUnayZUGvllk8DnOWEibJYFi5j91 -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -tracingName iot_worker -tracingAgent vibioh.fr:6831
+EnvironmentFile=/home/vibioh/.env
+ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -tracingName iot_worker -tracingAgent vibioh.fr:6831
 Restart=always
 RestartSec=60s
 

@@ -89,7 +89,11 @@ start-worker:
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
-		-hueClean
+		-hueClean \
+		-netatmoAccessToken "$(NETATMO_ACCESS_TOKEN)" \
+		-netatmoClientID "$(NETATMO_CLIENT_ID)" \
+		-netatmoClientSecret "$(NETATMO_CLIENT_SECRET)" \
+		-netatmoRefreshToken "$(NETATMO_REFRESH_TOKEN)"
 
 ## start: Start app
 .PHONY: start
@@ -100,10 +104,6 @@ start:
 		-basicUsers "1:admin:`bcrypt admin`" \
 		-secretKey SECRET_KEY \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" \
-		-netatmoAccessToken "$(NETATMO_ACCESS_TOKEN)" \
-		-netatmoClientID "$(NETATMO_CLIENT_ID)" \
-		-netatmoClientSecret "$(NETATMO_CLIENT_SECRET)" \
-		-netatmoRefreshToken "$(NETATMO_REFRESH_TOKEN)" \
 		-sonosAccessToken "$(SONOS_ACCESS_TOKEN)" \
 		-sonosClientID "$(SONOS_CLIENT_ID)" \
 		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \

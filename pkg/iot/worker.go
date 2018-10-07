@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -18,15 +17,10 @@ func (a *App) registerWorker(worker provider.WorkerProvider) {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(ctx context.Context, source, messageType string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
+func (a *App) SendToWorker(ctx context.Context, id, source, action string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
 	var outputChan chan *provider.WorkerMessage
 
-	message := &provider.WorkerMessage{
-		ID:      tools.Sha1(payload),
-		Source:  source,
-		Type:    messageType,
-		Payload: fmt.Sprintf(`%s`, payload),
-	}
+	message := provider.NewWorkerMessage(id, source, action, fmt.Sprintf(`%s`, payload))
 
 	if waitOutput {
 		outputChan = make(chan *provider.WorkerMessage)
@@ -36,11 +30,7 @@ func (a *App) SendToWorker(ctx context.Context, source, messageType string, payl
 	}
 
 	if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-		return &provider.WorkerMessage{
-			Source:  message.Source,
-			Type:    provider.WorkerErrorType,
-			Payload: err,
-		}
+		return provider.NewWorkerMessage(``, message.Source, provider.WorkerErrorAction, err)
 	}
 
 	if waitOutput {

@@ -73,18 +73,13 @@ func Flags(prefix string) map[string]interface{} {
 	}
 }
 
-func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType string, payload interface{}) *provider.WorkerMessage {
+func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageAction string, payload interface{}) *provider.WorkerMessage {
 	id := ``
 	if initial != nil {
 		id = initial.ID
 	}
 
-	return &provider.WorkerMessage{
-		ID:      id,
-		Source:  hue.Source,
-		Type:    messageType,
-		Payload: payload,
-	}
+	return provider.NewWorkerMessage(id, hue.Source, messageAction, payload)
 }
 
 func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
@@ -105,7 +100,7 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 }
 
 func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) error {
-	if strings.HasSuffix(p.Type, hue.CreateAction) {
+	if strings.HasSuffix(p.Action, hue.CreateAction) {
 		var config hue.ScheduleConfig
 
 		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
@@ -119,7 +114,7 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		return nil
 	}
 
-	if strings.HasSuffix(p.Type, hue.UpdateAction) {
+	if strings.HasSuffix(p.Action, hue.UpdateAction) {
 		var config hue.Schedule
 
 		if err := json.Unmarshal([]byte(p.Payload.(string)), &config); err != nil {
@@ -133,7 +128,7 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		return a.updateSchedule(ctx, &config)
 	}
 
-	if strings.HasSuffix(p.Type, hue.DeleteAction) {
+	if strings.HasSuffix(p.Action, hue.DeleteAction) {
 		id := p.Payload.(string)
 
 		schedule, err := a.getSchedule(ctx, id)
@@ -162,7 +157,7 @@ func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMess
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerGroupsType, output), nil
+	return a.formatWorkerMessage(initial, hue.WorkerGroupsAction, output), nil
 }
 
 func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -170,7 +165,7 @@ func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMess
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerScenesType, output), nil
+	return a.formatWorkerMessage(initial, hue.WorkerScenesAction, output), nil
 }
 
 func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -178,20 +173,20 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerSchedulesType, output), nil
+	return a.formatWorkerMessage(initial, hue.WorkerSchedulesAction, output), nil
 }
 
 // Handle handle worker requests for Hue
 func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if strings.HasPrefix(p.Type, hue.WorkerGroupsType) {
+	if strings.HasPrefix(p.Action, hue.WorkerGroupsAction) {
 		return a.workerListGroups(ctx, p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.WorkerScenesType) {
+	if strings.HasPrefix(p.Action, hue.WorkerScenesAction) {
 		return a.workerListScenes(ctx, p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.WorkerSchedulesType) {
+	if strings.HasPrefix(p.Action, hue.WorkerSchedulesAction) {
 		if err := a.handleSchedules(ctx, p); err != nil {
 			return nil, err
 		}
@@ -199,7 +194,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerListSchedules(ctx, p)
 	}
 
-	if strings.HasPrefix(p.Type, hue.WorkerStateType) {
+	if strings.HasPrefix(p.Action, hue.WorkerStateAction) {
 		if err := a.handleStates(ctx, p); err != nil {
 			return nil, err
 		}
@@ -215,19 +210,19 @@ func (a *App) GetSource() string {
 	return hue.Source
 }
 
-// Ping send to worker update informations
-func (a *App) Ping() ([]*provider.WorkerMessage, error) {
-	groups, err := a.workerListGroups(nil, nil)
+// Ping send to worker updated data
+func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
+	groups, err := a.workerListGroups(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	scenes, err := a.workerListScenes(nil, nil)
+	scenes, err := a.workerListScenes(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	schedules, err := a.workerListSchedules(nil, nil)
+	schedules, err := a.workerListSchedules(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

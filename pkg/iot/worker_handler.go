@@ -59,7 +59,7 @@ func (a *App) handleTextMessage(p []byte) error {
 		outputChan.(chan *provider.WorkerMessage) <- &workerMessage
 	}
 
-	if workerMessage.Type == provider.WorkerErrorType {
+	if workerMessage.Action == provider.WorkerErrorAction {
 		return fmt.Errorf(`[%s] %v`, workerMessage.Source, workerMessage.Payload)
 	}
 

@@ -34,7 +34,6 @@ const (
 	healthcheckPath = `/health`
 	faviconPath     = `/favicon`
 	huePath         = `/hue`
-	netatmoPath     = `/netatmo`
 	dysonPath       = `/dyson`
 	sonosPath       = `/sonos`
 
@@ -81,7 +80,6 @@ func main() {
 	})
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
-	netatmoHandler := http.StripPrefix(netatmoPath, netatmoApp.Handler())
 	dysonHandler := http.StripPrefix(dysonPath, dysonApp.Handler())
 	sonosHandler := http.StripPrefix(sonosPath, sonosApp.Handler())
 	iotHandler := iotApp.Handler()
@@ -101,8 +99,6 @@ func main() {
 	authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *model.User) {
 		if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, netatmoPath) {
-			netatmoHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, dysonPath) {
 			dysonHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, sonosPath) {

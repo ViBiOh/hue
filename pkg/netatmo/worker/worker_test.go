@@ -1,4 +1,4 @@
-package netatmo
+package worker
 
 import (
 	"fmt"

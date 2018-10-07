@@ -3,8 +3,10 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
@@ -13,8 +15,13 @@ import (
 )
 
 const (
-	// WorkerErrorType for sending back error
-	WorkerErrorType = `error`
+	// WorkerErrorAction for sending back error
+	WorkerErrorAction = `error`
+)
+
+var (
+	// WorkerUnknownActionErr is default error when a worker provider doesn't know how to handle action
+	WorkerUnknownActionErr = errors.New(`unknown action`)
 )
 
 // Message rendered to user
@@ -27,14 +34,14 @@ type Message struct {
 type WorkerMessage struct {
 	ID      string
 	Source  string
-	Type    string
+	Action  string
 	Tracing map[string]string
 	Payload interface{}
 }
 
 // Hub that renders UI to end user
 type Hub interface {
-	SendToWorker(ctx context.Context, source, messageType string, payload interface{}, waitOutput bool) *WorkerMessage
+	SendToWorker(ctx context.Context, id, source, action string, payload interface{}, waitOutput bool) *WorkerMessage
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
@@ -58,7 +65,22 @@ type WorkerProvider interface {
 type Worker interface {
 	GetSource() string
 	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
-	Ping() ([]*WorkerMessage, error)
+	Ping(context.Context) ([]*WorkerMessage, error)
+}
+
+// NewWorkerMessage instantiates a worker message
+func NewWorkerMessage(initialID, source, action string, payload interface{}) *WorkerMessage {
+	id := initialID
+	if strings.TrimSpace(initialID) == `` {
+		id = tools.Sha1(payload)
+	}
+
+	return &WorkerMessage{
+		ID:      id,
+		Source:  source,
+		Action:  action,
+		Payload: payload,
+	}
 }
 
 // WriteMessage writes content as text message on websocket
@@ -86,12 +108,7 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 
 // WriteErrorMessage writes error message on websocket
 func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) error {
-	message := &WorkerMessage{
-		ID:      tools.Sha1(errPayload),
-		Source:  source,
-		Type:    WorkerErrorType,
-		Payload: errPayload,
-	}
+	message := NewWorkerMessage(``, source, WorkerErrorAction, errPayload)
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
