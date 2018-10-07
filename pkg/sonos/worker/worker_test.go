@@ -1,4 +1,4 @@
-package sonos
+package worker
 
 import (
 	"fmt"

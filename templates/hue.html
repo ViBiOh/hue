@@ -1,122 +1,3 @@
-{{- define "hue-new-schedule" -}}
-  <div id="new-schedule" class="modal flex full flex-center">
-    <div class="modal-content">
-      <h2 class="modal-header">Create new Hue schedule</h2>
-
-      <form class="padding" method="POST" action="/hue/schedules">
-        <input type="hidden" name="method" value="POST" />
-
-        <div class="flex flex-center padding">
-          <label for="name" class="flex-half">Name</label>
-          <input id="name" class="flex-half" type="text" name="name" placeholder="Schedule name" />
-        </div>
-
-        <div class="flex flex-center padding">
-          <label for="group" class="flex-half">Group</label>
-          <select id="group" class="flex-half" name="group">
-            {{- range $id, $group := .Hue.Groups -}}
-              <option value="{{- $id -}}">{{- $group.Name -}}</option>
-            {{- end -}}
-          </select>
-        </div>
-
-        <div class="flex flex-center padding">
-          <label for="group" class="flex-half">State</label>
-          <select id="group" class="flex-half" name="state">
-            {{- range $id, $state := .Hue.States -}}
-              <option value="{{- $id -}}">{{- $id -}}</option>
-            {{- end -}}
-          </select>
-        </div>
-
-        <div class="padding">
-          <div class="flex flex-center">
-            <label for="hours" class="flex-half">Time</label>
-            <span class="flex-half">
-              <select id="hours" name="hours">
-                {{- range .Hours -}}
-                  <option value="{{- . -}}">{{- . -}}</option>
-                {{- end -}}
-              </select>
-              &nbsp;:&nbsp;
-              <select name="minutes">
-                {{- range .Minutes -}}
-                  <option value="{{- . -}}">{{- . -}}</option>
-                {{- end -}}
-              </select>
-            </span>
-          </div>
-        </div>
-
-        <div class="padding">
-          <div class="flex flex-center">
-            <span class="flex-half">Recurrence</span>
-            <span class="flex-half">
-              <input class="inline-block" type="checkbox" name="days[]" id="mon" value="Mon" />
-              <label for="mon">Monday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="tue" value="Tue" />
-              <label for="tue">Tuesday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="wed" value="Wed" />
-              <label for="wed">Wednesday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="thu" value="Thu" />
-              <label for="thu">Thursday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="fri" value="Fri" />
-              <label for="fri">Friday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="sat" value="Sat" />
-              <label for="sat">Saturday</label>
-            </span>
-          </div>
-
-          <div class="flex flex-center">
-            <span class="flex-half">&nbsp;</span>
-            <span class="flex-half">
-              <input type="checkbox" name="days[]" id="sun" value="Sun" />
-              <label for="sun">Sunday</label>
-            </span>
-          </div>
-        </div>
-
-        <p class="center">
-          <a href="#" class="button">
-            Cancel
-          </a>
-          <button type="submit" class="button bg-important">Create</button>
-        </p>
-      </form>
-    </div>
-  </div>
-{{- end -}}
-
 {{- define "hue-delete-schedule-modal" -}}
   <div id="hue-delete-schedule-{{- sha . -}}" class="modal full flex flex-center">
     <div class="modal-content">
@@ -144,11 +25,9 @@
 {{- end -}}
 
 {{- define "hue-modal" -}}
-    {{- template "hue-new-schedule" . -}}
-
-    {{- range $id, $schedule := .Hue.Schedules -}}
-      {{- template "hue-delete-schedule-modal" $schedule -}}
-    {{- end -}}
+  {{- range $id, $schedule := .Hue.Schedules -}}
+    {{- template "hue-delete-schedule-modal" $schedule -}}
+  {{- end -}}
 {{- end -}}
 
 {{- define "hue" -}}

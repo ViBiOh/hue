@@ -1,4 +1,4 @@
-package sonos
+package worker
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
 const (
@@ -30,13 +31,11 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 		return fmt.Errorf(`error while refreshing token: %v`, err)
 	}
 
-	var token refreshToken
+	var token sonos.Token
 	if err := json.Unmarshal(rawData, &token); err != nil {
 		return fmt.Errorf(`error while unmarshalling token %s: %v`, rawData, err)
 	}
 
-	a.tokenMutex.Lock()
-	defer a.tokenMutex.Unlock()
 	a.accessToken = token.AccessToken
 
 	return nil

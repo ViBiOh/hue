@@ -16,6 +16,7 @@ import (
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
+	sonos_worker "github.com/ViBiOh/iot/pkg/sonos/worker"
 	"github.com/gorilla/websocket"
 )
 
@@ -97,7 +98,7 @@ func (a *App) pingWorkers() {
 		case result := <-results:
 			if messages, ok := result.([]*provider.WorkerMessage); ok {
 				for _, message := range messages {
-					if err := provider.WriteMessage(context.Background(), a.wsConn, message); err != nil {
+					if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
 						rollbar.LogError(`%v`, err)
 					}
 				}
@@ -211,6 +212,7 @@ func main() {
 	workerConfig := Flags(``)
 	hueConfig := hue_worker.Flags(`hue`)
 	netatmoConfig := netatmo_worker.Flags(`netatmo`)
+	sonosConfig := sonos_worker.Flags(`sonos`)
 	opentracingConfig := opentracing.Flags(`tracing`)
 	rollbarConfig := rollbar.Flags(`rollbar`)
 	flag.Parse()
@@ -224,7 +226,8 @@ func main() {
 		os.Exit(1)
 	}
 	netatmoApp := netatmo_worker.NewApp(netatmoConfig)
-	app := NewApp(workerConfig, []provider.Worker{hueApp, netatmoApp})
+	sonosApp := sonos_worker.NewApp(sonosConfig)
+	app := NewApp(workerConfig, []provider.Worker{hueApp, netatmoApp, sonosApp})
 
 	app.connect()
 }

@@ -1,11 +1,11 @@
 package hue
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -21,6 +21,7 @@ type App struct {
 	groups    map[string]*Group
 	scenes    map[string]*Scene
 	schedules map[string]*Schedule
+	mutex     sync.RWMutex
 }
 
 // NewApp creates new App from Flags' config
@@ -149,7 +150,10 @@ func (a *App) GetWorkerSource() string {
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData(_ context.Context) interface{} {
+func (a *App) GetData() interface{} {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
 	return &Data{
 		Groups:    a.groups,
 		Scenes:    a.scenes,

@@ -1,8 +1,7 @@
 package sonos
 
 import (
-	"context"
-	"flag"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,84 +9,40 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
-	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 // App stores informations and secret of API
 type App struct {
-	clientID     string
-	clientSecret string
-	accessToken  string
-	refreshToken string
-	households   []*Household
-	tokenMutex   sync.Mutex
+	hub        provider.Hub
+	households []*Household
+	mutex      sync.RWMutex
 }
 
 // NewApp create Client from Flags' config
 func NewApp(config map[string]*string) *App {
-	app := &App{
-		clientID:     *config[`clientID`],
-		clientSecret: *config[`clientSecret`],
-		accessToken:  *config[`accessToken`],
-		refreshToken: *config[`refreshToken`],
-		households:   make([]*Household, 0),
+	return &App{
+		households: nil,
 	}
-
-	households, err := app.GetHouseholds(context.Background())
-	if err != nil {
-		rollbar.LogError(`[sonos] Error while listing households: %v`, err)
-	} else {
-		app.households = households
-	}
-
-	return app
 }
 
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
-	return map[string]*string{
-		`accessToken`:  flag.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[sonos] Access Token`),
-		`refreshToken`: flag.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[sonos] Refresh Token`),
-		`clientID`:     flag.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[sonos] Client ID`),
-		`clientSecret`: flag.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[sonos] Client Secret`),
-	}
+	return nil
 }
 
 // SetHub receive Hub during init of it
-func (a *App) SetHub(provider.Hub) {
+func (a *App) SetHub(hub provider.Hub) {
+	a.hub = hub
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData(ctx context.Context) interface{} {
-	return true
-}
+func (a *App) GetData() interface{} {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
 
-func (a *App) getGroupsData(ctx context.Context) ([]*Group, error) {
-	groups := make([]*Group, 0)
-
-	for _, household := range a.households {
-		data, err := a.GetGroups(ctx, household.ID)
-		if err != nil {
-			return nil, fmt.Errorf(`[sonos] Error while listing groups: %v`, err)
-		}
-
-		groups = append(groups, data.Groups...)
-	}
-
-	for _, group := range groups {
-		data, err := a.GetGroupVolume(ctx, group.ID)
-		if err != nil {
-			return nil, fmt.Errorf(`[sonos] Error while getting group volume: %v`, err)
-		}
-
-		group.Volume = data
-	}
-
-	return groups, nil
+	return a.households
 }
 
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
@@ -97,15 +52,27 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 		return
 	}
 
-	if _, err = a.SetGroupVolume(r.Context(), urlParts[0], volume); err != nil {
-		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], err))
+	payload := map[string]interface{}{
+		`groupeID`: urlParts[0],
+		`volume`:   volume,
+	}
+
+	output := a.hub.SendToWorker(r.Context(), ``, Source, `volume`, payload, true)
+	if output.Action == provider.WorkerErrorAction {
+		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], output.Payload))
 		return
 	}
 }
 
 func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []string) {
-	if err := a.SetGroupMute(r.Context(), urlParts[0], urlParts[1] == `mute`); err != nil {
-		httperror.InternalServerError(w, fmt.Errorf(`error while changing mute of group %s: %v`, urlParts[0], err))
+	payload := map[string]interface{}{
+		`groupeID`: urlParts[0],
+		`mute`:     urlParts[1] == `mute`,
+	}
+
+	output := a.hub.SendToWorker(r.Context(), ``, Source, `mute`, payload, true)
+	if output.Action == provider.WorkerErrorAction {
+		httperror.InternalServerError(w, fmt.Errorf(`error while changing mute of group %s: %v`, urlParts[0], output.Payload))
 		return
 	}
 }
@@ -113,18 +80,6 @@ func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []str
 func (a *App) groupsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case http.MethodGet:
-			groups, err := a.getGroupsData(r.Context())
-			if err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`error while getting groups data: %v`, err))
-				return
-			}
-
-			if err = httpjson.ResponseJSON(w, http.StatusOK, groups, httpjson.IsPretty(r)); err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`error while marshalling JSON response: %v`, err))
-				return
-			}
-
 		case http.MethodPost:
 			body, err := request.ReadBodyRequest(r)
 			if err != nil {
@@ -164,4 +119,38 @@ func (a *App) Handler() http.Handler {
 
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	})
+}
+
+// GetWorkerSource returns source for worker
+func (a *App) GetWorkerSource() string {
+	return Source
+}
+
+// WorkerHandler handler worker requests
+func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
+	if p.Action == `households` {
+		return a.handleHouseholdsWorker(p)
+	}
+
+	return provider.ErrWorkerUnknownAction
+}
+
+func (a *App) handleHouseholdsWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	var data []*Household
+
+	convert, err := json.Marshal(message.Payload)
+	if err != nil {
+		return fmt.Errorf(`error while converting households payload: %v`, err)
+	}
+
+	if err := json.Unmarshal(convert, &data); err != nil {
+		return fmt.Errorf(`error while unmarshalling households: %v`, err)
+	}
+
+	a.households = data
+
+	return nil
 }

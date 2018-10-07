@@ -1,7 +1,6 @@
 package dyson
 
 import (
-	"context"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
@@ -124,7 +123,7 @@ func (a *App) isReady() bool {
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData(ctx context.Context) interface{} {
+func (a *App) GetData() interface{} {
 	if !a.isReady() {
 		return nil
 	}
@@ -141,7 +140,7 @@ func (a *App) GetData(ctx context.Context) interface{} {
 func (a App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(r.Context()), httpjson.IsPretty(r)); err != nil {
+			if err := httpjson.ResponseJSON(w, http.StatusOK, a.GetData(), httpjson.IsPretty(r)); err != nil {
 				httperror.InternalServerError(w, err)
 			}
 			return

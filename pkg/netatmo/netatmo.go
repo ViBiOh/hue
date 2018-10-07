@@ -1,7 +1,6 @@
 package netatmo
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -28,23 +27,25 @@ func Flags(prefix string) map[string]*string {
 }
 
 // GetData return data for Dashboard rendering
-func (a *App) GetData(ctx context.Context) interface{} {
+func (a *App) GetData() interface{} {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
 	return a.devices
 }
 
+// GetWorkerSource returns source for worker
 func (a *App) GetWorkerSource() string {
 	return Source
 }
 
+// WorkerHandler handler worker requests
 func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
 	if p.Action == `devices` {
 		return a.handleDevicesWorker(p)
 	}
 
-	return provider.WorkerUnknownActionErr
+	return provider.ErrWorkerUnknownAction
 }
 
 func (a *App) handleDevicesWorker(message *provider.WorkerMessage) error {

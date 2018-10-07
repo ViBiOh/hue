@@ -1,8 +1,9 @@
 package sonos
 
-type refreshToken struct {
-	AccessToken string `json:"access_token"`
-}
+const (
+	// Source constant for worker message
+	Source = `sonos`
+)
 
 // Household is a set of players on the same network under an account
 type Household struct {
@@ -32,4 +33,9 @@ type GroupVolume struct {
 	Volume int
 	Muted  bool
 	Fixed  bool
+}
+
+// Token describes refresh token response
+type Token struct {
+	AccessToken string `json:"access_token"`
 }

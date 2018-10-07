@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	// WorkerUnknownActionErr is default error when a worker provider doesn't know how to handle action
-	WorkerUnknownActionErr = errors.New(`unknown action`)
+	// ErrWorkerUnknownAction is default error when a worker provider doesn't know how to handle action
+	ErrWorkerUnknownAction = errors.New(`unknown action`)
 )
 
 // Message rendered to user
@@ -47,7 +47,7 @@ type Hub interface {
 
 // Provider of data for UI
 type Provider interface {
-	GetData(context.Context) interface{}
+	GetData() interface{}
 }
 
 // HubUser is a component that need to interact directly with the Hub

@@ -2,6 +2,7 @@ package iot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -38,7 +39,7 @@ func (a *App) SendToWorker(ctx context.Context, id, source, action string, paylo
 		case output := <-outputChan:
 			return output
 		case <-time.After(workerWaitDelay):
-			return nil
+			return provider.NewWorkerMessage(``, message.Source, provider.WorkerErrorAction, errors.New(`timeout exceeded`))
 		}
 	}
 

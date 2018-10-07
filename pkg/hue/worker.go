@@ -32,6 +32,9 @@ const (
 )
 
 func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	var newGroups map[string]*Group
 
 	convert, err := json.Marshal(message.Payload)
@@ -49,6 +52,9 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 }
 
 func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	var newSchedules map[string]*Schedule
 
 	convert, err := json.Marshal(message.Payload)
@@ -66,6 +72,9 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 }
 
 func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	var newScenes map[string]*Scene
 
 	convert, err := json.Marshal(message.Payload)
@@ -96,5 +105,5 @@ func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
 		return a.handleScenesFromWorker(message)
 	}
 
-	return provider.WorkerUnknownActionErr
+	return provider.ErrWorkerUnknownAction
 }

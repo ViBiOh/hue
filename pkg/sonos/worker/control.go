@@ -1,4 +1,4 @@
-package sonos
+package worker
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ViBiOh/httputils/pkg/request"
+	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
 const (
@@ -15,11 +16,11 @@ const (
 
 // HouseholdsOutput output of households endpoint
 type HouseholdsOutput struct {
-	Households []*Household
+	Households []*sonos.Household
 }
 
 // GetHouseholds retrieves household
-func (a *App) GetHouseholds(ctx context.Context) ([]*Household, error) {
+func (a *App) GetHouseholds(ctx context.Context) ([]*sonos.Household, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households`, controlURL), nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`error while creating request: %v`, err)
@@ -40,8 +41,8 @@ func (a *App) GetHouseholds(ctx context.Context) ([]*Household, error) {
 
 // GroupsOutput output of groups endpoint
 type GroupsOutput struct {
-	Players []*Player
-	Groups  []*Group
+	Players []*sonos.Player
+	Groups  []*sonos.Group
 }
 
 // GetGroups retrieves groups of a Household
@@ -65,7 +66,7 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 }
 
 // GetGroupVolume retrieves volume of a Group
-func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume, error) {
+func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*sonos.GroupVolume, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf(`error while creating request: %v`, err)
@@ -76,7 +77,7 @@ func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume,
 		return nil, fmt.Errorf(`error while getting group volume: %v - %s`, err, rawData)
 	}
 
-	var data GroupVolume
+	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
 		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}
@@ -85,7 +86,7 @@ func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*GroupVolume,
 }
 
 // SetGroupVolume defines volume of a Group
-func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*GroupVolume, error) {
+func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*sonos.GroupVolume, error) {
 	payload := map[string]interface{}{
 		`volume`: volume,
 	}
@@ -100,7 +101,7 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 		return nil, fmt.Errorf(`error while setting group volume: %v - %s`, err, rawData)
 	}
 
-	var data GroupVolume
+	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
 		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
 	}

@@ -136,7 +136,7 @@ After=network.target
 Type=simple
 User=vibioh
 EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -tracingName iot_worker -tracingAgent vibioh.fr:6831
+ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken${SONOS_ACCESS_TOKEN} -sonosClientID${SONOS_CLIENT_ID} -sonosClientSecret${SONOS_CLIENT_SECRET} -sonosRefreshToken${SONOS_REFRESH_TOKEN} -tracingName iot_worker -tracingAgent vibioh.fr:6831
 Restart=always
 RestartSec=60s
 
