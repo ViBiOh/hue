@@ -81,7 +81,7 @@ func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageType s
 
 	return &provider.WorkerMessage{
 		ID:      id,
-		Source:  hue.HueSource,
+		Source:  hue.Source,
 		Type:    messageType,
 		Payload: payload,
 	}
@@ -208,6 +208,11 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 	}
 
 	return nil, fmt.Errorf(`unknown request: %s`, p)
+}
+
+// GetSource returns source name for WS calls
+func (a *App) GetSource() string {
+	return hue.Source
 }
 
 // Ping send to worker update informations

@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:85a734e5876db727c923444020034795829b82ba583c5cd3df103fcc05bfa136"
+  digest = "1:bf8d38cb2d62539ef1df0d949fc27194009ce03cd789c49842d4fde5e96f94b9"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -51,7 +51,7 @@
     "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "b6d3cd35d8be695407c488c7142e582a1e626ebc"
+  revision = "6aaed6f8179e7957c965027b2ed5831e151a4bd9"
 
 [[projects]]
   branch = "master"
@@ -154,7 +154,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ef1dd9945e58ee9b635273d28c0ef3fa3742a7dedc038ebe207fd63e6ce000ef"
+  digest = "1:ef74914912f99c79434d9c09658274678bc85080ebe3ab32bec3940ebce5e1fc"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -163,7 +163,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "418d78d0b9a7b7de3a6bbc8a23def624cc977bb2"
+  revision = "185b4288413d2a0dd0806f78c90dde719829e5ae"
 
 [[projects]]
   digest = "1:8b6db3b490230af0836cd57f2da94e092ac0c2837fe24e762458006531749b53"
@@ -245,7 +245,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "5295e8364332db77d75fce11f1d19c053919a9c9"
+  revision = "e3636079e1a4c1f337f212cc5cd2aca108f6c900"
 
 [[projects]]
   branch = "master"
@@ -256,11 +256,11 @@
     "context/ctxhttp",
   ]
   pruneopts = "UT"
-  revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
+  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
 
 [[projects]]
   branch = "master"
-  digest = "1:ada838e8c6151b19b06f90199f5da9771b50fbfd74838d461ad58b96cbf98015"
+  digest = "1:1ad0746c59519b759facab5468e5e016f163fc8043628c0123574798f01f753c"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -268,7 +268,7 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "d2e6202438beef2727060aa7cabdd924d92ebfd9"
+  revision = "c57b0facaced709681d9f90397429b9430a74754"
 
 [[projects]]
   digest = "1:6247f76e55a1e1a5c19a81e2d4b4dff6730461eeb5bbb0a16dd4a8ec8637ee93"

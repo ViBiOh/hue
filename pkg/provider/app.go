@@ -56,6 +56,7 @@ type WorkerProvider interface {
 
 // Worker is a remote worker in another network, connected with websocket to hub
 type Worker interface {
+	GetSource() string
 	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
 	Ping() ([]*WorkerMessage, error)
 }

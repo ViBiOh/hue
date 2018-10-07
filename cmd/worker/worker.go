@@ -13,7 +13,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
-	"github.com/ViBiOh/iot/pkg/hue"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/gorilla/websocket"
@@ -27,17 +26,22 @@ const (
 type App struct {
 	websocketURL string
 	secretKey    string
-	hueApp       provider.Worker
+	workers      map[string]provider.Worker
 	done         chan struct{}
 	wsConn       *websocket.Conn
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, hueApp provider.Worker) *App {
+func NewApp(config map[string]*string, workers []provider.Worker) *App {
+	workersMap := make(map[string]provider.Worker, len(workers))
+	for _, worker := range workers {
+		workersMap[worker.GetSource()] = worker
+	}
+
 	return &App{
 		websocketURL: strings.TrimSpace(*config[`websocketURL`]),
 		secretKey:    strings.TrimSpace(*config[`secretKey`]),
-		hueApp:       hueApp,
+		workers:      workersMap,
 	}
 }
 
@@ -51,8 +55,55 @@ func Flags(prefix string) map[string]*string {
 
 func (a *App) auth() {
 	if err := a.wsConn.WriteMessage(websocket.TextMessage, []byte(a.secretKey)); err != nil {
-		rollbar.LogError(`Error while sending auth message: %v`, err)
+		rollbar.LogError(`error while sending auth message: %v`, err)
 		close(a.done)
+	}
+}
+
+func (a *App) pingWorkers() {
+	workersCount := len(a.workers)
+
+	inputs, results, errors := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
+		if worker, ok := e.(provider.Worker); ok {
+			return worker.Ping()
+		}
+
+		return nil, fmt.Errorf(`unrecognized worker type: %+v`, e)
+	})
+
+	go func() {
+		defer close(inputs)
+
+		for _, worker := range a.workers {
+			inputs <- worker
+		}
+	}()
+
+	for i := 0; i < workersCount; i++ {
+		select {
+		case err := <-errors:
+			source := `unknown`
+			if worker, ok := err.Input.(provider.Worker); ok {
+				source = worker.GetSource()
+			}
+
+			if err := provider.WriteErrorMessage(a.wsConn, source, err.Err); err != nil {
+				rollbar.LogError(`%v`, err)
+			}
+			break
+
+		case result := <-results:
+			if messages, ok := result.([]*provider.WorkerMessage); ok {
+				for _, message := range messages {
+					if err := provider.WriteMessage(context.Background(), a.wsConn, message); err != nil {
+						rollbar.LogError(`%v`, err)
+					}
+				}
+			} else {
+				rollbar.LogError(`unrecognized message type: %+v`, result)
+			}
+			break
+		}
 	}
 }
 
@@ -62,21 +113,7 @@ func (a *App) pinger() {
 		case <-a.done:
 			return
 		default:
-			messages, err := a.hueApp.Ping()
-
-			if err != nil {
-				if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
-					rollbar.LogError(`%v`, err)
-					close(a.done)
-				}
-			} else {
-				for _, message := range messages {
-					if err := provider.WriteMessage(context.Background(), a.wsConn, message); err != nil {
-						rollbar.LogError(`%v`, err)
-						close(a.done)
-					}
-				}
-			}
+			a.pingWorkers()
 		}
 
 		time.Sleep(pingDelay)
@@ -92,18 +129,16 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		defer span.Finish()
 	}
 
-	if p.Source == hue.HueSource {
-		output, err := a.hueApp.Handle(ctx, p)
+	if worker, ok := a.workers[p.Source]; ok {
+		output, err := worker.Handle(ctx, p)
 
 		if err != nil {
-			if err := provider.WriteErrorMessage(a.wsConn, hue.HueSource, err); err != nil {
+			if err := provider.WriteErrorMessage(a.wsConn, p.Source, err); err != nil {
 				rollbar.LogError(`%v`, err)
-				close(a.done)
 			}
 		} else if output != nil {
 			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
 				rollbar.LogError(`%v`, err)
-				close(a.done)
 			}
 		}
 	} else {
@@ -185,7 +220,7 @@ func main() {
 
 	opentracing.NewApp(opentracingConfig)
 	rollbar.NewApp(rollbarConfig)
-	app := NewApp(workerConfig, hueApp)
+	app := NewApp(workerConfig, []provider.Worker{hueApp})
 
 	app.connect()
 }

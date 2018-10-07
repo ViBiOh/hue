@@ -13,8 +13,8 @@ const (
 	weekend = saturday | sunday
 	alldays = weekday | weekend
 
-	// HueSource constant for worker message
-	HueSource = `hue`
+	// Source constant for worker message
+	Source = `hue`
 )
 
 var (
