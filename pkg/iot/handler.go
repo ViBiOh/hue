@@ -32,12 +32,15 @@ var (
 
 // App stores informations and secret of API
 type App struct {
-	tpl         *template.Template
-	providers   map[string]provider.Provider
-	secretKey   string
-	wsConn      *websocket.Conn
-	wsErrCount  uint
-	workerCalls sync.Map
+	tpl       *template.Template
+	providers map[string]provider.Provider
+	secretKey string
+
+	wsConn     *websocket.Conn
+	wsErrCount uint
+
+	workerProviders map[string]provider.WorkerProvider
+	workerCalls     sync.Map
 }
 
 func init() {
@@ -63,13 +66,21 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: tools.Sha1,
 		}).ParseFiles(filesTemplates...)),
-		providers:   providers,
-		secretKey:   *config[`secretKey`],
-		workerCalls: sync.Map{},
+		providers: providers,
+		secretKey: strings.TrimSpace(*config[`secretKey`]),
+
+		workerProviders: make(map[string]provider.WorkerProvider, 0),
+		workerCalls:     sync.Map{},
 	}
 
-	for _, provider := range providers {
-		provider.SetHub(app)
+	for _, p := range providers {
+		if hubUser, ok := p.(provider.HubUser); ok {
+			hubUser.SetHub(app)
+		}
+
+		if worker, ok := p.(provider.WorkerProvider); ok {
+			app.registerWorker(worker)
+		}
 	}
 
 	return app

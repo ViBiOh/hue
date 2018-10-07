@@ -32,18 +32,32 @@ type WorkerMessage struct {
 	Payload interface{}
 }
 
-// Provider for IoT
+// Hub that renders UI to end user
+type Hub interface {
+	SendToWorker(ctx context.Context, source, messageType string, payload interface{}, waitOutput bool) *WorkerMessage
+	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
+}
+
+// Provider of data for UI
 type Provider interface {
+	GetData(context.Context) interface{}
+}
+
+// HubUser is a component that need to interact directly with the Hub
+type HubUser interface {
 	SetHub(Hub)
+}
+
+// WorkerProvider is a provider that need to interact with the remote Worker
+type WorkerProvider interface {
 	GetWorkerSource() string
-	GetData(ctx context.Context) interface{}
 	WorkerHandler(*WorkerMessage) error
 }
 
-// Hub for rendering UI
-type Hub interface {
-	SendToWorker(context.Context, *WorkerMessage, bool) *WorkerMessage
-	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
+// Worker is a remote worker in another network, connected with websocket to hub
+type Worker interface {
+	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
+	Ping() ([]*WorkerMessage, error)
 }
 
 // WriteMessage writes content as text message on websocket

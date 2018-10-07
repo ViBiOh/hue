@@ -12,7 +12,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/tools"
-	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (
@@ -102,23 +101,9 @@ func (a *App) getStationData(ctx context.Context) (*StationData, error) {
 	return &infos, nil
 }
 
-// SetHub receive Hub during init of it
-func (a *App) SetHub(provider.Hub) {
-}
-
-// GetWorkerSource get source of message in websocket
-func (a *App) GetWorkerSource() string {
-	return `netatmo`
-}
-
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
 	return true
-}
-
-// WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 // Handler for request. Should be use with net/http

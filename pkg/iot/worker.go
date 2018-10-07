@@ -2,8 +2,10 @@ package iot
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -11,9 +13,20 @@ const (
 	workerWaitDelay = 10 * time.Second
 )
 
+func (a *App) registerWorker(worker provider.WorkerProvider) {
+	a.workerProviders[worker.GetWorkerSource()] = worker
+}
+
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(ctx context.Context, message *provider.WorkerMessage, waitOutput bool) *provider.WorkerMessage {
+func (a *App) SendToWorker(ctx context.Context, source, messageType string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
 	var outputChan chan *provider.WorkerMessage
+
+	message := &provider.WorkerMessage{
+		ID:      tools.Sha1(payload),
+		Source:  source,
+		Type:    messageType,
+		Payload: fmt.Sprintf(`%s`, payload),
+	}
 
 	if waitOutput {
 		outputChan = make(chan *provider.WorkerMessage)

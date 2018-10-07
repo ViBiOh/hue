@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
@@ -64,14 +63,13 @@ func (a *App) handleTextMessage(p []byte) error {
 		return fmt.Errorf(`[%s] %v`, workerMessage.Source, workerMessage.Payload)
 	}
 
-	for name, value := range a.providers {
-		if strings.HasPrefix(workerMessage.Source, value.GetWorkerSource()) {
-			if err := value.WorkerHandler(&workerMessage); err != nil {
-				return fmt.Errorf(`error while handling %s message: %v`, name, err)
-			}
-			a.wsErrCount = 0
-			return nil
+	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
+		if err := workerProvider.WorkerHandler(&workerMessage); err != nil {
+			return fmt.Errorf(`error while handling %s message: %v`, workerProvider.GetWorkerSource(), err)
 		}
+
+		a.wsErrCount = 0
+		return nil
 	}
 
 	return fmt.Errorf(`no provider found for message: %+v`, workerMessage)

@@ -7,53 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (
-	// HueSource constant for worker message
-	HueSource = `hue`
-
 	groupsRequest    = `/groups`
 	schedulesRequest = `/schedules`
 )
-
-var (
-	// States available states of lights
-	States = map[string]map[string]interface{}{
-		`off`: {
-			`on`:             false,
-			`transitiontime`: 30,
-		},
-		`on`: {
-			`on`:             true,
-			`transitiontime`: 30,
-			`sat`:            0,
-			`bri`:            254,
-		},
-		`dimmed`: {
-			`on`:             true,
-			`transitiontime`: 30,
-			`sat`:            0,
-			`bri`:            0,
-		},
-		`long_on`: {
-			`on`:             true,
-			`transitiontime`: 3000,
-			`sat`:            0,
-			`bri`:            254,
-		},
-	}
-)
-
-// Data stores data fo hub
-type Data struct {
-	Groups    map[string]*Group
-	Scenes    map[string]*Scene
-	Schedules map[string]*Schedule
-	States    map[string]map[string]interface{}
-}
 
 // App stores informations and secret of API
 type App struct {
@@ -69,14 +29,7 @@ func NewApp() *App {
 }
 
 func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
-	message := &provider.WorkerMessage{
-		ID:      tools.Sha1(payload),
-		Source:  HueSource,
-		Type:    typeName,
-		Payload: fmt.Sprintf(`%s`, payload),
-	}
-
-	output := a.hub.SendToWorker(r.Context(), message, true)
+	output := a.hub.SendToWorker(r.Context(), HueSource, typeName, payload, true)
 
 	if output == nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{

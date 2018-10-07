@@ -61,19 +61,9 @@ func Flags(prefix string) map[string]*string {
 func (a *App) SetHub(provider.Hub) {
 }
 
-// GetWorkerSource get source of message in websocket
-func (a *App) GetWorkerSource() string {
-	return `sonos`
-}
-
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
 	return true
-}
-
-// WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 func (a *App) getGroupsData(ctx context.Context) ([]*Group, error) {

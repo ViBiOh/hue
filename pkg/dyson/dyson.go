@@ -16,7 +16,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
-	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 const (
@@ -43,7 +42,6 @@ var unsafeHTTPClient = http.Client{
 type App struct {
 	account  string
 	password string
-	hub      provider.Hub
 }
 
 // NewApp creates new App from Flags' config
@@ -125,16 +123,6 @@ func (a *App) isReady() bool {
 	return a.account != `` && a.password != ``
 }
 
-// SetHub receive Hub during init of it
-func (a *App) SetHub(hub provider.Hub) {
-	a.hub = hub
-}
-
-// GetWorkerSource get source of message in websocket
-func (a *App) GetWorkerSource() string {
-	return DysonSource
-}
-
 // GetData return data for Dashboard rendering
 func (a *App) GetData(ctx context.Context) interface{} {
 	if !a.isReady() {
@@ -147,11 +135,6 @@ func (a *App) GetData(ctx context.Context) interface{} {
 	}
 
 	return devices
-}
-
-// WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	return fmt.Errorf(`unknown worker command: %s`, message.Type)
 }
 
 // Handler for request. Should be use with net/http

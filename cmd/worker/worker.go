@@ -14,33 +14,26 @@ import (
 	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/hue"
+	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
-	hue_worker "github.com/ViBiOh/iot/pkg/worker/hue"
 	"github.com/gorilla/websocket"
 )
 
 const (
-	pingID    = `ping`
 	pingDelay = 60 * time.Second
 )
-
-// WorkerApp app that plugs to worker
-type WorkerApp interface {
-	Handle(context.Context, *provider.WorkerMessage) (*provider.WorkerMessage, error)
-	Ping() ([]*provider.WorkerMessage, error)
-}
 
 // App stores informations and secret of API
 type App struct {
 	websocketURL string
 	secretKey    string
-	hueApp       WorkerApp
+	hueApp       provider.Worker
 	done         chan struct{}
 	wsConn       *websocket.Conn
 }
 
 // NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, hueApp WorkerApp) *App {
+func NewApp(config map[string]*string, hueApp provider.Worker) *App {
 	return &App{
 		websocketURL: strings.TrimSpace(*config[`websocketURL`]),
 		secretKey:    strings.TrimSpace(*config[`secretKey`]),
