@@ -44,8 +44,6 @@
   </head>
 
   <body>
-    {{- template "menu" . -}}
-
     {{- if and .Online (not .Error) -}}
       {{- template "hue-modal" . -}}
     {{- end -}}
