@@ -2,22 +2,19 @@
   <style type="text/css">
     {{- range $id, $schedule := .Hue.Schedules -}}
       #hue-delete-schedule-{{- sha $schedule -}},
-    {{- end -}}
-    #new-schedule {
+    {{- end }} {
       display: none;
     }
 
     {{- range $id, $schedule := .Hue.Schedules -}}
       #hue-delete-schedule-{{- sha $schedule -}}:target,
-    {{- end -}}
-    #new-schedule:target {
+    {{- end }} {
       display: flex;
     }
 
     {{- range $id, $schedule := .Hue.Schedules -}}
       #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
-    {{- end -}}
-    #new-schedule:target ~ .content {
+    {{- end }} {
       filter: blur(1rem);
       pointer-events: none;
     }
