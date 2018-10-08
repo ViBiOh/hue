@@ -41,7 +41,7 @@ func (a *App) GetWorkerSource() string {
 
 // WorkerHandler handler worker requests
 func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
-	if p.Action == `devices` {
+	if p.Action == DevicesAction {
 		return a.handleDevicesWorker(p)
 	}
 

@@ -3,7 +3,6 @@ package hue
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -92,17 +91,17 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(message *provider.WorkerMessage) error {
-	if strings.HasPrefix(message.Action, WorkerGroupsAction) {
-		return a.handleGroupsFromWorker(message)
+func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
+	if p.Action == WorkerGroupsAction {
+		return a.handleGroupsFromWorker(p)
 	}
 
-	if strings.HasPrefix(message.Action, WorkerSchedulesAction) {
-		return a.handleSchedulesFromWorker(message)
+	if p.Action == WorkerSchedulesAction {
+		return a.handleSchedulesFromWorker(p)
 	}
 
-	if strings.HasPrefix(message.Action, WorkerScenesAction) {
-		return a.handleScenesFromWorker(message)
+	if p.Action == WorkerScenesAction {
+		return a.handleScenesFromWorker(p)
 	}
 
 	return provider.ErrWorkerUnknownAction

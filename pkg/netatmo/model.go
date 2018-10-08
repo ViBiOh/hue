@@ -1,6 +1,9 @@
 package netatmo
 
 const (
+	// DevicesAction action for listing devices
+	DevicesAction = `devices`
+
 	// Source constant for worker message
 	Source = `netatmo`
 )

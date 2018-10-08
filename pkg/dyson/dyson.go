@@ -47,13 +47,13 @@ type App struct {
 func NewApp(config map[string]*string) *App {
 	email := strings.TrimSpace(*config[`email`])
 	if email == `` {
-		rollbar.LogWarning(`[dyson] No email provided`)
+		rollbar.LogWarning(`no email provided`)
 		return &App{}
 	}
 
 	password := strings.TrimSpace(*config[`password`])
 	if password == `` {
-		rollbar.LogWarning(`[dyson] No password provided`)
+		rollbar.LogWarning(`no password provided`)
 		return &App{}
 	}
 
@@ -66,19 +66,19 @@ func NewApp(config map[string]*string) *App {
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
-		rollbar.LogError(`[dyson] Error while creating request to authenticate: %v`, err)
+		rollbar.LogError(`error while creating request to authenticate: %v`, err)
 		return &App{}
 	}
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
-		rollbar.LogError(`[dyson] Error while authenticating: %v`, err)
+		rollbar.LogError(`error while authenticating: %v`, err)
 		return &App{}
 	}
 
 	var authentContent map[string]string
 	if err = json.Unmarshal(payload, &authentContent); err != nil {
-		rollbar.LogError(`[dyson] Error while unmarshalling authentication content: %v`, err)
+		rollbar.LogError(`error while unmarshalling authentication content: %v`, err)
 		return &App{}
 	}
 
@@ -100,19 +100,19 @@ func Flags(prefix string) map[string]*string {
 func (a *App) getDevices() ([]*Device, error) {
 	deviceRequest, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s%s`, API, devicesEndpoint), nil)
 	if err != nil {
-		return nil, fmt.Errorf(`[dyson] Error while creating request to list devices: %v`, err)
+		return nil, fmt.Errorf(`error while creating request to list devices: %v`, err)
 	}
 
 	deviceRequest.SetBasicAuth(a.account, a.password)
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, deviceRequest)
 	if err != nil {
-		return nil, fmt.Errorf(`[dyson] Error while listing devices: %v`, err)
+		return nil, fmt.Errorf(`error while listing devices: %v`, err)
 	}
 
 	var devices []*Device
 	if err = json.Unmarshal(payload, &devices); err != nil {
-		return nil, fmt.Errorf(`[dyson] Error while unmarshalling devices content: %v`, err)
+		return nil, fmt.Errorf(`error while unmarshalling devices content: %v`, err)
 	}
 
 	return devices, nil
@@ -130,7 +130,7 @@ func (a *App) GetData() interface{} {
 
 	devices, err := a.getDevices()
 	if err != nil {
-		rollbar.LogError(`[dyson] Error while getting devices: %v`, err)
+		rollbar.LogError(`error while getting devices: %v`, err)
 	}
 
 	return devices

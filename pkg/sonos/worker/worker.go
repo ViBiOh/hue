@@ -2,8 +2,11 @@ package worker
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -44,7 +47,45 @@ func (a App) GetSource() string {
 }
 
 // Handle handle worker requests for Netatmo
-func (a App) Handle(ctx context.Context, message *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	if p.Action == sonos.VolumeAction {
+		return a.workerVolume(ctx, p)
+	}
+
+	if p.Action == sonos.MuteAction {
+		return a.workerMute(ctx, p)
+	}
+
+	return nil, fmt.Errorf(`unknown request: %s`, p)
+}
+
+func (a App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+		volume, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return nil, errors.New(`volume is not an integer`)
+		}
+
+		if _, err := a.SetGroupVolume(ctx, parts[0], volume); err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}
+
+func (a App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+		mute, err := strconv.ParseBool(parts[1])
+		if err != nil {
+			return nil, errors.New(`mute is not a boolean`)
+		}
+
+		if err := a.SetGroupMute(ctx, parts[0], mute); err != nil {
+			return nil, err
+		}
+	}
+
 	return nil, nil
 }
 
@@ -58,21 +99,21 @@ func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 	for _, household := range households {
 		data, err := a.GetGroups(ctx, household.ID)
 		if err != nil {
-			return nil, fmt.Errorf(`[sonos] Error while listing groups: %v`, err)
+			return nil, fmt.Errorf(`error while listing groups: %v`, err)
 		}
 
 		household.Groups = data.Groups
 		for _, group := range household.Groups {
 			data, err := a.GetGroupVolume(ctx, group.ID)
 			if err != nil {
-				return nil, fmt.Errorf(`[sonos] Error while getting group volume: %v`, err)
+				return nil, fmt.Errorf(`error while getting group volume: %v`, err)
 			}
 
 			group.Volume = data
 		}
 	}
 
-	message := provider.NewWorkerMessage(``, sonos.Source, `households`, households)
+	message := provider.NewWorkerMessage(nil, sonos.Source, `households`, households)
 
 	return []*provider.WorkerMessage{message}, nil
 }

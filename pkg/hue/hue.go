@@ -30,7 +30,7 @@ func NewApp() *App {
 }
 
 func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
-	output := a.hub.SendToWorker(r.Context(), ``, Source, typeName, payload, true)
+	output := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload, true)
 
 	if output == nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{

@@ -18,11 +18,10 @@ func (a *App) registerWorker(worker provider.WorkerProvider) {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(ctx context.Context, id, source, action string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
+func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, source, action string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
+	message := provider.NewWorkerMessage(root, source, action, fmt.Sprintf(`%s`, payload))
+
 	var outputChan chan *provider.WorkerMessage
-
-	message := provider.NewWorkerMessage(id, source, action, fmt.Sprintf(`%s`, payload))
-
 	if waitOutput {
 		outputChan = make(chan *provider.WorkerMessage)
 		a.workerCalls.Store(message.ID, outputChan)
@@ -31,7 +30,7 @@ func (a *App) SendToWorker(ctx context.Context, id, source, action string, paylo
 	}
 
 	if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-		return provider.NewWorkerMessage(``, message.Source, provider.WorkerErrorAction, err)
+		return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, err)
 	}
 
 	if waitOutput {
@@ -39,7 +38,7 @@ func (a *App) SendToWorker(ctx context.Context, id, source, action string, paylo
 		case output := <-outputChan:
 			return output
 		case <-time.After(workerWaitDelay):
-			return provider.NewWorkerMessage(``, message.Source, provider.WorkerErrorAction, errors.New(`timeout exceeded`))
+			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, errors.New(`timeout exceeded`))
 		}
 	}
 

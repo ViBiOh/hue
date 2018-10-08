@@ -1,6 +1,12 @@
 package sonos
 
 const (
+	// VolumeAction action for setting volume
+	VolumeAction = `volume`
+
+	// MuteAction action for setting mute
+	MuteAction = `mute`
+
 	// Source constant for worker message
 	Source = `sonos`
 )
@@ -38,4 +44,16 @@ type GroupVolume struct {
 // Token describes refresh token response
 type Token struct {
 	AccessToken string `json:"access_token"`
+}
+
+// VolumeActionPayload payload sent with volume action
+type VolumeActionPayload struct {
+	ID     string
+	Volume int
+}
+
+// MuteActionPayload payload sent with mute action
+type MuteActionPayload struct {
+	ID   string
+	Mute bool
 }

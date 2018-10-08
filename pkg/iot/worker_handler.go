@@ -60,7 +60,7 @@ func (a *App) handleTextMessage(p []byte) error {
 	}
 
 	if workerMessage.Action == provider.WorkerErrorAction {
-		return fmt.Errorf(`[%s] %v`, workerMessage.Source, workerMessage.Payload)
+		return fmt.Errorf(`%s: %v`, workerMessage.Source, workerMessage.Payload)
 	}
 
 	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
@@ -124,7 +124,6 @@ func (a *App) WebsocketHandler() http.Handler {
 			if messageType == websocket.TextMessage {
 				if err := a.handleTextMessage(p); err != nil {
 					rollbar.LogError(`%v`, err)
-					break
 				}
 			}
 		}

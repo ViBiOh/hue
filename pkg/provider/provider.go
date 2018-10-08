@@ -41,7 +41,7 @@ type WorkerMessage struct {
 
 // Hub that renders UI to end user
 type Hub interface {
-	SendToWorker(ctx context.Context, id, source, action string, payload interface{}, waitOutput bool) *WorkerMessage
+	SendToWorker(ctx context.Context, root *WorkerMessage, source, action string, payload interface{}, waitOutput bool) *WorkerMessage
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
@@ -69,10 +69,12 @@ type Worker interface {
 }
 
 // NewWorkerMessage instantiates a worker message
-func NewWorkerMessage(initialID, source, action string, payload interface{}) *WorkerMessage {
-	id := initialID
-	if strings.TrimSpace(initialID) == `` {
+func NewWorkerMessage(root *WorkerMessage, source, action string, payload interface{}) *WorkerMessage {
+	var id string
+	if root == nil || strings.TrimSpace(root.ID) == `` {
 		id = tools.Sha1(payload)
+	} else {
+		id = root.ID
 	}
 
 	return &WorkerMessage{
@@ -108,7 +110,7 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 
 // WriteErrorMessage writes error message on websocket
 func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) error {
-	message := NewWorkerMessage(``, source, WorkerErrorAction, errPayload)
+	message := NewWorkerMessage(nil, source, WorkerErrorAction, errPayload.Error())
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {

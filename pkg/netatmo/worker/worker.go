@@ -55,7 +55,7 @@ func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, err
 	}
 
-	message := provider.NewWorkerMessage(``, netatmo.Source, `devices`, stationsData.Body.Devices)
+	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, stationsData.Body.Devices)
 
 	return []*provider.WorkerMessage{message}, nil
 }

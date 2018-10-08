@@ -136,17 +136,23 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		output, err := worker.Handle(ctx, p)
 
 		if err != nil {
+			rollbar.LogError(`error while handling %s - %s: %v`, p.Source, p.Action, err)
+
 			if err := provider.WriteErrorMessage(a.wsConn, p.Source, err); err != nil {
 				rollbar.LogError(`%v`, err)
 			}
-		} else if output != nil {
+		}
+
+		if output != nil {
 			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
 				rollbar.LogError(`%v`, err)
 			}
 		}
-	} else {
-		rollbar.LogError(`Unknown request: %s`, p)
+
+		return
 	}
+
+	rollbar.LogError(`unknown request: %s`, p)
 }
 
 func (a *App) connect() {

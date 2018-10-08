@@ -73,15 +73,6 @@ func Flags(prefix string) map[string]interface{} {
 	}
 }
 
-func (a *App) formatWorkerMessage(initial *provider.WorkerMessage, messageAction string, payload interface{}) *provider.WorkerMessage {
-	id := ``
-	if initial != nil {
-		id = initial.ID
-	}
-
-	return provider.NewWorkerMessage(id, hue.Source, messageAction, payload)
-}
-
 func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
 	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
@@ -157,7 +148,8 @@ func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMess
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerGroupsAction, output), nil
+
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, output), nil
 }
 
 func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -165,7 +157,8 @@ func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMess
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerScenesAction, output), nil
+
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, output), nil
 }
 
 func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -173,7 +166,8 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 	if err != nil {
 		return nil, err
 	}
-	return a.formatWorkerMessage(initial, hue.WorkerSchedulesAction, output), nil
+
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, output), nil
 }
 
 // Handle handle worker requests for Hue

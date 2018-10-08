@@ -52,12 +52,9 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 		return
 	}
 
-	payload := map[string]interface{}{
-		`groupeID`: urlParts[0],
-		`volume`:   volume,
-	}
+	payload := fmt.Sprintf(`%s|%d`, urlParts[0], volume)
 
-	output := a.hub.SendToWorker(r.Context(), ``, Source, `volume`, payload, true)
+	output := a.hub.SendToWorker(r.Context(), nil, Source, VolumeAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
 		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], output.Payload))
 		return
@@ -65,12 +62,9 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 }
 
 func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []string) {
-	payload := map[string]interface{}{
-		`groupeID`: urlParts[0],
-		`mute`:     urlParts[1] == `mute`,
-	}
+	payload := fmt.Sprintf(`%s|%t`, urlParts[0], urlParts[1] == `mute`)
 
-	output := a.hub.SendToWorker(r.Context(), ``, Source, `mute`, payload, true)
+	output := a.hub.SendToWorker(r.Context(), nil, Source, MuteAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
 		httperror.InternalServerError(w, fmt.Errorf(`error while changing mute of group %s: %v`, urlParts[0], output.Payload))
 		return
@@ -90,12 +84,12 @@ func (a *App) groupsHandler() http.Handler {
 			urlParts := strings.Split(strings.Trim(r.URL.Path, `/`), `/`)
 
 			if len(urlParts) == 2 {
-				if urlParts[1] == `volume` {
+				if urlParts[1] == VolumeAction {
 					a.volumeHandler(w, r, urlParts, body)
 					return
 				}
 
-				if strings.Contains(urlParts[1], `mute`) {
+				if strings.Contains(urlParts[1], MuteAction) {
 					a.muteHandler(w, r, urlParts)
 					return
 				}
