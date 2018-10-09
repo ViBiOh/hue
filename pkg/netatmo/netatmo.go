@@ -53,13 +53,7 @@ func (a *App) handleDevicesWorker(message *provider.WorkerMessage) error {
 	defer a.mutex.Unlock()
 
 	var data []*Device
-
-	convert, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf(`error while converting devices payload: %v`, err)
-	}
-
-	if err := json.Unmarshal(convert, &data); err != nil {
+	if err := json.Unmarshal([]byte(message.Payload), &data); err != nil {
 		return fmt.Errorf(`error while unmarshalling devices: %v`, err)
 	}
 

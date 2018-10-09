@@ -56,6 +56,14 @@
 
       {{- template "message" .Message -}}
 
+      {{- if .Online -}}
+        {{- if .Error -}}
+          {{- template "worker-error" . -}}
+        {{- end -}}
+      {{- else -}}
+        {{- template "worker-off" . -}}
+      {{- end -}}
+
       {{- if .Netatmo -}}
         <h2 class="no-margin padding grey">Netatmo</h2>
         <div id="netatmo" class="flex flex-wrap">
@@ -63,18 +71,12 @@
         </div>
       {{- end -}}
 
-      <h2 class="no-margin padding grey">Hue</h2>
-      <div class="flex flex-wrap">
-        {{- if .Online -}}
-          {{- if .Error -}}
-            {{- template "worker-error" . -}}
-          {{- else -}}
-            {{- template "hue" .Hue -}}
-          {{- end -}}
-        {{- else -}}
-          {{- template "worker-off" . -}}
-        {{- end -}}
-      </div>
+      {{- if .Hue -}}
+        <h2 class="no-margin padding grey">Hue</h2>
+        <div class="flex flex-wrap">
+          {{- template "hue" .Hue -}}
+        </div>
+      {{- end -}}
 
       {{- if .Sonos -}}
         <h2 class="no-margin padding grey">Sonos</h2>

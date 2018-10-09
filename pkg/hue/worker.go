@@ -35,13 +35,7 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	defer a.mutex.Unlock()
 
 	var newGroups map[string]*Group
-
-	convert, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf(`error while converting groups payload: %v`, err)
-	}
-
-	if err := json.Unmarshal(convert, &newGroups); err != nil {
+	if err := json.Unmarshal([]byte(message.Payload), &newGroups); err != nil {
 		return fmt.Errorf(`error while unmarshalling groups: %v`, err)
 	}
 
@@ -55,13 +49,7 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	defer a.mutex.Unlock()
 
 	var newSchedules map[string]*Schedule
-
-	convert, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf(`error while converting groups payload: %v`, err)
-	}
-
-	if err := json.Unmarshal(convert, &newSchedules); err != nil {
+	if err := json.Unmarshal([]byte(message.Payload), &newSchedules); err != nil {
 		return fmt.Errorf(`error while unmarshalling schedules: %v`, err)
 	}
 
@@ -75,13 +63,7 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	defer a.mutex.Unlock()
 
 	var newScenes map[string]*Scene
-
-	convert, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf(`error while converting groups payload: %v`, err)
-	}
-
-	if err := json.Unmarshal(convert, &newScenes); err != nil {
+	if err := json.Unmarshal([]byte(message.Payload), &newScenes); err != nil {
 		return fmt.Errorf(`error while unmarshalling scenes: %v`, err)
 	}
 

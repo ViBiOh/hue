@@ -134,13 +134,7 @@ func (a *App) handleHouseholdsWorker(message *provider.WorkerMessage) error {
 	defer a.mutex.Unlock()
 
 	var data []*Household
-
-	convert, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf(`error while converting households payload: %v`, err)
-	}
-
-	if err := json.Unmarshal(convert, &data); err != nil {
+	if err := json.Unmarshal([]byte(message.Payload), &data); err != nil {
 		return fmt.Errorf(`error while unmarshalling households: %v`, err)
 	}
 
