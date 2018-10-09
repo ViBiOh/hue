@@ -36,12 +36,12 @@ type WorkerMessage struct {
 	Source  string
 	Action  string
 	Tracing map[string]string
-	Payload interface{}
+	Payload string
 }
 
 // Hub that renders UI to end user
 type Hub interface {
-	SendToWorker(ctx context.Context, root *WorkerMessage, source, action string, payload interface{}, waitOutput bool) *WorkerMessage
+	SendToWorker(ctx context.Context, root *WorkerMessage, source, action string, payload string, waitOutput bool) *WorkerMessage
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
@@ -69,7 +69,7 @@ type Worker interface {
 }
 
 // NewWorkerMessage instantiates a worker message
-func NewWorkerMessage(root *WorkerMessage, source, action string, payload interface{}) *WorkerMessage {
+func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) *WorkerMessage {
 	var id string
 	if root == nil || strings.TrimSpace(root.ID) == `` {
 		id = tools.Sha1(payload)

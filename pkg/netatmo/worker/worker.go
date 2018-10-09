@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 
@@ -55,7 +56,12 @@ func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, err
 	}
 
-	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, stationsData.Body.Devices)
+	payload, err := json.Marshal(stationsData.Body.Devices)
+	if err != nil {
+		return nil, fmt.Errorf(`error while converting devices payload: %v`, err)
+	}
+
+	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, fmt.Sprintf(`%s`, payload))
 
 	return []*provider.WorkerMessage{message}, nil
 }

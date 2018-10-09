@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -60,7 +61,7 @@ func (a App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.W
 }
 
 func (a App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		volume, err := strconv.Atoi(parts[1])
 		if err != nil {
 			return nil, errors.New(`volume is not an integer`)
@@ -75,7 +76,7 @@ func (a App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*prov
 }
 
 func (a App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if parts := strings.Split(p.Payload.(string), `|`); len(parts) == 2 {
+	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		mute, err := strconv.ParseBool(parts[1])
 		if err != nil {
 			return nil, errors.New(`mute is not a boolean`)
@@ -113,7 +114,12 @@ func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		}
 	}
 
-	message := provider.NewWorkerMessage(nil, sonos.Source, `households`, households)
+	payload, err := json.Marshal(households)
+	if err != nil {
+		return nil, fmt.Errorf(`error while converting households payload: %v`, err)
+	}
+
+	message := provider.NewWorkerMessage(nil, sonos.Source, `households`, fmt.Sprintf(`%s`, payload))
 
 	return []*provider.WorkerMessage{message}, nil
 }

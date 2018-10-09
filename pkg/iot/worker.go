@@ -2,8 +2,6 @@ package iot
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -18,8 +16,8 @@ func (a *App) registerWorker(worker provider.WorkerProvider) {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, source, action string, payload interface{}, waitOutput bool) *provider.WorkerMessage {
-	message := provider.NewWorkerMessage(root, source, action, fmt.Sprintf(`%s`, payload))
+func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, source, action string, payload string, waitOutput bool) *provider.WorkerMessage {
+	message := provider.NewWorkerMessage(root, source, action, payload)
 
 	var outputChan chan *provider.WorkerMessage
 	if waitOutput {
@@ -30,7 +28,7 @@ func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, so
 	}
 
 	if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-		return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, err)
+		return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, err.Error())
 	}
 
 	if waitOutput {
@@ -38,7 +36,7 @@ func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, so
 		case output := <-outputChan:
 			return output
 		case <-time.After(workerWaitDelay):
-			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, errors.New(`timeout exceeded`))
+			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, `timeout exceeded`)
 		}
 	}
 

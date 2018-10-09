@@ -29,7 +29,7 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload interface{}, typeName, successMessage string) {
+func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload string, typeName, successMessage string) {
 	output := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload, true)
 
 	if output == nil {
@@ -68,7 +68,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, CreateAction), fmt.Sprintf(`%s schedule has been created`, config.Name))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s`, payload), fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, CreateAction), fmt.Sprintf(`%s schedule has been created`, config.Name))
 			return
 		}
 
@@ -88,7 +88,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			a.sendWorkerMessage(w, r, payload, fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, UpdateAction), fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
+			a.sendWorkerMessage(w, r, fmt.Sprintf(`%s`, payload), fmt.Sprintf(`%s/%s`, WorkerSchedulesAction, UpdateAction), fmt.Sprintf(`%s schedule has been %s`, r.FormValue(`name`), schedule.Status))
 			return
 		}
 
