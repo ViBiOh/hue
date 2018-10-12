@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/netatmo"
@@ -17,6 +18,7 @@ type App struct {
 	clientSecret string
 	accessToken  string
 	refreshToken string
+	mutex        sync.RWMutex
 }
 
 // NewApp creates new App from Flags' config
@@ -40,17 +42,17 @@ func Flags(prefix string) map[string]*string {
 }
 
 // GetSource returns source name for WS calls
-func (a App) GetSource() string {
+func (a *App) GetSource() string {
 	return netatmo.Source
 }
 
 // Handle handle worker requests for Netatmo
-func (a App) Handle(ctx context.Context, message *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) Handle(ctx context.Context, message *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	return nil, nil
 }
 
 // Ping send to worker updated data
-func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
+func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 	stationsData, err := a.getStationsData(ctx, true)
 	if err != nil {
 		return nil, err

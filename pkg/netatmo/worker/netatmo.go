@@ -17,6 +17,9 @@ const (
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	payload := url.Values{
 		`grant_type`:    []string{`refresh_token`},
 		`refresh_token`: []string{a.refreshToken},
@@ -55,7 +58,10 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 		return nil, nil
 	}
 
+	a.mutex.RLock()
 	rawData, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
+	a.mutex.RUnlock()
+
 	if err != nil {
 		if isInvalidTokenError(rawData, err) && retry {
 			if err := a.refreshAccessToken(ctx); err != nil {

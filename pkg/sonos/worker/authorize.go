@@ -1,9 +1,11 @@
 package worker
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,6 +19,9 @@ const (
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
 	payload := url.Values{
 		`grant_type`:    []string{`refresh_token`},
 		`refresh_token`: []string{a.refreshToken},
@@ -45,8 +50,17 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	if req.Header == nil {
 		req.Header = http.Header{}
 	}
-	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
+	a.mutex.RLock()
+	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
+	a.mutex.RUnlock()
+
+	payload, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return nil, fmt.Errorf(`error while reading body: %v`, err)
+	}
+
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
 	data, err := request.DoAndRead(ctx, req)
 
 	if err != nil && strings.Contains(string(data), `Incorrect token`) {
@@ -55,6 +69,8 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 		}
 
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
+
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
 		return request.DoAndRead(ctx, req)
 	}
 

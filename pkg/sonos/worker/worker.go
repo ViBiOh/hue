@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -20,6 +21,7 @@ type App struct {
 	clientSecret string
 	accessToken  string
 	refreshToken string
+	mutex        sync.RWMutex
 }
 
 // NewApp creates new App from Flags' config
@@ -43,12 +45,12 @@ func Flags(prefix string) map[string]*string {
 }
 
 // GetSource returns source name for WS calls
-func (a App) GetSource() string {
+func (a *App) GetSource() string {
 	return sonos.Source
 }
 
 // Handle handle worker requests for Netatmo
-func (a App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if p.Action == sonos.VolumeAction {
 		return a.workerVolume(ctx, p)
 	}
@@ -60,7 +62,7 @@ func (a App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.W
 	return nil, fmt.Errorf(`unknown request: %s`, p)
 }
 
-func (a App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		volume, err := strconv.Atoi(parts[1])
 		if err != nil {
@@ -75,7 +77,7 @@ func (a App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*prov
 	return nil, nil
 }
 
-func (a App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		mute, err := strconv.ParseBool(parts[1])
 		if err != nil {
@@ -91,7 +93,7 @@ func (a App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provid
 }
 
 // Ping send to worker updated data
-func (a App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
+func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 	households, err := a.GetHouseholds(ctx)
 	if err != nil {
 		return nil, fmt.Errorf(`error while listing households: %v`, err)
