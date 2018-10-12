@@ -9,7 +9,7 @@ services:
     - -basicUsers
     - ${BASIC_USERS}
     - -csp
-    - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' iot-auth.vibioh.fr
+    - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
     - -secretKey
     - ${SECRET_KEY}
     - -dysonEmail

@@ -154,6 +154,10 @@ func (a *App) GetData() interface{} {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
+	if len(a.groups) == 0 && len(a.scenes) == 0 && len(a.schedules) == 0 {
+		return false
+	}
+
 	return &Data{
 		Groups:    a.groups,
 		Scenes:    a.scenes,
