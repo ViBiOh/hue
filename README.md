@@ -48,6 +48,8 @@ Usage of iot:
       [rollbar] Token
   -secretKey string
       [iot] Secret Key between worker and API
+  -templates string
+      [iot] Templates directory (default "./templates/")
   -tls
       Serve TLS content (default true)
   -tlsCert string

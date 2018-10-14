@@ -57,9 +57,9 @@ func init() {
 
 // NewApp creates new App from dependencies and Flags' config
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
-	filesTemplates, err := templates.GetTemplates(`./templates/`, `.html`)
+	filesTemplates, err := templates.GetTemplates(strings.TrimSpace(*config[`templatesDir`]), `.html`)
 	if err != nil {
-		rollbar.LogError(`Error while getting templates: %v`, err)
+		rollbar.LogError(`error while getting templates: %v`, err)
 	}
 
 	app := &App{
@@ -89,7 +89,8 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`secretKey`: flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
+		`templatesDir`: flag.String(tools.ToCamel(fmt.Sprintf(`%sTemplates`, prefix)), `./templates/`, `[iot] Templates directory`),
+		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
 	}
 }
 
