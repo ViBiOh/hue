@@ -72,7 +72,7 @@ bench:
 ## build: Build binary
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) cmd/api/iot.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) cmd/iot/iot.go
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
 
 ## start-deps: Download start dependencies
@@ -102,7 +102,7 @@ start-worker:
 ## start: Start app
 .PHONY: start
 start:
-	go run cmd/api/iot.go \
+	go run cmd/iot/iot.go \
 		-tls=false \
 		-authUsers admin:admin \
 		-basicUsers "1:admin:`bcrypt admin`" \

@@ -8,6 +8,8 @@
 
 ```bash
 Usage of iot:
+  -authDisable
+      [auth] Disable auth
   -authUrl string
       [auth] Auth URL, if remote
   -authUsers string
@@ -46,14 +48,6 @@ Usage of iot:
       [rollbar] Token
   -secretKey string
       [iot] Secret Key between worker and API
-  -sonosAccessToken string
-      [sonos] Access Token
-  -sonosClientID string
-      [sonos] Client ID
-  -sonosClientSecret string
-      [sonos] Client Secret
-  -sonosRefreshToken string
-      [sonos] Refresh Token
   -tls
       Serve TLS content (default true)
   -tlsCert string
@@ -102,6 +96,14 @@ Usage of worker:
       [rollbar] Token
   -secretKey string
       Secret Key
+  -sonosAccessToken string
+      [sonos] Access Token
+  -sonosClientID string
+      [sonos] Client ID
+  -sonosClientSecret string
+      [sonos] Client Secret
+  -sonosRefreshToken string
+      [sonos] Refresh Token
   -tracingAgent string
       [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
   -tracingName string
@@ -116,6 +118,7 @@ Compile go binary
 
 ```bash
 go install github.com/ViBiOh/iot/cmd/worker
+go install github.com/ViBiOh/iot/cmd/iot
 ```
 
 Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html`
@@ -136,7 +139,7 @@ After=network.target
 Type=simple
 User=vibioh
 EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken ${SONOS_ACCESS_TOKEN} -sonosClientID ${SONOS_CLIENT_ID} -sonosClientSecret ${SONOS_CLIENT_SECRET} -sonosRefreshToken ${SONOS_REFRESH_TOKEN} -tracingName iot_worker -tracingAgent vibioh.fr:6831
+ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken ${SONOS_ACCESS_TOKEN} -sonosClientID ${SONOS_CLIENT_ID} -sonosClientSecret ${SONOS_CLIENT_SECRET} -sonosRefreshToken ${SONOS_REFRESH_TOKEN}
 Restart=always
 RestartSec=60s
 

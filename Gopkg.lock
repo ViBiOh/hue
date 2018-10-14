@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0e6d1a43129452b69c84c11a527e0bb3c50107deaf9d34f28219c07da36f18f4"
+  digest = "1:2c1234b1c837f5029ddb6b37bed65ab51d880c09af99a6a103eead3d26d288db"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -23,7 +23,7 @@
     "pkg/service",
   ]
   pruneopts = "UT"
-  revision = "803c4d7646520e7949d9a191b7a701729339c5fa"
+  revision = "fd6d7007d518b400a4478c7b494b7c671e6ab017"
 
 [[projects]]
   branch = "master"
@@ -204,7 +204,7 @@
   version = "v2.3.3"
 
 [[projects]]
-  digest = "1:104a2d7446f4628e4663d7c029b18da1aad4313735de775f37b6e7720b1d0aa7"
+  digest = "1:ac6f26e917fd2fb3194a7ebe2baf6fb32de2f2fbfed130c18aac0e758a6e1d22"
   name = "github.com/uber/jaeger-client-go"
   packages = [
     ".",
@@ -222,11 +222,12 @@
     "thrift-gen/jaeger",
     "thrift-gen/sampling",
     "thrift-gen/zipkincore",
+    "transport",
     "utils",
   ]
   pruneopts = "UT"
-  revision = "b043381d944715b469fd6b37addfd30145ca1758"
-  version = "v2.14.0"
+  revision = "1a782e2da844727691fef1757c72eb190c2909f0"
+  version = "v2.15.0"
 
 [[projects]]
   digest = "1:0f09db8429e19d57c8346ad76fbbc679341fa86073d3b8fb5ac919f0357d8f4c"
@@ -245,7 +246,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "7c1a557ab941a71c619514f229f0b27ccb0c27cf"
+  revision = "a92615f3c49003920a58dedcf32cf55022cefb8d"
 
 [[projects]]
   branch = "master"
@@ -256,7 +257,7 @@
     "context/ctxhttp",
   ]
   pruneopts = "UT"
-  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
+  revision = "49bb7cea24b1df9410e1712aa6433dae904ff66a"
 
 [[projects]]
   branch = "master"
