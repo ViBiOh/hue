@@ -1,22 +1,28 @@
 {{- define "style-modal" -}}
   <style type="text/css">
-    {{- range $id, $schedule := .Hue.Schedules -}}
-      #hue-delete-schedule-{{- sha $schedule -}},
+    {{- if .Hue -}}
+      {{- range $id, $schedule := .Hue.Schedules -}}
+        #hue-delete-schedule-{{- sha $schedule -}},
+      {{- end -}}
     {{- end -}}
     #modal {
       display: none;
     }
 
-    {{- range $id, $schedule := .Hue.Schedules -}}
-      #hue-delete-schedule-{{- sha $schedule -}}:target,
+    {{- if .Hue -}}
+      {{- range $id, $schedule := .Hue.Schedules -}}
+        #hue-delete-schedule-{{- sha $schedule -}}:target,
+      {{- end -}}
     {{- end -}}
     #modal:target {
       display: flex;
     }
 
-    {{- range $id, $schedule := .Hue.Schedules -}}
-      #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
-    {{- end -}} {
+    {{- if .Hue -}}
+      {{- range $id, $schedule := .Hue.Schedules -}}
+        #hue-delete-schedule-{{- sha $schedule -}}:target ~ .content,
+      {{- end -}}
+    {{- end -}}
     #modal:target ~ .content {
       filter: blur(1rem);
       pointer-events: none;
