@@ -56,34 +56,27 @@
 
       {{- template "message" .Message -}}
 
-      {{- if .Online -}}
-        {{- if .Error -}}
-          {{- template "worker-error" . -}}
+      <div id="netatmo" class="flex flex-wrap">
+        {{- if .Online -}}
+          {{- if .Error -}}
+            {{- template "worker-error" . -}}
+          {{- end -}}
+        {{- else -}}
+          {{- template "worker-off" . -}}
         {{- end -}}
-      {{- else -}}
-        {{- template "worker-off" . -}}
-      {{- end -}}
 
-      {{- if .Netatmo -}}
-        <h2 class="no-margin padding grey">Netatmo</h2>
-        <div id="netatmo" class="flex flex-wrap">
+        {{- if .Netatmo -}}
           {{- template "netatmo" .Netatmo -}}
-        </div>
-      {{- end -}}
+        {{- end -}}
 
-      {{- if .Hue -}}
-        <h2 class="no-margin padding grey">Hue</h2>
-        <div class="flex flex-wrap">
+        {{- if .Hue -}}
           {{- template "hue" .Hue -}}
-        </div>
-      {{- end -}}
+        {{- end -}}
 
-      {{- if .Sonos -}}
-        <h2 class="no-margin padding grey">Sonos</h2>
-        <div id="sonos" class="flex flex-wrap">
+        {{- if .Sonos -}}
           {{- template "sonos" .Sonos -}}
-        </div>
-      {{- end -}}
+        {{- end -}}
+      </div>
     </div>
   </body>
 

@@ -104,7 +104,6 @@ start-worker:
 start:
 	go run cmd/iot/iot.go \
 		-tls=false \
-		-authUsers admin:admin \
-		-basicUsers "1:admin:`bcrypt admin`" \
+		-authDisable \
 		-secretKey SECRET_KEY \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
