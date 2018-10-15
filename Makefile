@@ -75,11 +75,6 @@ build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) cmd/iot/iot.go
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
 
-## start-deps: Download start dependencies
-.PHONY: start-deps
-start-deps:
-	go get github.com/ViBiOh/auth/cmd/bcrypt
-
 ## start-worker: Start worker
 .PHONY: start-worker
 start-worker:
