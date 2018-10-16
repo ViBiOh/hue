@@ -78,8 +78,8 @@ build:
 ## install: Install binary in GOPATH
 .PHONY: install
 install:
-	go install github.com/ViBiOh/iot/cmd/iot/iot.go
-	go install github.com/ViBiOh/iot/cmd/worker/worker.go
+	go install github.com/ViBiOh/iot/cmd/iot
+	go install github.com/ViBiOh/iot/cmd/worker
 
 ## start-worker: Start worker
 .PHONY: start-worker
