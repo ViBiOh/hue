@@ -75,6 +75,12 @@ build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) cmd/iot/iot.go
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
 
+## install: Install binary in GOPATH
+.PHONY: install
+install:
+	go install github.com/ViBiOh/iot/cmd/iot/iot.go
+	go install github.com/ViBiOh/iot/cmd/worker/worker.go
+
 ## start-worker: Start worker
 .PHONY: start-worker
 start-worker:
