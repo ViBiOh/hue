@@ -46,6 +46,13 @@
       padding: 0.5rem 1rem;
     }
 
+    .grid {
+      display: grid;
+      grid-gap: .5rem;
+      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+      margin: .5rem;
+    }
+
     .flex {
       display: flex;
     }
@@ -56,7 +63,8 @@
     }
 
     .flex-half {
-      flex: 1 1 50%;
+      flex: 1 1;
+      flex-basis: 50%;
       width: 50%;
     }
 
@@ -82,14 +90,11 @@
       display: inline-flex;
       flex-direction: column;
       height: 25rem;
-      margin: 0.5rem;
-      width: 20rem;
     }
 
     @media screen and (max-width: 424px) {
       .container {
         height: auto;
-        width: 100%;
       }
     }
 

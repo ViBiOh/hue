@@ -43,7 +43,7 @@
   </head>
 
   <body>
-    {{- if and .Online (not .Error) -}}
+    {{- if .Hue -}}
       {{- template "hue-modal" . -}}
     {{- end -}}
 
@@ -56,7 +56,7 @@
 
       {{- template "message" .Message -}}
 
-      <div id="netatmo" class="flex flex-wrap">
+      <div class="grid">
         {{- if .Online -}}
           {{- if .Error -}}
             {{- template "worker-error" . -}}
