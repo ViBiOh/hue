@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/gorilla/websocket"
 )
@@ -26,21 +25,21 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 
 	if err != nil {
 		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`error while reading first message: %v`, err)); err != nil {
-			rollbar.LogError(`%v`, err)
+			logger.Error(`%v`, err)
 		}
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should be a Text Message`)); err != nil {
-			rollbar.LogError(`%v`, err)
+			logger.Error(`%v`, err)
 		}
 		return false
 	}
 
 	if string(p) != a.secretKey {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should contains the Secret Key`)); err != nil {
-			rollbar.LogError(`%v`, err)
+			logger.Error(`%v`, err)
 		}
 		return false
 	}
@@ -86,12 +85,12 @@ func (a *App) WebsocketHandler() http.Handler {
 				}
 
 				if err := ws.Close(); err != nil {
-					rollbar.LogError(`Error while closing connection: %v`, err)
+					logger.Error(`Error while closing connection: %v`, err)
 				}
 			}()
 		}
 		if err != nil {
-			rollbar.LogError(`Error while upgrading connection: %v`, err)
+			logger.Error(`Error while upgrading connection: %v`, err)
 			return
 		}
 
@@ -99,10 +98,10 @@ func (a *App) WebsocketHandler() http.Handler {
 			return
 		}
 
-		log.Printf(`Worker connection from %s`, request.GetIP(r))
+		logger.Info(`Worker connection from %s`, request.GetIP(r))
 		if a.wsConn != nil {
 			if err := a.wsConn.Close(); err != nil {
-				rollbar.LogError(`Error while closing connection: %v`, err)
+				logger.Error(`Error while closing connection: %v`, err)
 			}
 
 		}
@@ -117,13 +116,13 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if err != nil {
-				rollbar.LogError(`Error while reading from websocket: %v`, err)
+				logger.Error(`Error while reading from websocket: %v`, err)
 				break
 			}
 
 			if messageType == websocket.TextMessage {
 				if err := a.handleTextMessage(p); err != nil {
-					rollbar.LogError(`%v`, err)
+					logger.Error(`%v`, err)
 				}
 			}
 		}

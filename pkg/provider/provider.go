@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/gorilla/websocket"
 )
@@ -93,7 +93,7 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 
 	message.Tracing = make(map[string]string)
 	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
-		rollbar.LogError(`%v`, err)
+		logger.Error(`%v`, err)
 	}
 
 	messagePayload, err := json.Marshal(message)

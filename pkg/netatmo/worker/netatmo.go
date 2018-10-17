@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 )
 
@@ -46,7 +46,7 @@ func isInvalidTokenError(rawData []byte, err error) bool {
 	var netatmoErrorValue netatmo.Error
 
 	if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-		rollbar.LogError(`error while unmarshalling error %s: %v`, rawData, err)
+		logger.Error(`error while unmarshalling error %s: %v`, rawData, err)
 		return false
 	}
 

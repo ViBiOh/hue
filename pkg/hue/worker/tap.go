@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/pkg/rollbar"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -47,7 +47,7 @@ func (a *App) configureTap(ctx context.Context, taps []*tapConfig) {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
 			if err := a.createRule(ctx, button.Rule); err != nil {
-				rollbar.LogError(`[%s] Error while creating rule: %v`, hue.Source, err)
+				logger.Error(`[%s] Error while creating rule: %v`, hue.Source, err)
 			}
 		}
 	}

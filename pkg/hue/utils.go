@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ViBiOh/httputils/pkg/rollbar"
+	"github.com/ViBiOh/httputils/pkg/logger"
 )
 
 // FormatLocalTime formats local time of schedules to human readable version
@@ -16,7 +16,7 @@ func (s *Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		rollbar.LogError(`Error while parsing local time: %v`, err)
+		logger.Error(`Error while parsing local time: %v`, err)
 		return s.Localtime
 	}
 

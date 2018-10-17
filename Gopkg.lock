@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2c1234b1c837f5029ddb6b37bed65ab51d880c09af99a6a103eead3d26d288db"
+  digest = "1:70ea114cf944f5c2dad09bda8a4d0da41ec9b9b41443e821c6b1b30802719e14"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -23,11 +23,11 @@
     "pkg/service",
   ]
   pruneopts = "UT"
-  revision = "fd6d7007d518b400a4478c7b494b7c671e6ab017"
+  revision = "587cc066dc5651bd9a766663f3211cef5924c11c"
 
 [[projects]]
   branch = "master"
-  digest = "1:930ec788275251f9f36d7c5843ecce0cbc4245eeda838cec07f54f1628f86258"
+  digest = "1:53cb0be7cb50a5aa0c43ef9c10ff7864d27ea9dbcd5db5d0be571c1bdd525fa1"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -39,6 +39,7 @@
     "pkg/healthcheck",
     "pkg/httperror",
     "pkg/httpjson",
+    "pkg/logger",
     "pkg/model",
     "pkg/opentracing",
     "pkg/owasp",
@@ -51,7 +52,7 @@
     "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "fd50c443407db1c331917bcaa769fa78261d71bc"
+  revision = "b22fe94b0781e1d9599dab3cbb93a3490c063f1c"
 
 [[projects]]
   branch = "master"
@@ -142,7 +143,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:63b68062b8968092eb86bedc4e68894bd096ea6b24920faca8b9dcf451f54bb5"
+  digest = "1:c0d39a0cad193ac49b6e24516e0f994b241d7c27142e5a58e8bd13defb2d9ac8"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -150,7 +151,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "c7de2306084e37d54b8be01f3541a8464345e9a5"
+  revision = "bcb74de08d37a417cb6789eec1d6c810040f0470"
 
 [[projects]]
   branch = "master"
@@ -246,7 +247,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "a92615f3c49003920a58dedcf32cf55022cefb8d"
+  revision = "0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb"
 
 [[projects]]
   branch = "master"

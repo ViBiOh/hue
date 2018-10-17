@@ -12,8 +12,8 @@ import (
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 )
 
@@ -47,13 +47,13 @@ type App struct {
 func NewApp(config map[string]*string) *App {
 	email := strings.TrimSpace(*config[`email`])
 	if email == `` {
-		rollbar.LogWarning(`no email provided`)
+		logger.Warn(`no email provided`)
 		return &App{}
 	}
 
 	password := strings.TrimSpace(*config[`password`])
 	if password == `` {
-		rollbar.LogWarning(`no password provided`)
+		logger.Warn(`no password provided`)
 		return &App{}
 	}
 
@@ -66,19 +66,19 @@ func NewApp(config map[string]*string) *App {
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
-		rollbar.LogError(`error while creating request to authenticate: %v`, err)
+		logger.Error(`error while creating request to authenticate: %v`, err)
 		return &App{}
 	}
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
-		rollbar.LogError(`error while authenticating: %v`, err)
+		logger.Error(`error while authenticating: %v`, err)
 		return &App{}
 	}
 
 	var authentContent map[string]string
 	if err = json.Unmarshal(payload, &authentContent); err != nil {
-		rollbar.LogError(`error while unmarshalling authentication content: %v`, err)
+		logger.Error(`error while unmarshalling authentication content: %v`, err)
 		return &App{}
 	}
 
@@ -130,7 +130,7 @@ func (a *App) GetData() interface{} {
 
 	devices, err := a.getDevices()
 	if err != nil {
-		rollbar.LogError(`error while getting devices: %v`, err)
+		logger.Error(`error while getting devices: %v`, err)
 	}
 
 	return devices

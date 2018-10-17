@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
@@ -57,7 +56,7 @@ func Flags(prefix string) map[string]*string {
 
 func (a *App) auth() {
 	if err := a.wsConn.WriteMessage(websocket.TextMessage, []byte(a.secretKey)); err != nil {
-		rollbar.LogError(`error while sending auth message: %v`, err)
+		logger.Error(`error while sending auth message: %v`, err)
 		close(a.done)
 	}
 }
@@ -91,7 +90,7 @@ func (a *App) pingWorkers() {
 			}
 
 			if err := provider.WriteErrorMessage(a.wsConn, source, err.Err); err != nil {
-				rollbar.LogError(`%v`, err)
+				logger.Error(`%v`, err)
 			}
 			break
 
@@ -99,11 +98,11 @@ func (a *App) pingWorkers() {
 			if messages, ok := result.([]*provider.WorkerMessage); ok {
 				for _, message := range messages {
 					if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-						rollbar.LogError(`%v`, err)
+						logger.Error(`%v`, err)
 					}
 				}
 			} else {
-				rollbar.LogError(`unrecognized message type: %+v`, result)
+				logger.Error(`unrecognized message type: %+v`, result)
 			}
 			break
 		}
@@ -126,7 +125,7 @@ func (a *App) pinger() {
 func (a *App) handleMessage(p *provider.WorkerMessage) {
 	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Action)
 	if err != nil {
-		rollbar.LogError(`%v`, err)
+		logger.Error(`%v`, err)
 	}
 	if span != nil {
 		defer span.Finish()
@@ -136,23 +135,23 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		output, err := worker.Handle(ctx, p)
 
 		if err != nil {
-			rollbar.LogError(`error while handling %s - %s: %v`, p.Source, p.Action, err)
+			logger.Error(`error while handling %s - %s: %v`, p.Source, p.Action, err)
 
 			if err := provider.WriteErrorMessage(a.wsConn, p.Source, err); err != nil {
-				rollbar.LogError(`%v`, err)
+				logger.Error(`%v`, err)
 			}
 		}
 
 		if output != nil {
 			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
-				rollbar.LogError(`%v`, err)
+				logger.Error(`%v`, err)
 			}
 		}
 
 		return
 	}
 
-	rollbar.LogError(`unknown request: %s`, p)
+	logger.Error(`unknown request: %s`, p)
 }
 
 func (a *App) connect() {
@@ -160,18 +159,18 @@ func (a *App) connect() {
 	if ws != nil {
 		defer func() {
 			if err := ws.Close(); err != nil {
-				rollbar.LogError(`Error while closing websocket connection: %v`, err)
+				logger.Error(`Error while closing websocket connection: %v`, err)
 			}
 		}()
 	}
 	if err != nil {
-		rollbar.LogError(`Error while dialing to websocket %s: %v`, a.websocketURL, err)
+		logger.Error(`Error while dialing to websocket %s: %v`, a.websocketURL, err)
 		return
 	}
 
 	a.wsConn = ws
 	a.done = make(chan struct{})
-	log.Print(`Websocket connection established`)
+	logger.Info(`Websocket connection established`)
 
 	a.auth()
 	go a.pinger()
@@ -187,7 +186,7 @@ func (a *App) connect() {
 			}
 
 			if err != nil {
-				rollbar.LogError(`Error while reading from websocket: %v`, err)
+				logger.Error(`Error while reading from websocket: %v`, err)
 				close(a.done)
 				return
 			}
@@ -195,7 +194,7 @@ func (a *App) connect() {
 			if messageType == websocket.TextMessage {
 				var workerMessage provider.WorkerMessage
 				if err := json.Unmarshal(p, &workerMessage); err != nil {
-					rollbar.LogError(`Error while unmarshalling worker message: %v`, err)
+					logger.Error(`Error while unmarshalling worker message: %v`, err)
 				} else {
 					input <- &workerMessage
 				}
@@ -219,16 +218,11 @@ func main() {
 	hueConfig := hue_worker.Flags(`hue`)
 	netatmoConfig := netatmo_worker.Flags(`netatmo`)
 	sonosConfig := sonos_worker.Flags(`sonos`)
-	opentracingConfig := opentracing.Flags(`tracing`)
-	rollbarConfig := rollbar.Flags(`rollbar`)
 	flag.Parse()
-
-	opentracing.NewApp(opentracingConfig)
-	rollbar.NewApp(rollbarConfig)
 
 	hueApp, err := hue_worker.NewApp(hueConfig)
 	if err != nil {
-		rollbar.LogError(`Error while creating hue app: %s`, err)
+		logger.Error(`Error while creating hue app: %s`, err)
 		os.Exit(1)
 	}
 	netatmoApp := netatmo_worker.NewApp(netatmoConfig)

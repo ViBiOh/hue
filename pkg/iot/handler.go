@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/httputils/pkg/rollbar"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/templates"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -59,7 +59,7 @@ func init() {
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	filesTemplates, err := templates.GetTemplates(strings.TrimSpace(*config[`templatesDir`]), `.html`)
 	if err != nil {
-		rollbar.LogError(`error while getting templates: %v`, err)
+		logger.Error(`error while getting templates: %v`, err)
 	}
 
 	app := &App{
@@ -105,7 +105,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	if message != nil && message.Level == `error` {
-		rollbar.LogError(message.Content)
+		logger.Error(message.Content)
 	}
 
 	for name, provider := range a.providers {
