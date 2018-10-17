@@ -303,6 +303,7 @@
     "github.com/ViBiOh/httputils/pkg/healthcheck",
     "github.com/ViBiOh/httputils/pkg/httperror",
     "github.com/ViBiOh/httputils/pkg/httpjson",
+    "github.com/ViBiOh/httputils/pkg/logger",
     "github.com/ViBiOh/httputils/pkg/opentracing",
     "github.com/ViBiOh/httputils/pkg/owasp",
     "github.com/ViBiOh/httputils/pkg/request",
