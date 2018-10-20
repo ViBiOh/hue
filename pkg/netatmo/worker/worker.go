@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -60,7 +61,7 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 
 	payload, err := json.Marshal(stationsData.Body.Devices)
 	if err != nil {
-		return nil, fmt.Errorf(`error while converting devices payload: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, fmt.Sprintf(`%s`, payload))

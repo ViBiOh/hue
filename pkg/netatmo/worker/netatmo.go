@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/netatmo"
@@ -29,12 +30,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 
 	rawData, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
 	if err != nil {
-		return fmt.Errorf(`error while refreshing token: %v`, err)
+		return err
 	}
 
 	var token netatmo.Token
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`error while unmarshalling token %s: %v`, rawData, err)
+		return errors.WithStack(err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -46,7 +47,7 @@ func isInvalidTokenError(rawData []byte, err error) bool {
 	var netatmoErrorValue netatmo.Error
 
 	if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-		logger.Error(`error while unmarshalling error %s: %v`, rawData, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		return false
 	}
 
@@ -65,18 +66,18 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 	if err != nil {
 		if isInvalidTokenError(rawData, err) && retry {
 			if err := a.refreshAccessToken(ctx); err != nil {
-				return nil, fmt.Errorf(`error while refreshing access token: %v`, err)
+				return nil, err
 			}
 
 			return a.getStationsData(ctx, false)
 		}
 
-		return nil, fmt.Errorf(`error while getting data: %v`, err)
+		return nil, err
 	}
 
 	var infos netatmo.StationsData
 	if err := json.Unmarshal(rawData, &infos); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &infos, nil

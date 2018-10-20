@@ -292,6 +292,7 @@
     "github.com/ViBiOh/httputils/pkg",
     "github.com/ViBiOh/httputils/pkg/alcotest",
     "github.com/ViBiOh/httputils/pkg/cors",
+    "github.com/ViBiOh/httputils/pkg/errors",
     "github.com/ViBiOh/httputils/pkg/gzip",
     "github.com/ViBiOh/httputils/pkg/healthcheck",
     "github.com/ViBiOh/httputils/pkg/httperror",

@@ -2,11 +2,11 @@ package hue
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/ViBiOh/httputils/pkg/logger"
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -50,13 +50,13 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 		var err error
 
 		if groups, err = a.listGroups(ctx); err != nil {
-			return fmt.Errorf(`error while retrieving groups for configuring schedule: %v`, err)
+			return err
 		}
 	}
 
 	scene, err := a.createSceneFromScheduleConfig(ctx, config, groups)
 	if err != nil {
-		return fmt.Errorf(`error while creating scene for schedule config %+v: %v`, config, err)
+		return err
 	}
 
 	schedule := &hue.Schedule{
@@ -74,7 +74,7 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 	}
 
 	if err := a.createSchedule(ctx, schedule); err != nil {
-		return fmt.Errorf(`error while creating schedule from config %+v: %v`, config, err)
+		return err
 	}
 
 	return nil
@@ -82,11 +82,11 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 
 func (a *App) updateSchedule(ctx context.Context, schedule *hue.Schedule) error {
 	if schedule == nil {
-		return errors.New(`a schedule is required to update`)
+		return errors.New(`missing schedule to update`)
 	}
 
 	if schedule.ID == `` {
-		return errors.New(`a schedule ID is required to update`)
+		return errors.New(`missing schedule ID to update`)
 	}
 
 	return update(ctx, fmt.Sprintf(`%s/schedules/%s`, a.bridgeURL, schedule.ID), schedule.APISchedule)
@@ -99,12 +99,12 @@ func (a *App) deleteSchedule(ctx context.Context, id string) error {
 func (a *App) cleanSchedules(ctx context.Context) error {
 	schedules, err := a.listSchedules(ctx)
 	if err != nil {
-		return fmt.Errorf(`error while listing schedules: %v`, err)
+		return err
 	}
 
 	for key := range schedules {
 		if err := a.deleteSchedule(ctx, key); err != nil {
-			return fmt.Errorf(`error while deleting schedule: %v`, err)
+			return err
 		}
 	}
 
@@ -114,13 +114,13 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 func (a *App) configureSchedules(ctx context.Context, schedules []*hue.ScheduleConfig) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		logger.Error(`[%s] Error while retrieving groups for configuring schedules: %v`, hue.Source, err)
+		logger.Error(`%+v`, err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
-			logger.Error(`[%s] %v`, hue.Source, err)
+			logger.Error(`%+v`, err)
 		}
 	}
 }

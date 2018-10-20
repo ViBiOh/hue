@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/httpjson"
 	"github.com/ViBiOh/httputils/pkg/logger"
@@ -66,19 +67,19 @@ func NewApp(config map[string]*string) *App {
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
-		logger.Error(`error while creating request to authenticate: %v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		return &App{}
 	}
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
-		logger.Error(`error while authenticating: %v`, err)
+		logger.Error(`%+v`, err)
 		return &App{}
 	}
 
 	var authentContent map[string]string
 	if err = json.Unmarshal(payload, &authentContent); err != nil {
-		logger.Error(`error while unmarshalling authentication content: %v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		return &App{}
 	}
 
@@ -100,19 +101,19 @@ func Flags(prefix string) map[string]*string {
 func (a *App) getDevices() ([]*Device, error) {
 	deviceRequest, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s%s`, API, devicesEndpoint), nil)
 	if err != nil {
-		return nil, fmt.Errorf(`error while creating request to list devices: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	deviceRequest.SetBasicAuth(a.account, a.password)
 
 	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, deviceRequest)
 	if err != nil {
-		return nil, fmt.Errorf(`error while listing devices: %v`, err)
+		return nil, err
 	}
 
 	var devices []*Device
 	if err = json.Unmarshal(payload, &devices); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling devices content: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return devices, nil
@@ -130,7 +131,7 @@ func (a *App) GetData() interface{} {
 
 	devices, err := a.getDevices()
 	if err != nil {
-		logger.Error(`error while getting devices: %v`, err)
+		logger.Error(`%+v`, err)
 	}
 
 	return devices

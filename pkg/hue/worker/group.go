@@ -21,7 +21,7 @@ func (a *App) listGroups(ctx context.Context) (map[string]*hue.Group, error) {
 		for _, lightID := range value.Lights {
 			light, err := a.getLight(ctx, lightID)
 			if err != nil {
-				return nil, fmt.Errorf(`error while getting light data of group: %v`, err)
+				return nil, err
 			}
 
 			if strings.HasPrefix(light.Type, `On/Off`) {

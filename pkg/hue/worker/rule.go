@@ -34,12 +34,12 @@ func (a *App) deleteRule(ctx context.Context, id string) error {
 func (a *App) cleanRules(ctx context.Context) error {
 	rules, err := a.listRules(ctx)
 	if err != nil {
-		return fmt.Errorf(`error while listing rules: %v`, err)
+		return err
 	}
 
 	for key := range rules {
 		if err := a.deleteRule(ctx, key); err != nil {
-			return fmt.Errorf(`error while deleting rule: %v`, err)
+			return err
 		}
 	}
 

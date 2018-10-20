@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/templates"
@@ -59,7 +60,7 @@ func init() {
 func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
 	filesTemplates, err := templates.GetTemplates(strings.TrimSpace(*config[`templatesDir`]), `.html`)
 	if err != nil {
-		logger.Error(`error while getting templates: %v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 	}
 
 	app := &App{

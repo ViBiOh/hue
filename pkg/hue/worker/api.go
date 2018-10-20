@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/request"
 )
 
@@ -18,11 +18,11 @@ func get(ctx context.Context, url string, response interface{}) error {
 	content, err := request.Get(ctx, url, nil)
 
 	if err != nil {
-		return fmt.Errorf(`error while sending get request: %v`, err)
+		return err
 	}
 
 	if err := json.Unmarshal(content, &response); err != nil {
-		return fmt.Errorf(`error while parsing response %s: %v`, content, err)
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -30,18 +30,17 @@ func get(ctx context.Context, url string, response interface{}) error {
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
 	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
-
 	if err != nil {
-		return nil, fmt.Errorf(`error while sending post request: %v`, err)
+		return nil, err
 	}
 
 	if hasError(content) {
-		return nil, fmt.Errorf(`error while sending post request: %s`, content)
+		return nil, errors.New(`create error: %s`, content)
 	}
 
 	var response []map[string]map[string]*string
 	if err := json.Unmarshal(content, &response); err != nil {
-		return nil, fmt.Errorf(`error while parsing response %s: %v`, content, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return response[0][`success`][`id`], nil
@@ -49,13 +48,12 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 
 func update(ctx context.Context, url string, payload interface{}) error {
 	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
-
 	if err != nil {
-		return fmt.Errorf(`error while sending put request: %v`, err)
+		return err
 	}
 
 	if hasError(content) {
-		return fmt.Errorf(`error while sending put request: %s`, content)
+		return errors.New(`update error: %s`, content)
 	}
 
 	return nil
@@ -63,13 +61,12 @@ func update(ctx context.Context, url string, payload interface{}) error {
 
 func delete(ctx context.Context, url string) error {
 	content, err := request.Do(ctx, http.MethodDelete, url, nil, nil)
-
 	if err != nil {
-		return fmt.Errorf(`error while sending delete request: %v`, err)
+		return err
 	}
 
 	if hasError(content) {
-		return fmt.Errorf(`error while sending delete request: %s`, content)
+		return errors.New(`delete error: %s`, content)
 	}
 
 	return nil

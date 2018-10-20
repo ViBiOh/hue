@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
@@ -33,12 +34,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 
 	rawData, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
 	if err != nil {
-		return fmt.Errorf(`error while refreshing token: %v`, err)
+		return err
 	}
 
 	var token sonos.Token
 	if err := json.Unmarshal(rawData, &token); err != nil {
-		return fmt.Errorf(`error while unmarshalling token %s: %v`, rawData, err)
+		return errors.WithStack(err)
 	}
 
 	a.accessToken = token.AccessToken
@@ -57,7 +58,7 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 
 	payload, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return nil, fmt.Errorf(`error while reading body: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
@@ -65,7 +66,7 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 
 	if err != nil && strings.Contains(string(data), `Incorrect token`) {
 		if err := a.refreshAccessToken(ctx); err != nil {
-			return nil, fmt.Errorf(`error while refreshing access token: %v`, err)
+			return nil, err
 		}
 
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))

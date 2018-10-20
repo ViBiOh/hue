@@ -2,9 +2,9 @@ package netatmo
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -54,7 +54,7 @@ func (a *App) handleDevicesWorker(message *provider.WorkerMessage) error {
 
 	var data []*Device
 	if err := json.Unmarshal([]byte(message.Payload), &data); err != nil {
-		return fmt.Errorf(`error while unmarshalling devices: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	a.devices = data

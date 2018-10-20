@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 )
 
@@ -16,7 +17,7 @@ func (s *Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		logger.Error(`Error while parsing local time: %v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		return s.Localtime
 	}
 

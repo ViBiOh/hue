@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -17,7 +18,7 @@ func (a *App) listScenes(ctx context.Context) (map[string]*hue.Scene, error) {
 	for id := range response {
 		scene, err := a.getScene(ctx, id)
 		if err != nil {
-			return nil, fmt.Errorf(`error while fetching scene %s: %v`, id, err)
+			return nil, err
 		}
 
 		response[id] = scene
@@ -51,12 +52,12 @@ func (a *App) createScene(ctx context.Context, o *hue.Scene) error {
 func (a *App) createSceneFromScheduleConfig(ctx context.Context, config *hue.ScheduleConfig, groups map[string]*hue.Group) (*hue.Scene, error) {
 	group, ok := groups[config.Group]
 	if !ok {
-		return nil, fmt.Errorf(`unknown group id: %s`, config.Group)
+		return nil, errors.New(`unknown group id: %s`, config.Group)
 	}
 
 	state, ok := hue.States[config.State]
 	if !ok {
-		return nil, fmt.Errorf(`unknown state name: %s`, config.State)
+		return nil, errors.New(`unknown state name: %s`, config.State)
 	}
 
 	scene := &hue.Scene{
@@ -68,12 +69,12 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config *hue.Sch
 	}
 
 	if err := a.createScene(ctx, scene); err != nil {
-		return nil, fmt.Errorf(`error while creating scene for config %+v: %v`, config, err)
+		return nil, err
 	}
 
 	for _, light := range scene.Lights {
 		if err := a.updateSceneLightState(ctx, scene, light, state); err != nil {
-			return nil, fmt.Errorf(`error while updating scene light state for config %+v: %v`, config, err)
+			return nil, err
 		}
 	}
 
@@ -91,12 +92,12 @@ func (a *App) deleteScene(ctx context.Context, id string) error {
 func (a *App) cleanScenes(ctx context.Context) error {
 	scenes, err := a.listScenes(ctx)
 	if err != nil {
-		return fmt.Errorf(`error while listing scenes: %v`, err)
+		return err
 	}
 
 	for key := range scenes {
 		if err := a.deleteScene(ctx, key); err != nil {
-			return fmt.Errorf(`error while deleting scene: %v`, err)
+			return err
 		}
 	}
 

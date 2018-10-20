@@ -3,13 +3,13 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/ViBiOh/iot/pkg/sonos"
@@ -59,7 +59,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerMute(ctx, p)
 	}
 
-	return nil, fmt.Errorf(`unknown request: %s`, p)
+	return nil, errors.New(`unknown request: %s`, p)
 }
 
 func (a *App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -96,20 +96,20 @@ func (a *App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provi
 func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 	households, err := a.GetHouseholds(ctx)
 	if err != nil {
-		return nil, fmt.Errorf(`error while listing households: %v`, err)
+		return nil, err
 	}
 
 	for _, household := range households {
 		data, err := a.GetGroups(ctx, household.ID)
 		if err != nil {
-			return nil, fmt.Errorf(`error while listing groups: %v`, err)
+			return nil, err
 		}
 
 		household.Groups = data.Groups
 		for _, group := range household.Groups {
 			data, err := a.GetGroupVolume(ctx, group.ID)
 			if err != nil {
-				return nil, fmt.Errorf(`error while getting group volume: %v`, err)
+				return nil, err
 			}
 
 			group.Volume = data
@@ -118,7 +118,7 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 
 	payload, err := json.Marshal(households)
 	if err != nil {
-		return nil, fmt.Errorf(`error while converting households payload: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	message := provider.NewWorkerMessage(nil, sonos.Source, `households`, fmt.Sprintf(`%s`, payload))

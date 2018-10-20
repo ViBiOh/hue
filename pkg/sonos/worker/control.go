@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
@@ -23,17 +24,17 @@ type HouseholdsOutput struct {
 func (a *App) GetHouseholds(ctx context.Context) ([]*sonos.Household, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households`, controlURL), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`error while creating request: %v`, err)
+		return nil, err
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`error while getting households: %v - %s`, err, rawData)
+		return nil, err
 	}
 
 	var data HouseholdsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return data.Households, nil
@@ -49,17 +50,17 @@ type GroupsOutput struct {
 func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/households/%s/groups`, controlURL, householdID), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`error while creating request: %v`, err)
+		return nil, err
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`error while getting groups: %v - %s`, err, rawData)
+		return nil, err
 	}
 
 	var data GroupsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &data, nil
@@ -69,17 +70,17 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*sonos.GroupVolume, error) {
 	req, err := request.New(http.MethodGet, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`error while creating request: %v`, err)
+		return nil, err
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`error while getting group volume: %v - %s`, err, rawData)
+		return nil, err
 	}
 
 	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &data, nil
@@ -93,17 +94,17 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 
 	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/groupVolume`, controlURL, groupID), payload, nil)
 	if err != nil {
-		return nil, fmt.Errorf(`error while creating request: %v`, err)
+		return nil, err
 	}
 
 	rawData, err := a.requestWithAuth(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf(`error while setting group volume: %v - %s`, err, rawData)
+		return nil, err
 	}
 
 	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, fmt.Errorf(`error while unmarshalling data %s: %v`, rawData, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &data, nil
@@ -117,13 +118,9 @@ func (a *App) SetGroupMute(ctx context.Context, groupID string, muted bool) erro
 
 	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/mute`, controlURL, groupID), payload, nil)
 	if err != nil {
-		return fmt.Errorf(`error while creating request: %v`, err)
+		return err
 	}
 
-	rawData, err := a.requestWithAuth(ctx, req)
-	if err != nil {
-		return fmt.Errorf(`error while muting group: %v - %s`, err, rawData)
-	}
-
-	return nil
+	_, err = a.requestWithAuth(ctx, req)
+	return err
 }

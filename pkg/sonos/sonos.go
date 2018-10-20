@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -48,7 +49,7 @@ func (a *App) GetData() interface{} {
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
 	volume, err := strconv.Atoi(string(body))
 	if err != nil {
-		httperror.BadRequest(w, fmt.Errorf(`volume is not an integer: %v`, err))
+		httperror.BadRequest(w, errors.New(`volume is not an integer: %v`, err))
 		return
 	}
 
@@ -56,7 +57,7 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, VolumeAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		httperror.InternalServerError(w, fmt.Errorf(`error while setting volume of group %s: %v`, urlParts[0], output.Payload))
+		httperror.InternalServerError(w, errors.New(`%v`, output.Payload))
 		return
 	}
 }
@@ -66,7 +67,7 @@ func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []str
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, MuteAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		httperror.InternalServerError(w, fmt.Errorf(`error while changing mute of group %s: %v`, urlParts[0], output.Payload))
+		httperror.InternalServerError(w, errors.New(`%v`, output.Payload))
 		return
 	}
 }
@@ -77,7 +78,7 @@ func (a *App) groupsHandler() http.Handler {
 		case http.MethodPost:
 			body, err := request.ReadBodyRequest(r)
 			if err != nil {
-				httperror.InternalServerError(w, fmt.Errorf(`error while reading body: %v`, err))
+				httperror.InternalServerError(w, err)
 				return
 			}
 
@@ -135,7 +136,7 @@ func (a *App) handleHouseholdsWorker(message *provider.WorkerMessage) error {
 
 	var data []*Household
 	if err := json.Unmarshal([]byte(message.Payload), &data); err != nil {
-		return fmt.Errorf(`error while unmarshalling households: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	a.households = data

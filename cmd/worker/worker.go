@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
@@ -56,7 +57,7 @@ func Flags(prefix string) map[string]*string {
 
 func (a *App) auth() {
 	if err := a.wsConn.WriteMessage(websocket.TextMessage, []byte(a.secretKey)); err != nil {
-		logger.Error(`error while sending auth message: %v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		close(a.done)
 	}
 }
@@ -70,7 +71,7 @@ func (a *App) pingWorkers() {
 			return worker.Ping(ctx)
 		}
 
-		return nil, fmt.Errorf(`unrecognized worker type: %+v`, e)
+		return nil, errors.New(`unrecognized worker type: %+v`, e)
 	})
 
 	go func() {
@@ -90,7 +91,7 @@ func (a *App) pingWorkers() {
 			}
 
 			if err := provider.WriteErrorMessage(a.wsConn, source, err.Err); err != nil {
-				logger.Error(`%v`, err)
+				logger.Error(`%+v`, err)
 			}
 			break
 
@@ -98,7 +99,7 @@ func (a *App) pingWorkers() {
 			if messages, ok := result.([]*provider.WorkerMessage); ok {
 				for _, message := range messages {
 					if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-						logger.Error(`%v`, err)
+						logger.Error(`%+v`, err)
 					}
 				}
 			} else {
@@ -125,7 +126,7 @@ func (a *App) pinger() {
 func (a *App) handleMessage(p *provider.WorkerMessage) {
 	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Action)
 	if err != nil {
-		logger.Error(`%v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 	}
 	if span != nil {
 		defer span.Finish()
@@ -135,16 +136,16 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		output, err := worker.Handle(ctx, p)
 
 		if err != nil {
-			logger.Error(`error while handling %s - %s: %v`, p.Source, p.Action, err)
+			logger.Error(`%+v`, err)
 
 			if err := provider.WriteErrorMessage(a.wsConn, p.Source, err); err != nil {
-				logger.Error(`%v`, err)
+				logger.Error(`%+v`, err)
 			}
 		}
 
 		if output != nil {
 			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
-				logger.Error(`%v`, err)
+				logger.Error(`%+v`, err)
 			}
 		}
 
@@ -159,12 +160,12 @@ func (a *App) connect() {
 	if ws != nil {
 		defer func() {
 			if err := ws.Close(); err != nil {
-				logger.Error(`Error while closing websocket connection: %v`, err)
+				logger.Error(`%+v`, errors.WithStack(err))
 			}
 		}()
 	}
 	if err != nil {
-		logger.Error(`Error while dialing to websocket %s: %v`, a.websocketURL, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 		return
 	}
 
@@ -186,7 +187,7 @@ func (a *App) connect() {
 			}
 
 			if err != nil {
-				logger.Error(`Error while reading from websocket: %v`, err)
+				logger.Error(`%+v`, errors.WithStack(err))
 				close(a.done)
 				return
 			}
@@ -194,7 +195,7 @@ func (a *App) connect() {
 			if messageType == websocket.TextMessage {
 				var workerMessage provider.WorkerMessage
 				if err := json.Unmarshal(p, &workerMessage); err != nil {
-					logger.Error(`Error while unmarshalling worker message: %v`, err)
+					logger.Error(`%+v`, errors.WithStack(err))
 				} else {
 					input <- &workerMessage
 				}
@@ -222,7 +223,7 @@ func main() {
 
 	hueApp, err := hue_worker.NewApp(hueConfig)
 	if err != nil {
-		logger.Error(`Error while creating hue app: %s`, err)
+		logger.Error(`%+v`, err)
 		os.Exit(1)
 	}
 	netatmoApp := netatmo_worker.NewApp(netatmoConfig)

@@ -2,10 +2,9 @@ package iot
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -24,22 +23,22 @@ func (a *App) checkWorker(ws *websocket.Conn) bool {
 	messageType, p, err := ws.ReadMessage()
 
 	if err != nil {
-		if err := provider.WriteErrorMessage(ws, iotSource, fmt.Errorf(`error while reading first message: %v`, err)); err != nil {
-			logger.Error(`%v`, err)
+		if err := provider.WriteErrorMessage(ws, iotSource, errors.WithStack(err)); err != nil {
+			logger.Error(`%+v`, err)
 		}
 		return false
 	}
 
 	if messageType != websocket.TextMessage {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should be a Text Message`)); err != nil {
-			logger.Error(`%v`, err)
+			logger.Error(`%+v`, err)
 		}
 		return false
 	}
 
 	if string(p) != a.secretKey {
 		if err := provider.WriteErrorMessage(ws, iotSource, errors.New(`first message should contains the Secret Key`)); err != nil {
-			logger.Error(`%v`, err)
+			logger.Error(`%+v`, err)
 		}
 		return false
 	}
@@ -51,7 +50,7 @@ func (a *App) handleTextMessage(p []byte) error {
 	var workerMessage provider.WorkerMessage
 	if err := json.Unmarshal(p, &workerMessage); err != nil {
 		a.wsErrCount++
-		return fmt.Errorf(`error while unmarshalling worker message: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	if outputChan, ok := a.workerCalls.Load(workerMessage.ID); ok {
@@ -59,19 +58,19 @@ func (a *App) handleTextMessage(p []byte) error {
 	}
 
 	if workerMessage.Action == provider.WorkerErrorAction {
-		return fmt.Errorf(`%s: %v`, workerMessage.Source, workerMessage.Payload)
+		return errors.New(`%s: %v`, workerMessage.Source, workerMessage.Payload)
 	}
 
 	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
 		if err := workerProvider.WorkerHandler(&workerMessage); err != nil {
-			return fmt.Errorf(`error while handling %s message: %v`, workerProvider.GetWorkerSource(), err)
+			return err
 		}
 
 		a.wsErrCount = 0
 		return nil
 	}
 
-	return fmt.Errorf(`no provider found for message: %+v`, workerMessage)
+	return errors.New(`no provider found for message: %+v`, workerMessage)
 }
 
 // WebsocketHandler create Websockethandler
@@ -85,12 +84,12 @@ func (a *App) WebsocketHandler() http.Handler {
 				}
 
 				if err := ws.Close(); err != nil {
-					logger.Error(`Error while closing connection: %v`, err)
+					logger.Error(`%+v`, errors.WithStack(err))
 				}
 			}()
 		}
 		if err != nil {
-			logger.Error(`Error while upgrading connection: %v`, err)
+			logger.Error(`%+v`, errors.WithStack(err))
 			return
 		}
 
@@ -101,7 +100,7 @@ func (a *App) WebsocketHandler() http.Handler {
 		logger.Info(`Worker connection from %s`, request.GetIP(r))
 		if a.wsConn != nil {
 			if err := a.wsConn.Close(); err != nil {
-				logger.Error(`Error while closing connection: %v`, err)
+				logger.Error(`%+v`, errors.WithStack(err))
 			}
 
 		}
@@ -116,13 +115,13 @@ func (a *App) WebsocketHandler() http.Handler {
 			}
 
 			if err != nil {
-				logger.Error(`Error while reading from websocket: %v`, err)
+				logger.Error(`%+v`, errors.WithStack(err))
 				break
 			}
 
 			if messageType == websocket.TextMessage {
 				if err := a.handleTextMessage(p); err != nil {
-					logger.Error(`%v`, err)
+					logger.Error(`%+v`, err)
 				}
 			}
 		}

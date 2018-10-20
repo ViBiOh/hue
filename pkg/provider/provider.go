@@ -3,11 +3,10 @@ package provider
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
@@ -88,21 +87,21 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 // WriteMessage writes content as text message on websocket
 func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessage) error {
 	if ws == nil {
-		return fmt.Errorf(`no websocket connection provided for sending: %+v`, message)
+		return errors.New(`no websocket connection provided for sending: %+v`, message)
 	}
 
 	message.Tracing = make(map[string]string)
 	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
-		logger.Error(`%v`, err)
+		logger.Error(`%+v`, errors.WithStack(err))
 	}
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		return fmt.Errorf(`error while marshalling message to worker: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		return fmt.Errorf(`error while sending message to worker: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -114,11 +113,11 @@ func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) erro
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		return fmt.Errorf(`error while marshalling error message: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
-		return fmt.Errorf(`error while sending error message: %v`, err)
+		return errors.WithStack(err)
 	}
 
 	return nil

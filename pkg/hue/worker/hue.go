@@ -3,12 +3,12 @@ package hue
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -34,26 +34,26 @@ func NewApp(config map[string]interface{}) (*App, error) {
 
 	if *config[`clean`].(*bool) {
 		if err := app.cleanSchedules(ctx); err != nil {
-			return nil, fmt.Errorf(`error while cleaning schedules: %v`, err)
+			return nil, err
 		}
 
 		if err := app.cleanScenes(ctx); err != nil {
-			return nil, fmt.Errorf(`error while cleaning scenes: %v`, err)
+			return nil, err
 		}
 
 		if err := app.cleanRules(ctx); err != nil {
-			return nil, fmt.Errorf(`error while cleaning rules: %v`, err)
+			return nil, err
 		}
 	}
 
 	if *config[`config`].(*string) != `` {
 		rawConfig, err := ioutil.ReadFile(*config[`config`].(*string))
 		if err != nil {
-			return nil, fmt.Errorf(`error while reading config filename: %v`, err)
+			return nil, errors.WithStack(err)
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return nil, fmt.Errorf(`error while unmarshalling config %s: %v`, rawConfig, err)
+			return nil, errors.WithStack(err)
 		}
 
 		app.configureSchedules(ctx, app.config.Schedules)
@@ -77,14 +77,14 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
-			return fmt.Errorf(`unknown state %s`, parts[1])
+			return errors.New(`unknown state %s`, parts[1])
 		}
 
 		if err := a.updateGroupState(ctx, parts[0], state); err != nil {
 			return err
 		}
 	} else {
-		return fmt.Errorf(`invalid state request: %s`, p.Payload)
+		return errors.New(`invalid state request: %s`, p.Payload)
 	}
 
 	return nil
@@ -95,11 +95,11 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		var config hue.ScheduleConfig
 
 		if err := json.Unmarshal([]byte(p.Payload), &config); err != nil {
-			return fmt.Errorf(`error while unmarshalling schedule create config: %v`, err)
+			return errors.WithStack(err)
 		}
 
 		if err := a.createScheduleFromConfig(ctx, &config, nil); err != nil {
-			return fmt.Errorf(`error while creating schedule from config: %v`, err)
+			return err
 		}
 
 		return nil
@@ -109,11 +109,11 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		var config hue.Schedule
 
 		if err := json.Unmarshal([]byte(p.Payload), &config); err != nil {
-			return fmt.Errorf(`error while unmarshalling schedule update: %v`, err)
+			return errors.WithStack(err)
 		}
 
 		if config.ID == `` {
-			return errors.New(`error while updating schedule config: ID is missing`)
+			return errors.New(`ID is missing`)
 		}
 
 		return a.updateSchedule(ctx, &config)
@@ -124,16 +124,16 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 
 		schedule, err := a.getSchedule(ctx, id)
 		if err != nil {
-			return fmt.Errorf(`error while getting schedule: %v`, err)
+			return err
 		}
 
 		if err := a.deleteSchedule(ctx, id); err != nil {
-			return fmt.Errorf(`error while deleting schedule: %v`, err)
+			return err
 		}
 
 		if sceneID, ok := schedule.Command.Body[`scene`]; ok {
 			if err := a.deleteScene(ctx, sceneID.(string)); err != nil {
-				return fmt.Errorf(`error while deleting scene: %v`, err)
+				return err
 			}
 		}
 
@@ -151,7 +151,7 @@ func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMess
 
 	payload, err := json.Marshal(groups)
 	if err != nil {
-		return nil, fmt.Errorf(`error while converting groups payload: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf(`%s`, payload)), nil
@@ -165,7 +165,7 @@ func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMess
 
 	payload, err := json.Marshal(scenes)
 	if err != nil {
-		return nil, fmt.Errorf(`error while converting scenes payload: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf(`%s`, payload)), nil
@@ -179,7 +179,7 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 
 	payload, err := json.Marshal(schedules)
 	if err != nil {
-		return nil, fmt.Errorf(`error while converting schedules payload: %v`, err)
+		return nil, errors.WithStack(err)
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf(`%s`, payload)), nil
@@ -211,7 +211,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerListGroups(ctx, p)
 	}
 
-	return nil, fmt.Errorf(`unknown request: %s`, p)
+	return nil, errors.New(`unknown request: %s`, p)
 }
 
 // GetSource returns source name for WS calls
