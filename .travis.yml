@@ -29,22 +29,13 @@ jobs:
       sed \
         -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
         -e "s|\${SECRET_KEY}|${SECRET_KEY}|g" \
-        -e "s/\${NETATMO_ACCESS_TOKEN}/${NETATMO_ACCESS_TOKEN}/g" \
-        -e "s/\${NETATMO_CLIENT_ID}/${NETATMO_CLIENT_ID}/g" \
-        -e "s/\${NETATMO_CLIENT_SECRET}/${NETATMO_CLIENT_SECRET}/g" \
-        -e "s/\${NETATMO_REFRESH_TOKEN}/${NETATMO_REFRESH_TOKEN}/g" \
         -e "s/\${DYSON_EMAIL}/${DYSON_EMAIL}/g" \
         -e "s/\${DYSON_PASSWORD}/${DYSON_PASSWORD}/g" \
-        -e "s/\${SONOS_ACCESS_TOKEN}/${SONOS_ACCESS_TOKEN}/g" \
-        -e "s/\${SONOS_CLIENT_ID}/${SONOS_CLIENT_ID}/g" \
-        -e "s/\${SONOS_CLIENT_SECRET}/${SONOS_CLIENT_SECRET}/g" \
-        -e "s/\${SONOS_REFRESH_TOKEN}/${SONOS_REFRESH_TOKEN}/g" \
-        -e "s/\${ROLLBAR_TOKEN}/${ROLLBAR_TOKEN}/g" \
         docker-compose.yml > docker-compose-env.yml
     deploy:
       provider: script
       skip_cleanup: true
-      script: 'curl -H "Authorization: GitHub ${GITHUB_OAUTH_TOKEN}" -X POST "https://dashboard-api.vibioh.fr/deploy/iot/?rollbar_token=${ROLLBAR_TOKEN}&user=`make author`&revision=`make version`&environment=prod" --data-binary @docker-compose-env.yml'
+      script: 'curl -H "Authorization: GitHub ${GITHUB_OAUTH_TOKEN}" -X POST "https://dashboard-api.vibioh.fr/deploy/iot/" --data-binary @docker-compose-env.yml'
 
 stages:
   - Build

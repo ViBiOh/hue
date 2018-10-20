@@ -40,12 +40,8 @@ Usage of iot:
       [owasp] Indicate Strict Transport Security (default true)
   -port int
       Listen port (default 1080)
-  -rollbarEnv string
-      [rollbar] Environment (default "prod")
-  -rollbarServerRoot string
-      [rollbar] Server Root
-  -rollbarToken string
-      [rollbar] Token
+  -prometheusPath string
+      [prometheus] Path for exposing metrics (default "/metrics")
   -secretKey string
       [iot] Secret Key between worker and API
   -templates string
@@ -67,7 +63,7 @@ Usage of iot:
   -url string
       [health] URL to check
   -userAgent string
-      [health] User-Agent used (default "Golang alcotest")
+      [health] User-Agent for check (default "Golang alcotest")
 ```
 
 ## Usage of IoT worker
@@ -90,12 +86,6 @@ Usage of worker:
       [netatmo] Client Secret
   -netatmoRefreshToken string
       [netatmo] Refresh Token
-  -rollbarEnv string
-      [rollbar] Environment (default "prod")
-  -rollbarServerRoot string
-      [rollbar] Server Root
-  -rollbarToken string
-      [rollbar] Token
   -secretKey string
       Secret Key
   -sonosAccessToken string
@@ -106,10 +96,6 @@ Usage of worker:
       [sonos] Client Secret
   -sonosRefreshToken string
       [sonos] Refresh Token
-  -tracingAgent string
-      [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
-  -tracingName string
-      [opentracing] Service name
   -websocket string
       WebSocket URL
 ```

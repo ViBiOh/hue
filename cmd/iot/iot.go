@@ -85,7 +85,7 @@ func main() {
 	wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
 	handleAnonymousRequest := func(w http.ResponseWriter, r *http.Request, err error) {
-		if auth.IsForbiddenErr(err) {
+		if auth.ErrNotAllowed == err {
 			httperror.Forbidden(w)
 		} else {
 			w.Header().Add(`WWW-Authenticate`, `Basic charset="UTF-8"`)

@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  api:
+  site:
     image: vibioh/iot
     command:
     - -authUsers
@@ -17,13 +17,7 @@ services:
     - -dysonPassword
     - ${DYSON_PASSWORD}
     - -tracingName
-    - iot_api
-    - -rollbarToken
-    - ${ROLLBAR_TOKEN}
-    - -rollbarServerRoot
-    - github.com/ViBiOh/iot
-    - -rollbarEnv
-    - prod
+    - iot
     labels:
       traefik.frontend.passHostHeader: 'true'
       traefik.frontend.rule: 'Host: iot.vibioh.fr'
