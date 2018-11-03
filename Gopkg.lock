@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ece1e4435f2a2a793a9860b5b4500322a3eda6890911074b5a16d88f4f015561"
+  digest = "1:25e0f63efd12aefa008aa771efbc09c885a5420f8ddd97b8d88342d54396882e"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -23,11 +23,11 @@
     "pkg/service",
   ]
   pruneopts = "UT"
-  revision = "412eb84033e2c783ba9fe22c540c4f31279ffc66"
+  revision = "7795a42cfdc70648e707c0c4487d01f3e702544f"
 
 [[projects]]
   branch = "master"
-  digest = "1:d1f4fd9f850d40433a2dda75b61271ef192b22c4f5a3ad3d332fea4a4a3f75f5"
+  digest = "1:6be77bc16cb337de1c26f94d0d4b371c782cb38cb502107a173680d4e57385df"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -53,7 +53,7 @@
     "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "a147310fb9a8c422292a2d6f7fe4781eda74919d"
+  revision = "c58a9f65c48ba7dcba0c44f4efed009c341c17a5"
 
 [[projects]]
   branch = "master"
@@ -97,11 +97,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:264f2848854a41b03a6525ea6c1e858762caa34964a63dde898dc4bba339e50f"
+  digest = "1:51fb21c0dd1b64d5ae74c34f544e312ee73edd2a258db6347369014b5949f44a"
   name = "github.com/opentracing-contrib/go-stdlib"
   packages = ["nethttp"]
   pruneopts = "UT"
-  revision = "07a764486eb10927e8cf38337918a40d430524ee"
+  revision = "c9628a4f0148d7e441a4af66dc0b1653cd941c20"
 
 [[projects]]
   digest = "1:450b7623b185031f3a456801155c8320209f75d0d4c4e633c6b1e59d44d6e392"
@@ -144,7 +144,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1261069fb38fbe59aba55117ee39c59814f211c027d66d59ed1c60e5c11b377c"
+  digest = "1:db712fde5d12d6cdbdf14b777f0c230f4ff5ab0be8e35b239fc319953ed577a4"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -152,7 +152,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "16b4535ad14a9ef20a9d9fd8055143c5faa15224"
+  revision = "7e9e6cabbd393fc208072eedef99188d0ce788b6"
 
 [[projects]]
   branch = "master"
@@ -168,7 +168,7 @@
   revision = "185b4288413d2a0dd0806f78c90dde719829e5ae"
 
 [[projects]]
-  digest = "1:22d0b8854d1df1d03e806e3d172dac199ae539f46c0b9f55b9f6a9be592de0bc"
+  digest = "1:e20363f1f1df376a0affd098bc38daa13397f5aadc13dd7a212dddcf3b11ae00"
   name = "github.com/tdewolff/minify"
   packages = [
     ".",
@@ -178,11 +178,11 @@
     "xml",
   ]
   pruneopts = "UT"
-  revision = "8d72a4127ae33b755e95bffede9b92e396267ce2"
-  version = "v2.3.5"
+  revision = "52ac3a2c39ee917703c04ba67bc59250b34e8fe8"
+  version = "v2.3.7"
 
 [[projects]]
-  digest = "1:f86520dc9ce94fe3fab66ecee0c658c47a34860ffd6a60803f40f9476a32ad5a"
+  digest = "1:948e6ddd6f64a519f36879ec28bc392d1e8268ebc0591200db3c98dd587afed9"
   name = "github.com/tdewolff/parse"
   packages = [
     ".",
@@ -194,8 +194,8 @@
     "xml",
   ]
   pruneopts = "UT"
-  revision = "d739d6fccb0971177e06352fea02d3552625efb1"
-  version = "v2.3.3"
+  revision = "fced451e0bedc5b641b8dcae76b07859e3b4adfd"
+  version = "v2.3.4"
 
 [[projects]]
   digest = "1:ac6f26e917fd2fb3194a7ebe2baf6fb32de2f2fbfed130c18aac0e758a6e1d22"
@@ -240,7 +240,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb"
+  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
 
 [[projects]]
   branch = "master"
@@ -251,11 +251,11 @@
     "context/ctxhttp",
   ]
   pruneopts = "UT"
-  revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
+  revision = "c10e9556a7bc0e7c942242b606f0acf024ad5d6a"
 
 [[projects]]
   branch = "master"
-  digest = "1:908c9fc10f266c629423f62bb351c2f508848b03ad9a8cb6b42209a4a0dc6077"
+  digest = "1:4d341b181fab9b500aea9ffce309127aee1bfc59601d8eb7adfdf6dc7e000349"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -263,10 +263,10 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "9dcd33a902f40452422c2367fefcb95b54f9f8f8"
+  revision = "232e45548389bd9357411a6922a07c5fd4068bda"
 
 [[projects]]
-  digest = "1:6247f76e55a1e1a5c19a81e2d4b4dff6730461eeb5bbb0a16dd4a8ec8637ee93"
+  digest = "1:08206298775e5b462e6c0333f4471b44e63f1a70e42952b6ede4ecc9572281eb"
   name = "google.golang.org/appengine"
   packages = [
     "internal",
@@ -278,15 +278,14 @@
     "urlfetch",
   ]
   pruneopts = "UT"
-  revision = "ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06"
-  version = "v1.2.0"
+  revision = "4a4468ece617fc8205e99368fa2200e9d1fad421"
+  version = "v1.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/ViBiOh/auth/pkg/auth",
-    "github.com/ViBiOh/auth/pkg/model",
     "github.com/ViBiOh/auth/pkg/provider/basic",
     "github.com/ViBiOh/auth/pkg/service",
     "github.com/ViBiOh/httputils/pkg",

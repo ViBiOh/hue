@@ -71,7 +71,7 @@ func NewApp(config map[string]*string) *App {
 		return &App{}
 	}
 
-	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
+	payload, _, _, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
 	if err != nil {
 		logger.Error(`%+v`, err)
 		return &App{}
@@ -106,7 +106,7 @@ func (a *App) getDevices() ([]*Device, error) {
 
 	deviceRequest.SetBasicAuth(a.account, a.password)
 
-	payload, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, deviceRequest)
+	payload, _, _, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, deviceRequest)
 	if err != nil {
 		return nil, err
 	}

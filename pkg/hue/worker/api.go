@@ -15,7 +15,7 @@ func hasError(content []byte) bool {
 }
 
 func get(ctx context.Context, url string, response interface{}) error {
-	content, err := request.Get(ctx, url, nil)
+	content, _, _, err := request.Get(ctx, url, nil)
 
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func get(ctx context.Context, url string, response interface{}) error {
 }
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
-	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
+	content, _, _, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 }
 
 func update(ctx context.Context, url string, payload interface{}) error {
-	content, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
+	content, _, _, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 }
 
 func delete(ctx context.Context, url string) error {
-	content, err := request.Do(ctx, http.MethodDelete, url, nil, nil)
+	content, _, _, err := request.Do(ctx, http.MethodDelete, url, nil, nil)
 	if err != nil {
 		return err
 	}

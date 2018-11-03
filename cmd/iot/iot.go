@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/auth/pkg/auth"
-	"github.com/ViBiOh/auth/pkg/model"
 	"github.com/ViBiOh/auth/pkg/provider/basic"
 	authService "github.com/ViBiOh/auth/pkg/service"
 	"github.com/ViBiOh/httputils/pkg"
@@ -15,7 +14,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/cors"
 	"github.com/ViBiOh/httputils/pkg/gzip"
 	"github.com/ViBiOh/httputils/pkg/healthcheck"
-	"github.com/ViBiOh/httputils/pkg/httperror"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
 	"github.com/ViBiOh/httputils/pkg/prometheus"
@@ -84,16 +82,7 @@ func main() {
 	iotHandler := iotApp.Handler()
 	wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
-	handleAnonymousRequest := func(w http.ResponseWriter, r *http.Request, err error) {
-		if auth.ErrNotAllowed == err {
-			httperror.Forbidden(w)
-		} else {
-			w.Header().Add(`WWW-Authenticate`, `Basic charset="UTF-8"`)
-			httperror.Unauthorized(w, err)
-		}
-	}
-
-	authHandler := authApp.HandlerWithFail(func(w http.ResponseWriter, r *http.Request, _ *model.User) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, dysonPath) {
@@ -105,9 +94,9 @@ func main() {
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
-	}, handleAnonymousRequest)
+	})
 
-	apiHandler := server.ChainMiddlewares(authHandler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp)
+	apiHandler := server.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp, authApp)
 
 	serverApp.ListenAndServe(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, websocketPath) {
