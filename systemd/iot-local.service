@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=root
 EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/iot -tls=false -authDisable -port 80 -templates /home/vibioh/code/src/github.com/ViBiOh/iot/templates/ -csp "default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" -secretKey ${SECRET_KEY} -dysonEmail ${DYSON_EMAIL} -dysonPassword ${DYSON_PASSWORD}
+ExecStart=/home/vibioh/code/bin/iot -secretKey ${IOT_SECRET_KEY} -tls=false -authDisable -port 80 -templates /home/vibioh/code/src/github.com/ViBiOh/iot/templates/ -csp "default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" -dysonEmail ${DYSON_EMAIL} -dysonPassword ${DYSON_PASSWORD}
 Restart=always
 RestartSec=60s
 
