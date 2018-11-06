@@ -109,37 +109,19 @@ go install github.com/ViBiOh/iot/cmd/worker
 go install github.com/ViBiOh/iot/cmd/iot
 ```
 
-Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html`
+Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html` and add credentials to `.env` file.
 
 ```
 POST /api
 Body: {"devicetype":"iot-worker"}
 ```
 
-Create file `sudo vi /lib/systemd/system/iot-worker.service`
-
-```
-[Unit]
-Description=iot-worker
-After=network.target
-
-[Service]
-Type=simple
-User=vibioh
-EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/worker -secretKey ${IOT_SECRET_KEY} -websocket wss://iot.vibioh.fr/ws -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken ${SONOS_ACCESS_TOKEN} -sonosClientID ${SONOS_CLIENT_ID} -sonosClientSecret ${SONOS_CLIENT_SECRET} -sonosRefreshToken ${SONOS_REFRESH_TOKEN}
-Restart=always
-RestartSec=60s
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start service
+Enable and start services
 
 ```bash
+sudo cp systemd/* /lib/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable iot-worker.service
-sudo systemctl start iot-worker.service
-journalctl -u iot-worker.service
+sudo systemctl enable iot-local.service iot-local-worker.service iot-remote-worker.service
+sudo systemctl start iot-local.service iot-local-worker.service iot-remote-worker.service
+journalctl -u iot-remote-worker.service
 ```

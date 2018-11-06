@@ -11,28 +11,26 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:25e0f63efd12aefa008aa771efbc09c885a5420f8ddd97b8d88342d54396882e"
+  digest = "1:721ff50e50c2bb80231058749f91a85c7da32a497124dc40f2b4f717d455960e"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
     "pkg/cookie",
+    "pkg/ident",
+    "pkg/ident/basic",
+    "pkg/ident/service",
     "pkg/model",
-    "pkg/provider",
-    "pkg/provider/basic",
-    "pkg/provider/github",
-    "pkg/service",
   ]
   pruneopts = "UT"
-  revision = "7795a42cfdc70648e707c0c4487d01f3e702544f"
+  revision = "3afc7498e8cfe2d4397206a2b07ba1b24d9b171e"
 
 [[projects]]
   branch = "master"
-  digest = "1:6be77bc16cb337de1c26f94d0d4b371c782cb38cb502107a173680d4e57385df"
+  digest = "1:4fa41b70c9b6af18eef5bed7bdc8fa97569da0981c21b66cd8f8e7741128b02c"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
     "pkg/alcotest",
-    "pkg/cache",
     "pkg/cert",
     "pkg/cors",
     "pkg/errors",
@@ -50,10 +48,9 @@
     "pkg/server",
     "pkg/templates",
     "pkg/tools",
-    "pkg/uuid",
   ]
   pruneopts = "UT"
-  revision = "c58a9f65c48ba7dcba0c44f4efed009c341c17a5"
+  revision = "08cb8f858a20d8b33b15504d05bff2b97b35883f"
 
 [[projects]]
   branch = "master"
@@ -168,7 +165,7 @@
   revision = "185b4288413d2a0dd0806f78c90dde719829e5ae"
 
 [[projects]]
-  digest = "1:e20363f1f1df376a0affd098bc38daa13397f5aadc13dd7a212dddcf3b11ae00"
+  digest = "1:48c8c8d1fb550f059bcb5696a6f333693e19e3bad4db00d5c9b19f3846629511"
   name = "github.com/tdewolff/minify"
   packages = [
     ".",
@@ -178,8 +175,8 @@
     "xml",
   ]
   pruneopts = "UT"
-  revision = "52ac3a2c39ee917703c04ba67bc59250b34e8fe8"
-  version = "v2.3.7"
+  revision = "c86dd764169e70ab04e3b0d5fd5e478657a6c83d"
+  version = "v2.3.6"
 
 [[projects]]
   digest = "1:948e6ddd6f64a519f36879ec28bc392d1e8268ebc0591200db3c98dd587afed9"
@@ -244,50 +241,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d6b719875cf8091fbab38527d81d34e71f4521b9ee9ccfbd4a32cff2ac5af96e"
+  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
   name = "golang.org/x/net"
-  packages = [
-    "context",
-    "context/ctxhttp",
-  ]
+  packages = ["context"]
   pruneopts = "UT"
-  revision = "c10e9556a7bc0e7c942242b606f0acf024ad5d6a"
-
-[[projects]]
-  branch = "master"
-  digest = "1:4d341b181fab9b500aea9ffce309127aee1bfc59601d8eb7adfdf6dc7e000349"
-  name = "golang.org/x/oauth2"
-  packages = [
-    ".",
-    "github",
-    "internal",
-  ]
-  pruneopts = "UT"
-  revision = "232e45548389bd9357411a6922a07c5fd4068bda"
-
-[[projects]]
-  digest = "1:08206298775e5b462e6c0333f4471b44e63f1a70e42952b6ede4ecc9572281eb"
-  name = "google.golang.org/appengine"
-  packages = [
-    "internal",
-    "internal/base",
-    "internal/datastore",
-    "internal/log",
-    "internal/remote_api",
-    "internal/urlfetch",
-    "urlfetch",
-  ]
-  pruneopts = "UT"
-  revision = "4a4468ece617fc8205e99368fa2200e9d1fad421"
-  version = "v1.3.0"
+  revision = "10aee181995363b41f712a55844a0dd52ea04646"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/ViBiOh/auth/pkg/auth",
-    "github.com/ViBiOh/auth/pkg/provider/basic",
-    "github.com/ViBiOh/auth/pkg/service",
+    "github.com/ViBiOh/auth/pkg/ident/basic",
+    "github.com/ViBiOh/auth/pkg/ident/service",
     "github.com/ViBiOh/httputils/pkg",
     "github.com/ViBiOh/httputils/pkg/alcotest",
     "github.com/ViBiOh/httputils/pkg/cors",

@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/auth/pkg/auth"
-	"github.com/ViBiOh/auth/pkg/provider/basic"
-	authService "github.com/ViBiOh/auth/pkg/service"
+	"github.com/ViBiOh/auth/pkg/ident/basic"
+	authService "github.com/ViBiOh/auth/pkg/ident/service"
 	"github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
@@ -64,7 +64,7 @@ func main() {
 	owaspApp := owasp.NewApp(owaspConfig)
 	corsApp := cors.NewApp(corsConfig)
 
-	authApp := auth.NewApp(authConfig, authService.NewBasicApp(authBasicConfig))
+	authApp := auth.NewServiceApp(authConfig, authService.NewBasicApp(authBasicConfig, nil))
 	netatmoApp := netatmo.NewApp(netatmoConfig)
 	dysonApp := dyson.NewApp(dysonConfig)
 	sonosApp := sonos.NewApp(sonosConfig)
