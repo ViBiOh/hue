@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:721ff50e50c2bb80231058749f91a85c7da32a497124dc40f2b4f717d455960e"
+  digest = "1:a3630285c12fa2a48aa40927c749dcb45a30e4805b5bc956e2812490f63c5eed"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -22,11 +22,11 @@
     "pkg/model",
   ]
   pruneopts = "UT"
-  revision = "3afc7498e8cfe2d4397206a2b07ba1b24d9b171e"
+  revision = "495f69b1bcdb4c4b2531cdba6ffb8107e2c57db3"
 
 [[projects]]
   branch = "master"
-  digest = "1:4fa41b70c9b6af18eef5bed7bdc8fa97569da0981c21b66cd8f8e7741128b02c"
+  digest = "1:803f35225bb6030d723641c0e9ef7a0edbe412fe182422bfe82fde9d680130d7"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -50,7 +50,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "08cb8f858a20d8b33b15504d05bff2b97b35883f"
+  revision = "9ff165f27876dc806981d470f4c31c68e1b035c5"
 
 [[projects]]
   branch = "master"
@@ -149,7 +149,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "7e9e6cabbd393fc208072eedef99188d0ce788b6"
+  revision = "0b1957f9d949dfa3084171a6ec5642b38055276a"
 
 [[projects]]
   branch = "master"
@@ -179,7 +179,7 @@
   version = "v2.3.6"
 
 [[projects]]
-  digest = "1:948e6ddd6f64a519f36879ec28bc392d1e8268ebc0591200db3c98dd587afed9"
+  digest = "1:a8b339430c8019600d19196b9882506ada70af7f4a505080a5843ab5488bb5c0"
   name = "github.com/tdewolff/parse"
   packages = [
     ".",
@@ -191,7 +191,7 @@
     "xml",
   ]
   pruneopts = "UT"
-  revision = "fced451e0bedc5b641b8dcae76b07859e3b4adfd"
+  revision = "1b0354dccc7aceb4528eb638fbfec60d20338a29"
   version = "v2.3.4"
 
 [[projects]]
@@ -237,7 +237,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
+  revision = "3d3f9f413869b949e48070b5bc593aa22cc2b8f2"
 
 [[projects]]
   branch = "master"
@@ -245,7 +245,7 @@
   name = "golang.org/x/net"
   packages = ["context"]
   pruneopts = "UT"
-  revision = "10aee181995363b41f712a55844a0dd52ea04646"
+  revision = "03003ca0c849e57b6ea29a4bab8d3cb6e4d568fe"
 
 [solve-meta]
   analyzer-name = "dep"
