@@ -3,7 +3,7 @@
     {{- range . -}}
       {{- range .Groups -}}
         <span class="container">
-          <h2 class="small grey no-margin margin-left">Sonos</h2>
+          <h2 class="small no-margin margin-left">Sonos</h2>
           <h3 class="header center no-margin {{- if eq .PlaybackState "PLAYBACK_STATE_PLAYING" }} success{{- end -}}">{{- .Name -}}</h3>
 
           <div class="flex flex-center flex-wrap padding full-height">

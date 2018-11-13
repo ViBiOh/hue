@@ -5,7 +5,7 @@ services:
     image: vibioh/iot
     command:
     - -authUsers
-    - vibioh:admin,eponae:admin
+    - vibioh:admin
     - -basicUsers
     - ${BASIC_USERS}
     - -csp

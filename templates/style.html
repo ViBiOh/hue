@@ -1,5 +1,13 @@
 {{- define "style" -}}
   <style type="text/css">
+    :root {
+      --dark: #272727;
+      --grey: #3b3b3b;
+      --clear: silver;
+      --success: limegreen;
+      --danger: crimson;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -12,6 +20,8 @@
       -webkit-overflow-scrolling: touch;
       margin: 0;
       padding-bottom: 4rem;
+      background-color: var(--dark);
+      color: var(--clear);
     }
 
     body,
@@ -41,8 +51,7 @@
     }
 
     .header {
-      background-color: dimgray;
-      color: ghostwhite;
+      background-color: var(--grey);
       padding: 0.5rem 1rem;
     }
 
@@ -86,7 +95,7 @@
     }
 
     .container {
-      border: 1px solid dimgray;
+      border: 1px solid var(--clear);
       display: inline-flex;
       flex-direction: column;
       height: 25rem;
@@ -151,17 +160,7 @@
 
     .bg-important {
       background-color: royalblue;
-      color: ghostwhite;
-    }
-
-    .bg-success {
-      background-color: yellowgreen;
-      color: ghostwhite;
-    }
-
-    .bg-danger {
-      background-color: tomato;
-      color: ghostwhite;
+      color: var(--clear);
     }
 
     .icon {
@@ -173,7 +172,7 @@
     }
 
     .modal {
-      background-color: rgba(105, 105, 105, 0.75);
+      background-color: var(--dark);
       height: 100%;
       left: 0;
       pointer-events: none;
@@ -183,11 +182,11 @@
     }
 
     .modal-header {
-      color: dimgray;
+      color: #aaa;
     }
 
     .modal-content {
-      background-color: whitesmoke;
+      background-color: var(--grey);
       padding: 0.5rem 1rem;
       pointer-events: auto;
     }
@@ -198,14 +197,6 @@
       }
     }
 
-    #menu {
-      background-color: whitesmoke;
-      bottom: 0;
-      padding: 1rem;
-      position: fixed;
-      right: 0;
-    }
-
     .message {
       margin: 0;
       padding: 1rem 2rem;
@@ -213,22 +204,20 @@
     }
 
     .success {
-      background-color: yellowgreen;
-      color: ghostwhite;
+      color: var(--success);
     }
 
-    .error {
-      background-color: tomato;
-      color: ghostwhite;
+    .danger {
+      color: var(--danger);
+    }
+
+    .clear {
+      color: var(--clear);
     }
  
     .ellipsis {
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .grey {
-      color: dimgray;
     }
 
     .small {
