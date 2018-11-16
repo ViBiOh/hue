@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 
@@ -57,8 +58,8 @@ func init() {
 }
 
 // NewApp creates new App from dependencies and Flags' config
-func NewApp(config map[string]*string, providers map[string]provider.Provider) *App {
-	filesTemplates, err := templates.GetTemplates(strings.TrimSpace(*config[`templatesDir`]), `.html`)
+func NewApp(config map[string]*string, assetsDirectory string, providers map[string]provider.Provider) *App {
+	filesTemplates, err := templates.GetTemplates(path.Join(assetsDirectory, `templates`), `.html`)
 	if err != nil {
 		logger.Error(`%+v`, errors.WithStack(err))
 	}
@@ -90,8 +91,7 @@ func NewApp(config map[string]*string, providers map[string]provider.Provider) *
 // Flags add flags for given prefix
 func Flags(prefix string) map[string]*string {
 	return map[string]*string{
-		`templatesDir`: flag.String(tools.ToCamel(fmt.Sprintf(`%sTemplates`, prefix)), `./templates/`, `[iot] Templates directory`),
-		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
+		`secretKey`: flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
 	}
 }
 

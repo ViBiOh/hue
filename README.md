@@ -8,6 +8,8 @@
 
 ```bash
 Usage of iot:
+  -assetsDirectory string
+      Assets directory (static and templates)
   -authDisable
       [auth] Disable auth
   -authUrl string
@@ -44,8 +46,6 @@ Usage of iot:
       [prometheus] Path for exposing metrics (default "/metrics")
   -secretKey string
       [iot] Secret Key between worker and API
-  -templates string
-      [iot] Templates directory (default "./templates/")
   -tls
       Serve TLS content (default true)
   -tlsCert string

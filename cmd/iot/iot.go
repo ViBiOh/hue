@@ -33,8 +33,6 @@ const (
 	huePath         = `/hue`
 	dysonPath       = `/dyson`
 	sonosPath       = `/sonos`
-
-	webDirectory = `./static`
 )
 
 func main() {
@@ -51,6 +49,8 @@ func main() {
 	netatmoConfig := netatmo.Flags(`netatmo`)
 	dysonConfig := dyson.Flags(`dyson`)
 	sonosConfig := sonos.Flags(`sonos`)
+
+	assetsDirectory := flag.String(`assetsDirectory`, `./`, `Assets directory (static and templates)`)
 
 	flag.Parse()
 
@@ -69,7 +69,7 @@ func main() {
 	dysonApp := dyson.NewApp(dysonConfig)
 	sonosApp := sonos.NewApp(sonosConfig)
 	hueApp := hue.NewApp()
-	iotApp := iot.NewApp(iotConfig, map[string]provider.Provider{
+	iotApp := iot.NewApp(iotConfig, *assetsDirectory, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 		`Dyson`:   dysonApp,
@@ -90,7 +90,7 @@ func main() {
 		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
 			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-			http.ServeFile(w, r, path.Join(webDirectory, r.URL.Path))
+			http.ServeFile(w, r, path.Join(*assetsDirectory, `static`, r.URL.Path))
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
