@@ -67,9 +67,11 @@ func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []str
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, MuteAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		httperror.InternalServerError(w, errors.New(`%v`, output.Payload))
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`%s`, output.Payload)})
 		return
 	}
+
+	a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: `Mute state changed`})
 }
 
 func (a *App) groupsHandler() http.Handler {
@@ -90,7 +92,7 @@ func (a *App) groupsHandler() http.Handler {
 					return
 				}
 
-				if strings.Contains(urlParts[1], MuteAction) {
+				if urlParts[1] == MuteAction {
 					a.muteHandler(w, r, urlParts)
 					return
 				}
@@ -125,6 +127,10 @@ func (a *App) GetWorkerSource() string {
 func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
 	if p.Action == `households` {
 		return a.handleHouseholdsWorker(p)
+	}
+
+	if p.Action == `mute` {
+		return nil
 	}
 
 	return provider.ErrWorkerUnknownAction

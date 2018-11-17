@@ -9,6 +9,17 @@
           <div class="flex flex-center flex-wrap padding full-height">
             <label for="sonos-volume-{{- .ID -}}">Volume {{ .Volume.Volume -}}</label>
             <input id="sonos-volume-{{- .ID -}}" type="range" name="sonos-volume" min="0" max="100" step="1" value="{{- .Volume.Volume -}}" data-sonos-group-id="{{- .ID -}}" />
+
+            <form method="post" action="/sonos/groups/{{ .ID }}/mute">
+              <input type="hidden" name="method" value="POST" />
+              <button type="submit" class="button-icon">
+                {{- if .Volume.Muted }}
+                  <img src="/svg/volume-down?fill=silver" alt="unmute">
+                {{ else }}
+                  <img src="/svg/mute?fill=silver" alt="mute">
+                {{ end }}
+              </button>
+            </form>
           </div>
         </span>
       {{- end -}}

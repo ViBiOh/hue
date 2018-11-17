@@ -116,7 +116,7 @@ func (a *App) SetGroupMute(ctx context.Context, groupID string, muted bool) erro
 		`muted`: muted,
 	}
 
-	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/mute`, controlURL, groupID), payload, nil)
+	req, err := request.JSON(http.MethodPost, fmt.Sprintf(`%s/groups/%s/groupVolume/mute`, controlURL, groupID), payload, nil)
 	if err != nil {
 		return err
 	}
