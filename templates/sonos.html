@@ -7,19 +7,20 @@
           <h3 class="header center no-margin {{- if eq .PlaybackState "PLAYBACK_STATE_PLAYING" }} success{{- end -}}">{{- .Name -}}</h3>
 
           <div class="flex flex-center flex-wrap padding full-height">
-            <label for="sonos-volume-{{- .ID -}}">Volume {{ .Volume.Volume -}}</label>
-            <input id="sonos-volume-{{- .ID -}}" type="range" name="sonos-volume" min="0" max="100" step="1" value="{{- .Volume.Volume -}}" data-sonos-group-id="{{- .ID -}}" />
-
-            <form method="post" action="/sonos/groups/{{ .ID }}/mute">
-              <input type="hidden" name="method" value="POST" />
-              <button type="submit" class="button-icon">
-                {{- if .Volume.Muted }}
-                  <img src="/svg/volume-down?fill=silver" alt="unmute">
-                {{ else }}
-                  <img src="/svg/mute?fill=silver" alt="mute">
-                {{ end }}
-              </button>
-            </form>
+            <div class="flex flex-center full">
+              <form method="post" action="/sonos/groups/{{ .ID }}/mute">
+                <input type="hidden" name="method" value="POST" />
+                <button type="submit" class="button-icon icon-small">
+                  {{- if .Volume.Muted }}
+                    <img src="/svg/volume-off?fill=crimson" alt="unmute">
+                  {{ else }}
+                    <img src="/svg/volume-down?fill=limegreen" alt="mute">
+                  {{ end }}
+                </button>
+              </form>
+              <input id="sonos-volume-{{- .ID -}}" type="range" name="sonos-volume" min="0" max="100" step="1" value="{{- .Volume.Volume -}}" data-sonos-group-id="{{- .ID -}}" />
+              <label class="volume" for="sonos-volume-{{- .ID -}}">{{ .Volume.Volume -}}</label>
+            </div>
           </div>
         </span>
       {{- end -}}

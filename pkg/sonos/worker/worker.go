@@ -88,7 +88,7 @@ func (a *App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provi
 			return nil, err
 		}
 
-		return provider.NewWorkerMessage(p, sonos.Source, "mute", fmt.Sprintf(`%s|%s`, parts[0], mute)), nil
+		return provider.NewWorkerMessage(p, sonos.Source, "mute", fmt.Sprintf(`%s|%t`, parts[0], mute)), nil
 	}
 
 	return nil, nil

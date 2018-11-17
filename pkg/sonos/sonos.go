@@ -130,7 +130,7 @@ func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
 	}
 
 	if p.Action == `mute` {
-		return nil
+		return a.handleMuteWorker(p)
 	}
 
 	return provider.ErrWorkerUnknownAction
@@ -146,6 +146,31 @@ func (a *App) handleHouseholdsWorker(message *provider.WorkerMessage) error {
 	}
 
 	a.households = data
+
+	return nil
+}
+
+func (a *App) handleMuteWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	parts := strings.Split(message.Payload, `|`)
+	if len(parts) == 2 {
+		muted, err := strconv.ParseBool(parts[1])
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		for _, household := range a.households {
+			for _, group := range household.Groups {
+				if group.ID == parts[0] {
+					group.Volume.Muted = muted
+
+					return nil
+				}
+			}
+		}
+	}
 
 	return nil
 }
