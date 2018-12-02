@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a3630285c12fa2a48aa40927c749dcb45a30e4805b5bc956e2812490f63c5eed"
+  digest = "1:91352dffa1ad78e4d9fad046aa5b0e9162f7e75f013cb1b1e38716e87a9b0e1a"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -22,17 +22,18 @@
     "pkg/model",
   ]
   pruneopts = "UT"
-  revision = "fa75a3534d12bbec5e0e8b13032638bbe546e7a2"
+  revision = "df3cc5d50b3ebd6710745cfa887c2e58818ab6c9"
 
 [[projects]]
   branch = "master"
-  digest = "1:638da93fe77c410e01b39b805e69269aaa63d3964de29ac033b88a2d3e340fe5"
+  digest = "1:066c4bd971582a115a941aace82b08f6467ef2b8a572eeb9ebacb9ffa598e780"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
     "pkg/alcotest",
     "pkg/cert",
     "pkg/cors",
+    "pkg/crud",
     "pkg/errors",
     "pkg/gzip",
     "pkg/healthcheck",
@@ -42,6 +43,7 @@
     "pkg/model",
     "pkg/opentracing",
     "pkg/owasp",
+    "pkg/pagination",
     "pkg/prometheus",
     "pkg/query",
     "pkg/request",
@@ -50,7 +52,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "56a96ad8671ec77441ad5cd779ca9ec7364a0ea9"
+  revision = "63354573662b9507636ac5ad9a68281f58525804"
 
 [[projects]]
   branch = "master"
@@ -149,11 +151,11 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "aeab699e26f4d4089dba5e522e5d9babd2adbaf7"
+  revision = "4724e9255275ce38f7179b2478abeae4e28c904f"
 
 [[projects]]
   branch = "master"
-  digest = "1:ef74914912f99c79434d9c09658274678bc85080ebe3ab32bec3940ebce5e1fc"
+  digest = "1:9ea97158ea06d60b1f324aa384f6a4cbd596a81b3cae994e17108b195f398d01"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -162,7 +164,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "185b4288413d2a0dd0806f78c90dde719829e5ae"
+  revision = "aa55a523dc0a8297edf51bb75e8eec13eb3be45d"
 
 [[projects]]
   digest = "1:48c8c8d1fb550f059bcb5696a6f333693e19e3bad4db00d5c9b19f3846629511"
@@ -237,7 +239,7 @@
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "3d3f9f413869b949e48070b5bc593aa22cc2b8f2"
+  revision = "eb0de9b17e854e9b1ccd9963efafc79862359959"
 
 [[projects]]
   branch = "master"
@@ -245,7 +247,7 @@
   name = "golang.org/x/net"
   packages = ["context"]
   pruneopts = "UT"
-  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+  revision = "351d144fa1fc0bd934e2408202be0c29f25e35a0"
 
 [solve-meta]
   analyzer-name = "dep"
