@@ -9,7 +9,7 @@ import (
 	"github.com/ViBiOh/auth/pkg/auth"
 	"github.com/ViBiOh/auth/pkg/ident/basic"
 	authService "github.com/ViBiOh/auth/pkg/ident/service"
-	"github.com/ViBiOh/httputils/pkg"
+	httputils "github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
 	"github.com/ViBiOh/httputils/pkg/gzip"
