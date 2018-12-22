@@ -55,11 +55,11 @@ func New(config Config) (*App, error) {
 			return nil, err
 		}
 
-		if err := app.cleanScenes(ctx); err != nil {
+		if err := app.cleanRules(ctx); err != nil {
 			return nil, err
 		}
 
-		if err := app.cleanRules(ctx); err != nil {
+		if err := app.cleanScenes(ctx); err != nil {
 			return nil, err
 		}
 	}
@@ -76,6 +76,7 @@ func New(config Config) (*App, error) {
 
 		app.configureSchedules(ctx, app.config.Schedules)
 		app.configureTap(ctx, app.config.Taps)
+		app.configureMotionSensor(ctx, app.config.Sensors)
 	}
 
 	return app, nil

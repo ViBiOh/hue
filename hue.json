@@ -10,7 +10,9 @@
   "sensors": [
     {
       "id": "6",
-      "groups": ["4"]
+      "companionID": "8",
+      "groups": ["4"],
+      "offDelay": "PT00:01:00"
     }
   ],
   "taps": [

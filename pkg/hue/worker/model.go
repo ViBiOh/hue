@@ -4,7 +4,15 @@ import "github.com/ViBiOh/iot/pkg/hue"
 
 type hueConfig struct {
 	Schedules []*hue.ScheduleConfig
+	Sensors   []*sensorConfig
 	Taps      []*tapConfig
+}
+
+type sensorConfig struct {
+	ID          string
+	CompanionID string
+	OffDelay    string
+	Groups      []string
 }
 
 type tapConfig struct {
