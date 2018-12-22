@@ -32,19 +32,6 @@ var (
 	minutes []string
 )
 
-// App stores informations and secret of API
-type App struct {
-	tpl       *template.Template
-	providers map[string]provider.Provider
-	secretKey string
-
-	wsConn     *websocket.Conn
-	wsErrCount uint
-
-	workerProviders map[string]provider.WorkerProvider
-	workerCalls     sync.Map
-}
-
 func init() {
 	hours = make([]string, hoursInDay)
 	for i := 0; i < hoursInDay; i++ {
@@ -57,8 +44,33 @@ func init() {
 	}
 }
 
-// NewApp creates new App from dependencies and Flags' config
-func NewApp(config map[string]*string, assetsDirectory string, providers map[string]provider.Provider) *App {
+// Config of package
+type Config struct {
+	secretKey *string
+}
+
+// App of package
+type App struct {
+	tpl       *template.Template
+	providers map[string]provider.Provider
+	secretKey string
+
+	wsConn     *websocket.Conn
+	wsErrCount uint
+
+	workerProviders map[string]provider.WorkerProvider
+	workerCalls     sync.Map
+}
+
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		secretKey: fs.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
+	}
+}
+
+// New creates new App from Config
+func New(config Config, assetsDirectory string, providers map[string]provider.Provider) *App {
 	filesTemplates, err := templates.GetTemplates(path.Join(assetsDirectory, `templates`), `.html`)
 	if err != nil {
 		logger.Error(`%+v`, errors.WithStack(err))
@@ -69,7 +81,7 @@ func NewApp(config map[string]*string, assetsDirectory string, providers map[str
 			`sha`: tools.Sha1,
 		}).ParseFiles(filesTemplates...)),
 		providers: providers,
-		secretKey: strings.TrimSpace(*config[`secretKey`]),
+		secretKey: strings.TrimSpace(*config.secretKey),
 
 		workerProviders: make(map[string]provider.WorkerProvider, 0),
 		workerCalls:     sync.Map{},
@@ -86,13 +98,6 @@ func NewApp(config map[string]*string, assetsDirectory string, providers map[str
 	}
 
 	return app
-}
-
-// Flags add flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
-		`secretKey`: flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
-	}
 }
 
 // RenderDashboard render dashboard

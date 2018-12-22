@@ -8,16 +8,17 @@
 
 ```bash
 Usage of iot:
+Usage of iot:
   -assetsDirectory string
-      Assets directory (static and templates)
+      Assets directory (static and templates) (default "./")
   -authDisable
       [auth] Disable auth
   -authUrl string
       [auth] Auth URL, if remote
   -authUsers string
-      [auth] List of allowed users and profiles (e.g. user:profile1|profile2,user2:profile3)
+      [auth] Allowed users and profiles (e.g. user:profile1|profile2,user2:profile3). Empty allow any identified user
   -basicUsers string
-      [Basic] Users in the form "id:username:password,id2:username2:password2"
+      [basic] Users in the form "id:username:password,id2:username2:password2"
   -corsCredentials
       [cors] Access-Control-Allow-Credentials
   -corsExpose string
@@ -69,7 +70,7 @@ Usage of iot:
 ## Usage of IoT worker
 
 ```bash
-Usage of worker:
+Usage of iot-worker:
   -hueBridgeIP string
       [hue] IP of Bridge
   -hueClean

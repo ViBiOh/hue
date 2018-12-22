@@ -7,6 +7,12 @@
       "state": "long_on"
     }
   ],
+  "sensors": [
+    {
+      "id": "6",
+      "groups": ["4"]
+    }
+  ],
   "taps": [
     {
       "id": "2",

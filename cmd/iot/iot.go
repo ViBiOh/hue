@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/cors"
 	"github.com/ViBiOh/httputils/pkg/gzip"
 	"github.com/ViBiOh/httputils/pkg/healthcheck"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
 	"github.com/ViBiOh/httputils/pkg/prometheus"
@@ -36,40 +38,42 @@ const (
 )
 
 func main() {
-	serverConfig := httputils.Flags(``)
-	alcotestConfig := alcotest.Flags(``)
-	prometheusConfig := prometheus.Flags(`prometheus`)
-	opentracingConfig := opentracing.Flags(`tracing`)
-	owaspConfig := owasp.Flags(``)
-	corsConfig := cors.Flags(`cors`)
+	fs := flag.NewFlagSet(`iot`, flag.ExitOnError)
 
-	authConfig := auth.Flags(`auth`)
-	authBasicConfig := basic.Flags(`basic`)
-	iotConfig := iot.Flags(``)
-	netatmoConfig := netatmo.Flags(`netatmo`)
-	dysonConfig := dyson.Flags(`dyson`)
-	sonosConfig := sonos.Flags(`sonos`)
+	serverConfig := httputils.Flags(fs, ``)
+	alcotestConfig := alcotest.Flags(fs, ``)
+	prometheusConfig := prometheus.Flags(fs, `prometheus`)
+	opentracingConfig := opentracing.Flags(fs, `tracing`)
+	owaspConfig := owasp.Flags(fs, ``)
+	corsConfig := cors.Flags(fs, `cors`)
 
-	assetsDirectory := flag.String(`assetsDirectory`, `./`, `Assets directory (static and templates)`)
+	authConfig := auth.Flags(fs, `auth`)
+	authBasicConfig := basic.Flags(fs, `basic`)
+	iotConfig := iot.Flags(fs, ``)
+	dysonConfig := dyson.Flags(fs, `dyson`)
 
-	flag.Parse()
+	assetsDirectory := fs.String(`assetsDirectory`, `./`, `Assets directory (static and templates)`)
+
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		logger.Fatal(`%+v`, err)
+	}
 
 	alcotest.DoAndExit(alcotestConfig)
 
-	serverApp := httputils.NewApp(serverConfig)
-	healthcheckApp := healthcheck.NewApp()
-	prometheusApp := prometheus.NewApp(prometheusConfig)
-	opentracingApp := opentracing.NewApp(opentracingConfig)
-	gzipApp := gzip.NewApp()
-	owaspApp := owasp.NewApp(owaspConfig)
-	corsApp := cors.NewApp(corsConfig)
+	serverApp := httputils.New(serverConfig)
+	healthcheckApp := healthcheck.New()
+	prometheusApp := prometheus.New(prometheusConfig)
+	opentracingApp := opentracing.New(opentracingConfig)
+	gzipApp := gzip.New()
+	owaspApp := owasp.New(owaspConfig)
+	corsApp := cors.New(corsConfig)
 
-	authApp := auth.NewServiceApp(authConfig, authService.NewBasicApp(authBasicConfig, nil))
-	netatmoApp := netatmo.NewApp(netatmoConfig)
-	dysonApp := dyson.NewApp(dysonConfig)
-	sonosApp := sonos.NewApp(sonosConfig)
-	hueApp := hue.NewApp()
-	iotApp := iot.NewApp(iotConfig, *assetsDirectory, map[string]provider.Provider{
+	authApp := auth.NewService(authConfig, authService.NewBasic(authBasicConfig, nil))
+	netatmoApp := netatmo.New()
+	sonosApp := sonos.New()
+	dysonApp := dyson.New(dysonConfig)
+	hueApp := hue.New()
+	iotApp := iot.New(iotConfig, *assetsDirectory, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 		`Dyson`:   dysonApp,

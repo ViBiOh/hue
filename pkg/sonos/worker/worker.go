@@ -15,7 +15,15 @@ import (
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
-// App stores informations
+// Config of package
+type Config struct {
+	accessToken  *string
+	refreshToken *string
+	clientID     *string
+	clientSecret *string
+}
+
+// App of package
 type App struct {
 	clientID     string
 	clientSecret string
@@ -24,23 +32,23 @@ type App struct {
 	mutex        sync.RWMutex
 }
 
-// NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) *App {
-	return &App{
-		clientID:     *config[`clientID`],
-		clientSecret: *config[`clientSecret`],
-		accessToken:  *config[`accessToken`],
-		refreshToken: *config[`refreshToken`],
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[sonos] Access Token`),
+		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[sonos] Refresh Token`),
+		clientID:     fs.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[sonos] Client ID`),
+		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[sonos] Client Secret`),
 	}
 }
 
-// Flags adds flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
-		`accessToken`:  flag.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[sonos] Access Token`),
-		`refreshToken`: flag.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[sonos] Refresh Token`),
-		`clientID`:     flag.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[sonos] Client ID`),
-		`clientSecret`: flag.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[sonos] Client Secret`),
+// New creates new App from Config
+func New(config Config) *App {
+	return &App{
+		clientID:     *config.clientID,
+		clientSecret: *config.clientSecret,
+		accessToken:  *config.accessToken,
+		refreshToken: *config.refreshToken,
 	}
 }
 

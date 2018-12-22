@@ -24,7 +24,13 @@ const (
 	pingDelay = 60 * time.Second
 )
 
-// App stores informations and secret of API
+// Config of package
+type Config struct {
+	websocketURL *string
+	secretKey    *string
+}
+
+// App of package
 type App struct {
 	websocketURL string
 	secretKey    string
@@ -33,25 +39,25 @@ type App struct {
 	wsConn       *websocket.Conn
 }
 
-// NewApp creates new App from Flags' config
-func NewApp(config map[string]*string, workers []provider.Worker) *App {
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		websocketURL: fs.String(tools.ToCamel(fmt.Sprintf(`%sWebsocket`, prefix)), ``, `WebSocket URL`),
+		secretKey:    fs.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `Secret Key`),
+	}
+}
+
+// New creates new App from Config
+func New(config Config, workers []provider.Worker) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
 	for _, worker := range workers {
 		workersMap[worker.GetSource()] = worker
 	}
 
 	return &App{
-		websocketURL: strings.TrimSpace(*config[`websocketURL`]),
-		secretKey:    strings.TrimSpace(*config[`secretKey`]),
+		websocketURL: strings.TrimSpace(*config.websocketURL),
+		secretKey:    strings.TrimSpace(*config.secretKey),
 		workers:      workersMap,
-	}
-}
-
-// Flags add flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
-		`websocketURL`: flag.String(tools.ToCamel(fmt.Sprintf(`%sWebsocket`, prefix)), ``, `WebSocket URL`),
-		`secretKey`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `Secret Key`),
 	}
 }
 
@@ -215,20 +221,25 @@ func (a *App) connect() {
 }
 
 func main() {
-	workerConfig := Flags(``)
-	hueConfig := hue_worker.Flags(`hue`)
-	netatmoConfig := netatmo_worker.Flags(`netatmo`)
-	sonosConfig := sonos_worker.Flags(`sonos`)
-	flag.Parse()
+	fs := flag.NewFlagSet(`iot-worker`, flag.ExitOnError)
 
-	hueApp, err := hue_worker.NewApp(hueConfig)
+	workerConfig := Flags(fs, ``)
+	hueConfig := hue_worker.Flags(fs, `hue`)
+	netatmoConfig := netatmo_worker.Flags(fs, `netatmo`)
+	sonosConfig := sonos_worker.Flags(fs, `sonos`)
+
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		logger.Fatal(`%+v`, err)
+	}
+
+	hueApp, err := hue_worker.New(hueConfig)
 	if err != nil {
 		logger.Error(`%+v`, err)
 		os.Exit(1)
 	}
-	netatmoApp := netatmo_worker.NewApp(netatmoConfig)
-	sonosApp := sonos_worker.NewApp(sonosConfig)
-	app := NewApp(workerConfig, []provider.Worker{hueApp, netatmoApp, sonosApp})
+	netatmoApp := netatmo_worker.New(netatmoConfig)
+	sonosApp := sonos_worker.New(sonosConfig)
+	app := New(workerConfig, []provider.Worker{hueApp, netatmoApp, sonosApp})
 
 	app.connect()
 }

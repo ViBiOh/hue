@@ -14,23 +14,18 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
-// App stores informations and secret of API
+// App of package
 type App struct {
 	hub        provider.Hub
 	households []*Household
 	mutex      sync.RWMutex
 }
 
-// NewApp create Client from Flags' config
-func NewApp(config map[string]*string) *App {
+// New creates new App
+func New() *App {
 	return &App{
 		households: nil,
 	}
-}
-
-// Flags add flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return nil
 }
 
 // SetHub receive Hub during init of it

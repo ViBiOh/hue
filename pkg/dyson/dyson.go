@@ -38,21 +38,37 @@ var unsafeHTTPClient = http.Client{
 	},
 }
 
-// App stores informations
+// Config of package
+type Config struct {
+	email    *string
+	password *string
+	country  *string
+}
+
+// App of package
 type App struct {
 	account  string
 	password string
 }
 
-// NewApp creates new App from Flags' config
-func NewApp(config map[string]*string) *App {
-	email := strings.TrimSpace(*config[`email`])
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `Dyson Link Email`),
+		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `Dyson Link Password`),
+		country:  fs.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `Dyson Link Country`),
+	}
+}
+
+// New creates new App from Config
+func New(config Config) *App {
+	email := strings.TrimSpace(*config.email)
 	if email == `` {
 		logger.Warn(`no email provided`)
 		return &App{}
 	}
 
-	password := strings.TrimSpace(*config[`password`])
+	password := strings.TrimSpace(*config.password)
 	if password == `` {
 		logger.Warn(`no password provided`)
 		return &App{}
@@ -63,7 +79,7 @@ func NewApp(config map[string]*string) *App {
 		`Password`: []string{password},
 	}
 
-	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf(`%s%s?country=%s`, API, authenticateEndpoint, *config[`country`]), strings.NewReader(data.Encode()))
+	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf(`%s%s?country=%s`, API, authenticateEndpoint, *config.country), strings.NewReader(data.Encode()))
 	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
 
 	if err != nil {
@@ -86,15 +102,6 @@ func NewApp(config map[string]*string) *App {
 	return &App{
 		account:  authentContent[`Account`],
 		password: authentContent[`Password`],
-	}
-}
-
-// Flags adds flags for given prefix
-func Flags(prefix string) map[string]*string {
-	return map[string]*string{
-		`email`:    flag.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `Dyson Link Email`),
-		`password`: flag.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `Dyson Link Password`),
-		`country`:  flag.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `Dyson Link Country`),
 	}
 }
 

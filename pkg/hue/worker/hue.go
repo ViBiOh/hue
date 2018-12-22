@@ -14,25 +14,43 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
-// App stores informations and secret of API
+// Config of package
+type Config struct {
+	bridgeIP *string
+	username *string
+	config   *string
+	clean    *bool
+}
+
+// App of package
 type App struct {
 	bridgeURL      string
 	bridgeUsername string
 	config         *hueConfig
 }
 
-// NewApp creates new App from Flags' config
-func NewApp(config map[string]interface{}) (*App, error) {
-	username := *config[`username`].(*string)
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		bridgeIP: fs.String(tools.ToCamel(fmt.Sprintf(`%sBridgeIP`, prefix)), ``, `[hue] IP of Bridge`),
+		username: fs.String(tools.ToCamel(fmt.Sprintf(`%sUsername`, prefix)), ``, `[hue] Username for Bridge`),
+		config:   fs.String(tools.ToCamel(fmt.Sprintf(`%sConfig`, prefix)), ``, `[hue] Configuration filename`),
+		clean:    fs.Bool(tools.ToCamel(fmt.Sprintf(`%sClean`, prefix)), false, `[hue] Clean Hue`),
+	}
+}
+
+// New creates new App from Config
+func New(config Config) (*App, error) {
+	username := *config.username
 
 	app := &App{
 		bridgeUsername: username,
-		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config[`bridgeIP`].(*string), username),
+		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config.bridgeIP, username),
 	}
 
 	ctx := context.Background()
 
-	if *config[`clean`].(*bool) {
+	if *config.clean {
 		if err := app.cleanSchedules(ctx); err != nil {
 			return nil, err
 		}
@@ -46,8 +64,8 @@ func NewApp(config map[string]interface{}) (*App, error) {
 		}
 	}
 
-	if *config[`config`].(*string) != `` {
-		rawConfig, err := ioutil.ReadFile(*config[`config`].(*string))
+	if *config.config != `` {
+		rawConfig, err := ioutil.ReadFile(*config.config)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -61,16 +79,6 @@ func NewApp(config map[string]interface{}) (*App, error) {
 	}
 
 	return app, nil
-}
-
-// Flags add flags for given prefix
-func Flags(prefix string) map[string]interface{} {
-	return map[string]interface{}{
-		`bridgeIP`: flag.String(tools.ToCamel(fmt.Sprintf(`%sBridgeIP`, prefix)), ``, `[hue] IP of Bridge`),
-		`username`: flag.String(tools.ToCamel(fmt.Sprintf(`%sUsername`, prefix)), ``, `[hue] Username for Bridge`),
-		`config`:   flag.String(tools.ToCamel(fmt.Sprintf(`%sConfig`, prefix)), ``, `[hue] Configuration filename`),
-		`clean`:    flag.Bool(tools.ToCamel(fmt.Sprintf(`%sClean`, prefix)), false, `[hue] Clean Hue`),
-	}
 }
 
 func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
