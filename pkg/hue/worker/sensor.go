@@ -24,11 +24,6 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
 				Operator: `dx`,
 			},
-			{
-				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
-				Operator: `eq`,
-				Value:    `0`,
-			},
 		},
 		Actions: make([]*hue.Action, 0),
 	}
@@ -40,14 +35,6 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 			Body:    hue.States[state],
 		})
 	}
-
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 1,
-		},
-	})
 
 	return newRule
 }
@@ -68,11 +55,6 @@ func (a *App) createSensorOffRuleDescription(sensor *sensorConfig) *hue.Rule {
 				Operator: `ddx`,
 				Value:    sensor.OffDelay,
 			},
-			{
-				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
-				Operator: `eq`,
-				Value:    `1`,
-			},
 		},
 		Actions: make([]*hue.Action, 0),
 	}
@@ -84,14 +66,6 @@ func (a *App) createSensorOffRuleDescription(sensor *sensorConfig) *hue.Rule {
 			Body:    hue.States[state],
 		})
 	}
-
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 0,
-		},
-	})
 
 	return newRule
 }
