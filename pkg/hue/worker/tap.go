@@ -24,19 +24,23 @@ func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
 		Conditions: []*hue.Condition{
 			{
 				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, tapID),
+				Operator: `dx`,
+			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/buttonevent`, tapID),
 				Operator: `eq`,
 				Value:    tapButtonMapping[button.ID],
 			},
 		},
-		Actions: make([]*hue.Action, len(button.Groups)),
+		Actions: make([]*hue.Action, 0),
 	}
 
-	for index, group := range button.Groups {
-		newRule.Actions[index] = &hue.Action{
+	for _, group := range button.Groups {
+		newRule.Actions = append(newRule.Actions, &hue.Action{
 			Address: fmt.Sprintf(`/groups/%s/action`, group),
 			Method:  http.MethodPut,
 			Body:    hue.States[button.State],
-		}
+		})
 	}
 
 	return newRule
