@@ -12,7 +12,7 @@
       "id": "6",
       "companionID": "8",
       "groups": ["4"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:00:30"
     }
   ],
   "taps": [
