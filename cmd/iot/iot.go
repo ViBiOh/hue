@@ -23,6 +23,7 @@ import (
 	"github.com/ViBiOh/iot/pkg/dyson"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
+	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/ViBiOh/iot/pkg/sonos"
@@ -47,6 +48,7 @@ func main() {
 	owaspConfig := owasp.Flags(fs, ``)
 	corsConfig := cors.Flags(fs, `cors`)
 
+	mqttConfig := mqtt.Flags(fs, `mqtt`)
 	authConfig := auth.Flags(fs, `auth`)
 	authBasicConfig := basic.Flags(fs, `basic`)
 	iotConfig := iot.Flags(fs, ``)
@@ -67,6 +69,12 @@ func main() {
 	gzipApp := gzip.New()
 	owaspApp := owasp.New(owaspConfig)
 	corsApp := cors.New(corsConfig)
+
+	mqttApp, err := mqtt.New(mqttConfig)
+	if err != nil {
+		logger.Fatal(`%+v`, err)
+	}
+	mqttApp.End()
 
 	authApp := auth.NewService(authConfig, authService.NewBasic(authBasicConfig, nil))
 	netatmoApp := netatmo.New()

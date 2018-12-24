@@ -81,12 +81,27 @@ install:
 	go install github.com/ViBiOh/iot/cmd/iot
 	go install github.com/ViBiOh/iot/cmd/worker
 
+## systemd: Configure systemd for launching local and remote worker
+systemd:
+	sudo cp systemd/* /lib/systemd/system/
+	sudo systemctl daemon-reload
+	sudo systemctl enable iot-local.service iot-local-worker.service iot-remote-worker.service
+	sudo systemctl restart iot-local.service iot-local-worker.service iot-remote-worker.service
+
+## update-worker: Update worker by fetching new version and restarting services
+update-worker: deps install systemd
+
 ## start-worker: Start worker
 .PHONY: start-worker
 start-worker:
 	go run cmd/worker/worker.go \
 		-websocket ws://localhost:1080/ws/hue \
-		-secretKey SECRET_KEY \
+		-mqttClientID "iot-worker-dev" \
+		-mqttServer $(IOT_MQTT_SERVER) \
+		-mqttPort $(IOT_MQTT_PORT) \
+		-mqttUser $(IOT_MQTT_USER) \
+		-mqttPass $(IOT_MQTT_PASS) \
+		-secretKey "SECRET_KEY" \
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
@@ -108,5 +123,5 @@ start:
 		-authDisable \
 		-authUsers "admin:admin" \
 		-basicUsers "1:admin:`bcrypt admin`" \
-		-secretKey SECRET_KEY \
+		-secretKey "SECRET_KEY" \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"

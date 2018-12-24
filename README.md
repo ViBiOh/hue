@@ -8,7 +8,6 @@
 
 ```bash
 Usage of iot:
-Usage of iot:
   -assetsDirectory string
       Assets directory (static and templates) (default "./")
   -authDisable
@@ -41,6 +40,18 @@ Usage of iot:
       [owasp] X-Frame-Options (default "deny")
   -hsts
       [owasp] Indicate Strict Transport Security (default true)
+  -mqttClientID string
+      [mqtt] Client ID (default "iot")
+  -mqttPass string
+      [mqtt] Password
+  -mqttPort int
+      [mqtt] Port (default 80)
+  -mqttServer string
+      [mqtt] Server name
+  -mqttUseTLS
+      [mqtt] Use TLS (default true)
+  -mqttUser string
+      [mqtt] Username
   -port int
       Listen port (default 1080)
   -prometheusPath string
@@ -79,6 +90,18 @@ Usage of iot-worker:
       [hue] Configuration filename
   -hueUsername string
       [hue] Username for Bridge
+  -mqttClientID string
+      [mqtt] Client ID (default "iot")
+  -mqttPass string
+      [mqtt] Password
+  -mqttPort int
+      [mqtt] Port (default 80)
+  -mqttServer string
+      [mqtt] Server name
+  -mqttUseTLS
+      [mqtt] Use TLS (default true)
+  -mqttUser string
+      [mqtt] Username
   -netatmoAccessToken string
       [netatmo] Access Token
   -netatmoClientID string
@@ -120,9 +143,6 @@ Body: {"devicetype":"iot-worker"}
 Enable and start services
 
 ```bash
-sudo cp systemd/* /lib/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable iot-local.service iot-local-worker.service iot-remote-worker.service
-sudo systemctl start iot-local.service iot-local-worker.service iot-remote-worker.service
+make systemd
 journalctl -u iot-remote-worker.service
 ```
