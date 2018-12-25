@@ -78,7 +78,6 @@ build:
 ## install: Install binary in GOPATH
 .PHONY:
 install:
-	dep ensure
 	go install github.com/ViBiOh/iot/cmd/iot
 	go install github.com/ViBiOh/iot/cmd/worker
 
