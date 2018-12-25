@@ -86,8 +86,8 @@ install:
 systemd:
 	sudo cp systemd/* /lib/systemd/system/
 	sudo systemctl daemon-reload
-	sudo systemctl enable iot-local.service iot-local-worker.service iot-remote-worker.service
-	sudo systemctl restart iot-local.service iot-local-worker.service iot-remote-worker.service
+	sudo systemctl enable iot-local.service iot-local-worker.service
+	sudo systemctl restart iot-local.service iot-local-worker.service
 
 ## update-worker: Update worker by fetching new version and restarting services
 update-worker: deps install systemd
