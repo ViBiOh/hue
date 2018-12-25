@@ -10,6 +10,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/gorilla/websocket"
 )
 
@@ -85,9 +86,9 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 }
 
 // WriteMessage writes content as text message on websocket
-func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessage) error {
-	if ws == nil {
-		return errors.New(`no websocket connection provided for sending: %+v`, message)
+func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
+	if client == nil {
+		return errors.New(`no connection provided for sending: %+v`, message)
 	}
 
 	message.Tracing = make(map[string]string)
@@ -100,7 +101,7 @@ func WriteMessage(ctx context.Context, ws *websocket.Conn, message *WorkerMessag
 		return errors.WithStack(err)
 	}
 
-	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
+	if err := client.Publish(topic, messagePayload); err != nil {
 		return errors.WithStack(err)
 	}
 

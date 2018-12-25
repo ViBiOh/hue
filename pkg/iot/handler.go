@@ -14,8 +14,8 @@ import (
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/templates"
 	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
-	"github.com/gorilla/websocket"
 )
 
 const (
@@ -46,32 +46,29 @@ func init() {
 
 // Config of package
 type Config struct {
-	secretKey *string
+	AssetsDirectory *string
 }
 
 // App of package
 type App struct {
-	tpl       *template.Template
-	providers map[string]provider.Provider
-	secretKey string
-
-	wsConn     *websocket.Conn
-	wsErrCount uint
-
+	tpl             *template.Template
+	providers       map[string]provider.Provider
 	workerProviders map[string]provider.WorkerProvider
 	workerCalls     sync.Map
+
+	mqttClient *mqtt.App
 }
 
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		secretKey: fs.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `[iot] Secret Key between worker and API`),
+		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf(`%sAssetsDirectory`, prefix)), ``, `[iot] Assets directory (static and templates)`),
 	}
 }
 
 // New creates new App from Config
-func New(config Config, assetsDirectory string, providers map[string]provider.Provider) *App {
-	filesTemplates, err := templates.GetTemplates(path.Join(assetsDirectory, `templates`), `.html`)
+func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt.App) *App {
+	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, `templates`), `.html`)
 	if err != nil {
 		logger.Error(`%+v`, errors.WithStack(err))
 	}
@@ -80,11 +77,11 @@ func New(config Config, assetsDirectory string, providers map[string]provider.Pr
 		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
 			`sha`: tools.Sha1,
 		}).ParseFiles(filesTemplates...)),
-		providers: providers,
-		secretKey: strings.TrimSpace(*config.secretKey),
-
+		providers:       providers,
 		workerProviders: make(map[string]provider.WorkerProvider, 0),
 		workerCalls:     sync.Map{},
+
+		mqttClient: mqttClient,
 	}
 
 	for _, p := range providers {
@@ -103,8 +100,6 @@ func New(config Config, assetsDirectory string, providers map[string]provider.Pr
 // RenderDashboard render dashboard
 func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *provider.Message) {
 	response := map[string]interface{}{
-		`Online`:  a.wsConn != nil,
-		`Error`:   a.wsErrCount >= maxAllowedErrors,
 		`Message`: message,
 		`Hours`:   hours,
 		`Minutes`: minutes,

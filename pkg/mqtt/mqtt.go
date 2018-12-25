@@ -8,6 +8,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/pkg/errors"
+	"github.com/yosssi/gmq/mqtt"
 	"github.com/yosssi/gmq/mqtt/client"
 )
 
@@ -75,6 +76,46 @@ func New(config Config) (*App, error) {
 	return &App{
 		client: mqttClient,
 	}, nil
+}
+
+// Publish to a topic
+func (a App) Publish(topic string, message []byte) error {
+	err := a.client.Publish(&client.PublishOptions{
+		QoS:       mqtt.QoS0,
+		Retain:    true,
+		TopicName: []byte(topic),
+		Message:   message,
+	})
+
+	return errors.WithStack(err)
+}
+
+// Subscribe to a topic
+func (a App) Subscribe(topic string, handler func([]byte)) error {
+	err := a.client.Subscribe(&client.SubscribeOptions{
+		SubReqs: []*client.SubReq{
+			{
+				TopicFilter: []byte(topic),
+				QoS:         mqtt.QoS0,
+				Handler: func(_, message []byte) {
+					handler(message)
+				},
+			},
+		},
+	})
+
+	return errors.WithStack(err)
+}
+
+// Unsubscribe from a topic
+func (a App) Unsubscribe(topic string) error {
+	err := a.client.Unsubscribe(&client.UnsubscribeOptions{
+		TopicFilters: [][]byte{
+			[]byte(topic),
+		},
+	})
+
+	return errors.WithStack(err)
 }
 
 // End disconnect and release ressource properly

@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
@@ -18,54 +16,28 @@ import (
 	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
 	sonos_worker "github.com/ViBiOh/iot/pkg/sonos/worker"
-	"github.com/gorilla/websocket"
 )
 
 const (
 	pingDelay = 60 * time.Second
 )
 
-// Config of package
-type Config struct {
-	websocketURL *string
-	secretKey    *string
-}
-
 // App of package
 type App struct {
-	websocketURL string
-	secretKey    string
-	workers      map[string]provider.Worker
-	done         chan struct{}
-	wsConn       *websocket.Conn
-}
-
-// Flags adds flags for configuring package
-func Flags(fs *flag.FlagSet, prefix string) Config {
-	return Config{
-		websocketURL: fs.String(tools.ToCamel(fmt.Sprintf(`%sWebsocket`, prefix)), ``, `WebSocket URL`),
-		secretKey:    fs.String(tools.ToCamel(fmt.Sprintf(`%sSecretKey`, prefix)), ``, `Secret Key`),
-	}
+	workers    map[string]provider.Worker
+	mqttClient *mqtt.App
 }
 
 // New creates new App from Config
-func New(config Config, workers []provider.Worker) *App {
+func New(workers []provider.Worker, mqttClient *mqtt.App) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
 	for _, worker := range workers {
 		workersMap[worker.GetSource()] = worker
 	}
 
 	return &App{
-		websocketURL: strings.TrimSpace(*config.websocketURL),
-		secretKey:    strings.TrimSpace(*config.secretKey),
-		workers:      workersMap,
-	}
-}
-
-func (a *App) auth() {
-	if err := a.wsConn.WriteMessage(websocket.TextMessage, []byte(a.secretKey)); err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
-		close(a.done)
+		workers:    workersMap,
+		mqttClient: mqttClient,
 	}
 }
 
@@ -92,26 +64,16 @@ func (a *App) pingWorkers() {
 	for i := 0; i < workersCount; i++ {
 		select {
 		case err := <-errors:
-			source := `unknown`
-			if worker, ok := err.Input.(provider.Worker); ok {
-				source = worker.GetSource()
-			}
-
-			if err := provider.WriteErrorMessage(a.wsConn, source, err.Err); err != nil {
-				logger.Error(`%+v`, err)
-			}
+			logger.Error(`%+v`, err)
 			break
 
 		case result := <-results:
-			if messages, ok := result.([]*provider.WorkerMessage); ok {
-				for _, message := range messages {
-					if err := provider.WriteMessage(ctx, a.wsConn, message); err != nil {
-						logger.Error(`%+v`, err)
-					}
+			for _, message := range result.([]*provider.WorkerMessage) {
+				if err := provider.WriteMessage(ctx, a.mqttClient, `message_from_worker`, message); err != nil {
+					logger.Error(`%+v`, err)
 				}
-			} else {
-				logger.Error(`unrecognized message type: %+v`, result)
 			}
+
 			break
 		}
 	}
@@ -119,19 +81,19 @@ func (a *App) pingWorkers() {
 
 func (a *App) pinger() {
 	for {
-		select {
-		case <-a.done:
-			return
-		default:
-			a.pingWorkers()
-		}
-
+		a.pingWorkers()
 		time.Sleep(pingDelay)
 	}
 }
 
-func (a *App) handleMessage(p *provider.WorkerMessage) {
-	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), p.Tracing, p.Action)
+func (a *App) handleTextMessage(p []byte) {
+	var message provider.WorkerMessage
+	if err := json.Unmarshal(p, &message); err != nil {
+		logger.Error(`%+v`, errors.WithStack(err))
+		return
+	}
+
+	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), message.Tracing, message.Action)
 	if err != nil {
 		logger.Error(`%+v`, errors.WithStack(err))
 	}
@@ -139,19 +101,15 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		defer span.Finish()
 	}
 
-	if worker, ok := a.workers[p.Source]; ok {
-		output, err := worker.Handle(ctx, p)
+	if worker, ok := a.workers[message.Source]; ok {
+		output, err := worker.Handle(ctx, &message)
 
 		if err != nil {
 			logger.Error(`%+v`, err)
-
-			if err := provider.WriteErrorMessage(a.wsConn, p.Source, err); err != nil {
-				logger.Error(`%+v`, err)
-			}
 		}
 
 		if output != nil {
-			if err := provider.WriteMessage(ctx, a.wsConn, output); err != nil {
+			if err := provider.WriteMessage(ctx, a.mqttClient, `message_from_worker`, output); err != nil {
 				logger.Error(`%+v`, err)
 			}
 		}
@@ -159,72 +117,21 @@ func (a *App) handleMessage(p *provider.WorkerMessage) {
 		return
 	}
 
-	logger.Error(`unknown request: %s`, p)
+	logger.Error(`unknown request: %s`, message)
 }
 
 func (a *App) connect() {
-	ws, _, err := websocket.DefaultDialer.Dial(a.websocketURL, nil)
-	if ws != nil {
-		defer func() {
-			if err := ws.Close(); err != nil {
-				logger.Error(`%+v`, errors.WithStack(err))
-			}
-		}()
-	}
+	err := a.mqttClient.Subscribe(`message_to_worker`, a.handleTextMessage)
 	if err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
-		return
+		logger.Error(`%+v`, err)
 	}
 
-	a.wsConn = ws
-	a.done = make(chan struct{})
-	logger.Info(`Websocket connection established`)
-
-	a.auth()
-	go a.pinger()
-
-	input := make(chan *provider.WorkerMessage)
-
-	go func() {
-		for {
-			messageType, p, err := ws.ReadMessage()
-			if messageType == websocket.CloseMessage {
-				close(a.done)
-				return
-			}
-
-			if err != nil {
-				logger.Error(`%+v`, errors.WithStack(err))
-				close(a.done)
-				return
-			}
-
-			if messageType == websocket.TextMessage {
-				var workerMessage provider.WorkerMessage
-				if err := json.Unmarshal(p, &workerMessage); err != nil {
-					logger.Error(`%+v`, errors.WithStack(err))
-				} else {
-					input <- &workerMessage
-				}
-			}
-		}
-	}()
-
-	for {
-		select {
-		case <-a.done:
-			close(input)
-			return
-		case p := <-input:
-			a.handleMessage(p)
-		}
-	}
+	a.pinger()
 }
 
 func main() {
 	fs := flag.NewFlagSet(`iot-worker`, flag.ExitOnError)
 
-	workerConfig := Flags(fs, ``)
 	mqttConfig := mqtt.Flags(fs, `mqtt`)
 	hueConfig := hue_worker.Flags(fs, `hue`)
 	netatmoConfig := netatmo_worker.Flags(fs, `netatmo`)
@@ -239,15 +146,15 @@ func main() {
 		logger.Error(`%+v`, err)
 		os.Exit(1)
 	}
-	netatmoApp := netatmo_worker.New(netatmoConfig)
-	sonosApp := sonos_worker.New(sonosConfig)
-	app := New(workerConfig, []provider.Worker{hueApp, netatmoApp, sonosApp})
 
 	mqttApp, err := mqtt.New(mqttConfig)
 	if err != nil {
 		logger.Fatal(`%+v`, err)
 	}
-	mqttApp.End()
+
+	netatmoApp := netatmo_worker.New(netatmoConfig)
+	sonosApp := sonos_worker.New(sonosConfig)
+	app := New([]provider.Worker{hueApp, netatmoApp, sonosApp}, mqttApp)
 
 	app.connect()
 }

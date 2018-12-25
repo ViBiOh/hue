@@ -231,7 +231,8 @@
   version = "v1.5.0"
 
 [[projects]]
-  digest = "1:354f484e2e0407e47113cabaea24401f1f96d43e6590ff830d5589a7fef7c736"
+  branch = "master"
+  digest = "1:5b620634365f0ede28cfe062c427cb5baf9cb25ba209bfcb0a3e98e827f59964"
   name = "github.com/yosssi/gmq"
   packages = [
     "mqtt",
@@ -239,8 +240,7 @@
     "mqtt/packet",
   ]
   pruneopts = "UT"
-  revision = "31fa037b1019e383aa033aee1e4d04e106c88ed2"
-  version = "v0.0.1"
+  revision = "b221999646da8ea48ff0796c2b0191aa510d062e"
 
 [[projects]]
   branch = "master"
@@ -285,6 +285,8 @@
     "github.com/ViBiOh/httputils/pkg/templates",
     "github.com/ViBiOh/httputils/pkg/tools",
     "github.com/gorilla/websocket",
+    "github.com/pkg/errors",
+    "github.com/yosssi/gmq/mqtt",
     "github.com/yosssi/gmq/mqtt/client",
   ]
   solver-name = "gps-cdcl"

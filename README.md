@@ -9,7 +9,7 @@
 ```bash
 Usage of iot:
   -assetsDirectory string
-      Assets directory (static and templates) (default "./")
+      [iot] Assets directory (static and templates)
   -authDisable
       [auth] Disable auth
   -authUrl string
@@ -56,8 +56,6 @@ Usage of iot:
       Listen port (default 1080)
   -prometheusPath string
       [prometheus] Path for exposing metrics (default "/metrics")
-  -secretKey string
-      [iot] Secret Key between worker and API
   -tls
       Serve TLS content (default true)
   -tlsCert string
@@ -110,8 +108,6 @@ Usage of iot-worker:
       [netatmo] Client Secret
   -netatmoRefreshToken string
       [netatmo] Refresh Token
-  -secretKey string
-      Secret Key
   -sonosAccessToken string
       [sonos] Access Token
   -sonosClientID string
@@ -120,8 +116,6 @@ Usage of iot-worker:
       [sonos] Client Secret
   -sonosRefreshToken string
       [sonos] Refresh Token
-  -websocket string
-      WebSocket URL
 ```
 
 ## Create systemd service for worker

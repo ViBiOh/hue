@@ -4,14 +4,21 @@ services:
   site:
     image: vibioh/iot
     command:
+    - -mqttClientID iot
+    - -mqttServer
+    - ${IOT_MQTT_SERVER}
+    - -mqttPort
+    - ${IOT_MQTT_PORT}
+    - -mqttUser
+    - ${IOT_MQTT_USER}
+    - -mqttPass
+    - ${IOT_MQTT_PASS}
     - -authUsers
     - vibioh:admin
     - -basicUsers
     - ${BASIC_USERS}
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
-    - -secretKey
-    - ${SECRET_KEY}
     - -dysonEmail
     - ${DYSON_EMAIL}
     - -dysonPassword

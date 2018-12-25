@@ -76,8 +76,9 @@ build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
 
 ## install: Install binary in GOPATH
-.PHONY: install
+.PHONY:
 install:
+	dep ensure
 	go install github.com/ViBiOh/iot/cmd/iot
 	go install github.com/ViBiOh/iot/cmd/worker
 
@@ -95,13 +96,11 @@ update-worker: deps install systemd
 .PHONY: start-worker
 start-worker:
 	go run cmd/worker/worker.go \
-		-websocket ws://localhost:1080/ws/hue \
 		-mqttClientID "iot-worker-dev" \
 		-mqttServer $(IOT_MQTT_SERVER) \
 		-mqttPort $(IOT_MQTT_PORT) \
 		-mqttUser $(IOT_MQTT_USER) \
 		-mqttPass $(IOT_MQTT_PASS) \
-		-secretKey "SECRET_KEY" \
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
@@ -119,9 +118,11 @@ start-worker:
 .PHONY: start
 start:
 	go run cmd/iot/iot.go \
+		-mqttClientID "iot-dev" \
+		-mqttServer $(IOT_MQTT_SERVER) \
+		-mqttPort $(IOT_MQTT_PORT) \
+		-mqttUser $(IOT_MQTT_USER) \
+		-mqttPass $(IOT_MQTT_PASS) \
 		-tls=false \
 		-authDisable \
-		-authUsers "admin:admin" \
-		-basicUsers "1:admin:`bcrypt admin`" \
-		-secretKey "SECRET_KEY" \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"

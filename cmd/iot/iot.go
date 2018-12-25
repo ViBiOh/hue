@@ -54,8 +54,6 @@ func main() {
 	iotConfig := iot.Flags(fs, ``)
 	dysonConfig := dyson.Flags(fs, `dyson`)
 
-	assetsDirectory := fs.String(`assetsDirectory`, `./`, `Assets directory (static and templates)`)
-
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		logger.Fatal(`%+v`, err)
 	}
@@ -74,25 +72,23 @@ func main() {
 	if err != nil {
 		logger.Fatal(`%+v`, err)
 	}
-	mqttApp.End()
 
 	authApp := auth.NewService(authConfig, authService.NewBasic(authBasicConfig, nil))
 	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()
 	dysonApp := dyson.New(dysonConfig)
 	hueApp := hue.New()
-	iotApp := iot.New(iotConfig, *assetsDirectory, map[string]provider.Provider{
+	iotApp := iot.New(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 		`Dyson`:   dysonApp,
 		`Sonos`:   sonosApp,
-	})
+	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
 	dysonHandler := http.StripPrefix(dysonPath, dysonApp.Handler())
 	sonosHandler := http.StripPrefix(sonosPath, sonosApp.Handler())
 	iotHandler := iotApp.Handler()
-	wsHandler := http.StripPrefix(websocketPath, iotApp.WebsocketHandler())
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, huePath) {
@@ -102,19 +98,13 @@ func main() {
 		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
 			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-			http.ServeFile(w, r, path.Join(*assetsDirectory, `static`, r.URL.Path))
+			http.ServeFile(w, r, path.Join(*iotConfig.AssetsDirectory, `static`, r.URL.Path))
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}
 	})
 
-	apiHandler := server.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp, authApp)
+	iotApp.HandleWorker()
 
-	serverApp.ListenAndServe(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, websocketPath) {
-			wsHandler.ServeHTTP(w, r)
-		} else {
-			apiHandler.ServeHTTP(w, r)
-		}
-	}), nil, healthcheckApp)
+	serverApp.ListenAndServe(server.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp, authApp), nil, healthcheckApp)
 }

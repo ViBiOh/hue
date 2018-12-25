@@ -15,20 +15,6 @@
   {{- end -}}
 {{- end -}}
 
-{{- define "worker-off" -}}
-  <span class="container center">
-    <h2 class="header center no-margin">Worker</h2>
-    <div class="header center danger">Worker is offline</div>
-  </span>
-{{- end -}}
-
-{{- define "worker-error" -}}
-  <span class="container center">
-    <h2 class="header center no-margin">Worker</h2>
-    <div class="header center danger">Worker is in error</div>
-  </span>
-{{- end -}}
-
 {{- define "iot" -}}
 <!doctype html>
 <html lang="fr">
@@ -57,14 +43,6 @@
       {{- template "message" .Message -}}
 
       <div class="grid">
-        {{- if .Online -}}
-          {{- if .Error -}}
-            {{- template "worker-error" . -}}
-          {{- end -}}
-        {{- else -}}
-          {{- template "worker-off" . -}}
-        {{- end -}}
-
         {{- if .Netatmo -}}
           {{- template "netatmo" .Netatmo -}}
         {{- end -}}
