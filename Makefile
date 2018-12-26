@@ -76,12 +76,13 @@ build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
 
 ## install: Install binary in GOPATH
-.PHONY:
+.PHONY: install
 install:
 	go install github.com/ViBiOh/iot/cmd/iot
 	go install github.com/ViBiOh/iot/cmd/worker
 
 ## systemd: Configure systemd for launching local and remote worker
+.PHONY: systemd
 systemd:
 	sudo cp systemd/* /lib/systemd/system/
 	sudo systemctl daemon-reload
@@ -89,6 +90,7 @@ systemd:
 	sudo systemctl restart iot-local.service iot-local-worker.service
 
 ## update-worker: Update worker by fetching new version and restarting services
+.PHONY: update-worker
 update-worker: deps install systemd
 
 ## start-worker: Start worker
