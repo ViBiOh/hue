@@ -87,7 +87,7 @@
   {{- range $id, $schedule := .Schedules }}
     <span class="container">
       <h2 class="small no-margin margin-left">Hue</h2>
-      <h3 class="header center no-margin">{{- $schedule.Name -}} Sensor</h3>
+      <h3 class="header center no-margin">{{- $schedule.Name -}}</h3>
 
       <div class="center padding">
         <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
