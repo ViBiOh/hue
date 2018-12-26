@@ -87,7 +87,7 @@
   {{- range $id, $schedule := .Schedules }}
     <span class="container">
       <h2 class="small no-margin margin-left">Hue</h2>
-      <h3 class="header center no-margin">{{- $schedule.Name -}}</h3>
+      <h3 class="header center no-margin">{{- $schedule.Name -}} Sensor</h3>
 
       <div class="center padding">
         <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
@@ -111,6 +111,25 @@
         <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left button-icon">
           <img src="/svg/trash-alt?fill=crimson" alt="trash">
         </a>
+      </div>
+    </span>
+  {{- end -}}
+
+  {{- range $name, $sensor := .Sensors }}
+    <span class="container">
+      <h2 class="small no-margin margin-left">Hue</h2>
+      <h3 class="header center no-margin {{ if $sensor.State.Presence -}}success{{- end -}}">{{- $sensor.Name }} Sensor</h3>
+
+      {{- if $sensor.Config.LedIndication -}}
+        <h3 class="header center no-margin danger">LED</h3>
+      {{- end -}}
+
+      <div class="center padding">
+        🌡 <strong>{{- $sensor.State.Temperature -}}°c</strong>
+      </div>
+
+      <div class="center padding">
+        🔋 <strong>{{- $sensor.Config.Battery -}}%</strong>
       </div>
     </span>
   {{- end -}}

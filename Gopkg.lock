@@ -79,14 +79,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
-  name = "github.com/gorilla/websocket"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
-  version = "v1.4.0"
-
-[[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -284,7 +276,6 @@
     "github.com/ViBiOh/httputils/pkg/server",
     "github.com/ViBiOh/httputils/pkg/templates",
     "github.com/ViBiOh/httputils/pkg/tools",
-    "github.com/gorilla/websocket",
     "github.com/pkg/errors",
     "github.com/yosssi/gmq/mqtt",
     "github.com/yosssi/gmq/mqtt/client",

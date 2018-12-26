@@ -30,7 +30,6 @@ import (
 )
 
 const (
-	websocketPath   = `/ws`
 	healthcheckPath = `/health`
 	faviconPath     = `/favicon`
 	huePath         = `/hue`

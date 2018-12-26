@@ -8,25 +8,28 @@ import (
 )
 
 const (
-	// WorkerGroupsAction ws message prefix for groups command
+	// WorkerGroupsAction message prefix for groups command
 	WorkerGroupsAction = `groups`
 
-	// WorkerSchedulesAction ws message prefix for schedules command
+	// WorkerSchedulesAction message prefix for schedules command
 	WorkerSchedulesAction = `schedules`
 
-	// WorkerScenesAction ws message prefix for scenes command
+	// WorkerScenesAction message prefix for scenes command
 	WorkerScenesAction = `scenes`
 
-	// WorkerStateAction ws message prefix for state command
+	// WorkerSensorsAction message prefix for sensors command
+	WorkerSensorsAction = `sensors`
+
+	// WorkerStateAction message prefix for state command
 	WorkerStateAction = `state`
 
-	// CreateAction ws message prefix for create command
+	// CreateAction message prefix for create command
 	CreateAction = `create`
 
-	// UpdateAction ws message prefix for update command
+	// UpdateAction message prefix for update command
 	UpdateAction = `update`
 
-	// DeleteAction ws message prefix for delete command
+	// DeleteAction message prefix for delete command
 	DeleteAction = `delete`
 )
 
@@ -58,6 +61,20 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
+func (a *App) handleSensorsFromWorker(message *provider.WorkerMessage) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	var newSensors map[string]*Sensor
+	if err := json.Unmarshal([]byte(message.Payload), &newSensors); err != nil {
+		return errors.WithStack(err)
+	}
+
+	a.sensors = newSensors
+
+	return nil
+}
+
 func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
@@ -80,6 +97,10 @@ func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
 
 	if p.Action == WorkerSchedulesAction {
 		return a.handleSchedulesFromWorker(p)
+	}
+
+	if p.Action == WorkerSensorsAction {
+		return a.handleSensorsFromWorker(p)
 	}
 
 	if p.Action == WorkerScenesAction {

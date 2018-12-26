@@ -27,9 +27,9 @@ func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, so
 		defer a.workerCalls.Delete(message.ID)
 	}
 
-	message.ResponseTo = a.topic
+	message.ResponseTo = a.subscribeTopic
 
-	if err := provider.WriteMessage(ctx, a.mqttClient, `worker`, message); err != nil {
+	if err := provider.WriteMessage(ctx, a.mqttClient, a.publishTopic, message); err != nil {
 		return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, err.Error())
 	}
 

@@ -12,7 +12,7 @@ services:
     - ${IOT_MQTT_USER}
     - -mqttPass
     - ${IOT_MQTT_PASS}
-    - -topic
+    - -subscribe
     - remote
     - -authUsers
     - vibioh:admin

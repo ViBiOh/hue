@@ -21,6 +21,7 @@ type App struct {
 	groups    map[string]*Group
 	scenes    map[string]*Scene
 	schedules map[string]*Schedule
+	sensors   map[string]*Sensor
 	mutex     sync.RWMutex
 }
 
@@ -144,7 +145,7 @@ func (a *App) SetHub(hub provider.Hub) {
 	a.hub = hub
 }
 
-// GetWorkerSource get source of message in websocket
+// GetWorkerSource get source of message
 func (a *App) GetWorkerSource() string {
 	return Source
 }
@@ -162,6 +163,7 @@ func (a *App) GetData() interface{} {
 		Groups:    a.groups,
 		Scenes:    a.scenes,
 		Schedules: a.schedules,
+		Sensors:   a.sensors,
 		States:    States,
 	}
 }

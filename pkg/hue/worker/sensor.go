@@ -9,6 +9,37 @@ import (
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
+const (
+	presenceSensorType    = `ZLLPresence`
+	temperatureSensorType = `ZLLTemperature`
+)
+
+func (a *App) listSensors(ctx context.Context) (map[string]*hue.Sensor, error) {
+	var response map[string]*hue.Sensor
+
+	if err := get(ctx, fmt.Sprintf(`%s/sensors`, a.bridgeURL), &response); err != nil {
+		return nil, err
+	}
+
+	sensors := make(map[string]*hue.Sensor)
+
+	for _, sensor := range response {
+		if sensor.Type == presenceSensorType {
+			sensors[sensor.Name] = sensor
+		}
+	}
+
+	for _, sensor := range response {
+		if sensor.Type == temperatureSensorType {
+			if presenceSensor, ok := sensors[sensor.Name]; ok {
+				presenceSensor.State.Temperature = sensor.State.Temperature / 100
+			}
+		}
+	}
+
+	return sensors, nil
+}
+
 func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 	state := `on`
 

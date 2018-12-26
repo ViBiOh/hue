@@ -194,6 +194,20 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf(`%s`, payload)), nil
 }
 
+func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	sensors, err := a.listSensors(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := json.Marshal(sensors)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf(`%s`, payload)), nil
+}
+
 // Handle handle worker requests for Hue
 func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	if strings.HasPrefix(p.Action, hue.WorkerGroupsAction) {
@@ -202,6 +216,10 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 
 	if strings.HasPrefix(p.Action, hue.WorkerScenesAction) {
 		return a.workerListScenes(ctx, p)
+	}
+
+	if strings.HasPrefix(p.Action, hue.WorkerSensorsAction) {
+		return a.workerListSensors(ctx, p)
 	}
 
 	if strings.HasPrefix(p.Action, hue.WorkerSchedulesAction) {
@@ -223,7 +241,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 	return nil, errors.New(`unknown request: %s`, p)
 }
 
-// GetSource returns source name for WS calls
+// GetSource returns source name
 func (a *App) GetSource() string {
 	return hue.Source
 }
@@ -245,5 +263,10 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, err
 	}
 
-	return []*provider.WorkerMessage{groups, scenes, schedules}, nil
+	sensors, err := a.workerListSensors(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return []*provider.WorkerMessage{groups, scenes, schedules, sensors}, nil
 }

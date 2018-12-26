@@ -50,7 +50,7 @@ func New(config Config) *App {
 	}
 }
 
-// GetSource returns source name for WS calls
+// GetSource returns source name
 func (a *App) GetSource() string {
 	return netatmo.Source
 }

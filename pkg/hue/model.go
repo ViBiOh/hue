@@ -112,6 +112,26 @@ type Rule struct {
 	Conditions []*Condition `json:"conditions,omitempty"`
 }
 
+// Sensor description
+type Sensor struct {
+	ID     string        `json:"-"`
+	Name   string        `json:"name,omitempty"`
+	Type   string        `json:"type,omitempty"`
+	State  *sensorState  `json:"state,omitempty"`
+	Config *sensorConfig `json:"config,omitempty"`
+}
+
+type sensorState struct {
+	Presence    bool    `json:"presence,omitempty"`
+	Temperature float32 `json:"temperature,omitempty"`
+}
+
+type sensorConfig struct {
+	On            bool `json:"on,omitempty"`
+	Battery       uint `json:"battery,omitempty"`
+	LedIndication bool `json:"ledindication,omitempty"`
+}
+
 // Action description
 type Action struct {
 	Address string                 `json:"address,omitempty"`
@@ -131,5 +151,6 @@ type Data struct {
 	Groups    map[string]*Group
 	Scenes    map[string]*Scene
 	Schedules map[string]*Schedule
+	Sensors   map[string]*Sensor
 	States    map[string]map[string]interface{}
 }

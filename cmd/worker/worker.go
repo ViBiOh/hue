@@ -26,20 +26,23 @@ const (
 
 // Config of package
 type Config struct {
-	topics *string
+	publish   *string
+	subscribe *string
 }
 
 // App of package
 type App struct {
-	topics     []string
-	workers    map[string]provider.Worker
-	mqttClient *mqtt.App
+	publishTopics  []string
+	subscribeTopic string
+	workers        map[string]provider.Worker
+	mqttClient     *mqtt.App
 }
 
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		topics: fs.String(tools.ToCamel(fmt.Sprintf(`%sTopics`, prefix)), `local,remote`, `List of topics to publish to, comma separated`),
+		publish:   fs.String(tools.ToCamel(fmt.Sprintf(`%sPublish`, prefix)), `local,remote`, `Topics to publish to, comma separated`),
+		subscribe: fs.String(tools.ToCamel(fmt.Sprintf(`%sSubscribe`, prefix)), `worker`, `Topic to subscribe to`),
 	}
 }
 
@@ -51,9 +54,10 @@ func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 	}
 
 	return &App{
-		workers:    workersMap,
-		mqttClient: mqttClient,
-		topics:     strings.Split(strings.TrimSpace(*config.topics), `,`),
+		workers:        workersMap,
+		mqttClient:     mqttClient,
+		publishTopics:  strings.Split(strings.TrimSpace(*config.publish), `,`),
+		subscribeTopic: strings.TrimSpace(*config.subscribe),
 	}
 }
 
@@ -85,7 +89,7 @@ func (a *App) pingWorkers() {
 
 		case result := <-results:
 			for _, message := range result.([]*provider.WorkerMessage) {
-				for _, topic := range a.topics {
+				for _, topic := range a.publishTopics {
 					if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
 						logger.Error(`%+v`, err)
 					}
@@ -139,7 +143,7 @@ func (a *App) handleTextMessage(p []byte) {
 }
 
 func (a *App) connect() {
-	err := a.mqttClient.Subscribe(`worker`, a.handleTextMessage)
+	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
 		logger.Error(`%+v`, err)
 	}
@@ -150,7 +154,7 @@ func (a *App) connect() {
 func main() {
 	fs := flag.NewFlagSet(`iot-worker`, flag.ExitOnError)
 
-	iotConfig := Flags(fs, `iot`)
+	iotConfig := Flags(fs, ``)
 	mqttConfig := mqtt.Flags(fs, `mqtt`)
 	hueConfig := hue_worker.Flags(fs, `hue`)
 	netatmoConfig := netatmo_worker.Flags(fs, `netatmo`)

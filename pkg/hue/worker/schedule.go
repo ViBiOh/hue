@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -14,7 +14,7 @@ func (a *App) listSchedules(ctx context.Context) (map[string]*hue.Schedule, erro
 	var response map[string]*hue.Schedule
 
 	if err := get(ctx, fmt.Sprintf(`%s/schedules`, a.bridgeURL), &response); err != nil {
-		return response, nil
+		return nil, err
 	}
 
 	for id, schedule := range response {

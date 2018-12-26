@@ -61,7 +61,7 @@ type WorkerProvider interface {
 	WorkerHandler(*WorkerMessage) error
 }
 
-// Worker is a remote worker in another network, connected with websocket to hub
+// Worker is a remote worker in another network, connected to hub
 type Worker interface {
 	GetSource() string
 	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
@@ -85,7 +85,7 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 	}
 }
 
-// WriteMessage writes content as text message on websocket
+// WriteMessage writes content as text message
 func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
 		return errors.New(`no connection provided for sending: %+v`, message)
