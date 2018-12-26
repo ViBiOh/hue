@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
@@ -22,14 +24,27 @@ const (
 	pingDelay = 60 * time.Second
 )
 
+// Config of package
+type Config struct {
+	topics *string
+}
+
 // App of package
 type App struct {
+	topics     []string
 	workers    map[string]provider.Worker
 	mqttClient *mqtt.App
 }
 
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		topics: fs.String(tools.ToCamel(fmt.Sprintf(`%sTopics`, prefix)), `local,remote`, `List of topics to publish to, comma separated`),
+	}
+}
+
 // New creates new App from Config
-func New(workers []provider.Worker, mqttClient *mqtt.App) *App {
+func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
 	for _, worker := range workers {
 		workersMap[worker.GetSource()] = worker
@@ -38,6 +53,7 @@ func New(workers []provider.Worker, mqttClient *mqtt.App) *App {
 	return &App{
 		workers:    workersMap,
 		mqttClient: mqttClient,
+		topics:     strings.Split(strings.TrimSpace(*config.topics), `,`),
 	}
 }
 
@@ -69,8 +85,10 @@ func (a *App) pingWorkers() {
 
 		case result := <-results:
 			for _, message := range result.([]*provider.WorkerMessage) {
-				if err := provider.WriteMessage(ctx, a.mqttClient, `message_from_worker`, message); err != nil {
-					logger.Error(`%+v`, err)
+				for _, topic := range a.topics {
+					if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
+						logger.Error(`%+v`, err)
+					}
 				}
 			}
 
@@ -109,7 +127,7 @@ func (a *App) handleTextMessage(p []byte) {
 		}
 
 		if output != nil {
-			if err := provider.WriteMessage(ctx, a.mqttClient, `message_from_worker`, output); err != nil {
+			if err := provider.WriteMessage(ctx, a.mqttClient, message.ResponseTo, output); err != nil {
 				logger.Error(`%+v`, err)
 			}
 		}
@@ -121,7 +139,7 @@ func (a *App) handleTextMessage(p []byte) {
 }
 
 func (a *App) connect() {
-	err := a.mqttClient.Subscribe(`message_to_worker`, a.handleTextMessage)
+	err := a.mqttClient.Subscribe(`worker`, a.handleTextMessage)
 	if err != nil {
 		logger.Error(`%+v`, err)
 	}
@@ -132,6 +150,7 @@ func (a *App) connect() {
 func main() {
 	fs := flag.NewFlagSet(`iot-worker`, flag.ExitOnError)
 
+	iotConfig := Flags(fs, `iot`)
 	mqttConfig := mqtt.Flags(fs, `mqtt`)
 	hueConfig := hue_worker.Flags(fs, `hue`)
 	netatmoConfig := netatmo_worker.Flags(fs, `netatmo`)
@@ -154,7 +173,7 @@ func main() {
 
 	netatmoApp := netatmo_worker.New(netatmoConfig)
 	sonosApp := sonos_worker.New(sonosConfig)
-	app := New([]provider.Worker{hueApp, netatmoApp, sonosApp}, mqttApp)
+	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp}, mqttApp)
 
 	app.connect()
 }

@@ -32,7 +32,7 @@ func (a *App) handleTextMessage(p []byte) {
 
 // HandleWorker listen from worker
 func (a *App) HandleWorker() {
-	err := a.mqttClient.Subscribe(`message_from_worker`, a.handleTextMessage)
+	err := a.mqttClient.Subscribe(a.topic, a.handleTextMessage)
 	if err != nil {
 		logger.Error(`%+v`, err)
 	}

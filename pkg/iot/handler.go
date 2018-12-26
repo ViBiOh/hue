@@ -47,6 +47,7 @@ func init() {
 // Config of package
 type Config struct {
 	AssetsDirectory *string
+	topic           *string
 }
 
 // App of package
@@ -57,12 +58,14 @@ type App struct {
 	workerCalls     sync.Map
 
 	mqttClient *mqtt.App
+	topic      string
 }
 
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
 		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf(`%sAssetsDirectory`, prefix)), ``, `[iot] Assets directory (static and templates)`),
+		topic:           fs.String(tools.ToCamel(fmt.Sprintf(`%sTopic`, prefix)), ``, `[iot] Topic to listen to`),
 	}
 }
 
@@ -82,6 +85,7 @@ func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt
 		workerCalls:     sync.Map{},
 
 		mqttClient: mqttClient,
+		topic:      *config.topic,
 	}
 
 	for _, p := range providers {
