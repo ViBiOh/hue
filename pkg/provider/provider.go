@@ -11,7 +11,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/mqtt"
-	"github.com/gorilla/websocket"
 )
 
 const (
@@ -32,11 +31,12 @@ type Message struct {
 
 // WorkerMessage describe how message are exchanged accross worker
 type WorkerMessage struct {
-	ID      string
-	Source  string
-	Action  string
-	Tracing map[string]string
-	Payload string
+	ID         string
+	ResponseTo string
+	Source     string
+	Action     string
+	Tracing    map[string]string
+	Payload    string
 }
 
 // Hub that renders UI to end user
@@ -102,22 +102,6 @@ func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *
 	}
 
 	if err := client.Publish(topic, messagePayload); err != nil {
-		return errors.WithStack(err)
-	}
-
-	return nil
-}
-
-// WriteErrorMessage writes error message on websocket
-func WriteErrorMessage(ws *websocket.Conn, source string, errPayload error) error {
-	message := NewWorkerMessage(nil, source, WorkerErrorAction, errPayload.Error())
-
-	messagePayload, err := json.Marshal(message)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := ws.WriteMessage(websocket.TextMessage, messagePayload); err != nil {
 		return errors.WithStack(err)
 	}
 

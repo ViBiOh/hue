@@ -100,6 +100,7 @@ start-worker:
 		-mqttPort $(IOT_MQTT_PORT) \
 		-mqttUser $(IOT_MQTT_USER) \
 		-mqttPass $(IOT_MQTT_PASS) \
+		-iotTopics dev \
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
@@ -122,6 +123,7 @@ start:
 		-mqttPort $(IOT_MQTT_PORT) \
 		-mqttUser $(IOT_MQTT_USER) \
 		-mqttPass $(IOT_MQTT_PASS) \
+		-topic dev \
 		-tls=false \
 		-authDisable \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"

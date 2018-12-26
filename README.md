@@ -66,6 +66,8 @@ Usage of iot:
       [tls] PEM Key file
   -tlsOrganization string
       [tls] Self-signed certificate organization (default "ViBiOh")
+  -topic string
+      [iot] Topic to listen to
   -tracingAgent string
       [opentracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
   -tracingName string
@@ -88,6 +90,8 @@ Usage of iot-worker:
       [hue] Configuration filename
   -hueUsername string
       [hue] Username for Bridge
+  -iotTopics string
+      List of topics to publish to, comma separated (default "local,remote")
   -mqttClientID string
       [mqtt] Client ID (default "iot")
   -mqttPass string
