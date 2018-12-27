@@ -143,6 +143,7 @@ func (a *App) handleTextMessage(p []byte) {
 }
 
 func (a *App) connect() {
+	logger.Info(`Connecting to MQTT %s`, a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
 		logger.Error(`%+v`, err)

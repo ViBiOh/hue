@@ -11,17 +11,17 @@
     {
       "id": "6",
       "groups": ["4"],
-      "offDelay": "PT00:00:30"
+      "offDelay": "PT00:01:00"
     },
     {
       "id": "10",
       "groups": ["3"],
-      "offDelay": "PT00:00:30"
+      "offDelay": "PT00:01:00"
     },
     {
       "id": "14",
       "groups": ["5"],
-      "offDelay": "PT00:00:30"
+      "offDelay": "PT00:01:00"
     }
   ],
   "taps": [
@@ -30,32 +30,30 @@
       "buttons": [
         {
           "id": "1",
-          "state": "off",
+          "state": "on",
           "groups": [
-            "1",
-            "2",
-            "5"
+            "2"
           ]
         },
         {
           "id": "2",
-          "state": "on",
+          "state": "dimmed",
           "groups": [
-            "1"
+            "2"
           ]
         },
         {
           "id": "3",
-          "state": "on",
+          "state": "off",
           "groups": [
-            "5"
+            "2"
           ]
         },
         {
           "id": "4",
           "state": "on",
           "groups": [
-            "2"
+            "1"
           ]
         }
       ]
@@ -65,25 +63,23 @@
       "buttons": [
         {
           "id": "1",
-          "state": "off",
-          "groups": [
-            "1",
-            "2",
-            "5"
-          ]
-        },
-        {
-          "id": "2",
           "state": "on",
           "groups": [
             "1"
           ]
         },
         {
-          "id": "3",
-          "state": "on",
+          "id": "2",
+          "state": "dimmed",
           "groups": [
-            "5"
+            "1"
+          ]
+        },
+        {
+          "id": "3",
+          "state": "off",
+          "groups": [
+            "1"
           ]
         },
         {
@@ -100,32 +96,30 @@
       "buttons": [
         {
           "id": "1",
-          "state": "off",
+          "state": "on",
           "groups": [
-            "1",
-            "2",
-            "5"
+            "2"
           ]
         },
         {
           "id": "2",
-          "state": "on",
+          "state": "dimmed",
           "groups": [
-            "1"
+            "2"
           ]
         },
         {
           "id": "3",
-          "state": "on",
+          "state": "off",
           "groups": [
-            "5"
+            "2"
           ]
         },
         {
           "id": "4",
           "state": "on",
           "groups": [
-            "2"
+            "1"
           ]
         }
       ]

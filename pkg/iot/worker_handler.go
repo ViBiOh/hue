@@ -32,6 +32,7 @@ func (a *App) handleTextMessage(p []byte) {
 
 // HandleWorker listen from worker
 func (a *App) HandleWorker() {
+	logger.Info(`Connecting to MQTT %s`, a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
 		logger.Error(`%+v`, err)

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -51,6 +52,8 @@ func New(config Config) (*App, error) {
 	ctx := context.Background()
 
 	if *config.clean {
+		logger.Info(`Cleaning hue`)
+
 		if err := app.cleanSchedules(ctx); err != nil {
 			return nil, err
 		}
