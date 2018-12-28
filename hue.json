@@ -10,18 +10,24 @@
   "sensors": [
     {
       "id": "6",
+      "lightSensorId": "7",
+      "companionId": "17",
       "groups": ["4"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:00:30"
     },
     {
       "id": "10",
+      "lightSensorId": "11",
+      "companionId": "12",
       "groups": ["3"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:00:30"
     },
     {
       "id": "14",
+      "lightSensorId": "15",
+      "companionId": "16",
       "groups": ["5"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:00:30"
     }
   ],
   "taps": [

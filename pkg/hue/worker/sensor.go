@@ -55,9 +55,102 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
 				Operator: `dx`,
 			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/dark`, sensor.LightSensorID),
+				Operator: `eq`,
+				Value:    `true`,
+			},
 		},
 		Actions: make([]*hue.Action, 0),
 	}
+
+	newRule.Actions = append(newRule.Actions, &hue.Action{
+		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
+		Method:  http.MethodPut,
+		Body: map[string]interface{}{
+			`status`: 1,
+		},
+	})
+
+	for _, group := range sensor.Groups {
+		newRule.Actions = append(newRule.Actions, &hue.Action{
+			Address: fmt.Sprintf(`/groups/%s/action`, group),
+			Method:  http.MethodPut,
+			Body:    hue.States[state],
+		})
+	}
+
+	return newRule
+}
+
+func (a *App) createSensorRecoverRuleDescription(sensor *sensorConfig) *hue.Rule {
+	newRule := &hue.Rule{
+		Name: fmt.Sprintf(`MotionSensor %s - recover`, sensor.ID),
+		Conditions: []*hue.Condition{
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
+				Operator: `eq`,
+				Value:    `true`,
+			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
+				Operator: `dx`,
+			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
+				Operator: `gt`,
+				Value:    `0`,
+			},
+		},
+		Actions: make([]*hue.Action, 0),
+	}
+
+	newRule.Actions = append(newRule.Actions, &hue.Action{
+		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
+		Method:  http.MethodPut,
+		Body: map[string]interface{}{
+			`status`: 1,
+		},
+	})
+
+	for _, group := range sensor.Groups {
+		newRule.Actions = append(newRule.Actions, &hue.Action{
+			Address: fmt.Sprintf(`/groups/%s/action`, group),
+			Method:  http.MethodPut,
+			Body:    hue.States[`on`],
+		})
+	}
+
+	return newRule
+}
+
+func (a *App) createSensorDimmedRuleDescription(sensor *sensorConfig) *hue.Rule {
+	state := `dimmed`
+
+	newRule := &hue.Rule{
+		Name: fmt.Sprintf(`MotionSensor %s - %s`, sensor.ID, state),
+		Conditions: []*hue.Condition{
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
+				Operator: `eq`,
+				Value:    `false`,
+			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
+				Operator: `ddx`,
+				Value:    sensor.OffDelay,
+			},
+		},
+		Actions: make([]*hue.Action, 0),
+	}
+
+	newRule.Actions = append(newRule.Actions, &hue.Action{
+		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
+		Method:  http.MethodPut,
+		Body: map[string]interface{}{
+			`status`: 2,
+		},
+	})
 
 	for _, group := range sensor.Groups {
 		newRule.Actions = append(newRule.Actions, &hue.Action{
@@ -82,13 +175,26 @@ func (a *App) createSensorOffRuleDescription(sensor *sensorConfig) *hue.Rule {
 				Value:    `false`,
 			},
 			{
-				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
+				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
 				Operator: `ddx`,
-				Value:    sensor.OffDelay,
+				Value:    `PT00:00:15`,
+			},
+			{
+				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
+				Operator: `gt`,
+				Value:    `1`,
 			},
 		},
 		Actions: make([]*hue.Action, 0),
 	}
+
+	newRule.Actions = append(newRule.Actions, &hue.Action{
+		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
+		Method:  http.MethodPut,
+		Body: map[string]interface{}{
+			`status`: 0,
+		},
+	})
 
 	for _, group := range sensor.Groups {
 		newRule.Actions = append(newRule.Actions, &hue.Action{
@@ -105,6 +211,16 @@ func (a *App) configureMotionSensor(ctx context.Context, sensors []*sensorConfig
 	for _, sensor := range sensors {
 		onRule := a.createSensorOnRuleDescription(sensor)
 		if err := a.createRule(ctx, onRule); err != nil {
+			logger.Error(`%+v`, err)
+		}
+
+		recoverRule := a.createSensorRecoverRuleDescription(sensor)
+		if err := a.createRule(ctx, recoverRule); err != nil {
+			logger.Error(`%+v`, err)
+		}
+
+		dimmedRule := a.createSensorDimmedRuleDescription(sensor)
+		if err := a.createRule(ctx, dimmedRule); err != nil {
 			logger.Error(`%+v`, err)
 		}
 

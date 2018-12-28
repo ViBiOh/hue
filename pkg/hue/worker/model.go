@@ -9,9 +9,11 @@ type hueConfig struct {
 }
 
 type sensorConfig struct {
-	ID       string
-	OffDelay string
-	Groups   []string
+	ID            string
+	LightSensorID string
+	CompanionID   string
+	OffDelay      string
+	Groups        []string
 }
 
 type tapConfig struct {
