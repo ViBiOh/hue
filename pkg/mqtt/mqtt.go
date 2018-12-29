@@ -51,6 +51,16 @@ func New(config Config) (*App, error) {
 		return &App{}, nil
 	}
 
+	app, err := Connect(*config.server, *config.user, *config.pass, *config.clientID, *config.port, *config.useTLS)
+	if err != nil {
+		return nil, err
+	}
+
+	return app, nil
+}
+
+// Connect to MQTT
+func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, error) {
 	mqttClient := client.New(&client.Options{
 		ErrorHandler: func(err error) {
 			logger.Error(`%+v`, err)
@@ -58,24 +68,23 @@ func New(config Config) (*App, error) {
 	})
 
 	var tlsConfig *tls.Config
-	if *config.useTLS {
+	if useTLS {
 		tlsConfig = &tls.Config{}
 	}
 
-	if err := mqttClient.Connect(&client.ConnectOptions{
+	err := mqttClient.Connect(&client.ConnectOptions{
 		Network:   `tcp`,
-		Address:   fmt.Sprintf(`%s:%d`, *config.server, *config.port),
+		Address:   fmt.Sprintf(`%s:%d`, server, port),
 		TLSConfig: tlsConfig,
-		UserName:  []byte(*config.user),
-		Password:  []byte(*config.pass),
-		ClientID:  []byte(*config.clientID),
-	}); err != nil {
+		UserName:  []byte(user),
+		Password:  []byte(pass),
+		ClientID:  []byte(clientID),
+	})
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return &App{
-		client: mqttClient,
-	}, nil
+	return &App{mqttClient}, nil
 }
 
 // Publish to a topic

@@ -49,9 +49,9 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `Dyson Link Email`),
-		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `Dyson Link Password`),
-		country:  fs.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `Dyson Link Country`),
+		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `[dyson] Link email`),
+		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `[dyson] Link eassword`),
+		country:  fs.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `[dyson] Link eountry`),
 	}
 }
 
@@ -80,14 +80,30 @@ func New(config Config) *App {
 		password: authContent[`Password`],
 	}
 
-	devices, err := app.getDevices(nil)
+	return app
+}
+
+// Start the package
+func (a *App) Start() {
+	devices, err := a.getDevices(nil)
 	if err != nil {
 		logger.Error(`%+v`, err)
-	} else {
-		app.devices = devices
+		return
 	}
 
-	return app
+	services, err := findDysonMQTTServices()
+	if err != nil {
+		logger.Error(`%+v`, err)
+		return
+	}
+
+	for _, device := range devices {
+		if service, ok := services[fmt.Sprintf(`%s_%s`, device.ProductType, device.Serial)]; ok {
+			a.subscribeToDevice(device, service)
+		} else {
+			logger.Warn(`no service found for %s`, device.Serial)
+		}
+	}
 }
 
 // GetSource returns source name

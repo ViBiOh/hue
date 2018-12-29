@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/dyson"
+	"github.com/ViBiOh/iot/pkg/mqtt"
+	"github.com/grandcat/zeroconf"
 	"github.com/pkg/errors"
 )
 
@@ -39,4 +42,18 @@ func (a *App) getDevices(ctx context.Context) ([]*dyson.Device, error) {
 	}
 
 	return devices, nil
+}
+
+func (a *App) subscribeToDevice(device *dyson.Device, service *zeroconf.ServiceEntry) {
+	mqtt, err := mqtt.Connect(service.AddrIPv4[0].String(), device.Credentials.Serial, device.Credentials.PasswordHash, `iot`, service.Port, false)
+	if err != nil {
+		logger.Error(`%+v`, err)
+	}
+
+	err = mqtt.Subscribe(fmt.Sprintf(`%s/%s/status/current`, device.ProductType, device.Credentials.Serial), func(content []byte) {
+		logger.Info(`%s`, content)
+	})
+	if err != nil {
+		logger.Error(`%+v`, err)
+	}
 }

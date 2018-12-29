@@ -49,40 +49,41 @@ func New(config Config) (*App, error) {
 		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config.bridgeIP, username),
 	}
 
-	ctx := context.Background()
-
-	if *config.clean {
-		logger.Info(`Cleaning hue`)
-
-		if err := app.cleanSchedules(ctx); err != nil {
-			return nil, err
-		}
-
-		if err := app.cleanRules(ctx); err != nil {
-			return nil, err
-		}
-
-		if err := app.cleanScenes(ctx); err != nil {
-			return nil, err
-		}
-	}
-
 	if *config.config != `` {
 		rawConfig, err := ioutil.ReadFile(*config.config)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return app, errors.WithStack(err)
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return nil, errors.WithStack(err)
+			return app, errors.WithStack(err)
 		}
-
-		app.configureSchedules(ctx, app.config.Schedules)
-		app.configureTap(ctx, app.config.Taps)
-		app.configureMotionSensor(ctx, app.config.Sensors)
 	}
 
 	return app, nil
+}
+
+// Start the App
+func (a *App) Start() {
+	if a.config != nil {
+		ctx := context.Background()
+
+		if err := a.cleanSchedules(ctx); err != nil {
+			logger.Error(`%+v`, err)
+		}
+
+		if err := a.cleanRules(ctx); err != nil {
+			logger.Error(`%+v`, err)
+		}
+
+		if err := a.cleanScenes(ctx); err != nil {
+			logger.Error(`%+v`, err)
+		}
+
+		a.configureSchedules(ctx, a.config.Schedules)
+		a.configureTap(ctx, a.config.Taps)
+		a.configureMotionSensor(ctx, a.config.Sensors)
+	}
 }
 
 // GetSource returns source name

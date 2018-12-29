@@ -52,6 +52,11 @@ func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
 	for _, worker := range workers {
 		workersMap[worker.GetSource()] = worker
+
+		if starter, ok := worker.(provider.Starter); ok {
+			logger.Info(`Starting %s`, worker.GetSource())
+			starter.Start()
+		}
 	}
 
 	return &App{

@@ -68,6 +68,11 @@ type Worker interface {
 	Ping(context.Context) ([]*WorkerMessage, error)
 }
 
+// Starter is a compoinant that need to be started
+type Starter interface {
+	Start()
+}
+
 // NewWorkerMessage instantiates a worker message
 func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) *WorkerMessage {
 	var id string
