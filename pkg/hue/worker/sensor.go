@@ -12,6 +12,7 @@ import (
 const (
 	presenceSensorType    = `ZLLPresence`
 	temperatureSensorType = `ZLLTemperature`
+	dimmedDelay           = `PT00:00:15`
 )
 
 func (a *App) listSensors(ctx context.Context) (map[string]*hue.Sensor, error) {
@@ -40,6 +41,30 @@ func (a *App) listSensors(ctx context.Context) (map[string]*hue.Sensor, error) {
 	return sensors, nil
 }
 
+func getStatusAction(id string, status int) *hue.Action {
+	return &hue.Action{
+		Address: fmt.Sprintf(`/sensors/%s/state`, id),
+		Method:  http.MethodPut,
+		Body: map[string]interface{}{
+			`status`: status,
+		},
+	}
+}
+
+func getGroupsActions(groups []string, state string) []*hue.Action {
+	actions := make([]*hue.Action, 0)
+
+	for _, group := range groups {
+		actions = append(actions, &hue.Action{
+			Address: fmt.Sprintf(`/groups/%s/action`, group),
+			Method:  http.MethodPut,
+			Body:    hue.States[state],
+		})
+	}
+
+	return actions
+}
+
 func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 	state := `on`
 
@@ -64,21 +89,8 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 		Actions: make([]*hue.Action, 0),
 	}
 
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 1,
-		},
-	})
-
-	for _, group := range sensor.Groups {
-		newRule.Actions = append(newRule.Actions, &hue.Action{
-			Address: fmt.Sprintf(`/groups/%s/action`, group),
-			Method:  http.MethodPut,
-			Body:    hue.States[state],
-		})
-	}
+	newRule.Actions = append(newRule.Actions, getStatusAction(sensor.CompanionID, 1))
+	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
@@ -105,21 +117,8 @@ func (a *App) createSensorRecoverRuleDescription(sensor *sensorConfig) *hue.Rule
 		Actions: make([]*hue.Action, 0),
 	}
 
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 1,
-		},
-	})
-
-	for _, group := range sensor.Groups {
-		newRule.Actions = append(newRule.Actions, &hue.Action{
-			Address: fmt.Sprintf(`/groups/%s/action`, group),
-			Method:  http.MethodPut,
-			Body:    hue.States[`on`],
-		})
-	}
+	newRule.Actions = append(newRule.Actions, getStatusAction(sensor.CompanionID, 1))
+	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, `on`)...)
 
 	return newRule
 }
@@ -144,21 +143,8 @@ func (a *App) createSensorDimmedRuleDescription(sensor *sensorConfig) *hue.Rule 
 		Actions: make([]*hue.Action, 0),
 	}
 
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 2,
-		},
-	})
-
-	for _, group := range sensor.Groups {
-		newRule.Actions = append(newRule.Actions, &hue.Action{
-			Address: fmt.Sprintf(`/groups/%s/action`, group),
-			Method:  http.MethodPut,
-			Body:    hue.States[state],
-		})
-	}
+	newRule.Actions = append(newRule.Actions, getStatusAction(sensor.CompanionID, 2))
+	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
@@ -177,7 +163,7 @@ func (a *App) createSensorOffRuleDescription(sensor *sensorConfig) *hue.Rule {
 			{
 				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
 				Operator: `ddx`,
-				Value:    `PT00:00:15`,
+				Value:    dimmedDelay,
 			},
 			{
 				Address:  fmt.Sprintf(`/sensors/%s/state/status`, sensor.CompanionID),
@@ -188,21 +174,8 @@ func (a *App) createSensorOffRuleDescription(sensor *sensorConfig) *hue.Rule {
 		Actions: make([]*hue.Action, 0),
 	}
 
-	newRule.Actions = append(newRule.Actions, &hue.Action{
-		Address: fmt.Sprintf(`/sensors/%s/state`, sensor.CompanionID),
-		Method:  http.MethodPut,
-		Body: map[string]interface{}{
-			`status`: 0,
-		},
-	})
-
-	for _, group := range sensor.Groups {
-		newRule.Actions = append(newRule.Actions, &hue.Action{
-			Address: fmt.Sprintf(`/groups/%s/action`, group),
-			Method:  http.MethodPut,
-			Body:    hue.States[state],
-		})
-	}
+	newRule.Actions = append(newRule.Actions, getStatusAction(sensor.CompanionID, 0))
+	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
