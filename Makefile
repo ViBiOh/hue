@@ -115,7 +115,9 @@ start-worker:
 		-sonosAccessToken "$(SONOS_ACCESS_TOKEN)" \
 		-sonosClientID "$(SONOS_CLIENT_ID)" \
 		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \
-		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)"
+		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)" \
+		-dysonEmail $(DYSON_EMAIL) \
+		-dysonPassword $(DYSON_PASSWORD)
 
 ## start: Start app
 .PHONY: start

@@ -85,6 +85,69 @@ func New(config Config) (*App, error) {
 	return app, nil
 }
 
+// GetSource returns source name
+func (a *App) GetSource() string {
+	return hue.Source
+}
+
+// Handle handle worker requests for Hue
+func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	if strings.HasPrefix(p.Action, hue.WorkerGroupsAction) {
+		return a.workerListGroups(ctx, p)
+	}
+
+	if strings.HasPrefix(p.Action, hue.WorkerScenesAction) {
+		return a.workerListScenes(ctx, p)
+	}
+
+	if strings.HasPrefix(p.Action, hue.WorkerSensorsAction) {
+		return a.workerListSensors(ctx, p)
+	}
+
+	if strings.HasPrefix(p.Action, hue.WorkerSchedulesAction) {
+		if err := a.handleSchedules(ctx, p); err != nil {
+			return nil, err
+		}
+
+		return a.workerListSchedules(ctx, p)
+	}
+
+	if strings.HasPrefix(p.Action, hue.WorkerStateAction) {
+		if err := a.handleStates(ctx, p); err != nil {
+			return nil, err
+		}
+
+		return a.workerListGroups(ctx, p)
+	}
+
+	return nil, errors.New(`unknown request: %s`, p)
+}
+
+// Ping send to worker updated data
+func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
+	groups, err := a.workerListGroups(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	scenes, err := a.workerListScenes(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	schedules, err := a.workerListSchedules(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	sensors, err := a.workerListSensors(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return []*provider.WorkerMessage{groups, scenes, schedules, sensors}, nil
+}
+
 func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
 	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
@@ -103,20 +166,6 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 }
 
 func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) error {
-	if strings.HasSuffix(p.Action, hue.CreateAction) {
-		var config hue.ScheduleConfig
-
-		if err := json.Unmarshal([]byte(p.Payload), &config); err != nil {
-			return errors.WithStack(err)
-		}
-
-		if err := a.createScheduleFromConfig(ctx, &config, nil); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
 	if strings.HasSuffix(p.Action, hue.UpdateAction) {
 		var config hue.Schedule
 
@@ -209,67 +258,4 @@ func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMes
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf(`%s`, payload)), nil
-}
-
-// Handle handle worker requests for Hue
-func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if strings.HasPrefix(p.Action, hue.WorkerGroupsAction) {
-		return a.workerListGroups(ctx, p)
-	}
-
-	if strings.HasPrefix(p.Action, hue.WorkerScenesAction) {
-		return a.workerListScenes(ctx, p)
-	}
-
-	if strings.HasPrefix(p.Action, hue.WorkerSensorsAction) {
-		return a.workerListSensors(ctx, p)
-	}
-
-	if strings.HasPrefix(p.Action, hue.WorkerSchedulesAction) {
-		if err := a.handleSchedules(ctx, p); err != nil {
-			return nil, err
-		}
-
-		return a.workerListSchedules(ctx, p)
-	}
-
-	if strings.HasPrefix(p.Action, hue.WorkerStateAction) {
-		if err := a.handleStates(ctx, p); err != nil {
-			return nil, err
-		}
-
-		return a.workerListGroups(ctx, p)
-	}
-
-	return nil, errors.New(`unknown request: %s`, p)
-}
-
-// GetSource returns source name
-func (a *App) GetSource() string {
-	return hue.Source
-}
-
-// Ping send to worker updated data
-func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
-	groups, err := a.workerListGroups(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	scenes, err := a.workerListScenes(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	schedules, err := a.workerListSchedules(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	sensors, err := a.workerListSensors(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return []*provider.WorkerMessage{groups, scenes, schedules, sensors}, nil
 }

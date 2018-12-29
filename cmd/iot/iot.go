@@ -49,7 +49,6 @@ func main() {
 	authConfig := auth.Flags(fs, `auth`)
 	authBasicConfig := basic.Flags(fs, `basic`)
 	iotConfig := iot.Flags(fs, ``)
-	dysonConfig := dyson.Flags(fs, `dyson`)
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		logger.Fatal(`%+v`, err)
@@ -72,7 +71,7 @@ func main() {
 	authApp := auth.NewService(authConfig, authService.NewBasic(authBasicConfig, nil))
 	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()
-	dysonApp := dyson.New(dysonConfig)
+	dysonApp := dyson.New()
 	hueApp := hue.New()
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,

@@ -30,12 +30,6 @@ Usage of iot:
       [cors] Access-Control-Allow-Origin (default "*")
   -csp string
       [owasp] Content-Security-Policy (default "default-src 'self'; base-uri 'self'")
-  -dysonCountry string
-      Dyson Link Country (default "FR")
-  -dysonEmail string
-      Dyson Link Email
-  -dysonPassword string
-      Dyson Link Password
   -frameOptions string
       [owasp] X-Frame-Options (default "deny")
   -hsts
@@ -54,8 +48,6 @@ Usage of iot:
       [mqtt] Username
   -port int
       Listen port (default 1080)
-  -prometheusPath string
-      [prometheus] Path for exposing metrics (default "/metrics")
   -publish string
       [iot] Topic to publish to (default "worker")
   -subscribe string
@@ -84,6 +76,12 @@ Usage of iot:
 
 ```bash
 Usage of iot-worker:
+  -dysonCountry string
+      Dyson Link Country (default "FR")
+  -dysonEmail string
+      Dyson Link Email
+  -dysonPassword string
+      Dyson Link Password
   -hueBridgeIP string
       [hue] IP of Bridge
   -hueClean

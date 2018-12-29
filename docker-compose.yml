@@ -20,10 +20,6 @@ services:
     - ${BASIC_USERS}
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
-    - -dysonEmail
-    - ${DYSON_EMAIL}
-    - -dysonPassword
-    - ${DYSON_PASSWORD}
     - -tracingName
     - iot
     labels:
