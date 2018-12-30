@@ -114,16 +114,19 @@ func (d *Device) SubcribeToStatus() error {
 			d.State.Humidity = humidity
 		} else if msg.Message == stateMessage {
 			d.State.FanStatus = readProductState(msg.ProductState[`fmod`]) == `FAN`
-			d.State.FanSpeed = strings.TrimLeft(readProductState(msg.ProductState[`fnsp`]), `0`)
-			d.State.FanRotation = readProductState(msg.ProductState[`oson`]) == `ON`
-			d.State.FanHeating = readProductState(msg.ProductState[`hmod`]) == `HEAT`
 
-			temperature, err := parseTemperature(readProductState(msg.ProductState[`hmax`]))
-			if err != nil {
-				logger.Error(`%+v`, err)
-				return
+			if d.State.FanStatus {
+				d.State.FanSpeed = strings.TrimLeft(readProductState(msg.ProductState[`fnsp`]), `0`)
+				d.State.FanRotation = readProductState(msg.ProductState[`oson`]) == `ON`
+				d.State.FanHeating = readProductState(msg.ProductState[`hmod`]) == `HEAT`
+
+				temperature, err := parseTemperature(readProductState(msg.ProductState[`hmax`]))
+				if err != nil {
+					logger.Error(`%+v`, err)
+					return
+				}
+				d.State.FanTemperature = temperature
 			}
-			d.State.FanTemperature = temperature
 		}
 	})
 }
