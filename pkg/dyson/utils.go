@@ -19,6 +19,10 @@ func readProductState(value interface{}) string {
 }
 
 func parseTemperature(rawTemperature string) (float32, error) {
+	if rawTemperature == `OFF` {
+		return 0, nil
+	}
+
 	rawKelvin, err := strconv.Atoi(rawTemperature)
 	if err != nil {
 		return 0.0, errors.WithStack(err)
@@ -28,6 +32,10 @@ func parseTemperature(rawTemperature string) (float32, error) {
 }
 
 func parseHumidity(rawHumidity string) (float32, error) {
+	if rawHumidity == `OFF` {
+		return 0, nil
+	}
+
 	humidity, err := strconv.Atoi(rawHumidity)
 	if err != nil {
 		return 0.0, errors.WithStack(err)
