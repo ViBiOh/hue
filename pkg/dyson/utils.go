@@ -15,15 +15,15 @@ func parseTemperature(rawTemperature string) (float32, error) {
 	return kelvinToCelcius(float32(rawKelvin) / 10), nil
 }
 
-func parseHumidity(rawHumidity string) (int, error) {
+func parseHumidity(rawHumidity string) (float32, error) {
 	humidity, err := strconv.Atoi(rawHumidity)
 	if err != nil {
 		return 0.0, errors.WithStack(err)
 	}
 
-	return humidity, nil
+	return float32(humidity), nil
 }
 
 func kelvinToCelcius(kelvin float32) float32 {
-	return kelvin - 273.15
+	return float32(int((kelvin-273.15)*100) / 100)
 }

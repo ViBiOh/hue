@@ -43,7 +43,7 @@
           <form method="post" action="/hue/groups/{{- $id -}}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
-            <button type="submit" class="button-icon">
+            <button type="submit" class="icon">
               <img src="/svg/power-off?fill=limegreen" alt="power-on">
             </button>
           </form>
@@ -51,7 +51,7 @@
           <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
-            <button type="submit" class="button-icon">
+            <button type="submit" class="icon">
               <img src="/svg/power-off?fill=crimson" alt="power-off">
             </button>
           </form>
@@ -59,7 +59,7 @@
           <form method="post" action="/hue/groups/{{- $id -}}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
-            <button type="submit" class="button-icon">
+            <button type="submit" class="icon">
               <img src="/svg/lightbulb?fill=gold" alt="bright light">
             </button>
           </form>
@@ -67,7 +67,7 @@
           <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="dimmed" />
-            <button type="submit" class="button-icon">
+            <button type="submit" class="icon">
               <img src="/svg/lightbulb?fill=lightyellow" alt="dim light">
             </button>
           </form>
@@ -75,7 +75,7 @@
           <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
-            <button type="submit" class="button-icon">
+            <button type="submit" class="icon">
               <img src="/svg/moon?fill=silver" alt="off light">
             </button>
           </form>
@@ -99,7 +99,7 @@
           <input type="hidden" name="name" value="{{- .Name -}}" />
           <input type="hidden" name="status" value="{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}" />
 
-          <button type="submit" class="button button-icon">
+          <button type="submit" class="button icon">
             {{- if eq $schedule.Status "enabled" -}}
               <img src="/svg/toggle-on?fill=limegreen" alt="toggled on">
             {{- else -}}
@@ -108,7 +108,7 @@
           </button>
         </form>
 
-        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left button-icon">
+        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left icon">
           <img src="/svg/trash-alt?fill=crimson" alt="trash">
         </a>
       </div>
@@ -125,11 +125,16 @@
       {{- end -}}
 
       <div class="center padding">
-        🌡 <strong>{{- $sensor.State.Temperature -}}°c</strong>
+        <div class="icon icon-small">
+          <img src="/svg/{{- battery $sensor.Config.Battery -}}" alt="{{- $sensor.Config.Battery -}}%" title="{{- $sensor.Config.Battery -}}%">
+        </div>
       </div>
 
-      <div class="center padding">
-        🔋 <strong>{{- $sensor.Config.Battery -}}%</strong>
+      <div class="flex flex-center padding">
+        <span class="icon icon-small">
+          <img src="/svg/{{- temperature $sensor.State.Temperature -}}">
+        </span>
+        <strong>{{- $sensor.State.Temperature -}}°c</strong>
       </div>
     </span>
   {{- end -}}

@@ -44,7 +44,7 @@ type Credentials struct {
 // State of device
 type State struct {
 	Temperature float32
-	Humidity    int
+	Humidity    float32
 }
 
 type message struct {
@@ -54,8 +54,8 @@ type message struct {
 }
 
 // ConnectToMQTT connect to MQTT of device
-func (d *Device) ConnectToMQTT() error {
-	mqtt, err := mqtt.Connect(d.Service.AddrIPv4[0].String(), d.Credentials.Serial, d.Credentials.PasswordHash, `iot`, d.Service.Port, false)
+func (d *Device) ConnectToMQTT(clientID string) error {
+	mqtt, err := mqtt.Connect(d.Service.AddrIPv4[0].String(), d.Credentials.Serial, d.Credentials.PasswordHash, clientID, d.Service.Port, false)
 	if err != nil {
 		return err
 	}

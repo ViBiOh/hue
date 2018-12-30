@@ -6,10 +6,17 @@
         {{- range .Modules -}}
           <div class="flex flex-center flex-wrap">
             <div class="header center flex-full">{{- .ModuleName -}}</div>
-            <span class="inline-block flex-half center padding">
+            <span class="flex flex-center flex-half padding">
+              <span class="icon icon-small">
+                <img src="/svg/{{- temperature .DashboardData.Temperature -}}">
+              </span>
               <strong>{{- .DashboardData.Temperature -}}°c</strong>
             </span>
-            <span class="inline-block flex-half center padding">
+
+            <span class="flex flex-center flex-half padding">
+              <span class="icon icon-small">
+                <img src="/svg/{{- humidity .DashboardData.Humidity -}}">
+              </span>
               <strong>{{- .DashboardData.Humidity -}}%</strong>
             </span>
           </div>
@@ -17,15 +24,24 @@
 
         <div class="flex flex-center flex-wrap">
           <div class="header center flex-full">{{- .StationName -}}</div>
-          <span class="inline-block flex-half center padding">
+          <span class="flex flex-center flex-half padding">
+            <span class="icon icon-small">
+              <img src="/svg/{{- temperature .DashboardData.Temperature -}}">
+            </span>
             <strong>{{- .DashboardData.Temperature -}}°c</strong>
           </span>
-          <span class="inline-block flex-half center padding">
+
+          <span class="flex flex-center flex-half padding">
+            <span class="icon icon-small">
+              <img src="/svg/{{- humidity .DashboardData.Humidity -}}">
+            </span>
             <strong>{{- .DashboardData.Humidity -}}%</strong>
           </span>
+
           <span class="inline-block flex-half center padding">
             <strong>{{- .DashboardData.Noise -}}dB</strong>
           </span>
+
           <span class="inline-block flex-half center padding">
             <strong>{{- .DashboardData.CO2 -}}ppm</strong>
           </span>

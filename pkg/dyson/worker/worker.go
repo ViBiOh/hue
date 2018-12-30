@@ -39,12 +39,14 @@ type Config struct {
 	email    *string
 	password *string
 	country  *string
+	clientID *string
 }
 
 // App of package
 type App struct {
 	account  string
 	password string
+	clientID string
 	devices  []*dyson.Device
 }
 
@@ -54,6 +56,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `[dyson] Link email`),
 		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `[dyson] Link eassword`),
 		country:  fs.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `[dyson] Link eountry`),
+		clientID: fs.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), `iot`, `[dyson] MQTT Client ID`),
 	}
 }
 
@@ -80,6 +83,7 @@ func New(config Config) *App {
 	app := &App{
 		account:  authContent[`Account`],
 		password: authContent[`Password`],
+		clientID: strings.TrimSpace(*config.clientID),
 	}
 
 	return app
@@ -103,7 +107,7 @@ func (a *App) Start() {
 		if service, ok := services[fmt.Sprintf(`%s_%s`, device.ProductType, device.Serial)]; ok {
 			device.Service = service
 
-			if err := device.ConnectToMQTT(); err != nil {
+			if err := device.ConnectToMQTT(a.clientID); err != nil {
 				logger.Error(`%+v`, err)
 				continue
 			}

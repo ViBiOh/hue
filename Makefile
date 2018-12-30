@@ -102,8 +102,8 @@ start-worker:
 		-mqttPort $(IOT_MQTT_PORT) \
 		-mqttUser $(IOT_MQTT_USER) \
 		-mqttPass $(IOT_MQTT_PASS) \
-		-subscribe dev-worker \
-		-publish dev \
+		-subscribe "dev-worker" \
+		-publish "dev" \
 		-hueConfig ./hue.json \
 		-hueUsername $(BRIDGE_USERNAME) \
 		-hueBridgeIP $(BRIDGE_IP) \
@@ -117,7 +117,8 @@ start-worker:
 		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \
 		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)" \
 		-dysonEmail $(DYSON_EMAIL) \
-		-dysonPassword $(DYSON_PASSWORD)
+		-dysonPassword $(DYSON_PASSWORD) \
+		-dysonClientID "iot-dev"
 
 ## start: Start app
 .PHONY: start
@@ -128,8 +129,8 @@ start:
 		-mqttPort $(IOT_MQTT_PORT) \
 		-mqttUser $(IOT_MQTT_USER) \
 		-mqttPass $(IOT_MQTT_PASS) \
-		-subscribe dev \
-		-publish dev-worker \
+		-subscribe "dev" \
+		-publish "dev-worker" \
 		-tls=false \
 		-authDisable \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"

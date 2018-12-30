@@ -10,7 +10,7 @@
             <div class="flex flex-center full">
               <form method="post" action="/sonos/groups/{{ .ID }}/mute">
                 <input type="hidden" name="method" value="POST" />
-                <button type="submit" class="button-icon icon-small">
+                <button type="submit" class="icon icon-small">
                   {{- if .Volume.Muted }}
                     <img src="/svg/volume-off?fill=crimson" alt="unmute">
                   {{ else }}

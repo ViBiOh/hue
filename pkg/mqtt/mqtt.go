@@ -63,7 +63,7 @@ func New(config Config) (*App, error) {
 func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, error) {
 	mqttClient := client.New(&client.Options{
 		ErrorHandler: func(err error) {
-			logger.Error(`%+v`, err)
+			logger.Error(`error with %s as %s: %+v`, server, clientID, err)
 		},
 	})
 
