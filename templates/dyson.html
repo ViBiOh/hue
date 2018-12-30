@@ -1,0 +1,17 @@
+{{- define "dyson" -}}
+  {{- range .Devices -}}
+    <span class="container">
+      <h2 class="small no-margin margin-left">Dyson</h2>
+      <h3 class="header center no-margin">{{- .Name -}}</h3>
+
+      <div class="flex flex-center flex-wrap">
+        <span class="inline-block flex-half center padding">
+          <strong>{{- .State.Temperature -}}°c</strong>
+        </span>
+        <span class="inline-block flex-half center padding">
+          <strong>{{- .State.Humidity -}}%</strong>
+        </span>
+      </div>
+    </span>
+  {{- end -}}
+{{- end -}}

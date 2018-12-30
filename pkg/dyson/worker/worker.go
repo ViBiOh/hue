@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/dyson"
 	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -99,11 +101,23 @@ func (a *App) Start() {
 
 	for _, device := range devices {
 		if service, ok := services[fmt.Sprintf(`%s_%s`, device.ProductType, device.Serial)]; ok {
-			a.subscribeToDevice(device, service)
+			device.Service = service
+
+			if err := device.ConnectToMQTT(); err != nil {
+				logger.Error(`%+v`, err)
+				continue
+			}
+
+			if err := device.SubcribeToStatus(); err != nil {
+				logger.Error(`%+v`, err)
+				continue
+			}
 		} else {
 			logger.Warn(`no service found for %s`, device.Serial)
 		}
 	}
+
+	a.devices = devices
 }
 
 // GetSource returns source name
@@ -118,5 +132,34 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 
 // Ping send to worker updated data
 func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
-	return nil, nil
+	stateMessage, err := dyson.NewCurrentStateMessage()
+	if err != nil {
+		return nil, err
+	}
+
+	workerMessages := make([]*provider.WorkerMessage, 0)
+
+	for _, device := range a.devices {
+		if err := device.SendCommand(stateMessage); err != nil {
+			return nil, err
+		}
+
+		workerMessage, err := a.workerListDevices(ctx, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		workerMessages = append(workerMessages, workerMessage)
+	}
+
+	return workerMessages, nil
+}
+
+func (a *App) workerListDevices(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+	payload, err := json.Marshal(a.devices)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return provider.NewWorkerMessage(initial, dyson.Source, dyson.WorkerDevicesAction, fmt.Sprintf(`%s`, payload)), nil
 }
