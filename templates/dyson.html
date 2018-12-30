@@ -20,6 +20,31 @@
             <strong>{{- .State.Humidity -}}%</strong>
           </span>
         </div>
+
+        <h3 class="header center no-margin {{ if .State.FanStatus -}}success{{- end -}}">Fan status</h3>
+
+        {{- if .State.FanStatus -}}
+          <div class="flex flex-center flex-wrap">
+            <span class="inline-block flex-half padding">
+              Speed {{ .State.FanSpeed -}}
+            </span>
+
+            {{- if .State.FanRotation -}}
+              <span class="flex flex-center flex-half padding">
+                Rotation
+              </span>
+            {{- end -}}
+
+            {{- if .State.FanHeating -}}
+              <span class="flex flex-center flex-half padding">
+                <span class="icon icon-small">
+                  <img src="/svg/fire?fill=crimson">
+                </span>
+                <strong>{{- .State.Temperature -}}°c</strong>
+              </span>
+            {{- end -}}
+          </div>
+        {{- end -}}
       {{- end -}}
     </span>
   {{- end -}}

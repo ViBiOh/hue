@@ -3,6 +3,7 @@ package dyson
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
@@ -13,6 +14,7 @@ import (
 
 const (
 	sensorMessage       = `ENVIRONMENTAL-CURRENT-SENSOR-DATA`
+	stateMessage        = `CURRENT-STATE`
 	currentStateMessage = `REQUEST-CURRENT-STATE`
 )
 
@@ -32,7 +34,7 @@ type Device struct {
 	Credentials *Credentials           `json:"-"`
 	Service     *zeroconf.ServiceEntry `json:"-"`
 	MQTT        *mqtt.App              `json:"-"`
-	State       *State
+	State       State
 }
 
 // Credentials contains device's credential
@@ -43,14 +45,20 @@ type Credentials struct {
 
 // State of device
 type State struct {
-	Temperature float32
-	Humidity    float32
+	Temperature    float32
+	Humidity       float32
+	FanStatus      bool
+	FanSpeed       string
+	FanRotation    bool
+	FanHeating     bool
+	FanTemperature float32
 }
 
 type message struct {
-	Message string                 `json:"msg"`
-	Time    string                 `json:"time,omitempty"`
-	Data    map[string]interface{} `json:"data,omitempty"`
+	Message      string                 `json:"msg"`
+	Time         string                 `json:"time,omitempty"`
+	Data         map[string]string      `json:"data,omitempty"`
+	ProductState map[string]interface{} `json:"product-state,omitempty"`
 }
 
 // ConnectToMQTT connect to MQTT of device
@@ -61,6 +69,7 @@ func (d *Device) ConnectToMQTT(clientID string) error {
 	}
 
 	d.MQTT = mqtt
+	d.State = State{}
 
 	return nil
 }
@@ -89,22 +98,32 @@ func (d *Device) SubcribeToStatus() error {
 		}
 
 		if msg.Message == sensorMessage {
-			temperature, err := parseTemperature(msg.Data[`tact`].(string))
+			temperature, err := parseTemperature(msg.Data[`tact`])
 			if err != nil {
 				logger.Error(`%+v`, err)
 				return
 			}
 
-			humidity, err := parseHumidity(msg.Data[`hact`].(string))
+			humidity, err := parseHumidity(msg.Data[`hact`])
 			if err != nil {
 				logger.Error(`%+v`, err)
 				return
 			}
 
-			d.State = &State{
-				Temperature: temperature,
-				Humidity:    humidity,
+			d.State.Temperature = temperature
+			d.State.Humidity = humidity
+		} else if msg.Message == stateMessage {
+			d.State.FanStatus = readProductState(msg.ProductState[`fmod`]) == `FAN`
+			d.State.FanSpeed = strings.TrimLeft(readProductState(msg.ProductState[`fnsp`]), `0`)
+			d.State.FanRotation = readProductState(msg.ProductState[`oson`]) == `ON`
+			d.State.FanHeating = readProductState(msg.ProductState[`hmod`]) == `HEAT`
+
+			temperature, err := parseTemperature(readProductState(msg.ProductState[`hmax`]))
+			if err != nil {
+				logger.Error(`%+v`, err)
+				return
 			}
+			d.State.FanTemperature = temperature
 		}
 	})
 }

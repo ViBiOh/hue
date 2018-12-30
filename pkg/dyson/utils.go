@@ -6,6 +6,18 @@ import (
 	"github.com/ViBiOh/httputils/pkg/errors"
 )
 
+func readProductState(value interface{}) string {
+	if str, ok := value.(string); ok {
+		return str
+	}
+
+	if strArr, ok := value.([]string); ok {
+		return strArr[0]
+	}
+
+	return ``
+}
+
 func parseTemperature(rawTemperature string) (float32, error) {
 	rawKelvin, err := strconv.Atoi(rawTemperature)
 	if err != nil {
