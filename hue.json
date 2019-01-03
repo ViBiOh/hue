@@ -13,14 +13,16 @@
       "lightSensorId": "7",
       "companionId": "17",
       "groups": ["4"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:01:00",
+      "evenIfNotDark": true,
     },
     {
       "id": "10",
       "lightSensorId": "11",
       "companionId": "12",
       "groups": ["3"],
-      "offDelay": "PT00:01:00"
+      "offDelay": "PT00:01:00",
+      "evenIfNotDark": true,
     },
     {
       "id": "14",

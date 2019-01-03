@@ -80,13 +80,16 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 				Address:  fmt.Sprintf(`/sensors/%s/state/presence`, sensor.ID),
 				Operator: `dx`,
 			},
-			{
-				Address:  fmt.Sprintf(`/sensors/%s/state/dark`, sensor.LightSensorID),
-				Operator: `eq`,
-				Value:    `true`,
-			},
 		},
 		Actions: make([]*hue.Action, 0),
+	}
+
+	if !sensor.EvenIfNotDark {
+		newRule.Conditions = append(newRule.Conditions, &hue.Condition{
+			Address:  fmt.Sprintf(`/sensors/%s/state/dark`, sensor.LightSensorID),
+			Operator: `eq`,
+			Value:    `true`,
+		})
 	}
 
 	newRule.Actions = append(newRule.Actions, getStatusAction(sensor.CompanionID, 1))
@@ -96,6 +99,10 @@ func (a *App) createSensorOnRuleDescription(sensor *sensorConfig) *hue.Rule {
 }
 
 func (a *App) createSensorRecoverRuleDescription(sensor *sensorConfig) *hue.Rule {
+	if sensor.EvenIfNotDark {
+		return nil
+	}
+
 	newRule := &hue.Rule{
 		Name: fmt.Sprintf(`MotionSensor %s - recover`, sensor.ID),
 		Conditions: []*hue.Condition{
@@ -188,8 +195,10 @@ func (a *App) configureMotionSensor(ctx context.Context, sensors []*sensorConfig
 		}
 
 		recoverRule := a.createSensorRecoverRuleDescription(sensor)
-		if err := a.createRule(ctx, recoverRule); err != nil {
-			logger.Error(`%+v`, err)
+		if recoverRule != nil {
+			if err := a.createRule(ctx, recoverRule); err != nil {
+				logger.Error(`%+v`, err)
+			}
 		}
 
 		dimmedRule := a.createSensorDimmedRuleDescription(sensor)
