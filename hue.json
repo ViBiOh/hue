@@ -14,7 +14,7 @@
       "companionId": "17",
       "groups": ["4"],
       "offDelay": "PT00:01:00",
-      "evenIfNotDark": true,
+      "evenIfNotDark": true
     },
     {
       "id": "10",
@@ -22,7 +22,7 @@
       "companionId": "12",
       "groups": ["3"],
       "offDelay": "PT00:01:00",
-      "evenIfNotDark": true,
+      "evenIfNotDark": true
     },
     {
       "id": "14",
