@@ -22,7 +22,7 @@
     "pkg/model",
   ]
   pruneopts = "UT"
-  revision = "48d443fc36552b7af562cff26d6d42477b5438d6"
+  revision = "f1350386d8c8393f90ae80f615d0b10ff7529577"
 
 [[projects]]
   branch = "master"
@@ -51,15 +51,15 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "2fff2dd86693cb2230add917d8660d112cb7294a"
+  revision = "b569bdfdbf9036f8f2026fc7203db165decc61ec"
 
 [[projects]]
-  digest = "1:553f73a4171c265045ae4f5d3122429ecf2c9c0c232c91f336127fe45480104a"
+  digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
   pruneopts = "UT"
-  revision = "62661b46c4093e2c1f38d943e663db1a29873e80"
-  version = "v2.1.0"
+  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
+  version = "v2.1.1"
 
 [[projects]]
   branch = "master"
@@ -78,12 +78,12 @@
   revision = "ce4c7efa4b6b02297ce163eac261f5e09a782933"
 
 [[projects]]
-  digest = "1:702ff5d8a0196ccb0627f35996efd1081be00c8ae1719402adbffc6e0f8f59ac"
+  digest = "1:478b8f5ee3eac843d206afd9c2c2a7133d0b7da7a65e8f9edbb1ebbf6758bdb0"
   name = "github.com/miekg/dns"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7586a3cbe8ccfc63f82de3ab2ceeb08c9939af72"
-  version = "v1.1.1"
+  revision = "44a8c5f8ba7d0b3eac116182736dcfb5885ee405"
+  version = "v1.1.2"
 
 [[projects]]
   branch = "master"
@@ -106,12 +106,12 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:48c8c8d1fb550f059bcb5696a6f333693e19e3bad4db00d5c9b19f3846629511"
@@ -200,7 +200,7 @@
     "ed25519/internal/edwards25519",
   ]
   pruneopts = "UT"
-  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 
 [[projects]]
   branch = "master"
@@ -219,11 +219,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5b7594f7c43cb5fc8f31c3f4a9f6a61ee798dbd5fcb36b70cb3d4780aad4c509"
+  digest = "1:ab01052262e2ef935fdec4632b4029e56e7efbc96a569feebdcdc67fd84a9b5b"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "9a3f9b0469bbc6b8802087ae5c0af9f61502de01"
+  revision = "1775db3f06b568179d273425900dd09125831dd5"
 
 [solve-meta]
   analyzer-name = "dep"
