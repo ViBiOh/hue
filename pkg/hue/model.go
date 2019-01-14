@@ -24,6 +24,10 @@ var (
 			`on`:             false,
 			`transitiontime`: 30,
 		},
+		`long_off`: {
+			`on`:             false,
+			`transitiontime`: 300,
+		},
 		`on`: {
 			`on`:             true,
 			`transitiontime`: 30,
