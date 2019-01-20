@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0efc2d02b40099e5aa830184831f877fa5a89115bcb4838616ee8ba0325458d6"
+  digest = "1:83356bdc41e0d156b9094f4e8581ffd4d45e9bcece8ffeb18a16bae32ffacbf7"
   name = "github.com/ViBiOh/auth"
   packages = [
     "pkg/auth",
@@ -22,11 +22,11 @@
     "pkg/model",
   ]
   pruneopts = "UT"
-  revision = "f1350386d8c8393f90ae80f615d0b10ff7529577"
+  revision = "0f7bf7a3e9c1d6f28a9d0622d0c45a31aed3430a"
 
 [[projects]]
   branch = "master"
-  digest = "1:0250b932b3640ac42fbf2c2af062ebc082c87c4d7bfd8472cef496abc97484da"
+  digest = "1:27b07845b70d60ef82b9c8fa99a8e061b6297f78720336f2d2c038a774524ef0"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -51,7 +51,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "b569bdfdbf9036f8f2026fc7203db165decc61ec"
+  revision = "f34a4b0c6f552c687db14b15c1a88111f8c40419"
 
 [[projects]]
   digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
@@ -71,19 +71,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f4fb861550182e3945deef95e88786a56ebeef1e44a0942a693de3409ad2a227"
+  digest = "1:643cc48e690e55533a965765610f5e4ab33761261d390483b26518e2962520c7"
   name = "github.com/grandcat/zeroconf"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ce4c7efa4b6b02297ce163eac261f5e09a782933"
+  revision = "c2d1b4121200e6bf8490af806aa6f3dc6d37446b"
 
 [[projects]]
-  digest = "1:478b8f5ee3eac843d206afd9c2c2a7133d0b7da7a65e8f9edbb1ebbf6758bdb0"
+  digest = "1:d64a0aa67f715fd28f5ddfe0d74c06b6d6fe0fed931d77e662f2c4694f6854dc"
   name = "github.com/miekg/dns"
   packages = ["."]
   pruneopts = "UT"
-  revision = "44a8c5f8ba7d0b3eac116182736dcfb5885ee405"
-  version = "v1.1.2"
+  revision = "56be65265e34e731425e0269a301774938827c60"
+  version = "v1.1.3"
 
 [[projects]]
   branch = "master"
@@ -204,7 +204,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d84f88291c2b5846fa5de91af2434f2a9d6413b0f710730f86c4becd9ddf0453"
+  digest = "1:6b888d13d3496fba07af8697cee247aa27b019c053e0bf374ff397ca91ac34cc"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -215,15 +215,15 @@
     "ipv6",
   ]
   pruneopts = "UT"
-  revision = "927f97764cc334a6575f4b7a1584a147864d5723"
+  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
 
 [[projects]]
   branch = "master"
-  digest = "1:ab01052262e2ef935fdec4632b4029e56e7efbc96a569feebdcdc67fd84a9b5b"
+  digest = "1:f6f6d9d6f80c9e32acc0f4f3b904e0b9f5b18a7757c2ef941121bd79a10e7bdf"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "1775db3f06b568179d273425900dd09125831dd5"
+  revision = "11f53e03133963fb11ae0588e08b5e0b85be8be5"
 
 [solve-meta]
   analyzer-name = "dep"
