@@ -61,25 +61,38 @@ func New(config Config) (*App, error) {
 
 // Connect to MQTT
 func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, error) {
-	mqttClient := client.New(&client.Options{
-		ErrorHandler: func(err error) {
-			logger.Error(`error with %s as %s: %+v`, server, clientID, err)
-		},
-	})
-
 	var tlsConfig *tls.Config
 	if useTLS {
 		tlsConfig = &tls.Config{}
 	}
 
-	err := mqttClient.Connect(&client.ConnectOptions{
-		Network:   `tcp`,
-		Address:   fmt.Sprintf(`%s:%d`, server, port),
-		TLSConfig: tlsConfig,
-		UserName:  []byte(user),
-		Password:  []byte(pass),
-		ClientID:  []byte(clientID),
+	connect := func(mqttClient *client.Client) error {
+		return errors.WithStack(mqttClient.Connect(&client.ConnectOptions{
+			Network:   `tcp`,
+			Address:   fmt.Sprintf(`%s:%d`, server, port),
+			TLSConfig: tlsConfig,
+			UserName:  []byte(user),
+			Password:  []byte(pass),
+			ClientID:  []byte(clientID),
+		}))
+	}
+
+	var mqttClient *client.Client
+
+	handleError := func(err error) {
+		logger.Error(`error with %s as %s: %+v`, server, clientID, err)
+		if err == client.ErrNotYetConnected {
+			if err := connect(mqttClient); err != nil {
+				logger.Error(`error while attempting to reconnect: %+v`, err)
+			}
+		}
+	}
+
+	mqttClient = client.New(&client.Options{
+		ErrorHandler: handleError,
 	})
+
+	err := connect(mqttClient)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
