@@ -3,6 +3,8 @@ VERSION ?= $(shell git log --pretty=format:'%h' -n 1)
 AUTHOR ?= $(shell git log --pretty=format:'%an' -n 1)
 PACKAGES ?= ./...
 
+APP_PACKAGES = $(shell go list -e $(PACKAGES) | grep -v vendor | grep -v node_modules)
+
 GOBIN=bin
 BINARY_PATH=$(GOBIN)/$(APP_NAME)
 
@@ -55,9 +57,9 @@ format:
 ## lint: Lint code
 .PHONY: lint
 lint:
-	golint `go list $(PACKAGES) | grep -v vendor`
-	errcheck -ignoretests `go list $(PACKAGES) | grep -v vendor`
-	go vet $(PACKAGES)
+	golint $(APP_PACKAGES)
+	errcheck -ignoretests $(APP_PACKAGES)
+	go vet $(APP_PACKAGES)
 
 ## tst: Test code with coverage
 .PHONY: tst
@@ -67,7 +69,7 @@ tst:
 ## bench: Benchmark code
 .PHONY: bench
 bench:
-	go test $(PACKAGES) -bench . -benchmem -run Benchmark.*
+	go test $(APP_PACKAGES) -bench . -benchmem -run Benchmark.*
 
 ## build: Build binary
 .PHONY: build
