@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -29,7 +28,6 @@ func New() *App {
 
 // EnablePrometheus start prometheus register
 func (a *App) EnablePrometheus() {
-	logger.Info("prometheus enabled for netatmo")
 	a.prometheus = true
 	a.prometheusCollectors = make(map[string]prometheus.Gauge)
 }
