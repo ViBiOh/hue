@@ -17,6 +17,8 @@ services:
     - remote
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
+    - -tracingAgent
+    - monitoring_jaeger:6831
     - -tracingName
     - iot
     labels:
