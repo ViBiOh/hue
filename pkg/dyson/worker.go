@@ -22,6 +22,9 @@ func (a *App) handleDevicesFromWorker(message *provider.WorkerMessage) error {
 	}
 
 	a.devices = newDevices
+	if a.prometheus {
+		a.updatePrometheus()
+	}
 
 	return nil
 }
