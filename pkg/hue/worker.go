@@ -72,6 +72,10 @@ func (a *App) handleSensorsFromWorker(message *provider.WorkerMessage) error {
 
 	a.sensors = newSensors
 
+	if a.prometheus {
+		a.updatePrometheusSensors()
+	}
+
 	return nil
 }
 

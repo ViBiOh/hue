@@ -134,5 +134,5 @@ start:
 		-subscribe "dev" \
 		-publish "dev-worker" \
 		-tls=false \
-		-authDisable \
+		-prometheus \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"

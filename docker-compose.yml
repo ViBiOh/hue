@@ -12,12 +12,9 @@ services:
     - ${IOT_MQTT_USER}
     - -mqttPass
     - ${IOT_MQTT_PASS}
+    - -prometheus
     - -subscribe
     - remote
-    - -authUsers
-    - vibioh:admin
-    - -basicUsers
-    - ${BASIC_USERS}
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
     - -tracingName
@@ -31,6 +28,7 @@ services:
       traefik.frontend.rateLimit.rateSet.first.period: '60s'
       traefik.frontend.rateLimit.rateSet.first.average: '100'
       traefik.frontend.rateLimit.rateSet.first.burst: '200'
+      traefik.frontend.auth.basic.users: '${BASIC_USERS}'
     logging:
       driver: json-file
       options:

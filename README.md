@@ -10,14 +10,6 @@
 Usage of iot:
   -assetsDirectory string
       [iot] Assets directory (static and templates)
-  -authDisable
-      [auth] Disable auth
-  -authUrl string
-      [auth] Auth URL, if remote
-  -authUsers string
-      [auth] Allowed users and profiles (e.g. user:profile1|profile2,user2:profile3). Empty allow any identified user
-  -basicUsers string
-      [basic] Users in the form "id:username:password,id2:username2:password2"
   -corsCredentials
       [cors] Access-Control-Allow-Credentials
   -corsExpose string
@@ -48,6 +40,10 @@ Usage of iot:
       [mqtt] Username
   -port int
       Listen port (default 1080)
+  -prometheus
+      [iot] Expose Prometheus metrics
+  -prometheusPath string
+      [prometheus] Path for exposing metrics (default "/metrics")
   -publish string
       [iot] Topic to publish to (default "worker")
   -subscribe string

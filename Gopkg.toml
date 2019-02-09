@@ -1,19 +1,15 @@
 [[constraint]]
   branch = "master"
-  name = "github.com/ViBiOh/auth"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/ViBiOh/httputils"
 
 [[constraint]]
   branch = "master"
   name = "github.com/yosssi/gmq"
 
-[prune]
-  go-tests = true
-  unused-packages = true
-
 [[constraint]]
   branch = "master"
   name = "github.com/grandcat/zeroconf"
+
+[prune]
+  go-tests = true
+  unused-packages = true

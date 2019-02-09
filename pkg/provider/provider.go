@@ -47,6 +47,7 @@ type Hub interface {
 
 // Provider of data for UI
 type Provider interface {
+	EnablePrometheus()
 	GetData() interface{}
 }
 

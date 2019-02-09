@@ -5,20 +5,33 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // App of package
 type App struct {
 	devices []*Device
 	mutex   sync.RWMutex
+
+	prometheus           bool
+	prometheusCollectors map[string]prometheus.Gauge
 }
 
 // New creates new App from Config
 func New() *App {
 	return &App{
-		devices: nil,
+		devices:    nil,
+		prometheus: false,
 	}
+}
+
+// EnablePrometheus start prometheus register
+func (a *App) EnablePrometheus() {
+	logger.Info("prometheus enabled for netatmo")
+	a.prometheus = true
+	a.prometheusCollectors = make(map[string]prometheus.Gauge)
 }
 
 // GetData return data for Dashboard rendering
@@ -53,6 +66,10 @@ func (a *App) handleDevicesWorker(message *provider.WorkerMessage) error {
 	}
 
 	a.devices = data
+
+	if a.prometheus {
+		a.updatePrometheus()
+	}
 
 	return nil
 }

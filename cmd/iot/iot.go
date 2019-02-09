@@ -7,9 +7,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/ViBiOh/auth/pkg/auth"
-	"github.com/ViBiOh/auth/pkg/ident/basic"
-	authService "github.com/ViBiOh/auth/pkg/ident/service"
 	httputils "github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
@@ -18,6 +15,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
+	"github.com/ViBiOh/httputils/pkg/prometheus"
 	"github.com/ViBiOh/httputils/pkg/server"
 	"github.com/ViBiOh/iot/pkg/dyson"
 	"github.com/ViBiOh/iot/pkg/hue"
@@ -41,13 +39,12 @@ func main() {
 
 	serverConfig := httputils.Flags(fs, ``)
 	alcotestConfig := alcotest.Flags(fs, ``)
+	prometheusConfig := prometheus.Flags(fs, `prometheus`)
 	opentracingConfig := opentracing.Flags(fs, `tracing`)
 	owaspConfig := owasp.Flags(fs, ``)
 	corsConfig := cors.Flags(fs, `cors`)
 
 	mqttConfig := mqtt.Flags(fs, `mqtt`)
-	authConfig := auth.Flags(fs, `auth`)
-	authBasicConfig := basic.Flags(fs, `basic`)
 	iotConfig := iot.Flags(fs, ``)
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
@@ -58,6 +55,7 @@ func main() {
 
 	serverApp := httputils.New(serverConfig)
 	healthcheckApp := healthcheck.New()
+	prometheusApp := prometheus.New(prometheusConfig)
 	opentracingApp := opentracing.New(opentracingConfig)
 	gzipApp := gzip.New()
 	owaspApp := owasp.New(owaspConfig)
@@ -68,7 +66,6 @@ func main() {
 		logger.Fatal(`%+v`, err)
 	}
 
-	authApp := auth.NewService(authConfig, authService.NewBasic(authBasicConfig, nil))
 	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()
 	dysonApp := dyson.New()
@@ -101,5 +98,5 @@ func main() {
 
 	iotApp.HandleWorker()
 
-	serverApp.ListenAndServe(server.ChainMiddlewares(handler, opentracingApp, gzipApp, owaspApp, corsApp, authApp), nil, healthcheckApp)
+	serverApp.ListenAndServe(server.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp), nil, healthcheckApp)
 }

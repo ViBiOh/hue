@@ -42,6 +42,10 @@ func (a *App) GetWorkerSource() string {
 	return Source
 }
 
+// EnablePrometheus start prometheus register
+func (a *App) EnablePrometheus() {
+}
+
 // GetData return data for Dashboard rendering
 func (a *App) GetData() interface{} {
 	a.mutex.RLock()

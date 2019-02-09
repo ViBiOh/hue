@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -23,6 +24,9 @@ type App struct {
 	schedules map[string]*Schedule
 	sensors   map[string]*Sensor
 	mutex     sync.RWMutex
+
+	prometheus           bool
+	prometheusCollectors map[string]prometheus.Gauge
 }
 
 // New creates new App
@@ -148,6 +152,12 @@ func (a *App) SetHub(hub provider.Hub) {
 // GetWorkerSource get source of message
 func (a *App) GetWorkerSource() string {
 	return Source
+}
+
+// EnablePrometheus start prometheus register
+func (a *App) EnablePrometheus() {
+	a.prometheus = true
+	a.prometheusCollectors = make(map[string]prometheus.Gauge)
 }
 
 // GetData return data for Dashboard rendering

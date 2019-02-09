@@ -49,6 +49,7 @@ type Config struct {
 	AssetsDirectory *string
 	subscribe       *string
 	publish         *string
+	prometheus      *bool
 }
 
 // App of package
@@ -61,6 +62,7 @@ type App struct {
 	mqttClient     *mqtt.App
 	subscribeTopic string
 	publishTopic   string
+	prometheus     bool
 }
 
 // Flags adds flags for configuring package
@@ -69,6 +71,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf(`%sAssetsDirectory`, prefix)), ``, `[iot] Assets directory (static and templates)`),
 		subscribe:       fs.String(tools.ToCamel(fmt.Sprintf(`%sSubscribe`, prefix)), ``, `[iot] Topic to subscribe to`),
 		publish:         fs.String(tools.ToCamel(fmt.Sprintf(`%sPublish`, prefix)), `worker`, `[iot] Topic to publish to`),
+		prometheus:      fs.Bool(tools.ToCamel(fmt.Sprintf(`%sPrometheus`, prefix)), false, `[iot] Expose Prometheus metrics`),
 	}
 }
 
@@ -136,9 +139,14 @@ func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt
 		mqttClient:     mqttClient,
 		subscribeTopic: strings.TrimSpace(*config.subscribe),
 		publishTopic:   strings.TrimSpace(*config.publish),
+		prometheus:     *config.prometheus,
 	}
 
 	for _, p := range providers {
+		if app.prometheus {
+			p.EnablePrometheus()
+		}
+
 		if hubUser, ok := p.(provider.HubUser); ok {
 			hubUser.SetHub(app)
 		}
@@ -190,11 +198,11 @@ func (a *App) svgHandler() http.Handler {
 
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
-	usedSvgHandler := http.StripPrefix(svgPath, a.svgHandler())
+	strippedSvgHandler := http.StripPrefix(svgPath, a.svgHandler())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, `/svg`) {
-			usedSvgHandler.ServeHTTP(w, r)
+			strippedSvgHandler.ServeHTTP(w, r)
 			return
 		}
 
