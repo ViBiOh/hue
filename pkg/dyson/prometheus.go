@@ -25,7 +25,7 @@ func (a *App) updatePrometheus() {
 	for _, device := range a.devices {
 		deviceName := strings.ToLower(device.Name)
 		deviceName = strings.Replace(deviceName, ` `, `_`, -1)
-		deviceName = string.Replace(deviceName, `+`, `_`, -1)
+		deviceName = strings.Replace(deviceName, `+`, `_`, -1)
 
 		a.getMetrics(deviceName, `temperature`).Set(float64(device.State.Temperature))
 		a.getMetrics(deviceName, `humidity`).Set(float64(device.State.Humidity))
