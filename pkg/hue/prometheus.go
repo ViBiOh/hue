@@ -24,5 +24,6 @@ func (a *App) getMetrics(prefix, suffix string) prometheus.Gauge {
 func (a *App) updatePrometheusSensors() {
 	for _, sensor := range a.sensors {
 		a.getMetrics(strings.ToLower(sensor.Name), `temperature`).Set(float64(sensor.State.Temperature))
+		a.getMetrics(strings.ToLower(sensor.Name), `battery`).Set(float64(sensor.Config.Battery))
 	}
 }
