@@ -67,11 +67,13 @@ type Worker interface {
 	GetSource() string
 	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
 	Ping(context.Context) ([]*WorkerMessage, error)
+	Enabled() bool
 }
 
 // Starter is a compoinant that need to be started
 type Starter interface {
 	Start()
+	Enabled() bool
 }
 
 // NewWorkerMessage instantiates a worker message

@@ -54,8 +54,10 @@ func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 		workersMap[worker.GetSource()] = worker
 
 		if starter, ok := worker.(provider.Starter); ok {
-			logger.Info(`Starting %s`, worker.GetSource())
-			starter.Start()
+			if starter.Enabled() {
+				logger.Info(`Starting %s`, worker.GetSource())
+				starter.Start()
+			}
 		}
 	}
 
@@ -73,7 +75,11 @@ func (a *App) pingWorkers() {
 
 	inputs, results, errors := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
-			return worker.Ping(ctx)
+			if worker.Enabled() {
+				return worker.Ping(ctx)
+			}
+
+			return nil, nil
 		}
 
 		return nil, errors.New(`unrecognized worker type: %+v`, e)
@@ -94,6 +100,14 @@ func (a *App) pingWorkers() {
 			break
 
 		case result := <-results:
+			if result == nil {
+				break
+			}
+
+			if !a.mqttClient.Enabled() {
+				break
+			}
+
 			for _, message := range result.([]*provider.WorkerMessage) {
 				for _, topic := range a.publishTopics {
 					if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
@@ -154,8 +168,6 @@ func (a *App) connect() {
 	if err != nil {
 		logger.Error(`%+v`, err)
 	}
-
-	a.pinger()
 }
 
 func main() {
@@ -188,5 +200,9 @@ func main() {
 	dysonApp := dyson_worker.New(dysonConfig)
 	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp}, mqttApp)
 
-	app.connect()
+	if mqttApp.Enabled() {
+		app.connect()
+	}
+
+	app.pinger()
 }

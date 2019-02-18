@@ -89,8 +89,18 @@ func New(config Config) *App {
 	return app
 }
 
+// Enabled checks if worker is enabled
+func (a *App) Enabled() bool {
+	return a.account != `` && a.password != `` && a.clientID != ``
+}
+
 // Start the package
 func (a *App) Start() {
+	if !a.Enabled() {
+		logger.Warn(`no config provided`)
+		return
+	}
+
 	devices, err := a.getDevices(nil)
 	if err != nil {
 		logger.Error(`%+v`, err)
@@ -129,7 +139,7 @@ func (a *App) GetSource() string {
 	return dyson.Source
 }
 
-// Handle handle worker requests for Netatmo
+// Handle handle worker requests for Dyson
 func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
 	return nil, nil
 }

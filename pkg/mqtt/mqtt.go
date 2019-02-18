@@ -100,8 +100,17 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 	return &App{mqttClient}, nil
 }
 
+// Enabled determines if MQTT is enabled or not
+func (a App) Enabled() bool {
+	return a.client != nil
+}
+
 // Publish to a topic
 func (a App) Publish(topic string, message []byte) error {
+	if !a.Enabled() {
+		return errors.New(`client not configured`)
+	}
+
 	err := a.client.Publish(&client.PublishOptions{
 		QoS:       mqtt.QoS0,
 		Retain:    true,
@@ -114,6 +123,10 @@ func (a App) Publish(topic string, message []byte) error {
 
 // Subscribe to a topic
 func (a App) Subscribe(topic string, handler func([]byte)) error {
+	if !a.Enabled() {
+		return errors.New(`client not configured`)
+	}
+
 	err := a.client.Subscribe(&client.SubscribeOptions{
 		SubReqs: []*client.SubReq{
 			{
@@ -131,6 +144,10 @@ func (a App) Subscribe(topic string, handler func([]byte)) error {
 
 // Unsubscribe from a topic
 func (a App) Unsubscribe(topic string) error {
+	if !a.Enabled() {
+		return errors.New(`client not configured`)
+	}
+
 	err := a.client.Unsubscribe(&client.UnsubscribeOptions{
 		TopicFilters: [][]byte{
 			[]byte(topic),
@@ -142,7 +159,7 @@ func (a App) Unsubscribe(topic string) error {
 
 // End disconnect and release ressource properly
 func (a App) End() {
-	if a.client == nil {
+	if !a.Enabled() {
 		return
 	}
 

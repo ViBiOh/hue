@@ -52,6 +52,11 @@ func New(config Config) *App {
 	}
 }
 
+// Enabled checks if worker is enabled
+func (a *App) Enabled() bool {
+	return a.clientID != `` && a.clientSecret != `` && a.accessToken != `` && a.refreshToken != ``
+}
+
 // GetSource returns source name
 func (a *App) GetSource() string {
 	return sonos.Source

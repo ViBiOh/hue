@@ -63,27 +63,35 @@ func New(config Config) (*App, error) {
 	return app, nil
 }
 
+// Enabled checks if worker is enabled
+func (a *App) Enabled() bool {
+	return a.bridgeUsername != ``
+}
+
 // Start the App
 func (a *App) Start() {
-	if a.config != nil {
-		ctx := context.Background()
-
-		if err := a.cleanSchedules(ctx); err != nil {
-			logger.Error(`%+v`, err)
-		}
-
-		if err := a.cleanRules(ctx); err != nil {
-			logger.Error(`%+v`, err)
-		}
-
-		if err := a.cleanScenes(ctx); err != nil {
-			logger.Error(`%+v`, err)
-		}
-
-		a.configureSchedules(ctx, a.config.Schedules)
-		a.configureTap(ctx, a.config.Taps)
-		a.configureMotionSensor(ctx, a.config.Sensors)
+	if a.config == nil {
+		logger.Warn(`no config provided`)
+		return
 	}
+
+	ctx := context.Background()
+
+	if err := a.cleanSchedules(ctx); err != nil {
+		logger.Error(`%+v`, err)
+	}
+
+	if err := a.cleanRules(ctx); err != nil {
+		logger.Error(`%+v`, err)
+	}
+
+	if err := a.cleanScenes(ctx); err != nil {
+		logger.Error(`%+v`, err)
+	}
+
+	a.configureSchedules(ctx, a.config.Schedules)
+	a.configureTap(ctx, a.config.Taps)
+	a.configureMotionSensor(ctx, a.config.Sensors)
 }
 
 // GetSource returns source name
