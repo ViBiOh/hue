@@ -18,7 +18,7 @@
                   {{ end }}
                 </button>
               </form>
-              <input id="sonos-volume-{{- .ID -}}" type="range" name="sonos-volume" min="0" max="100" step="1" value="{{- .Volume.Volume -}}" data-sonos-group-id="{{- .ID -}}" />
+              <input id="sonos-volume-{{- .ID -}}" type="range" class="full" name="sonos-volume" min="0" max="100" step="1" value="{{- .Volume.Volume -}}" data-sonos-group-id="{{- .ID -}}" />
               <label class="volume" for="sonos-volume-{{- .ID -}}">{{ .Volume.Volume -}}</label>
             </div>
           </div>
