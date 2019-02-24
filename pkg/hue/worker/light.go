@@ -11,7 +11,12 @@ import (
 )
 
 func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) {
-	content, _, _, err := request.Get(ctx, fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
+	body, _, _, err := request.Get(ctx, fmt.Sprintf(`%s/lights/%s`, a.bridgeURL, lightID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := request.ReadBody(body)
 	if err != nil {
 		return nil, err
 	}

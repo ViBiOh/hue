@@ -19,7 +19,12 @@ func (a *App) getDevices(ctx context.Context) ([]*dyson.Device, error) {
 
 	deviceRequest.SetBasicAuth(a.account, a.password)
 
-	payload, _, _, err := request.DoAndReadWithClient(ctx, unsafeHTTPClient, deviceRequest)
+	body, _, _, err := request.DoAndReadWithClient(ctx, unsafeHTTPClient, deviceRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := request.ReadBody(body)
 	if err != nil {
 		return nil, err
 	}

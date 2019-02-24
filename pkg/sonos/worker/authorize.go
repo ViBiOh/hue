@@ -1,11 +1,9 @@
 package worker
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,7 +30,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 		`Authorization`: []string{request.GenerateBasicAuth(a.clientID, a.clientSecret)},
 	}
 
-	rawData, _, _, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
+	body, _, _, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
+	if err != nil {
+		return err
+	}
+
+	rawData, err := request.ReadBody(body)
 	if err != nil {
 		return err
 	}
@@ -56,13 +59,11 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 	a.mutex.RUnlock()
 
-	payload, err := ioutil.ReadAll(req.Body)
+	body, _, _, err := request.DoAndRead(ctx, req)
+	data, err := request.ReadBody(body)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
-	data, _, _, err := request.DoAndRead(ctx, req)
 
 	if err != nil && strings.Contains(string(data), `Incorrect token`) {
 		if err := a.refreshAccessToken(ctx); err != nil {
@@ -71,9 +72,13 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
-		payload, _, _, err := request.DoAndRead(ctx, req)
-		return payload, err
+		body, _, _, err := request.DoAndRead(ctx, req)
+		data, err = request.ReadBody(body)
+		if err != nil {
+			return nil, err
+		}
+
+		return data, err
 	}
 
 	return data, err

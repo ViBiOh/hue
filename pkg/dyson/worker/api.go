@@ -24,7 +24,12 @@ func getAuth(email, password, country string) (map[string]string, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	payload, _, _, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
+	body, _, _, err := request.DoAndReadWithClient(nil, unsafeHTTPClient, loginRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := request.ReadBody(body)
 	if err != nil {
 		return nil, err
 	}

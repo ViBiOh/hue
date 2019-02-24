@@ -28,7 +28,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 		`client_secret`: []string{a.clientSecret},
 	}
 
-	rawData, _, _, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
+	body, _, _, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
+	if err != nil {
+		return err
+	}
+
+	rawData, err := request.ReadBody(body)
 	if err != nil {
 		return err
 	}
@@ -60,8 +65,13 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 	}
 
 	a.mutex.RLock()
-	rawData, _, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
+	body, _, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
 	a.mutex.RUnlock()
+
+	rawData, err := request.ReadBody(body)
+	if err != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		if isInvalidTokenError(rawData, err) && retry {
