@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 )
@@ -48,37 +48,17 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 	return nil
 }
 
-func isInvalidTokenError(rawData []byte, err error) bool {
-	var netatmoErrorValue netatmo.Error
-
-	if err := json.Unmarshal(rawData, &netatmoErrorValue); err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
-		return false
-	}
-
-	return netatmoErrorValue.Error.Code == 3 || netatmoErrorValue.Error.Code == 2
-}
-
 func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.StationsData, error) {
 	if a.accessToken == `` {
 		return nil, nil
 	}
 
 	a.mutex.RLock()
-	body, _, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
+	body, status, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
 	a.mutex.RUnlock()
 
 	if err != nil {
-		return nil, err
-	}
-
-	rawData, err := request.ReadBody(body)
-	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		if isInvalidTokenError(rawData, err) && retry {
+		if status == http.StatusForbidden && retry {
 			if err := a.refreshAccessToken(ctx); err != nil {
 				return nil, err
 			}
@@ -86,6 +66,11 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 			return a.getStationsData(ctx, false)
 		}
 
+		return nil, err
+	}
+
+	rawData, err := request.ReadBody(body)
+	if err != nil {
 		return nil, err
 	}
 
