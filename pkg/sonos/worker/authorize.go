@@ -1,11 +1,9 @@
 package worker
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -61,12 +59,6 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 	a.mutex.RUnlock()
 
-	inputBody, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(inputBody))
 	body, _, _, err := request.DoAndRead(ctx, req)
 	if err != nil {
 		return nil, err
@@ -84,7 +76,6 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(inputBody))
 		body, _, _, err := request.DoAndRead(ctx, req)
 		if err != nil {
 			return nil, err
