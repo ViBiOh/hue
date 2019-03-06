@@ -60,6 +60,10 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	a.mutex.RUnlock()
 
 	body, _, _, err := request.DoAndRead(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
 	data, err := request.ReadBody(body)
 	if err != nil {
 		return nil, err
@@ -73,6 +77,10 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
 		body, _, _, err := request.DoAndRead(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
 		data, err = request.ReadBody(body)
 		if err != nil {
 			return nil, err
