@@ -68,6 +68,10 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 	body, _, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
 	a.mutex.RUnlock()
 
+	if err != nil {
+		return nil, err
+	}
+
 	rawData, err := request.ReadBody(body)
 	if err != nil {
 		return nil, err
