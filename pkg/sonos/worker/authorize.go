@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/request"
@@ -59,35 +58,22 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 	a.mutex.RUnlock()
 
-	body, _, _, err := request.DoAndRead(ctx, req)
+	body, status, _, err := request.DoAndRead(ctx, req)
 	if err != nil {
-		return nil, err
-	}
+		if status == http.StatusUnauthorized {
+			if err := a.refreshAccessToken(ctx); err != nil {
+				return nil, err
+			}
 
-	data, err := request.ReadBody(body)
-	if err != nil {
-		return nil, err
-	}
+			req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
 
-	if err != nil && strings.Contains(string(data), `Incorrect token`) {
-		if err := a.refreshAccessToken(ctx); err != nil {
-			return nil, err
+			body, _, _, err = request.DoAndRead(ctx, req)
 		}
 
-		req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
-
-		body, _, _, err := request.DoAndRead(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-
-		data, err = request.ReadBody(body)
-		if err != nil {
-			return nil, err
-		}
-
-		return data, err
 	}
 
-	return data, err
+	return request.ReadBody(body)
 }
