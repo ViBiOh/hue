@@ -8,6 +8,18 @@ APP_PACKAGES = $(shell go list -e $(PACKAGES) | grep -v vendor | grep -v node_mo
 GOBIN=bin
 BINARY_PATH=$(GOBIN)/$(APP_NAME)
 
+SERVER_SOURCE = cmd/iot/iot.go
+SERVER_RUNNER = go run $(SERVER_SOURCE)
+ifeq ($(DEBUG), true)
+	SERVER_RUNNER = dlv debug $(SERVER_SOURCE) --
+endif
+
+WORKER_SOURCE = cmd/iot/iot.go
+WORKER_RUNNER = go run $(WORKER_SOURCE)
+ifeq ($(DEBUG), true)
+	WORKER_RUNNER = dlv debug $(WORKER_SOURCE) --
+endif
+
 ## help: Display list of commands
 .PHONY: help
 help: Makefile
@@ -98,7 +110,7 @@ update-worker: deps install systemd
 ## start-worker: Start worker
 .PHONY: start-worker
 start-worker:
-	go run cmd/worker/worker.go \
+	$(WORKER_RUNNER) \
 		-mqttClientID "iot-worker-dev" \
 		-mqttServer $(IOT_MQTT_SERVER) \
 		-mqttPort $(IOT_MQTT_PORT) \
@@ -125,7 +137,7 @@ start-worker:
 ## start: Start app
 .PHONY: start
 start:
-	go run cmd/iot/iot.go \
+	$(SERVER_RUNNER) \
 		-mqttClientID "iot-dev" \
 		-mqttServer $(IOT_MQTT_SERVER) \
 		-mqttPort $(IOT_MQTT_PORT) \
