@@ -14,7 +14,7 @@ ifeq ($(DEBUG), true)
 	SERVER_RUNNER = dlv debug $(SERVER_SOURCE) --
 endif
 
-WORKER_SOURCE = cmd/iot/iot.go
+WORKER_SOURCE = cmd/worker/worker.go
 WORKER_RUNNER = go run $(WORKER_SOURCE)
 ifeq ($(DEBUG), true)
 	WORKER_RUNNER = dlv debug $(WORKER_SOURCE) --

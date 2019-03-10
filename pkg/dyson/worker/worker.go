@@ -154,6 +154,9 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 	workerMessages := make([]*provider.WorkerMessage, 0)
 
 	for _, device := range a.devices {
+		if device.Service == nil {
+			continue
+		}
 		if err := device.SendCommand(stateMessage); err != nil {
 			return nil, err
 		}
