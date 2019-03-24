@@ -1,5 +1,5 @@
 {{- define "style-modal" -}}
-  <style type="text/css">
+  <style>
     {{- if .Hue -}}
       {{- range $id, $schedule := .Hue.Schedules -}}
         #hue-delete-schedule-{{- sha $schedule -}},
