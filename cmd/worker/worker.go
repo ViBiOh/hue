@@ -14,6 +14,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	dyson_worker "github.com/ViBiOh/iot/pkg/dyson/worker"
+	enedis_worker "github.com/ViBiOh/iot/pkg/enedis/worker"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
@@ -179,6 +180,7 @@ func main() {
 	netatmoConfig := netatmo_worker.Flags(fs, `netatmo`)
 	sonosConfig := sonos_worker.Flags(fs, `sonos`)
 	dysonConfig := dyson_worker.Flags(fs, `dyson`)
+	enedisConfig := enedis_worker.Flags(fs, `enedis`)
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		logger.Fatal(`%+v`, err)
@@ -198,6 +200,12 @@ func main() {
 	netatmoApp := netatmo_worker.New(netatmoConfig)
 	sonosApp := sonos_worker.New(sonosConfig)
 	dysonApp := dyson_worker.New(dysonConfig)
+	enedisApp := enedis_worker.New(enedisConfig)
+
+	if err := enedisApp.Login(); err != nil {
+		logger.Error(`%+v`, err)
+	}
+
 	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp}, mqttApp)
 
 	if mqttApp.Enabled() {

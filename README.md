@@ -72,52 +72,58 @@ Usage of iot:
 
 ```bash
 Usage of iot-worker:
+  -dysonClientID string
+        [dyson] MQTT Client ID (default "iot")
   -dysonCountry string
-      Dyson Link Country (default "FR")
+        [dyson] Link eountry (default "FR")
   -dysonEmail string
-      Dyson Link Email
+        [dyson] Link email
   -dysonPassword string
-      Dyson Link Password
+        [dyson] Link eassword
+  -enedisEmail string
+        [enedis] Email
+  -enedisPassword string
+        [enedis] Password
   -hueBridgeIP string
-      [hue] IP of Bridge
+        [hue] IP of Bridge
   -hueClean
-      [hue] Clean Hue
+        [hue] Clean Hue
   -hueConfig string
-      [hue] Configuration filename
+        [hue] Configuration filename
   -hueUsername string
-      [hue] Username for Bridge
+        [hue] Username for Bridge
   -mqttClientID string
-      [mqtt] Client ID (default "iot")
+        [mqtt] Client ID (default "iot")
   -mqttPass string
-      [mqtt] Password
+        [mqtt] Password
   -mqttPort int
-      [mqtt] Port (default 80)
+        [mqtt] Port (default 80)
   -mqttServer string
-      [mqtt] Server name
+        [mqtt] Server name
   -mqttUseTLS
-      [mqtt] Use TLS (default true)
+        [mqtt] Use TLS (default true)
   -mqttUser string
-      [mqtt] Username
+        [mqtt] Username
   -netatmoAccessToken string
-      [netatmo] Access Token
+        [netatmo] Access Token
   -netatmoClientID string
-      [netatmo] Client ID
+        [netatmo] Client ID
   -netatmoClientSecret string
-      [netatmo] Client Secret
+        [netatmo] Client Secret
   -netatmoRefreshToken string
-      [netatmo] Refresh Token
+        [netatmo] Refresh Token
   -publish string
-      Topics to publish to, comma separated (default "local,remote")
+        Topics to publish to, comma separated (default "local,remote")
   -sonosAccessToken string
-      [sonos] Access Token
+        [sonos] Access Token
   -sonosClientID string
-      [sonos] Client ID
+        [sonos] Client ID
   -sonosClientSecret string
-      [sonos] Client Secret
+        [sonos] Client Secret
   -sonosRefreshToken string
-      [sonos] Refresh Token
+        [sonos] Refresh Token
   -subscribe string
-      Topic to subscribe to (default "worker")
+        Topic to subscribe to (default "worker")
 ```
 
 ## Create systemd service for worker

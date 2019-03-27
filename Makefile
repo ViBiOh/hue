@@ -132,6 +132,8 @@ start-worker:
 		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)" \
 		-dysonEmail $(DYSON_EMAIL) \
 		-dysonPassword $(DYSON_PASSWORD) \
+		-enedisEmail $(ENEDIS_EMAIL) \
+		-enedisPassword $(ENEDIS_PASSWORD) \
 		-dysonClientID "iot-dev"
 
 ## start: Start app
