@@ -203,8 +203,14 @@ func main() {
 	enedisApp := enedis_worker.New(enedisConfig)
 
 	if err := enedisApp.Login(); err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error(`cannot login: %+v`, err)
+	} else if payload, err := enedisApp.GetData(true); err != nil {
+		logger.Error(`cannot fetch data: %+v`, err)
+	} else {
+		logger.Info(`payload: %s`, payload)
 	}
+
+	return
 
 	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp}, mqttApp)
 

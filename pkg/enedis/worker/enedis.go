@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/tools"
 )
 
 const (
-	loginURL = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
+	loginURL   = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
+	consumeURL = `https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?`
 )
 
 // Config of package
@@ -65,12 +65,7 @@ func (a *App) Login() error {
 	values.Add(`gx_charset`, `UTF-8`)
 
 	ctx := context.Background()
-	req, err := request.Form(http.MethodPost, loginURL, values, nil)
-	if err != nil {
-		return err
-	}
-
-	_, _, headers, err := request.DoAndRead(ctx, req)
+	_, _, headers, err := request.PostForm(ctx, loginURL, values, nil)
 	if err != nil {
 		return err
 	}
@@ -85,15 +80,65 @@ func (a *App) Login() error {
 			continue
 		}
 
-		value := strings.SplitN(cookie, `;`, 2)
-		if _, err := authCookies.WriteString(value[0]); err != nil {
+		if authCookies.Len() != 0 {
+			if _, err := authCookies.WriteString(`;`); err != nil {
+				return errors.WithStack(err)
+			}
+		}
+
+		if _, err := authCookies.WriteString(strings.SplitN(cookie, `;`, 2)[0]); err != nil {
 			return errors.WithStack(err)
 		}
 	}
 
 	a.cookie = authCookies.String()
 
-	logger.Info(`%s`, a.cookie)
-
 	return nil
+}
+
+// GetData retrieve data
+func (a *App) GetData(first bool) ([]byte, error) {
+	if !a.isEnabled() {
+		return nil, nil
+	}
+
+	header := http.Header{}
+	header.Set(`Cookie`, a.cookie)
+
+	params := url.Values{}
+	params.Add(`p_p_id`, `lincspartdisplaycdc_WAR_lincspartcdcportlet`)
+	params.Add(`p_p_lifecycle`, `2`)
+	params.Add(`p_p_state`, `normal`)
+	params.Add(`p_p_mode`, `view`)
+	params.Add(`p_p_resource_id`, `urlCdcJour`)
+	params.Add(`p_p_cacheability`, `cacheLevelPage`)
+	params.Add(`p_p_col_id`, `column-1`)
+	params.Add(`p_p_col_count`, `2`)
+
+	values := url.Values{}
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, `24/02/2019`)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, `26/03/2019`)
+
+	ctx := context.Background()
+	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
+	if err != nil || status == http.StatusFound {
+		if first {
+			for _, cookie := range headers[`Set-Cookie`] {
+				if strings.HasPrefix(cookie, `JSESSIONID`) {
+					a.cookie = fmt.Sprintf(`%s; %s`, a.cookie, strings.SplitN(cookie, `;`, 2)[0])
+				}
+			}
+
+			return a.GetData(false)
+		}
+
+		return nil, err
+	}
+
+	payload, err := request.ReadBody(body)
+	if err != nil {
+		return nil, err
+	}
+
+	return payload, nil
 }
