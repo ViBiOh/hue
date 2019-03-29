@@ -2,20 +2,26 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
 	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/iot/pkg/enedis"
 )
 
 const (
 	loginURL   = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
 	consumeURL = `https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?`
+
+	frenchDateFormat = `02/01/2006`
 )
 
 // Config of package
@@ -51,6 +57,14 @@ func (a *App) isEnabled() bool {
 	return a.email != `` && a.password != ``
 }
 
+func (a *App) appendSessionCookie(headers http.Header) {
+	for _, cookie := range headers[`Set-Cookie`] {
+		if strings.HasPrefix(cookie, `JSESSIONID`) {
+			a.cookie = fmt.Sprintf(`%s; %s`, a.cookie, getCookieValue(cookie))
+		}
+	}
+}
+
 // Login triggers login
 func (a *App) Login() error {
 	if !a.isEnabled() {
@@ -81,14 +95,9 @@ func (a *App) Login() error {
 		}
 
 		if authCookies.Len() != 0 {
-			if _, err := authCookies.WriteString(`;`); err != nil {
-				return errors.WithStack(err)
-			}
+			safeWrite(&authCookies, `;`)
 		}
-
-		if _, err := authCookies.WriteString(strings.SplitN(cookie, `;`, 2)[0]); err != nil {
-			return errors.WithStack(err)
-		}
+		safeWrite(&authCookies, getCookieValue(cookie))
 	}
 
 	a.cookie = authCookies.String()
@@ -97,7 +106,7 @@ func (a *App) Login() error {
 }
 
 // GetData retrieve data
-func (a *App) GetData(first bool) ([]byte, error) {
+func (a *App) GetData(first bool) (*enedis.Consumption, error) {
 	if !a.isEnabled() {
 		return nil, nil
 	}
@@ -115,20 +124,18 @@ func (a *App) GetData(first bool) ([]byte, error) {
 	params.Add(`p_p_col_id`, `column-1`)
 	params.Add(`p_p_col_count`, `2`)
 
+	endDate := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
+	startDate := time.Now().AddDate(0, 0, -31).Format(frenchDateFormat)
+
 	values := url.Values{}
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, `24/02/2019`)
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, `26/03/2019`)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, startDate)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, endDate)
 
 	ctx := context.Background()
 	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
 	if err != nil || status == http.StatusFound {
 		if first {
-			for _, cookie := range headers[`Set-Cookie`] {
-				if strings.HasPrefix(cookie, `JSESSIONID`) {
-					a.cookie = fmt.Sprintf(`%s; %s`, a.cookie, strings.SplitN(cookie, `;`, 2)[0])
-				}
-			}
-
+			a.appendSessionCookie(headers)
 			return a.GetData(false)
 		}
 
@@ -140,5 +147,20 @@ func (a *App) GetData(first bool) ([]byte, error) {
 		return nil, err
 	}
 
-	return payload, nil
+	var response enedis.Consumption
+	if err := json.Unmarshal(payload, &response); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &response, nil
+}
+
+func safeWrite(w *strings.Builder, content string) {
+	if _, err := w.WriteString(content); err != nil {
+		logger.Error(`%+v`, errors.WithStack(err))
+	}
+}
+
+func getCookieValue(cookie string) string {
+	return strings.SplitN(cookie, `;`, 2)[0]
 }

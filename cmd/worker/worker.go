@@ -207,10 +207,8 @@ func main() {
 	} else if payload, err := enedisApp.GetData(true); err != nil {
 		logger.Error(`cannot fetch data: %+v`, err)
 	} else {
-		logger.Info(`payload: %s`, payload)
+		logger.Info(`payload: %+v`, payload)
 	}
-
-	return
 
 	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp}, mqttApp)
 
