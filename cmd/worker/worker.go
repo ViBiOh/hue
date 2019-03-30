@@ -37,6 +37,7 @@ type App struct {
 	publishTopics  []string
 	subscribeTopic string
 	workers        map[string]provider.Worker
+	handlers       map[string]provider.WorkerHandler
 	mqttClient     *mqtt.App
 }
 
@@ -51,8 +52,14 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 // New creates new App from Config
 func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
+	handlersMap := make(map[string]provider.WorkerHandler, 0)
+
 	for _, worker := range workers {
 		workersMap[worker.GetSource()] = worker
+
+		if handler, ok := worker.(provider.WorkerHandler); ok {
+			handlersMap[worker.GetSource()] = handler
+		}
 
 		if starter, ok := worker.(provider.Starter); ok {
 			if starter.Enabled() {
@@ -64,6 +71,7 @@ func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 
 	return &App{
 		workers:        workersMap,
+		handlers:       handlersMap,
 		mqttClient:     mqttClient,
 		publishTopics:  strings.Split(strings.TrimSpace(*config.publish), `,`),
 		subscribeTopic: strings.TrimSpace(*config.subscribe),
@@ -144,7 +152,7 @@ func (a *App) handleTextMessage(p []byte) {
 		defer span.Finish()
 	}
 
-	if worker, ok := a.workers[message.Source]; ok {
+	if worker, ok := a.handlers[message.Source]; ok {
 		output, err := worker.Handle(ctx, &message)
 
 		if err != nil {
@@ -202,15 +210,7 @@ func main() {
 	dysonApp := dyson_worker.New(dysonConfig)
 	enedisApp := enedis_worker.New(enedisConfig)
 
-	if err := enedisApp.Login(); err != nil {
-		logger.Error(`cannot login: %+v`, err)
-	} else if payload, err := enedisApp.GetData(true); err != nil {
-		logger.Error(`cannot fetch data: %+v`, err)
-	} else {
-		logger.Info(`payload: %+v`, payload)
-	}
-
-	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp}, mqttApp)
+	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp, enedisApp}, mqttApp)
 
 	if mqttApp.Enabled() {
 		app.connect()

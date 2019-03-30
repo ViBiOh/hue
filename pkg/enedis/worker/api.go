@@ -3,7 +3,6 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,63 +10,13 @@ import (
 	"time"
 
 	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/request"
-	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/enedis"
 )
 
-const (
-	loginURL   = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
-	consumeURL = `https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?`
-
-	frenchDateFormat = `02/01/2006`
-)
-
-// Config of package
-type Config struct {
-	email    *string
-	password *string
-}
-
-// App of package
-type App struct {
-	email    string
-	password string
-	cookie   string
-}
-
-// Flags adds flags for configuring package
-func Flags(fs *flag.FlagSet, prefix string) Config {
-	return Config{
-		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `[enedis] Email`),
-		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `[enedis] Password`),
-	}
-}
-
-// New creates new App from Config
-func New(config Config) *App {
-	return &App{
-		email:    strings.TrimSpace(*config.email),
-		password: strings.TrimSpace(*config.password),
-	}
-}
-
-func (a *App) isEnabled() bool {
-	return a.email != `` && a.password != ``
-}
-
-func (a *App) appendSessionCookie(headers http.Header) {
-	for _, cookie := range headers[`Set-Cookie`] {
-		if strings.HasPrefix(cookie, `JSESSIONID`) {
-			a.cookie = fmt.Sprintf(`%s; %s`, a.cookie, getCookieValue(cookie))
-		}
-	}
-}
-
 // Login triggers login
 func (a *App) Login() error {
-	if !a.isEnabled() {
+	if !a.Enabled() {
 		return nil
 	}
 
@@ -106,8 +55,8 @@ func (a *App) Login() error {
 }
 
 // GetData retrieve data
-func (a *App) GetData(first bool) (*enedis.Consumption, error) {
-	if !a.isEnabled() {
+func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, error) {
+	if !a.Enabled() {
 		return nil, nil
 	}
 
@@ -131,12 +80,11 @@ func (a *App) GetData(first bool) (*enedis.Consumption, error) {
 	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, startDate)
 	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, endDate)
 
-	ctx := context.Background()
 	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
 	if err != nil || status == http.StatusFound {
 		if first {
 			a.appendSessionCookie(headers)
-			return a.GetData(false)
+			return a.GetData(ctx, false)
 		}
 
 		return nil, err
@@ -153,14 +101,4 @@ func (a *App) GetData(first bool) (*enedis.Consumption, error) {
 	}
 
 	return &response, nil
-}
-
-func safeWrite(w *strings.Builder, content string) {
-	if _, err := w.WriteString(content); err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
-	}
-}
-
-func getCookieValue(cookie string) string {
-	return strings.SplitN(cookie, `;`, 2)[0]
 }

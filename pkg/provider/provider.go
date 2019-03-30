@@ -56,7 +56,7 @@ type HubUser interface {
 	SetHub(Hub)
 }
 
-// WorkerProvider is a provider that need to interact with the remote Worker
+// WorkerProvider is a provider that interact with the remote Worker
 type WorkerProvider interface {
 	GetWorkerSource() string
 	WorkerHandler(*WorkerMessage) error
@@ -65,12 +65,16 @@ type WorkerProvider interface {
 // Worker is a remote worker in another network, connected to hub
 type Worker interface {
 	GetSource() string
-	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
 	Ping(context.Context) ([]*WorkerMessage, error)
 	Enabled() bool
 }
 
-// Starter is a compoinant that need to be started
+// WorkerHandler is a Worker that can handle request from outside
+type WorkerHandler interface {
+	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
+}
+
+// Starter is a component that need to be started
 type Starter interface {
 	Start()
 	Enabled() bool
