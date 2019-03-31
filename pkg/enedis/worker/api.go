@@ -68,17 +68,16 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	params.Add(`p_p_lifecycle`, `2`)
 	params.Add(`p_p_state`, `normal`)
 	params.Add(`p_p_mode`, `view`)
-	params.Add(`p_p_resource_id`, `urlCdcJour`)
+	params.Add(`p_p_resource_id`, `urlCdcHeure`)
 	params.Add(`p_p_cacheability`, `cacheLevelPage`)
 	params.Add(`p_p_col_id`, `column-1`)
 	params.Add(`p_p_col_count`, `2`)
 
-	endDate := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
-	startDate := time.Now().AddDate(0, 0, -31).Format(frenchDateFormat)
+	date := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
 
 	values := url.Values{}
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, startDate)
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, endDate)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, date)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, date)
 
 	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
 	if err != nil || status == http.StatusFound {

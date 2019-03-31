@@ -18,6 +18,7 @@ import (
 	"github.com/ViBiOh/httputils/pkg/prometheus"
 	"github.com/ViBiOh/httputils/pkg/server"
 	"github.com/ViBiOh/iot/pkg/dyson"
+	"github.com/ViBiOh/iot/pkg/enedis"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/mqtt"
@@ -70,11 +71,13 @@ func main() {
 	sonosApp := sonos.New()
 	dysonApp := dyson.New()
 	hueApp := hue.New()
+	enedisApp := enedis.New()
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
 		`Netatmo`: netatmoApp,
 		`Hue`:     hueApp,
 		`Dyson`:   dysonApp,
 		`Sonos`:   sonosApp,
+		`Enedis`:  enedisApp,
 	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
