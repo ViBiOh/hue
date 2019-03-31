@@ -21,6 +21,6 @@ func (a *App) getMetrics(name string) prometheus.Gauge {
 	return gauge
 }
 
-func (a *App) updatePrometheusSensors() {
+func (a *App) updatePrometheus() {
 	a.getMetrics(`temperature`).Set(2.543)
 }

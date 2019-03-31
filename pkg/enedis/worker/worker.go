@@ -2,10 +2,12 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"strings"
 
+	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/enedis"
@@ -72,12 +74,19 @@ func (a *App) Start() {
 
 // Ping send to worker updated data
 func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
-	_, err := a.GetData(ctx, true)
+	consumption, err := a.GetData(ctx, true)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	payload, err := json.Marshal(consumption)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	message := provider.NewWorkerMessage(nil, enedis.Source, enedis.ConsumptionAction, fmt.Sprintf(`%s`, payload))
+
+	return []*provider.WorkerMessage{message}, nil
 }
 
 // Enabled checks if worker is enabled

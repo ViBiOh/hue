@@ -1,11 +1,16 @@
 package enedis
 
 import (
+	"sync"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // App of package
 type App struct {
+	consumption *Consumption
+	mutex       sync.Mutex
+
 	prometheus           bool
 	prometheusCollectors map[string]prometheus.Gauge
 }
