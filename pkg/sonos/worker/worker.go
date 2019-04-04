@@ -15,6 +15,12 @@ import (
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
+var (
+	_ provider.Worker        = &App{}
+	_ provider.WorkerHandler = &App{}
+	_ provider.Starter       = &App{}
+)
+
 // Config of package
 type Config struct {
 	accessToken  *string

@@ -14,6 +14,11 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
+var (
+	_ provider.Worker  = &App{}
+	_ provider.Starter = &App{}
+)
+
 const (
 	loginURL   = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
 	consumeURL = `https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?`

@@ -17,6 +17,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	_ provider.Worker        = &App{}
+	_ provider.WorkerHandler = &App{}
+	_ provider.Starter       = &App{}
+)
+
 const (
 	// API of Dyson Link
 	API = `https://api.cp.dyson.com`

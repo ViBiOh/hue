@@ -15,6 +15,12 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
+var (
+	_ provider.Worker        = &App{}
+	_ provider.WorkerHandler = &App{}
+	_ provider.Starter       = &App{}
+)
+
 // Config of package
 type Config struct {
 	bridgeIP *string

@@ -73,11 +73,12 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	params.Add(`p_p_col_id`, `column-1`)
 	params.Add(`p_p_col_count`, `2`)
 
-	date := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
+	startDate := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
+	endDate := time.Now().Format(frenchDateFormat)
 
 	values := url.Values{}
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, date)
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, date)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, startDate)
+	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, endDate)
 
 	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
 	if err != nil || status == http.StatusFound {
