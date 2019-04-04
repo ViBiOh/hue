@@ -18,7 +18,6 @@ import (
 var (
 	_ provider.Worker        = &App{}
 	_ provider.WorkerHandler = &App{}
-	_ provider.Starter       = &App{}
 )
 
 // Config of package
