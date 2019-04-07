@@ -5,13 +5,13 @@ services:
     image: vibioh/iot
     command:
     - -mqttServer
-    - ${IOT_MQTT_SERVER}
+    - "${IOT_MQTT_SERVER}"
     - -mqttPort
-    - ${IOT_MQTT_PORT}
+    - "${IOT_MQTT_PORT}"
     - -mqttUser
-    - ${IOT_MQTT_USER}
+    - "${IOT_MQTT_USER}"
     - -mqttPass
-    - ${IOT_MQTT_PASS}
+    - "${IOT_MQTT_PASS}"
     - -prometheus
     - -subscribe
     - remote
