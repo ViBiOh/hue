@@ -22,9 +22,9 @@ const (
 	maxAllowedErrors = 5
 	hoursInDay       = 24
 	minutesInHours   = 60
-	iotSource        = `iot`
+	iotSource        = "iot"
 
-	svgPath = `/svg`
+	svgPath = "/svg"
 )
 
 var (
@@ -35,12 +35,12 @@ var (
 func init() {
 	hours = make([]string, hoursInDay)
 	for i := 0; i < hoursInDay; i++ {
-		hours[i] = fmt.Sprintf(`%02d`, i)
+		hours[i] = fmt.Sprintf("%02d", i)
 	}
 
 	minutes = make([]string, minutesInHours)
 	for i := 0; i < minutesInHours; i++ {
-		minutes[i] = fmt.Sprintf(`%02d`, i)
+		minutes[i] = fmt.Sprintf("%02d", i)
 	}
 }
 
@@ -68,67 +68,67 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf(`%sAssetsDirectory`, prefix)), ``, `[iot] Assets directory (static and templates)`),
-		subscribe:       fs.String(tools.ToCamel(fmt.Sprintf(`%sSubscribe`, prefix)), ``, `[iot] Topic to subscribe to`),
-		publish:         fs.String(tools.ToCamel(fmt.Sprintf(`%sPublish`, prefix)), `worker`, `[iot] Topic to publish to`),
-		prometheus:      fs.Bool(tools.ToCamel(fmt.Sprintf(`%sPrometheus`, prefix)), false, `[iot] Expose Prometheus metrics`),
+		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf("%sAssetsDirectory", prefix)), "", "[iot] Assets directory (static and templates)"),
+		subscribe:       fs.String(tools.ToCamel(fmt.Sprintf("%sSubscribe", prefix)), "", "[iot] Topic to subscribe to"),
+		publish:         fs.String(tools.ToCamel(fmt.Sprintf("%sPublish", prefix)), "worker", "[iot] Topic to publish to"),
+		prometheus:      fs.Bool(tools.ToCamel(fmt.Sprintf("%sPrometheus", prefix)), false, "[iot] Expose Prometheus metrics"),
 	}
 }
 
 // New creates new App from Config
 func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt.App) *App {
-	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, `templates`), `.html`)
+	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, "templates"), ".html")
 	if err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
+		logger.Error("%+v", errors.WithStack(err))
 	}
 
 	app := &App{
-		tpl: template.Must(template.New(`iot`).Funcs(template.FuncMap{
-			`sha`: tools.Sha1,
-			`battery`: func(value uint) string {
+		tpl: template.Must(template.New("iot").Funcs(template.FuncMap{
+			"sha": tools.Sha1,
+			"battery": func(value uint) string {
 				switch {
 				case value >= 90:
-					return `battery-full?fill=limegreen`
+					return "battery-full?fill=limegreen"
 				case value >= 75:
-					return `battery-three-quarters?fill=limegreen`
+					return "battery-three-quarters?fill=limegreen"
 				case value >= 50:
-					return `battery-half?fill=darkorange`
+					return "battery-half?fill=darkorange"
 				case value >= 25:
-					return `battery-quarter?fill=darkorange`
+					return "battery-quarter?fill=darkorange"
 				default:
-					return `battery-empty?fill=crimson`
+					return "battery-empty?fill=crimson"
 				}
 			},
-			`temperature`: func(value float32) string {
+			"temperature": func(value float32) string {
 				switch {
 				case value >= 28:
-					return `thermometer-full?fill=crimson`
+					return "thermometer-full?fill=crimson"
 				case value >= 24:
-					return `thermometer-three-quarters?fill=darkorange`
+					return "thermometer-three-quarters?fill=darkorange"
 				case value >= 18:
-					return `thermometer-half?fill=limegreen`
+					return "thermometer-half?fill=limegreen"
 				case value >= 14:
-					return `thermometer-half?fill=darkorange`
+					return "thermometer-half?fill=darkorange"
 				case value >= 10:
-					return `thermometer-quarter?fill=darkorange`
+					return "thermometer-quarter?fill=darkorange"
 				case value >= 4:
-					return `thermometer-empty?fill=crimson`
+					return "thermometer-empty?fill=crimson"
 				default:
-					return `snowflake?fill=royalblue`
+					return "snowflake?fill=royalblue"
 				}
 			},
-			`humidity`: func(value float32) string {
+			"humidity": func(value float32) string {
 				switch {
 				case value >= 80:
-					return `tint?fill=crimson`
+					return "tint?fill=crimson"
 				case value >= 60:
-					return `tint?fill=darkorange`
+					return "tint?fill=darkorange"
 				case value >= 40:
-					return `tint?fill=limegreen`
+					return "tint?fill=limegreen"
 				case value >= 20:
-					return `tint?fill=darkorange`
+					return "tint?fill=darkorange"
 				default:
-					return `tint?fill=crimson`
+					return "tint?fill=crimson"
 				}
 			},
 		}).ParseFiles(filesTemplates...)),
@@ -162,35 +162,35 @@ func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt
 // RenderDashboard render dashboard
 func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int, message *provider.Message) {
 	response := map[string]interface{}{
-		`Message`: message,
-		`Hours`:   hours,
-		`Minutes`: minutes,
+		"Message": message,
+		"Hours":   hours,
+		"Minutes": minutes,
 	}
 
-	if message != nil && message.Level == `error` {
-		logger.Error(`%+v`, message.Content)
+	if message != nil && message.Level == "error" {
+		logger.Error("%+v", message.Content)
 	}
 
 	for name, provider := range a.providers {
 		response[name] = provider.GetData()
 	}
 
-	w.Header().Set(`content-language`, `fr`)
-	if err := templates.WriteHTMLTemplate(a.tpl.Lookup(`iot`), w, response, status); err != nil {
+	w.Header().Set("content-language", "fr")
+	if err := templates.WriteHTMLTemplate(a.tpl.Lookup("iot"), w, response, status); err != nil {
 		httperror.InternalServerError(w, err)
 	}
 }
 
 func (a *App) svgHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tpl := a.tpl.Lookup(fmt.Sprintf(`svg-%s`, strings.Trim(r.URL.Path, `/`)))
+		tpl := a.tpl.Lookup(fmt.Sprintf("svg-%s", strings.Trim(r.URL.Path, "/")))
 		if tpl == nil {
 			httperror.NotFound(w)
 			return
 		}
 
-		w.Header().Set(`Content-Type`, `image/svg+xml`)
-		if err := tpl.Execute(w, r.URL.Query().Get(`fill`)); err != nil {
+		w.Header().Set("Content-Type", "image/svg+xml")
+		if err := tpl.Execute(w, r.URL.Query().Get("fill")); err != nil {
 			httperror.InternalServerError(w, err)
 		}
 	})
@@ -201,7 +201,7 @@ func (a *App) Handler() http.Handler {
 	strippedSvgHandler := http.StripPrefix(svgPath, a.svgHandler())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, `/svg`) {
+		if strings.HasPrefix(r.URL.Path, "/svg") {
 			strippedSvgHandler.ServeHTTP(w, r)
 			return
 		}

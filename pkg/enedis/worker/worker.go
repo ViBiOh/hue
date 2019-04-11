@@ -20,10 +20,10 @@ var (
 )
 
 const (
-	loginURL   = `https://espace-client-connexion.enedis.fr/auth/UI/Login`
-	consumeURL = `https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?`
+	loginURL   = "https://espace-client-connexion.enedis.fr/auth/UI/Login"
+	consumeURL = "https://espace-client-particuliers.enedis.fr/group/espace-particuliers/suivi-de-consommation?"
 
-	frenchDateFormat = `02/01/2006`
+	frenchDateFormat = "02/01/2006"
 )
 
 // Config of package
@@ -42,8 +42,8 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `[enedis] Email`),
-		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `[enedis] Password`),
+		email:    fs.String(tools.ToCamel(fmt.Sprintf("%sEmail", prefix)), "", "[enedis] Email"),
+		password: fs.String(tools.ToCamel(fmt.Sprintf("%sPassword", prefix)), "", "[enedis] Password"),
 	}
 }
 
@@ -68,12 +68,12 @@ func (a *App) Handle(context.Context, *provider.WorkerMessage) (*provider.Worker
 // Start the package
 func (a *App) Start() {
 	if !a.Enabled() {
-		logger.Warn(`no config provided`)
+		logger.Warn("no config provided")
 		return
 	}
 
 	if err := a.Login(); err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 	}
 }
 
@@ -89,12 +89,12 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	message := provider.NewWorkerMessage(nil, enedis.Source, enedis.ConsumptionAction, fmt.Sprintf(`%s`, payload))
+	message := provider.NewWorkerMessage(nil, enedis.Source, enedis.ConsumptionAction, fmt.Sprintf("%s", payload))
 
 	return []*provider.WorkerMessage{message}, nil
 }
 
 // Enabled checks if worker is enabled
 func (a *App) Enabled() bool {
-	return a.email != `` && a.password != ``
+	return a.email != "" && a.password != ""
 }

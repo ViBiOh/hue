@@ -9,7 +9,7 @@ import (
 
 const (
 	// WorkerDevicesAction message prefix for groups command
-	WorkerDevicesAction = `devices`
+	WorkerDevicesAction = "devices"
 )
 
 func (a *App) handleDevicesFromWorker(message *provider.WorkerMessage) error {

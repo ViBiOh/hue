@@ -26,7 +26,7 @@ func findDysonMQTTServices() (map[string]*zeroconf.ServiceEntry, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
-	err = resolver.Browse(ctx, `_dyson_mqtt._tcp`, ``, entries)
+	err = resolver.Browse(ctx, "_dyson_mqtt._tcp", "", entries)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

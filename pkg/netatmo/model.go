@@ -2,10 +2,10 @@ package netatmo
 
 const (
 	// DevicesAction action for listing devices
-	DevicesAction = `devices`
+	DevicesAction = "devices"
 
 	// Source constant for worker message
-	Source = `netatmo`
+	Source = "netatmo"
 )
 
 // StationsData contains data retrieved when getting stations datas

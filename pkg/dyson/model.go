@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	sensorMessage       = `ENVIRONMENTAL-CURRENT-SENSOR-DATA`
-	stateMessage        = `CURRENT-STATE`
-	currentStateMessage = `REQUEST-CURRENT-STATE`
+	sensorMessage       = "ENVIRONMENTAL-CURRENT-SENSOR-DATA"
+	stateMessage        = "CURRENT-STATE"
+	currentStateMessage = "REQUEST-CURRENT-STATE"
 )
 
 // Data stores data fo hub
@@ -77,52 +77,52 @@ func (d *Device) ConnectToMQTT(clientID string) error {
 // SendCommand send a command to the device
 func (d *Device) SendCommand(message []byte) error {
 	if d.MQTT == nil {
-		return errors.New(`no MQTT configured for device %s`, d.Serial)
+		return errors.New("no MQTT configured for device %s", d.Serial)
 	}
 
-	return d.MQTT.Publish(fmt.Sprintf(`%s/%s/command`, d.ProductType, d.Credentials.Serial), message)
+	return d.MQTT.Publish(fmt.Sprintf("%s/%s/command", d.ProductType, d.Credentials.Serial), message)
 }
 
 // SubcribeToStatus subscribe to status update of device
 func (d *Device) SubcribeToStatus() error {
 	if d.MQTT == nil {
-		return errors.New(`no MQTT configured for device %s`, d.Serial)
+		return errors.New("no MQTT configured for device %s", d.Serial)
 	}
 
-	return d.MQTT.Subscribe(fmt.Sprintf(`%s/%s/status/current`, d.ProductType, d.Credentials.Serial), func(content []byte) {
+	return d.MQTT.Subscribe(fmt.Sprintf("%s/%s/status/current", d.ProductType, d.Credentials.Serial), func(content []byte) {
 		var msg message
 		err := json.Unmarshal(content, &msg)
 		if err != nil {
-			logger.Error(`%+v`, errors.WithStack(err))
+			logger.Error("%+v", errors.WithStack(err))
 			return
 		}
 
 		if msg.Message == sensorMessage {
-			temperature, err := parseTemperature(msg.Data[`tact`])
+			temperature, err := parseTemperature(msg.Data["tact"])
 			if err != nil {
-				logger.Error(`%+v`, err)
+				logger.Error("%+v", err)
 				return
 			}
 
-			humidity, err := parseHumidity(msg.Data[`hact`])
+			humidity, err := parseHumidity(msg.Data["hact"])
 			if err != nil {
-				logger.Error(`%+v`, err)
+				logger.Error("%+v", err)
 				return
 			}
 
 			d.State.Temperature = temperature
 			d.State.Humidity = humidity
 		} else if msg.Message == stateMessage {
-			d.State.FanStatus = readProductState(msg.ProductState[`fmod`]) == `FAN`
+			d.State.FanStatus = readProductState(msg.ProductState["fmod"]) == "FAN"
 
 			if d.State.FanStatus {
-				d.State.FanSpeed = strings.TrimLeft(readProductState(msg.ProductState[`fnsp`]), `0`)
-				d.State.FanRotation = readProductState(msg.ProductState[`oson`]) == `ON`
-				d.State.FanHeating = readProductState(msg.ProductState[`hmod`]) == `HEAT`
+				d.State.FanSpeed = strings.TrimLeft(readProductState(msg.ProductState["fnsp"]), "0")
+				d.State.FanRotation = readProductState(msg.ProductState["oson"]) == "ON"
+				d.State.FanHeating = readProductState(msg.ProductState["hmod"]) == "HEAT"
 
-				temperature, err := parseTemperature(readProductState(msg.ProductState[`hmax`]))
+				temperature, err := parseTemperature(readProductState(msg.ProductState["hmax"]))
 				if err != nil {
-					logger.Error(`%+v`, err)
+					logger.Error("%+v", err)
 					return
 				}
 				d.State.FanTemperature = temperature

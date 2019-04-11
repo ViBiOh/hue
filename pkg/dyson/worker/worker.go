@@ -25,10 +25,10 @@ var (
 
 const (
 	// API of Dyson Link
-	API = `https://api.cp.dyson.com`
+	API = "https://api.cp.dyson.com"
 
-	authenticateEndpoint = `/v1/userregistration/authenticate`
-	devicesEndpoint      = `/v1/provisioningservice/manifest`
+	authenticateEndpoint = "/v1/userregistration/authenticate"
+	devicesEndpoint      = "/v1/provisioningservice/manifest"
 )
 
 var unsafeHTTPClient = http.Client{
@@ -59,36 +59,36 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		email:    fs.String(tools.ToCamel(fmt.Sprintf(`%sEmail`, prefix)), ``, `[dyson] Link email`),
-		password: fs.String(tools.ToCamel(fmt.Sprintf(`%sPassword`, prefix)), ``, `[dyson] Link eassword`),
-		country:  fs.String(tools.ToCamel(fmt.Sprintf(`%sCountry`, prefix)), `FR`, `[dyson] Link eountry`),
-		clientID: fs.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), `iot`, `[dyson] MQTT Client ID`),
+		email:    fs.String(tools.ToCamel(fmt.Sprintf("%sEmail", prefix)), "", "[dyson] Link email"),
+		password: fs.String(tools.ToCamel(fmt.Sprintf("%sPassword", prefix)), "", "[dyson] Link eassword"),
+		country:  fs.String(tools.ToCamel(fmt.Sprintf("%sCountry", prefix)), "FR", "[dyson] Link eountry"),
+		clientID: fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "iot", "[dyson] MQTT Client ID"),
 	}
 }
 
 // New creates new App from Config
 func New(config Config) *App {
 	email := strings.TrimSpace(*config.email)
-	if email == `` {
-		logger.Warn(`no email provided`)
+	if email == "" {
+		logger.Warn("no email provided")
 		return &App{}
 	}
 
 	password := strings.TrimSpace(*config.password)
-	if password == `` {
-		logger.Warn(`no password provided`)
+	if password == "" {
+		logger.Warn("no password provided")
 		return &App{}
 	}
 
 	authContent, err := getAuth(email, password, *config.country)
 	if err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 		return &App{}
 	}
 
 	app := &App{
-		account:  authContent[`Account`],
-		password: authContent[`Password`],
+		account:  authContent["Account"],
+		password: authContent["Password"],
 		clientID: strings.TrimSpace(*config.clientID),
 	}
 
@@ -97,43 +97,43 @@ func New(config Config) *App {
 
 // Enabled checks if worker is enabled
 func (a *App) Enabled() bool {
-	return a.account != `` && a.password != `` && a.clientID != ``
+	return a.account != "" && a.password != "" && a.clientID != ""
 }
 
 // Start the package
 func (a *App) Start() {
 	if !a.Enabled() {
-		logger.Warn(`no config provided`)
+		logger.Warn("no config provided")
 		return
 	}
 
 	devices, err := a.getDevices(nil)
 	if err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 		return
 	}
 
 	services, err := findDysonMQTTServices()
 	if err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 		return
 	}
 
 	for _, device := range devices {
-		if service, ok := services[fmt.Sprintf(`%s_%s`, device.ProductType, device.Serial)]; ok {
+		if service, ok := services[fmt.Sprintf("%s_%s", device.ProductType, device.Serial)]; ok {
 			device.Service = service
 
 			if err := device.ConnectToMQTT(a.clientID); err != nil {
-				logger.Error(`%+v`, err)
+				logger.Error("%+v", err)
 				continue
 			}
 
 			if err := device.SubcribeToStatus(); err != nil {
-				logger.Error(`%+v`, err)
+				logger.Error("%+v", err)
 				continue
 			}
 		} else {
-			logger.Warn(`no service found for %s`, device.Serial)
+			logger.Warn("no service found for %s", device.Serial)
 		}
 	}
 
@@ -184,5 +184,5 @@ func (a *App) workerListDevices(ctx context.Context, initial *provider.WorkerMes
 		return nil, errors.WithStack(err)
 	}
 
-	return provider.NewWorkerMessage(initial, dyson.Source, dyson.WorkerDevicesAction, fmt.Sprintf(`%s`, payload)), nil
+	return provider.NewWorkerMessage(initial, dyson.Source, dyson.WorkerDevicesAction, fmt.Sprintf("%s", payload)), nil
 }

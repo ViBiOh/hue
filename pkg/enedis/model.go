@@ -2,10 +2,10 @@ package enedis
 
 const (
 	// Source constant for worker message
-	Source = `enedis`
+	Source = "enedis"
 
 	// ConsumptionAction action for getting consumption data
-	ConsumptionAction = `consumption`
+	ConsumptionAction = "consumption"
 )
 
 // Consumption describes consumption response

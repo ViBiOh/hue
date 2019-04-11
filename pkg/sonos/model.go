@@ -2,13 +2,13 @@ package sonos
 
 const (
 	// VolumeAction action for setting volume
-	VolumeAction = `volume`
+	VolumeAction = "volume"
 
 	// MuteAction action for setting mute
-	MuteAction = `mute`
+	MuteAction = "mute"
 
 	// Source constant for worker message
-	Source = `sonos`
+	Source = "sonos"
 )
 
 // Household is a set of players on the same network under an account

@@ -21,11 +21,11 @@ func (a *App) Login() error {
 	}
 
 	values := url.Values{}
-	values.Add(`IDToken1`, a.email)
-	values.Add(`IDToken2`, a.password)
-	values.Add(`SunQueryParamsString`, `cmVhbG09cGFydGljdWxpZXJz`)
-	values.Add(`encoded`, `true`)
-	values.Add(`gx_charset`, `UTF-8`)
+	values.Add("IDToken1", a.email)
+	values.Add("IDToken2", a.password)
+	values.Add("SunQueryParamsString", "cmVhbG09cGFydGljdWxpZXJz")
+	values.Add("encoded", "true")
+	values.Add("gx_charset", "UTF-8")
 
 	ctx := context.Background()
 	_, _, headers, err := request.PostForm(ctx, loginURL, values, nil)
@@ -34,17 +34,17 @@ func (a *App) Login() error {
 	}
 
 	authCookies := strings.Builder{}
-	for _, cookie := range headers[`Set-Cookie`] {
-		if !strings.Contains(cookie, `Domain=.enedis.fr`) {
+	for _, cookie := range headers["Set-Cookie"] {
+		if !strings.Contains(cookie, "Domain=.enedis.fr") {
 			continue
 		}
 
-		if strings.Contains(cookie, `Expires=Thu, 01-Jan-1970 00:00:10 GMT`) {
+		if strings.Contains(cookie, "Expires=Thu, 01-Jan-1970 00:00:10 GMT") {
 			continue
 		}
 
 		if authCookies.Len() != 0 {
-			safeWrite(&authCookies, `;`)
+			safeWrite(&authCookies, ";")
 		}
 		safeWrite(&authCookies, getCookieValue(cookie))
 	}
@@ -61,26 +61,26 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	}
 
 	header := http.Header{}
-	header.Set(`Cookie`, a.cookie)
+	header.Set("Cookie", a.cookie)
 
 	params := url.Values{}
-	params.Add(`p_p_id`, `lincspartdisplaycdc_WAR_lincspartcdcportlet`)
-	params.Add(`p_p_lifecycle`, `2`)
-	params.Add(`p_p_state`, `normal`)
-	params.Add(`p_p_mode`, `view`)
-	params.Add(`p_p_resource_id`, `urlCdcHeure`)
-	params.Add(`p_p_cacheability`, `cacheLevelPage`)
-	params.Add(`p_p_col_id`, `column-1`)
-	params.Add(`p_p_col_count`, `2`)
+	params.Add("p_p_id", "lincspartdisplaycdc_WAR_lincspartcdcportlet")
+	params.Add("p_p_lifecycle", "2")
+	params.Add("p_p_state", "normal")
+	params.Add("p_p_mode", "view")
+	params.Add("p_p_resource_id", "urlCdcHeure")
+	params.Add("p_p_cacheability", "cacheLevelPage")
+	params.Add("p_p_col_id", "column-1")
+	params.Add("p_p_col_count", "2")
 
 	startDate := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
 	endDate := time.Now().Format(frenchDateFormat)
 
 	values := url.Values{}
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut`, startDate)
-	params.Add(`_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin`, endDate)
+	params.Add("_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut", startDate)
+	params.Add("_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateFin", endDate)
 
-	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf(`%s%s`, consumeURL, params.Encode()), values, header)
+	body, status, headers, err := request.PostForm(ctx, fmt.Sprintf("%s%s", consumeURL, params.Encode()), values, header)
 	if err != nil || status == http.StatusFound {
 		if first {
 			a.appendSessionCookie(headers)

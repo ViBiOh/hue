@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	refreshTokenURL = `https://api.sonos.com/login/v3/oauth/access`
+	refreshTokenURL = "https://api.sonos.com/login/v3/oauth/access"
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
@@ -21,12 +21,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 	defer a.mutex.Unlock()
 
 	payload := url.Values{
-		`grant_type`:    []string{`refresh_token`},
-		`refresh_token`: []string{a.refreshToken},
+		"grant_type":    []string{"refresh_token"},
+		"refresh_token": []string{a.refreshToken},
 	}
 
 	headers := http.Header{
-		`Authorization`: []string{request.GenerateBasicAuth(a.clientID, a.clientSecret)},
+		"Authorization": []string{request.GenerateBasicAuth(a.clientID, a.clientSecret)},
 	}
 
 	body, _, _, err := request.PostForm(ctx, refreshTokenURL, payload, headers)
@@ -55,7 +55,7 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	}
 
 	a.mutex.RLock()
-	req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 	a.mutex.RUnlock()
 
 	body, status, _, err := request.DoAndRead(ctx, req)
@@ -65,7 +65,7 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 				return nil, err
 			}
 
-			req.Header.Set(`Authorization`, fmt.Sprintf(`Bearer %s`, a.accessToken))
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 
 			body, _, _, err = request.DoAndRead(ctx, req)
 		}

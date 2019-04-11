@@ -15,12 +15,12 @@ import (
 
 const (
 	// WorkerErrorAction for sending back error
-	WorkerErrorAction = `error`
+	WorkerErrorAction = "error"
 )
 
 var (
 	// ErrWorkerUnknownAction is default error when a worker provider doesn't know how to handle action
-	ErrWorkerUnknownAction = errors.New(`unknown action`)
+	ErrWorkerUnknownAction = errors.New("unknown action")
 )
 
 // Message rendered to user
@@ -83,7 +83,7 @@ type Starter interface {
 // NewWorkerMessage instantiates a worker message
 func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) *WorkerMessage {
 	var id string
-	if root == nil || strings.TrimSpace(root.ID) == `` {
+	if root == nil || strings.TrimSpace(root.ID) == "" {
 		id = tools.Sha1(payload)
 	} else {
 		id = root.ID
@@ -100,12 +100,12 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 // WriteMessage writes content as text message
 func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
-		return errors.New(`no connection provided for sending: %+v`, message)
+		return errors.New("no connection provided for sending: %+v", message)
 	}
 
 	message.Tracing = make(map[string]string)
 	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
-		logger.Error(`%+v`, errors.WithStack(err))
+		logger.Error("%+v", errors.WithStack(err))
 	}
 
 	messagePayload, err := json.Marshal(message)

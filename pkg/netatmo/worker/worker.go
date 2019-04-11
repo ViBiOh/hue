@@ -38,10 +38,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[netatmo] Access Token`),
-		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[netatmo] Refresh Token`),
-		clientID:     fs.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[netatmo] Client ID`),
-		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[netatmo] Client Secret`),
+		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf("%sAccessToken", prefix)), "", "[netatmo] Access Token"),
+		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf("%sRefreshToken", prefix)), "", "[netatmo] Refresh Token"),
+		clientID:     fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "", "[netatmo] Client ID"),
+		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf("%sClientSecret", prefix)), "", "[netatmo] Client Secret"),
 	}
 }
 
@@ -57,7 +57,7 @@ func New(config Config) *App {
 
 // Enabled checks if worker is enabled
 func (a *App) Enabled() bool {
-	return a.clientID != `` && a.clientSecret != `` && a.accessToken != `` && a.refreshToken != ``
+	return a.clientID != "" && a.clientSecret != "" && a.accessToken != "" && a.refreshToken != ""
 }
 
 // GetSource returns source name
@@ -82,7 +82,7 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, fmt.Sprintf(`%s`, payload))
+	message := provider.NewWorkerMessage(nil, netatmo.Source, netatmo.DevicesAction, fmt.Sprintf("%s", payload))
 
 	return []*provider.WorkerMessage{message}, nil
 }

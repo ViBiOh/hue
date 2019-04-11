@@ -12,7 +12,7 @@ import (
 )
 
 func (a *App) getDevices(ctx context.Context) ([]*dyson.Device, error) {
-	deviceRequest, err := http.NewRequest(http.MethodGet, fmt.Sprintf(`%s%s`, API, devicesEndpoint), nil)
+	deviceRequest, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", API, devicesEndpoint), nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

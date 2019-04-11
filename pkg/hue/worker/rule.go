@@ -9,11 +9,11 @@ import (
 
 func (a *App) listRules(ctx context.Context) (map[string]*hue.Rule, error) {
 	var response map[string]*hue.Rule
-	return response, get(ctx, fmt.Sprintf(`%s/rules`, a.bridgeURL), &response)
+	return response, get(ctx, fmt.Sprintf("%s/rules", a.bridgeURL), &response)
 }
 
 func (a *App) createRule(ctx context.Context, o *hue.Rule) error {
-	id, err := create(ctx, fmt.Sprintf(`%s/rules`, a.bridgeURL), o)
+	id, err := create(ctx, fmt.Sprintf("%s/rules", a.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -24,11 +24,11 @@ func (a *App) createRule(ctx context.Context, o *hue.Rule) error {
 }
 
 func (a *App) updateRule(ctx context.Context, o *hue.Rule) error {
-	return update(ctx, fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, o.ID), o)
+	return update(ctx, fmt.Sprintf("%s/rules/%s", a.bridgeURL, o.ID), o)
 }
 
 func (a *App) deleteRule(ctx context.Context, id string) error {
-	return delete(ctx, fmt.Sprintf(`%s/rules/%s`, a.bridgeURL, id))
+	return delete(ctx, fmt.Sprintf("%s/rules/%s", a.bridgeURL, id))
 }
 
 func (a *App) cleanRules(ctx context.Context) error {

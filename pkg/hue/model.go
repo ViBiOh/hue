@@ -14,37 +14,37 @@ const (
 	alldays = weekday | weekend
 
 	// Source constant for worker message
-	Source = `hue`
+	Source = "hue"
 )
 
 var (
 	// States available states of lights
 	States = map[string]map[string]interface{}{
-		`off`: {
-			`on`:             false,
-			`transitiontime`: 30,
+		"off": {
+			"on":             false,
+			"transitiontime": 30,
 		},
-		`long_off`: {
-			`on`:             false,
-			`transitiontime`: 300,
+		"long_off": {
+			"on":             false,
+			"transitiontime": 300,
 		},
-		`on`: {
-			`on`:             true,
-			`transitiontime`: 30,
-			`sat`:            0,
-			`bri`:            254,
+		"on": {
+			"on":             true,
+			"transitiontime": 30,
+			"sat":            0,
+			"bri":            254,
 		},
-		`dimmed`: {
-			`on`:             true,
-			`transitiontime`: 30,
-			`sat`:            0,
-			`bri`:            0,
+		"dimmed": {
+			"on":             true,
+			"transitiontime": 30,
+			"sat":            0,
+			"bri":            0,
 		},
-		`long_on`: {
-			`on`:             true,
-			`transitiontime`: 3000,
-			`sat`:            0,
-			`bri`:            254,
+		"long_on": {
+			"on":             true,
+			"transitiontime": 3000,
+			"sat":            0,
+			"bri":            254,
 		},
 	}
 )

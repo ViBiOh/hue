@@ -11,7 +11,7 @@ import (
 
 const (
 	// Source constant for worker message
-	Source = `dyson`
+	Source = "dyson"
 )
 
 // App of package
@@ -32,7 +32,7 @@ func New() *App {
 // Handler create Handler with given App context
 func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: `error`, Content: fmt.Sprintf(`[%s] Unknown command`, Source)})
+		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown command", Source)})
 	})
 }
 

@@ -39,10 +39,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		bridgeIP: fs.String(tools.ToCamel(fmt.Sprintf(`%sBridgeIP`, prefix)), ``, `[hue] IP of Bridge`),
-		username: fs.String(tools.ToCamel(fmt.Sprintf(`%sUsername`, prefix)), ``, `[hue] Username for Bridge`),
-		config:   fs.String(tools.ToCamel(fmt.Sprintf(`%sConfig`, prefix)), ``, `[hue] Configuration filename`),
-		clean:    fs.Bool(tools.ToCamel(fmt.Sprintf(`%sClean`, prefix)), false, `[hue] Clean Hue`),
+		bridgeIP: fs.String(tools.ToCamel(fmt.Sprintf("%sBridgeIP", prefix)), "", "[hue] IP of Bridge"),
+		username: fs.String(tools.ToCamel(fmt.Sprintf("%sUsername", prefix)), "", "[hue] Username for Bridge"),
+		config:   fs.String(tools.ToCamel(fmt.Sprintf("%sConfig", prefix)), "", "[hue] Configuration filename"),
+		clean:    fs.Bool(tools.ToCamel(fmt.Sprintf("%sClean", prefix)), false, "[hue] Clean Hue"),
 	}
 }
 
@@ -52,10 +52,10 @@ func New(config Config) (*App, error) {
 
 	app := &App{
 		bridgeUsername: username,
-		bridgeURL:      fmt.Sprintf(`http://%s/api/%s`, *config.bridgeIP, username),
+		bridgeURL:      fmt.Sprintf("http://%s/api/%s", *config.bridgeIP, username),
 	}
 
-	if *config.config != `` {
+	if *config.config != "" {
 		rawConfig, err := ioutil.ReadFile(*config.config)
 		if err != nil {
 			return app, errors.WithStack(err)
@@ -71,28 +71,28 @@ func New(config Config) (*App, error) {
 
 // Enabled checks if worker is enabled
 func (a *App) Enabled() bool {
-	return a.bridgeUsername != ``
+	return a.bridgeUsername != ""
 }
 
 // Start the App
 func (a *App) Start() {
 	if a.config == nil {
-		logger.Warn(`no config provided`)
+		logger.Warn("no config provided")
 		return
 	}
 
 	ctx := context.Background()
 
 	if err := a.cleanSchedules(ctx); err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 	}
 
 	if err := a.cleanRules(ctx); err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 	}
 
 	if err := a.cleanScenes(ctx); err != nil {
-		logger.Error(`%+v`, err)
+		logger.Error("%+v", err)
 	}
 
 	a.configureSchedules(ctx, a.config.Schedules)
@@ -135,7 +135,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerListGroups(ctx, p)
 	}
 
-	return nil, errors.New(`unknown request: %s`, p)
+	return nil, errors.New("unknown request: %s", p)
 }
 
 // Ping send to worker updated data
@@ -164,17 +164,17 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 }
 
 func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
-	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
+	if parts := strings.Split(p.Payload, "|"); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
-			return errors.New(`unknown state %s`, parts[1])
+			return errors.New("unknown state %s", parts[1])
 		}
 
 		if err := a.updateGroupState(ctx, parts[0], state); err != nil {
 			return err
 		}
 	} else {
-		return errors.New(`invalid state request: %s`, p.Payload)
+		return errors.New("invalid state request: %s", p.Payload)
 	}
 
 	return nil
@@ -188,8 +188,8 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 			return errors.WithStack(err)
 		}
 
-		if config.ID == `` {
-			return errors.New(`ID is missing`)
+		if config.ID == "" {
+			return errors.New("ID is missing")
 		}
 
 		return a.updateSchedule(ctx, &config)
@@ -207,7 +207,7 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 			return err
 		}
 
-		if sceneID, ok := schedule.Command.Body[`scene`]; ok {
+		if sceneID, ok := schedule.Command.Body["scene"]; ok {
 			if err := a.deleteScene(ctx, sceneID.(string)); err != nil {
 				return err
 			}
@@ -216,7 +216,7 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		return nil
 	}
 
-	return errors.New(`unknown schedule command`)
+	return errors.New("unknown schedule command")
 }
 
 func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -230,7 +230,7 @@ func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMess
 		return nil, errors.WithStack(err)
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf(`%s`, payload)), nil
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf("%s", payload)), nil
 }
 
 func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -244,7 +244,7 @@ func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMess
 		return nil, errors.WithStack(err)
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf(`%s`, payload)), nil
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf("%s", payload)), nil
 }
 
 func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -258,7 +258,7 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 		return nil, errors.WithStack(err)
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf(`%s`, payload)), nil
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf("%s", payload)), nil
 }
 
 func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -272,5 +272,5 @@ func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMes
 		return nil, errors.WithStack(err)
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf(`%s`, payload)), nil
+	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf("%s", payload)), nil
 }

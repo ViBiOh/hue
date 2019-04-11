@@ -8,13 +8,13 @@ import (
 )
 
 func (a *App) getMetrics(prefix, suffix string) prometheus.Gauge {
-	gauge, ok := a.prometheusCollectors[fmt.Sprintf(`%s_%s`, prefix, suffix)]
+	gauge, ok := a.prometheusCollectors[fmt.Sprintf("%s_%s", prefix, suffix)]
 	if !ok {
 		gauge = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: fmt.Sprintf(`%s_%s_%s`, strings.ToLower(Source), prefix, suffix),
+			Name: fmt.Sprintf("%s_%s_%s", strings.ToLower(Source), prefix, suffix),
 		})
 
-		a.prometheusCollectors[fmt.Sprintf(`%s_%s`, prefix, suffix)] = gauge
+		a.prometheusCollectors[fmt.Sprintf("%s_%s", prefix, suffix)] = gauge
 		prometheus.MustRegister(gauge)
 	}
 
@@ -24,10 +24,10 @@ func (a *App) getMetrics(prefix, suffix string) prometheus.Gauge {
 func (a *App) updatePrometheus() {
 	for _, device := range a.devices {
 		deviceName := strings.ToLower(device.Name)
-		deviceName = strings.Replace(deviceName, ` `, `_`, -1)
-		deviceName = strings.Replace(deviceName, `+`, `_`, -1)
+		deviceName = strings.Replace(deviceName, " ", "_", -1)
+		deviceName = strings.Replace(deviceName, "+", "_", -1)
 
-		a.getMetrics(deviceName, `temperature`).Set(float64(device.State.Temperature))
-		a.getMetrics(deviceName, `humidity`).Set(float64(device.State.Humidity))
+		a.getMetrics(deviceName, "temperature").Set(float64(device.State.Temperature))
+		a.getMetrics(deviceName, "humidity").Set(float64(device.State.Humidity))
 	}
 }

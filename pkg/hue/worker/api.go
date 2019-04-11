@@ -11,7 +11,7 @@ import (
 )
 
 func hasError(content []byte) bool {
-	return !bytes.Contains(content, []byte(`success`))
+	return !bytes.Contains(content, []byte("success"))
 }
 
 func get(ctx context.Context, url string, response interface{}) error {
@@ -44,7 +44,7 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 	}
 
 	if hasError(content) {
-		return nil, errors.New(`create error: %s`, content)
+		return nil, errors.New("create error: %s", content)
 	}
 
 	var response []map[string]map[string]*string
@@ -52,7 +52,7 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 		return nil, errors.WithStack(err)
 	}
 
-	return response[0][`success`][`id`], nil
+	return response[0]["success"]["id"], nil
 }
 
 func update(ctx context.Context, url string, payload interface{}) error {
@@ -67,7 +67,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 	}
 
 	if hasError(content) {
-		return errors.New(`update error: %s`, content)
+		return errors.New("update error: %s", content)
 	}
 
 	return nil
@@ -85,7 +85,7 @@ func delete(ctx context.Context, url string) error {
 	}
 
 	if hasError(content) {
-		return errors.New(`delete error: %s`, content)
+		return errors.New("delete error: %s", content)
 	}
 
 	return nil

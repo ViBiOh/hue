@@ -48,29 +48,29 @@ func (a *App) GetData() interface{} {
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
 	volume, err := strconv.Atoi(string(body))
 	if err != nil {
-		httperror.BadRequest(w, errors.New(`volume is not an integer: %v`, err))
+		httperror.BadRequest(w, errors.New("volume is not an integer: %v", err))
 		return
 	}
 
-	payload := fmt.Sprintf(`%s|%d`, urlParts[0], volume)
+	payload := fmt.Sprintf("%s|%d", urlParts[0], volume)
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, VolumeAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		httperror.InternalServerError(w, errors.New(`%v`, output.Payload))
+		httperror.InternalServerError(w, errors.New("%v", output.Payload))
 		return
 	}
 }
 
 func (a *App) muteHandler(w http.ResponseWriter, r *http.Request, urlParts []string) {
-	payload := fmt.Sprintf(`%s|%t`, urlParts[0], urlParts[1] == `mute`)
+	payload := fmt.Sprintf("%s|%t", urlParts[0], urlParts[1] == "mute")
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, MuteAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: `error`, Content: fmt.Sprintf(`%s`, output.Payload)})
+		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: "error", Content: fmt.Sprintf("%s", output.Payload)})
 		return
 	}
 
-	a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: `success`, Content: `Mute state changed`})
+	a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{Level: "success", Content: "Mute state changed"})
 }
 
 func (a *App) groupsHandler() http.Handler {
@@ -83,7 +83,7 @@ func (a *App) groupsHandler() http.Handler {
 				return
 			}
 
-			urlParts := strings.Split(strings.Trim(r.URL.Path, `/`), `/`)
+			urlParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 
 			if len(urlParts) == 2 {
 				if urlParts[1] == VolumeAction {
@@ -105,10 +105,10 @@ func (a *App) groupsHandler() http.Handler {
 
 // Handler for request. Should be use with net/http
 func (a *App) Handler() http.Handler {
-	strippedGroupsHandler := http.StripPrefix(`/groups`, a.groupsHandler())
+	strippedGroupsHandler := http.StripPrefix("/groups", a.groupsHandler())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, `/groups`) {
+		if strings.HasPrefix(r.URL.Path, "/groups") {
 			strippedGroupsHandler.ServeHTTP(w, r)
 			return
 		}
@@ -124,11 +124,11 @@ func (a *App) GetWorkerSource() string {
 
 // WorkerHandler handler worker requests
 func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
-	if p.Action == `households` {
+	if p.Action == "households" {
 		return a.handleHouseholdsWorker(p)
 	}
 
-	if p.Action == `mute` {
+	if p.Action == "mute" {
 		return a.handleMuteWorker(p)
 	}
 
@@ -153,7 +153,7 @@ func (a *App) handleMuteWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
-	parts := strings.Split(message.Payload, `|`)
+	parts := strings.Split(message.Payload, "|")
 	if len(parts) == 2 {
 		muted, err := strconv.ParseBool(parts[1])
 		if err != nil {

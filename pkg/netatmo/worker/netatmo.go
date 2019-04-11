@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	netatmoGetStationsDataURL = `https://api.netatmo.com/api/getstationsdata?access_token=`
-	netatmoRefreshTokenURL    = `https://api.netatmo.com/oauth2/token`
+	netatmoGetStationsDataURL = "https://api.netatmo.com/api/getstationsdata?access_token="
+	netatmoRefreshTokenURL    = "https://api.netatmo.com/oauth2/token"
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
@@ -22,10 +22,10 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 	defer a.mutex.Unlock()
 
 	payload := url.Values{
-		`grant_type`:    []string{`refresh_token`},
-		`refresh_token`: []string{a.refreshToken},
-		`client_id`:     []string{a.clientID},
-		`client_secret`: []string{a.clientSecret},
+		"grant_type":    []string{"refresh_token"},
+		"refresh_token": []string{a.refreshToken},
+		"client_id":     []string{a.clientID},
+		"client_secret": []string{a.clientSecret},
 	}
 
 	body, _, _, err := request.PostForm(ctx, netatmoRefreshTokenURL, payload, nil)
@@ -49,12 +49,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 }
 
 func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.StationsData, error) {
-	if a.accessToken == `` {
+	if a.accessToken == "" {
 		return nil, nil
 	}
 
 	a.mutex.RLock()
-	body, status, _, err := request.Get(ctx, fmt.Sprintf(`%s%s`, netatmoGetStationsDataURL, a.accessToken), nil)
+	body, status, _, err := request.Get(ctx, fmt.Sprintf("%s%s", netatmoGetStationsDataURL, a.accessToken), nil)
 	a.mutex.RUnlock()
 
 	if err != nil {

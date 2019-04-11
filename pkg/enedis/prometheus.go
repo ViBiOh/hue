@@ -11,7 +11,7 @@ func (a *App) getMetrics(name string) prometheus.Gauge {
 	gauge, ok := a.prometheusCollectors[name]
 	if !ok {
 		gauge = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: fmt.Sprintf(`%s_%s`, strings.ToLower(Source), name),
+			Name: fmt.Sprintf("%s_%s", strings.ToLower(Source), name),
 		})
 
 		a.prometheusCollectors[name] = gauge
@@ -22,5 +22,5 @@ func (a *App) getMetrics(name string) prometheus.Gauge {
 }
 
 func (a *App) updatePrometheus() {
-	a.getMetrics(`temperature`).Set(2.543)
+	a.getMetrics("temperature").Set(2.543)
 }

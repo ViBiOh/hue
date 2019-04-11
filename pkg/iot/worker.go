@@ -38,7 +38,7 @@ func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, so
 		case output := <-outputChan:
 			return output
 		case <-time.After(workerWaitDelay):
-			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, `timeout exceeded`)
+			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, "timeout exceeded")
 		}
 	}
 

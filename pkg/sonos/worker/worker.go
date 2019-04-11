@@ -40,10 +40,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf(`%sAccessToken`, prefix)), ``, `[sonos] Access Token`),
-		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf(`%sRefreshToken`, prefix)), ``, `[sonos] Refresh Token`),
-		clientID:     fs.String(tools.ToCamel(fmt.Sprintf(`%sClientID`, prefix)), ``, `[sonos] Client ID`),
-		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf(`%sClientSecret`, prefix)), ``, `[sonos] Client Secret`),
+		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf("%sAccessToken", prefix)), "", "[sonos] Access Token"),
+		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf("%sRefreshToken", prefix)), "", "[sonos] Refresh Token"),
+		clientID:     fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "", "[sonos] Client ID"),
+		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf("%sClientSecret", prefix)), "", "[sonos] Client Secret"),
 	}
 }
 
@@ -59,7 +59,7 @@ func New(config Config) *App {
 
 // Enabled checks if worker is enabled
 func (a *App) Enabled() bool {
-	return a.clientID != `` && a.clientSecret != `` && a.accessToken != `` && a.refreshToken != ``
+	return a.clientID != "" && a.clientSecret != "" && a.accessToken != "" && a.refreshToken != ""
 }
 
 // GetSource returns source name
@@ -77,14 +77,14 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerMute(ctx, p)
 	}
 
-	return nil, errors.New(`unknown request: %s`, p)
+	return nil, errors.New("unknown request: %s", p)
 }
 
 func (a *App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
+	if parts := strings.Split(p.Payload, "|"); len(parts) == 2 {
 		volume, err := strconv.Atoi(parts[1])
 		if err != nil {
-			return nil, errors.New(`volume is not an integer`)
+			return nil, errors.New("volume is not an integer")
 		}
 
 		if _, err := a.SetGroupVolume(ctx, parts[0], volume); err != nil {
@@ -96,17 +96,17 @@ func (a *App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*pro
 }
 
 func (a *App) workerMute(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
-	if parts := strings.Split(p.Payload, `|`); len(parts) == 2 {
+	if parts := strings.Split(p.Payload, "|"); len(parts) == 2 {
 		mute, err := strconv.ParseBool(parts[1])
 		if err != nil {
-			return nil, errors.New(`mute is not a boolean`)
+			return nil, errors.New("mute is not a boolean")
 		}
 
 		if err := a.SetGroupMute(ctx, parts[0], mute); err != nil {
 			return nil, err
 		}
 
-		return provider.NewWorkerMessage(p, sonos.Source, "mute", fmt.Sprintf(`%s|%t`, parts[0], mute)), nil
+		return provider.NewWorkerMessage(p, sonos.Source, "mute", fmt.Sprintf("%s|%t", parts[0], mute)), nil
 	}
 
 	return nil, nil
@@ -141,7 +141,7 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	message := provider.NewWorkerMessage(nil, sonos.Source, `households`, fmt.Sprintf(`%s`, payload))
+	message := provider.NewWorkerMessage(nil, sonos.Source, "households", fmt.Sprintf("%s", payload))
 
 	return []*provider.WorkerMessage{message}, nil
 }

@@ -11,7 +11,7 @@ import (
 func (a *App) listScenes(ctx context.Context) (map[string]*hue.Scene, error) {
 	var response map[string]*hue.Scene
 
-	if err := get(ctx, fmt.Sprintf(`%s/scenes`, a.bridgeURL), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), &response); err != nil {
 		return nil, err
 	}
 
@@ -29,7 +29,7 @@ func (a *App) listScenes(ctx context.Context) (map[string]*hue.Scene, error) {
 
 func (a *App) getScene(ctx context.Context, id string) (*hue.Scene, error) {
 	var response hue.Scene
-	if err := get(ctx, fmt.Sprintf(`%s/scenes/%s`, a.bridgeURL, id), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id), &response); err != nil {
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func (a *App) getScene(ctx context.Context, id string) (*hue.Scene, error) {
 }
 
 func (a *App) createScene(ctx context.Context, o *hue.Scene) error {
-	id, err := create(ctx, fmt.Sprintf(`%s/scenes`, a.bridgeURL), o)
+	id, err := create(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -52,12 +52,12 @@ func (a *App) createScene(ctx context.Context, o *hue.Scene) error {
 func (a *App) createSceneFromScheduleConfig(ctx context.Context, config *hue.ScheduleConfig, groups map[string]*hue.Group) (*hue.Scene, error) {
 	group, ok := groups[config.Group]
 	if !ok {
-		return nil, errors.New(`unknown group id: %s`, config.Group)
+		return nil, errors.New("unknown group id: %s", config.Group)
 	}
 
 	state, ok := hue.States[config.State]
 	if !ok {
-		return nil, errors.New(`unknown state name: %s`, config.State)
+		return nil, errors.New("unknown state name: %s", config.State)
 	}
 
 	scene := &hue.Scene{
@@ -82,11 +82,11 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config *hue.Sch
 }
 
 func (a *App) updateSceneLightState(ctx context.Context, o *hue.Scene, lightID string, state map[string]interface{}) error {
-	return update(ctx, fmt.Sprintf(`%s/scenes/%s/lightstates/%s`, a.bridgeURL, o.ID, lightID), state)
+	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", a.bridgeURL, o.ID, lightID), state)
 }
 
 func (a *App) deleteScene(ctx context.Context, id string) error {
-	return delete(ctx, fmt.Sprintf(`%s/scenes/%s`, a.bridgeURL, id))
+	return delete(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id))
 }
 
 func (a *App) cleanScenes(ctx context.Context) error {

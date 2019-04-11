@@ -13,12 +13,12 @@ import (
 
 func getAuth(email, password, country string) (map[string]string, error) {
 	data := url.Values{
-		`Email`:    []string{email},
-		`Password`: []string{password},
+		"Email":    []string{email},
+		"Password": []string{password},
 	}
 
-	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf(`%s%s?country=%s`, API, authenticateEndpoint, country), strings.NewReader(data.Encode()))
-	loginRequest.Header.Add(`Content-Type`, `application/x-www-form-urlencoded`)
+	loginRequest, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s%s?country=%s", API, authenticateEndpoint, country), strings.NewReader(data.Encode()))
+	loginRequest.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	if err != nil {
 		return nil, errors.WithStack(err)

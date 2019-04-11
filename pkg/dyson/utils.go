@@ -15,11 +15,11 @@ func readProductState(value interface{}) string {
 		return strArr[0]
 	}
 
-	return ``
+	return ""
 }
 
 func parseTemperature(rawTemperature string) (float32, error) {
-	if rawTemperature == `OFF` {
+	if rawTemperature == "OFF" {
 		return 0, nil
 	}
 
@@ -32,7 +32,7 @@ func parseTemperature(rawTemperature string) (float32, error) {
 }
 
 func parseHumidity(rawHumidity string) (float32, error) {
-	if rawHumidity == `OFF` {
+	if rawHumidity == "OFF" {
 		return 0, nil
 	}
 

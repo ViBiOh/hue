@@ -28,28 +28,28 @@ import (
 )
 
 const (
-	healthcheckPath = `/health`
-	faviconPath     = `/favicon`
-	huePath         = `/hue`
-	dysonPath       = `/dyson`
-	sonosPath       = `/sonos`
+	healthcheckPath = "/health"
+	faviconPath     = "/favicon"
+	huePath         = "/hue"
+	dysonPath       = "/dyson"
+	sonosPath       = "/sonos"
 )
 
 func main() {
-	fs := flag.NewFlagSet(`iot`, flag.ExitOnError)
+	fs := flag.NewFlagSet("iot", flag.ExitOnError)
 
-	serverConfig := httputils.Flags(fs, ``)
-	alcotestConfig := alcotest.Flags(fs, ``)
-	prometheusConfig := prometheus.Flags(fs, `prometheus`)
-	opentracingConfig := opentracing.Flags(fs, `tracing`)
-	owaspConfig := owasp.Flags(fs, ``)
-	corsConfig := cors.Flags(fs, `cors`)
+	serverConfig := httputils.Flags(fs, "")
+	alcotestConfig := alcotest.Flags(fs, "")
+	prometheusConfig := prometheus.Flags(fs, "prometheus")
+	opentracingConfig := opentracing.Flags(fs, "tracing")
+	owaspConfig := owasp.Flags(fs, "")
+	corsConfig := cors.Flags(fs, "cors")
 
-	mqttConfig := mqtt.Flags(fs, `mqtt`)
-	iotConfig := iot.Flags(fs, ``)
+	mqttConfig := mqtt.Flags(fs, "mqtt")
+	iotConfig := iot.Flags(fs, "")
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
-		logger.Fatal(`%+v`, err)
+		logger.Fatal("%+v", err)
 	}
 
 	alcotest.DoAndExit(alcotestConfig)
@@ -64,7 +64,7 @@ func main() {
 
 	mqttApp, err := mqtt.New(mqttConfig)
 	if err != nil {
-		logger.Fatal(`%+v`, err)
+		logger.Fatal("%+v", err)
 	}
 
 	netatmoApp := netatmo.New()
@@ -73,11 +73,11 @@ func main() {
 	hueApp := hue.New()
 	enedisApp := enedis.New()
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
-		`Netatmo`: netatmoApp,
-		`Hue`:     hueApp,
-		`Dyson`:   dysonApp,
-		`Sonos`:   sonosApp,
-		`Enedis`:  enedisApp,
+		"Netatmo": netatmoApp,
+		"Hue":     hueApp,
+		"Dyson":   dysonApp,
+		"Sonos":   sonosApp,
+		"Enedis":  enedisApp,
 	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
@@ -93,7 +93,7 @@ func main() {
 		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
 			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-			http.ServeFile(w, r, path.Join(*iotConfig.AssetsDirectory, `static`, r.URL.Path))
+			http.ServeFile(w, r, path.Join(*iotConfig.AssetsDirectory, "static", r.URL.Path))
 		} else {
 			iotHandler.ServeHTTP(w, r)
 		}

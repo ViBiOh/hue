@@ -9,28 +9,28 @@ import (
 
 const (
 	// WorkerGroupsAction message prefix for groups command
-	WorkerGroupsAction = `groups`
+	WorkerGroupsAction = "groups"
 
 	// WorkerSchedulesAction message prefix for schedules command
-	WorkerSchedulesAction = `schedules`
+	WorkerSchedulesAction = "schedules"
 
 	// WorkerScenesAction message prefix for scenes command
-	WorkerScenesAction = `scenes`
+	WorkerScenesAction = "scenes"
 
 	// WorkerSensorsAction message prefix for sensors command
-	WorkerSensorsAction = `sensors`
+	WorkerSensorsAction = "sensors"
 
 	// WorkerStateAction message prefix for state command
-	WorkerStateAction = `state`
+	WorkerStateAction = "state"
 
 	// CreateAction message prefix for create command
-	CreateAction = `create`
+	CreateAction = "create"
 
 	// UpdateAction message prefix for update command
-	UpdateAction = `update`
+	UpdateAction = "update"
 
 	// DeleteAction message prefix for delete command
-	DeleteAction = `delete`
+	DeleteAction = "delete"
 )
 
 func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
