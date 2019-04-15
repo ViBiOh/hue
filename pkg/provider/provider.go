@@ -65,8 +65,12 @@ type WorkerProvider interface {
 // Worker is a remote worker in another network, connected to hub
 type Worker interface {
 	GetSource() string
-	Ping(context.Context) ([]*WorkerMessage, error)
 	Enabled() bool
+}
+
+// Pinger is a Worker that respond to frequent Ping
+type Pinger interface {
+	Ping(context.Context) ([]*WorkerMessage, error)
 }
 
 // WorkerHandler is a Worker that can handle request from outside

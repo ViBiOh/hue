@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -13,6 +14,8 @@ const (
 
 func (a *App) registerWorker(worker provider.WorkerProvider) {
 	a.workerProviders[worker.GetWorkerSource()] = worker
+
+	logger.Info("Worker registered for %s", worker.GetWorkerSource())
 }
 
 // SendToWorker sends payload to worker

@@ -9,6 +9,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var (
+	_ provider.WorkerProvider = &App{}
+)
+
 // App of package
 type App struct {
 	devices []*Device

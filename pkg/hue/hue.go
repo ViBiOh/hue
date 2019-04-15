@@ -16,6 +16,10 @@ const (
 	schedulesRequest = "/schedules"
 )
 
+var (
+	_ provider.WorkerProvider = &App{}
+)
+
 // App stores informations and secret of API
 type App struct {
 	hub       provider.Hub

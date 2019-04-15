@@ -55,17 +55,26 @@ func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
 	handlersMap := make(map[string]provider.WorkerHandler, 0)
 
 	for _, worker := range workers {
+		if !worker.Enabled() {
+			logger.Info("Worker %s disabled", worker.GetSource())
+			continue
+		}
+
 		workersMap[worker.GetSource()] = worker
 
 		if handler, ok := worker.(provider.WorkerHandler); ok {
 			handlersMap[worker.GetSource()] = handler
+
+			logger.Info("Registered %s handler", worker.GetSource())
+
+			if _, ok := worker.(provider.Pinger); ok && worker.Enabled() {
+				logger.Info("Ping enabled for %s", worker.GetSource())
+			}
 		}
 
 		if starter, ok := worker.(provider.Starter); ok {
-			if starter.Enabled() {
-				logger.Info("Starting %s", worker.GetSource())
-				starter.Start()
-			}
+			logger.Info("Starting %s", worker.GetSource())
+			starter.Start()
 		}
 	}
 
@@ -84,8 +93,12 @@ func (a *App) pingWorkers() {
 
 	inputs, results, errors := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
-			if worker.Enabled() {
-				return worker.Ping(ctx)
+			if !worker.Enabled() {
+				return nil, nil
+			}
+
+			if pinger, ok := worker.(provider.Pinger); ok {
+				return pinger.Ping(ctx)
 			}
 
 			return nil, nil

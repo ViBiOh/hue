@@ -19,6 +19,7 @@ import (
 
 var (
 	_ provider.Worker        = &App{}
+	_ provider.Pinger        = &App{}
 	_ provider.WorkerHandler = &App{}
 	_ provider.Starter       = &App{}
 )

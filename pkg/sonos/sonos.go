@@ -14,6 +14,10 @@ import (
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
+var (
+	_ provider.WorkerProvider = &App{}
+)
+
 // App of package
 type App struct {
 	hub        provider.Hub

@@ -14,6 +14,10 @@ const (
 	Source = "dyson"
 )
 
+var (
+	_ provider.WorkerProvider = &App{}
+)
+
 // App of package
 type App struct {
 	hub     provider.Hub
