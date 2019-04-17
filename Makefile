@@ -113,6 +113,10 @@ update-worker: deps install systemd
 .PHONY: start-worker
 start-worker:
 	$(WORKER_RUNNER) \
+		-dbHost $(IOT_DATABASE_HOST) \
+		-dbName $(IOT_DATABASE_NAME) \
+		-dbPass $(IOT_DATABASE_PASS) \
+		-dbUser $(IOT_DATABASE_USER) \
 		-mqttClientID "iot-worker-dev" \
 		-mqttServer $(IOT_MQTT_SERVER) \
 		-mqttPort $(IOT_MQTT_PORT) \

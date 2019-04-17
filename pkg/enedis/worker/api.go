@@ -14,6 +14,10 @@ import (
 	"github.com/ViBiOh/iot/pkg/enedis"
 )
 
+const (
+	oneDay = 24 * time.Hour
+)
+
 // Login triggers login
 func (a *App) Login() error {
 	if !a.Enabled() {
@@ -98,6 +102,12 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	var response enedis.Consumption
 	if err := json.Unmarshal(payload, &response); err != nil {
 		return nil, errors.WithStack(err)
+	}
+
+	originDate := time.Now().AddDate(0, 0, -1).Truncate(oneDay)
+
+	for _, value := range response.Graphe.Data {
+		value.Timestamp = originDate.Add(time.Duration(30*(value.Ordre-1)) * time.Minute).Unix()
 	}
 
 	return &response, nil

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ViBiOh/httputils/pkg/db"
 	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
@@ -197,6 +198,7 @@ func main() {
 
 	iotConfig := Flags(fs, "")
 	mqttConfig := mqtt.Flags(fs, "mqtt")
+	dbConfig := db.Flags(fs, "db")
 	hueConfig := hue_worker.Flags(fs, "hue")
 	netatmoConfig := netatmo_worker.Flags(fs, "netatmo")
 	sonosConfig := sonos_worker.Flags(fs, "sonos")
@@ -204,6 +206,11 @@ func main() {
 	enedisConfig := enedis_worker.Flags(fs, "enedis")
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
+		logger.Fatal("%+v", err)
+	}
+
+	apiDB, err := db.New(dbConfig)
+	if err != nil {
 		logger.Fatal("%+v", err)
 	}
 
@@ -221,7 +228,7 @@ func main() {
 	netatmoApp := netatmo_worker.New(netatmoConfig)
 	sonosApp := sonos_worker.New(sonosConfig)
 	dysonApp := dyson_worker.New(dysonConfig)
-	enedisApp := enedis_worker.New(enedisConfig)
+	enedisApp := enedis_worker.New(enedisConfig, apiDB)
 
 	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp, dysonApp, enedisApp}, mqttApp)
 
