@@ -98,7 +98,7 @@ func (a *App) pingWorkers() {
 				return nil, nil
 			}
 
-			if pinger, ok := worker.(provider.Pinger); ok {
+			if pinger, ok := e.(provider.Pinger); ok {
 				return pinger.Ping(ctx)
 			}
 

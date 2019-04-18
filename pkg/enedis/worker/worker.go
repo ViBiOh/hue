@@ -123,7 +123,7 @@ func (a *App) Start() {
 		return
 	}
 
-	a.startScheduler()
+	go a.startScheduler()
 }
 
 // Enabled checks if worker is enabled
