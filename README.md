@@ -30,6 +30,12 @@ Usage of iot-worker:
         [enedis] Email
   -enedisPassword string
         [enedis] Password
+  -enedisSchedulerHour int
+        [enedis] Scheduler hour (default 8)
+  -enedisSchedulerMinute int
+        [enedis] Scheduler minute
+  -enedisTimezone string
+        [enedis] Timezone (default "Europe/Paris")
   -hueBridgeIP string
         [hue] IP of Bridge
   -hueClean

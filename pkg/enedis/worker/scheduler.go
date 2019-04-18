@@ -13,10 +13,10 @@ const (
 )
 
 func (a *App) getTimer(hour int, minute int, interval time.Duration) *time.Timer {
-	currentTime := time.Now()
+	currentTime := time.Now().In(a.location)
 
 	nextTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, minute, 0, 0, a.location)
-	if !nextTime.After(currentTime.In(a.location)) {
+	if !nextTime.After(currentTime) {
 		nextTime = nextTime.Add(interval)
 	}
 

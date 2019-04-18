@@ -73,6 +73,8 @@ func New(config Config, db *sql.DB) *App {
 		password: strings.TrimSpace(*config.password),
 		db:       db,
 		location: location,
+		hour:     *config.hour,
+		minute:   *config.minute,
 	}
 }
 
