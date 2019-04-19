@@ -34,7 +34,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "62297f2e814369e4226a4ebd7a7b524275888e9d"
+  revision = "751b4f2862d35d785f73bef12e38733e610e3b56"
 
 [[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
@@ -249,11 +249,11 @@
     "ed25519/internal/edwards25519",
   ]
   pruneopts = "UT"
-  revision = "f416ebab96af27ca70b6e5c23d6a0747530da626"
+  revision = "df01cb2cc480549d72034218dd98bf97671450ac"
 
 [[projects]]
   branch = "master"
-  digest = "1:765b7dac00f3628eac48f9cea335cf899b8aa1eeafd0d7065b5ba6d958a3d971"
+  digest = "1:2667b9ba7494a297ac88784e9192b9579ad616139428e78b19f840ce924fac91"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -263,15 +263,15 @@
     "ipv6",
   ]
   pruneopts = "UT"
-  revision = "1da14a5a36f220ea3f03470682b737b1dfd5de22"
+  revision = "1f3472d942ba824034fb77cab6a6cfc1bc8a2c3c"
 
 [[projects]]
   branch = "master"
-  digest = "1:28d862f4f9bf2d1976d1d320481bff661b7565eb876d4df2a981f79e7f40e4cd"
+  digest = "1:dbe12489f5cb00d492e275a29528c9e336dbe5af75ce366f81c1911faf10733e"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "12500544f89f9420afe9529ba8940bf72d294972"
+  revision = "e8e3143a4f4a00f1fafef0dd82ba78223281b01b"
 
 [solve-meta]
   analyzer-name = "dep"
