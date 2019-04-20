@@ -3,6 +3,7 @@ Description=iot-local-worker
 After=network.target
 
 [Service]
+CPUQuota=30%
 Type=simple
 User=vibioh
 EnvironmentFile=/home/vibioh/.env
