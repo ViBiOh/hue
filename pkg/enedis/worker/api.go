@@ -59,7 +59,7 @@ func (a *App) Login() error {
 }
 
 // GetData retrieve data
-func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, error) {
+func (a *App) GetData(ctx context.Context, date time.Time, first bool) (*enedis.Consumption, error) {
 	if !a.Enabled() {
 		return nil, nil
 	}
@@ -77,8 +77,8 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	params.Add("p_p_col_id", "column-1")
 	params.Add("p_p_col_count", "2")
 
-	startDate := time.Now().AddDate(0, 0, -1).Format(frenchDateFormat)
-	endDate := time.Now().Format(frenchDateFormat)
+	startDate := date.AddDate(0, 0, -1).Format(frenchDateFormat)
+	endDate := date.Format(frenchDateFormat)
 
 	values := url.Values{}
 	params.Add("_lincspartdisplaycdc_WAR_lincspartcdcportlet_dateDebut", startDate)
@@ -88,7 +88,7 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 	if err != nil || status == http.StatusFound {
 		if first {
 			a.appendSessionCookie(headers)
-			return a.GetData(ctx, false)
+			return a.GetData(ctx, date, false)
 		}
 
 		return nil, err
@@ -104,7 +104,7 @@ func (a *App) GetData(ctx context.Context, first bool) (*enedis.Consumption, err
 		return nil, errors.WithStack(err)
 	}
 
-	originDate := time.Now().AddDate(0, 0, -1).Truncate(oneDay)
+	originDate := date.AddDate(0, 0, -1).Truncate(oneDay)
 
 	for _, value := range response.Graphe.Data {
 		value.Timestamp = originDate.Add(time.Duration(30*(value.Ordre-1)) * time.Minute).Unix()

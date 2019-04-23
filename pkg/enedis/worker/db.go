@@ -2,11 +2,28 @@ package worker
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/ViBiOh/httputils/pkg/db"
 	"github.com/ViBiOh/httputils/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/enedis"
 )
+
+const lastFetch = `
+SELECT
+  MAX(ts)
+FROM
+  enedis_value;
+`
+
+func (a *App) getLastFetch() (lastTimestamp time.Time, err error) {
+	if err = a.db.QueryRow(lastFetch).Scan(&lastTimestamp); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	return
+}
 
 const insertQuery = `
 INSERT INTO

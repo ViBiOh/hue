@@ -83,10 +83,10 @@ func (a *App) GetSource() string {
 	return enedis.Source
 }
 
-func (a *App) fetchAndSaveData(ctx context.Context) (err error) {
+func (a *App) fetchAndSaveData(ctx context.Context, date time.Time) (err error) {
 	var data *enedis.Consumption
 
-	data, err = a.GetData(ctx, true)
+	data, err = a.GetData(ctx, date, true)
 	if err != nil {
 		return
 	}
@@ -121,6 +121,23 @@ func (a *App) Start() {
 	if err := a.Login(); err != nil {
 		logger.Error("%+v", err)
 		return
+	}
+
+	lastTimestamp, err := a.getLastFetch()
+	if err != nil {
+		logger.Error("%+v", err)
+		return
+	}
+
+	nextSync, _ := a.getNextSyncTime(a.hour, a.minute)
+	lastSync := lastTimestamp.Truncate(notificationInterval).AddDate(0, 0, 1)
+	for lastSync.Before(nextSync) {
+		logger.Info("Fetching data for %s", lastSync.Format(frenchDateFormat))
+		if err := a.fetchAndSaveData(context.Background(), lastSync); err != nil {
+			logger.Error("%+v", err)
+		}
+
+		lastSync = lastSync.AddDate(0, 0, 1)
 	}
 
 	go a.startScheduler()

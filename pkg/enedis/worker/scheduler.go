@@ -12,10 +12,14 @@ const (
 	retryInterval        = time.Minute * 10
 )
 
-func (a *App) getTimer(hour int, minute int, interval time.Duration) *time.Timer {
+func (a *App) getNextSyncTime(hour int, minute int) (time.Time, time.Time) {
 	currentTime := time.Now().In(a.location)
 
-	nextTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, minute, 0, 0, a.location)
+	return time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, minute, 0, 0, a.location), currentTime
+}
+
+func (a *App) getTimer(hour int, minute int, interval time.Duration) *time.Timer {
+	nextTime, currentTime := a.getNextSyncTime(a.hour, a.minute)
 	if !nextTime.After(currentTime) {
 		nextTime = nextTime.Add(interval)
 	}
@@ -33,7 +37,7 @@ func (a *App) scheduler() {
 		case <-timer.C:
 			ctx := context.Background()
 
-			if err := a.fetchAndSaveData(ctx); err != nil {
+			if err := a.fetchAndSaveData(ctx, time.Now()); err != nil {
 				logger.Error(`%+v`, err)
 
 				timer.Reset(retryInterval)

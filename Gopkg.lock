@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2c445b678239056acff0cd8f059962c7b480ffc473024c303aa286c1a55e155b"
+  digest = "1:136636a08f76da1ec8fba836d27a2a7fce3d98fdfeddf76cd69ce6338e8bcb44"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -34,7 +34,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "751b4f2862d35d785f73bef12e38733e610e3b56"
+  revision = "6b9bbd27325cd599911510db788a6e0e2cb5379b"
 
 [[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
@@ -249,11 +249,11 @@
     "ed25519/internal/edwards25519",
   ]
   pruneopts = "UT"
-  revision = "df01cb2cc480549d72034218dd98bf97671450ac"
+  revision = "d864b10871cd4370fe574816b489c819c675ccc7"
 
 [[projects]]
   branch = "master"
-  digest = "1:2667b9ba7494a297ac88784e9192b9579ad616139428e78b19f840ce924fac91"
+  digest = "1:3edf03b5eb0f3a5e7a827501421974beef2d9520c5221d280b4ce011de70a5a4"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -263,15 +263,15 @@
     "ipv6",
   ]
   pruneopts = "UT"
-  revision = "1f3472d942ba824034fb77cab6a6cfc1bc8a2c3c"
+  revision = "afa5a82059c6356159f699d81beff22a81842231"
 
 [[projects]]
   branch = "master"
-  digest = "1:dbe12489f5cb00d492e275a29528c9e336dbe5af75ce366f81c1911faf10733e"
+  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "e8e3143a4f4a00f1fafef0dd82ba78223281b01b"
+  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
 
 [solve-meta]
   analyzer-name = "dep"
