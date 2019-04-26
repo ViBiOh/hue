@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:136636a08f76da1ec8fba836d27a2a7fce3d98fdfeddf76cd69ce6338e8bcb44"
+  digest = "1:0454d29079f085a8c1f746f812b239be56fde7334ad06a410d50c4461f19a70d"
   name = "github.com/ViBiOh/httputils"
   packages = [
     "pkg",
@@ -34,7 +34,7 @@
     "pkg/tools",
   ]
   pruneopts = "UT"
-  revision = "6b9bbd27325cd599911510db788a6e0e2cb5379b"
+  revision = "7eafccefb8a03c28c29b284fba75e00137747bc8"
 
 [[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
@@ -45,28 +45,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
-  name = "github.com/cenkalti/backoff"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
-  version = "v2.1.1"
-
-[[projects]]
   digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
   revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
   version = "v1.3.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:643cc48e690e55533a965765610f5e4ab33761261d390483b26518e2962520c7"
-  name = "github.com/grandcat/zeroconf"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c2d1b4121200e6bf8490af806aa6f3dc6d37446b"
 
 [[projects]]
   branch = "master"
@@ -87,14 +71,6 @@
   pruneopts = "UT"
   revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
   version = "v1.0.1"
-
-[[projects]]
-  digest = "1:2b4b4b2e5544c2a11a486c1b631357aa2ddf766e50c1b2483cf809da2c511234"
-  name = "github.com/miekg/dns"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "73601d4aed9d844322611759d7f3619110b7c88e"
-  version = "v1.1.8"
 
 [[projects]]
   branch = "master"
@@ -158,11 +134,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:49b09905e781d7775c086604cc00083e1832d0783f1f421b79f42657c457d029"
+  digest = "1:2ea45e71e0198d6b989ed6302cc4f72a83be1e7d6469d08a59e56a2c447aea55"
   name = "github.com/prometheus/procfs"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8368d24ba045f26503eb745b624d930cbe214c79"
+  revision = "87a4384529e0652f5035fb5cc8095faf73ea9b0b"
 
 [[projects]]
   digest = "1:48c8c8d1fb550f059bcb5696a6f333693e19e3bad4db00d5c9b19f3846629511"
@@ -240,39 +216,6 @@
   pruneopts = "UT"
   revision = "b221999646da8ea48ff0796c2b0191aa510d062e"
 
-[[projects]]
-  branch = "master"
-  digest = "1:d5891c5bca9c62e5d394ca26491d2b710a1dc08cedeb0ca8f9ac4c3305120b02"
-  name = "golang.org/x/crypto"
-  packages = [
-    "ed25519",
-    "ed25519/internal/edwards25519",
-  ]
-  pruneopts = "UT"
-  revision = "d864b10871cd4370fe574816b489c819c675ccc7"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3edf03b5eb0f3a5e7a827501421974beef2d9520c5221d280b4ce011de70a5a4"
-  name = "golang.org/x/net"
-  packages = [
-    "bpf",
-    "internal/iana",
-    "internal/socket",
-    "ipv4",
-    "ipv6",
-  ]
-  pruneopts = "UT"
-  revision = "afa5a82059c6356159f699d81beff22a81842231"
-
-[[projects]]
-  branch = "master"
-  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  pruneopts = "UT"
-  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -293,7 +236,6 @@
     "github.com/ViBiOh/httputils/pkg/server",
     "github.com/ViBiOh/httputils/pkg/templates",
     "github.com/ViBiOh/httputils/pkg/tools",
-    "github.com/grandcat/zeroconf",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/yosssi/gmq/mqtt",

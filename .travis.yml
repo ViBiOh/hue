@@ -28,8 +28,6 @@ jobs:
     script: |
       sed \
         -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
-        -e "s/\${DYSON_EMAIL}/${DYSON_EMAIL}/g" \
-        -e "s/\${DYSON_PASSWORD}/${DYSON_PASSWORD}/g" \
         -e "s/\${IOT_MQTT_SERVER}/${IOT_MQTT_SERVER}/g" \
         -e "s/\${IOT_MQTT_PORT}/${IOT_MQTT_PORT}/g" \
         -e "s/\${IOT_MQTT_USER}/${IOT_MQTT_USER}/g" \

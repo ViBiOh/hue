@@ -6,10 +6,6 @@
   branch = "master"
   name = "github.com/yosssi/gmq"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/grandcat/zeroconf"
-
 [prune]
   go-tests = true
   unused-packages = true

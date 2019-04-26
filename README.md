@@ -18,14 +18,6 @@ Usage of iot-worker:
         [database] Port (default "5432")
   -dbUser string
         [database] User
-  -dysonClientID string
-        [dyson] MQTT Client ID (default "iot")
-  -dysonCountry string
-        [dyson] Link eountry (default "FR")
-  -dysonEmail string
-        [dyson] Link email
-  -dysonPassword string
-        [dyson] Link eassword
   -enedisEmail string
         [enedis] Email
   -enedisPassword string
@@ -82,14 +74,6 @@ Usage of iot-worker:
 
 ```bash
 Usage of iot-worker:
-  -dysonClientID string
-        [dyson] MQTT Client ID (default "iot")
-  -dysonCountry string
-        [dyson] Link eountry (default "FR")
-  -dysonEmail string
-        [dyson] Link email
-  -dysonPassword string
-        [dyson] Link eassword
   -enedisEmail string
         [enedis] Email
   -enedisPassword string

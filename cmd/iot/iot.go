@@ -17,7 +17,6 @@ import (
 	"github.com/ViBiOh/httputils/pkg/owasp"
 	"github.com/ViBiOh/httputils/pkg/prometheus"
 	"github.com/ViBiOh/httputils/pkg/server"
-	"github.com/ViBiOh/iot/pkg/dyson"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/mqtt"
@@ -30,7 +29,6 @@ const (
 	healthcheckPath = "/health"
 	faviconPath     = "/favicon"
 	huePath         = "/hue"
-	dysonPath       = "/dyson"
 	sonosPath       = "/sonos"
 )
 
@@ -68,25 +66,20 @@ func main() {
 
 	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()
-	dysonApp := dyson.New()
 	hueApp := hue.New()
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
 		"Netatmo": netatmoApp,
 		"Hue":     hueApp,
-		"Dyson":   dysonApp,
 		"Sonos":   sonosApp,
 	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
-	dysonHandler := http.StripPrefix(dysonPath, dysonApp.Handler())
 	sonosHandler := http.StripPrefix(sonosPath, sonosApp.Handler())
 	iotHandler := iotApp.Handler()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, dysonPath) {
-			dysonHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
 			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
