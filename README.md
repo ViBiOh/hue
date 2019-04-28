@@ -7,35 +7,29 @@
 ## Usage of Web server
 
 ```bash
-Usage of iot-worker:
-  -dbHost string
-        [database] Host
-  -dbName string
-        [database] Name
-  -dbPass string
-        [database] Pass
-  -dbPort string
-        [database] Port (default "5432")
-  -dbUser string
-        [database] User
-  -enedisEmail string
-        [enedis] Email
-  -enedisPassword string
-        [enedis] Password
-  -enedisSchedulerHour int
-        [enedis] Scheduler hour (default 8)
-  -enedisSchedulerMinute int
-        [enedis] Scheduler minute
-  -enedisTimezone string
-        [enedis] Timezone (default "Europe/Paris")
-  -hueBridgeIP string
-        [hue] IP of Bridge
-  -hueClean
-        [hue] Clean Hue
-  -hueConfig string
-        [hue] Configuration filename
-  -hueUsername string
-        [hue] Username for Bridge
+Usage of iot:
+  -assetsDirectory string
+        [iot] Assets directory (static and templates)
+  -cert string
+        [http] Certificate file
+  -corsCredentials
+        [cors] Access-Control-Allow-Credentials
+  -corsExpose string
+        [cors] Access-Control-Expose-Headers
+  -corsHeaders string
+        [cors] Access-Control-Allow-Headers (default "Content-Type")
+  -corsMethods string
+        [cors] Access-Control-Allow-Methods (default "GET")
+  -corsOrigin string
+        [cors] Access-Control-Allow-Origin (default "*")
+  -csp string
+        [owasp] Content-Security-Policy (default "default-src 'self'; base-uri 'self'")
+  -frameOptions string
+        [owasp] X-Frame-Options (default "deny")
+  -hsts
+        [owasp] Indicate Strict Transport Security (default true)
+  -key string
+        [http] Key file
   -mqttClientID string
         [mqtt] Client ID (default "iot")
   -mqttPass string
@@ -48,36 +42,50 @@ Usage of iot-worker:
         [mqtt] Use TLS (default true)
   -mqttUser string
         [mqtt] Username
-  -netatmoAccessToken string
-        [netatmo] Access Token
-  -netatmoClientID string
-        [netatmo] Client ID
-  -netatmoClientSecret string
-        [netatmo] Client Secret
-  -netatmoRefreshToken string
-        [netatmo] Refresh Token
+  -port int
+        [http] Listen port (default 1080)
+  -prometheus
+        [iot] Expose Prometheus metrics
+  -prometheusPath string
+        [prometheus] Path for exposing metrics (default "/metrics")
   -publish string
-        Topics to publish to, comma separated (default "local,remote")
-  -sonosAccessToken string
-        [sonos] Access Token
-  -sonosClientID string
-        [sonos] Client ID
-  -sonosClientSecret string
-        [sonos] Client Secret
-  -sonosRefreshToken string
-        [sonos] Refresh Token
+        [iot] Topic to publish to (default "worker")
   -subscribe string
-        Topic to subscribe to (default "worker")
+        [iot] Topic to subscribe to
+  -tracingAgent string
+        [tracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
+  -tracingName string
+        [tracing] Service name
+  -url string
+        [alcotest] URL to check
+  -userAgent string
+        [alcotest] User-Agent for check (default "Golang alcotest")
 ```
 
 ## Usage of IoT worker
 
 ```bash
 Usage of iot-worker:
+  -dbHost string
+        [db] Host
+  -dbName string
+        [db] Name
+  -dbPass string
+        [db] Pass
+  -dbPort string
+        [db] Port (default "5432")
+  -dbUser string
+        [db] User
   -enedisEmail string
         [enedis] Email
   -enedisPassword string
         [enedis] Password
+  -enedisSchedulerHour int
+        [enedis] Scheduler hour (default 8)
+  -enedisSchedulerMinute int
+        [enedis] Scheduler minute
+  -enedisTimezone string
+        [enedis] Timezone (default "Europe/Paris")
   -hueBridgeIP string
         [hue] IP of Bridge
   -hueClean

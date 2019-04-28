@@ -88,8 +88,8 @@ bench:
 ## build: Build binary
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) cmd/iot/iot.go
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker cmd/worker/worker.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) $(SERVER_SOURCE)
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker $(WORKER_SOURCE)
 
 ## install: Install binary in GOPATH
 .PHONY: install
@@ -150,6 +150,5 @@ start:
 		-mqttPass $(IOT_MQTT_PASS) \
 		-subscribe "dev" \
 		-publish "dev-worker" \
-		-tls=false \
 		-prometheus \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
