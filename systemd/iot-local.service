@@ -7,7 +7,7 @@ CPUQuota=30%
 Type=simple
 User=root
 EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/iot -mqttClientID iot-local -mqttServer ${IOT_MQTT_SERVER} -mqttPort ${IOT_MQTT_PORT} -mqttUser ${IOT_MQTT_USER} -mqttPass ${IOT_MQTT_PASS} -subscribe local -tls=false -port 80 -assetsDirectory /home/vibioh/code/src/github.com/ViBiOh/iot/ -csp "default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
+ExecStart=/home/vibioh/code/bin/iot -mqttClientID iot-local -mqttServer ${IOT_MQTT_SERVER} -mqttPort ${IOT_MQTT_PORT} -mqttUser ${IOT_MQTT_USER} -mqttPass ${IOT_MQTT_PASS} -subscribe local -port 80 -assetsDirectory /home/vibioh/code/src/github.com/ViBiOh/iot/ -csp "default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
 Restart=always
 RestartSec=60s
 
