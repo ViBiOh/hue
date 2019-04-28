@@ -16,7 +16,7 @@ FROM scratch
 ENV APP_NAME iot
 EXPOSE 1080
 
-HEALTHCHECK --retries=10 CMD [ "/iot", "-url", "https://localhost:1080/health" ]
+HEALTHCHECK --retries=10 CMD [ "/iot", "-url", "http://localhost:1080/health" ]
 ENTRYPOINT [ "/iot" ]
 
 COPY templates/ /templates
