@@ -27,7 +27,6 @@ type Config struct {
 	bridgeIP *string
 	username *string
 	config   *string
-	clean    *bool
 }
 
 // App of package
@@ -43,7 +42,6 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 		bridgeIP: fs.String(tools.ToCamel(fmt.Sprintf("%sBridgeIP", prefix)), "", "[hue] IP of Bridge"),
 		username: fs.String(tools.ToCamel(fmt.Sprintf("%sUsername", prefix)), "", "[hue] Username for Bridge"),
 		config:   fs.String(tools.ToCamel(fmt.Sprintf("%sConfig", prefix)), "", "[hue] Configuration filename"),
-		clean:    fs.Bool(tools.ToCamel(fmt.Sprintf("%sClean", prefix)), false, "[hue] Clean Hue"),
 	}
 }
 

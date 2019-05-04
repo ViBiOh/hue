@@ -7,7 +7,7 @@ CPUQuota=30%
 Type=simple
 User=vibioh
 EnvironmentFile=/home/vibioh/.env
-ExecStart=/home/vibioh/code/bin/worker -mqttClientID iot-worker -mqttServer ${IOT_MQTT_SERVER} -mqttPort ${IOT_MQTT_PORT} -mqttUser ${IOT_MQTT_USER} -mqttPass ${IOT_MQTT_PASS} -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -hueConfig /home/vibioh/code/src/github.com/ViBiOh/iot/hue.json -hueClean -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken ${SONOS_ACCESS_TOKEN} -sonosClientID ${SONOS_CLIENT_ID} -sonosClientSecret ${SONOS_CLIENT_SECRET} -sonosRefreshToken ${SONOS_REFRESH_TOKEN} -enedisEmail ${ENEDIS_EMAIL} -enedisPassword ${ENEDIS_PASSWORD} -dbHost ${IOT_DATABASE_HOST} -dbName ${IOT_DATABASE_NAME} -dbPass ${IOT_DATABASE_PASS} -dbUser ${IOT_DATABASE_USER}
+ExecStart=/home/vibioh/code/bin/worker -mqttClientID iot-worker -mqttServer ${IOT_MQTT_SERVER} -mqttPort ${IOT_MQTT_PORT} -mqttUser ${IOT_MQTT_USER} -mqttPass ${IOT_MQTT_PASS} -hueBridgeIP ${BRIDGE_IP} -hueUsername ${BRIDGE_USERNAME} -netatmoAccessToken ${NETATMO_ACCESS_TOKEN} -netatmoClientID ${NETATMO_CLIENT_ID} -netatmoClientSecret ${NETATMO_CLIENT_SECRET} -netatmoRefreshToken ${NETATMO_REFRESH_TOKEN} -sonosAccessToken ${SONOS_ACCESS_TOKEN} -sonosClientID ${SONOS_CLIENT_ID} -sonosClientSecret ${SONOS_CLIENT_SECRET} -sonosRefreshToken ${SONOS_REFRESH_TOKEN} -enedisEmail ${ENEDIS_EMAIL} -enedisPassword ${ENEDIS_PASSWORD} -dbHost ${IOT_DATABASE_HOST} -dbName ${IOT_DATABASE_NAME} -dbPass ${IOT_DATABASE_PASS} -dbUser ${IOT_DATABASE_USER}
 Restart=always
 RestartSec=60s
 
