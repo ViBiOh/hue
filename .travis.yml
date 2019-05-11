@@ -25,8 +25,8 @@ jobs:
 
   - stage: Deploy
 
-    script:
-    - sed \
+    script: |
+     sed \
         -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
         -e "s/\${IOT_MQTT_SERVER}/${IOT_MQTT_SERVER}/g" \
         -e "s/\${IOT_MQTT_PORT}/${IOT_MQTT_PORT}/g" \
