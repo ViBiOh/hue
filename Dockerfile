@@ -15,8 +15,8 @@ EXPOSE 1080
 HEALTHCHECK --retries=10 CMD [ "/iot", "-url", "http://localhost:1080/health" ]
 ENTRYPOINT [ "/iot" ]
 
-ARG VERSION
-ENV VERSION=${VERSION}
+ARG APP_VERSION
+ENV VERSION=${APP_VERSION}
 
 COPY templates/ /templates
 COPY static/ /static
