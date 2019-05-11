@@ -5,28 +5,28 @@ jobs:
     sudo: required
     services:
     - docker
-    script: docker build -t "vibioh/$(make name):$(make version)" .
-    after_success: |
-      echo "${DOCKER_PASS}" | docker login -u vibioh --password-stdin
-      docker push "vibioh/$(make name):$(make version)"
+    script: docker build --build-arg CODECOV_TOKEN --build-arg "VERSION=$(make version)" -t "vibioh/$(make name):$(make version)" .
+    after_success:
+    - echo "${DOCKER_PASS}" | docker login -u vibioh --password-stdin
+    - docker push "vibioh/$(make name):$(make version)"
 
   - stage: Publish
 
     sudo: required
     services:
     - docker
-    script: |
-      echo ${DOCKER_PASS} | docker login -u vibioh --password-stdin
-      docker pull "vibioh/$(make name):$(make version)"
-      docker tag "vibioh/$(make name):$(make version)" "vibioh/$(make name):latest"
-      docker push "vibioh/$(make name):latest"
-    after_success: |
-      curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
+    script:
+    - echo ${DOCKER_PASS} | docker login -u vibioh --password-stdin
+    - docker pull "vibioh/$(make name):$(make version)"
+    - docker tag "vibioh/$(make name):$(make version)" "vibioh/$(make name):latest"
+    - docker push "vibioh/$(make name):latest"
+    after_success:
+    - curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
 
   - stage: Deploy
 
-    script: |
-      sed \
+    script:
+    - sed \
         -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
         -e "s/\${IOT_MQTT_SERVER}/${IOT_MQTT_SERVER}/g" \
         -e "s/\${IOT_MQTT_PORT}/${IOT_MQTT_PORT}/g" \
