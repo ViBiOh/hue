@@ -68,26 +68,6 @@ Usage of iot:
 
 ```bash
 Usage of iot-worker:
-  -dbHost string
-        [db] Host
-  -dbName string
-        [db] Name
-  -dbPass string
-        [db] Pass
-  -dbPort string
-        [db] Port (default "5432")
-  -dbUser string
-        [db] User
-  -enedisEmail string
-        [enedis] Email
-  -enedisPassword string
-        [enedis] Password
-  -enedisSchedulerHour int
-        [enedis] Scheduler hour (default 8)
-  -enedisSchedulerMinute int
-        [enedis] Scheduler minute
-  -enedisTimezone string
-        [enedis] Timezone (default "Europe/Paris")
   -hueBridgeIP string
         [hue] IP of Bridge
   -hueClean

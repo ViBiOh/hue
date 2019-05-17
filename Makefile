@@ -107,10 +107,6 @@ update-worker: install systemd
 .PHONY: start-worker
 start-worker:
 	$(WORKER_RUNNER) \
-		-dbHost $(IOT_DATABASE_HOST) \
-		-dbName $(IOT_DATABASE_NAME) \
-		-dbPass $(IOT_DATABASE_PASS) \
-		-dbUser $(IOT_DATABASE_USER) \
 		-mqttClientID "iot-worker-dev" \
 		-mqttServer $(IOT_MQTT_SERVER) \
 		-mqttPort $(IOT_MQTT_PORT) \
@@ -127,9 +123,7 @@ start-worker:
 		-sonosAccessToken "$(SONOS_ACCESS_TOKEN)" \
 		-sonosClientID "$(SONOS_CLIENT_ID)" \
 		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \
-		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)" \
-		-enedisEmail $(ENEDIS_EMAIL) \
-		-enedisPassword $(ENEDIS_PASSWORD) \
+		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)"
 
 ## start: Start app
 .PHONY: start
