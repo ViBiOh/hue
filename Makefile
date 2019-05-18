@@ -18,14 +18,18 @@ ifeq ($(DEBUG), true)
 	WORKER_RUNNER = dlv debug $(WORKER_SOURCE) --
 endif
 
+.DEFAULT_GOAL := app
+
 ## help: Display list of commands
 .PHONY: help
 help: Makefile
 	@sed -n 's|^##||p' $< | column -t -s ':' | sed -e 's|^| |'
 
-## $(APP_NAME): Build app with dependencies download
-$(APP_NAME): deps go
+## app: Build app with dependencies download
+.PHONY: app
+app: deps go
 
+## go: Build app
 .PHONY: go
 go: format lint test bench build
 
