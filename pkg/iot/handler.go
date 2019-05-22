@@ -191,7 +191,7 @@ func (a *App) svgHandler() http.Handler {
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		if err := tpl.Execute(w, r.URL.Query().Get("fill")); err != nil {
-			httperror.InternalServerError(w, err)
+			httperror.InternalServerError(w, errors.WithStack(err))
 		}
 	})
 }
