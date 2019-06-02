@@ -104,12 +104,12 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 // WriteMessage writes content as text message
 func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
-		return errors.New("no connection provided for sending: %+v", message)
+		return errors.New("no connection provided for sending: %#v", message)
 	}
 
 	message.Tracing = make(map[string]string)
 	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
-		logger.Error("%+v", errors.WithStack(err))
+		logger.Error("%#v", errors.WithStack(err))
 	}
 
 	messagePayload, err := json.Marshal(message)

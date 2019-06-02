@@ -141,19 +141,19 @@ func (a *App) configureMotionSensor(ctx context.Context, sensors []*sensorConfig
 	for _, sensor := range sensors {
 		onRule := a.createSensorOnRuleDescription(sensor)
 		if err := a.createRule(ctx, onRule); err != nil {
-			logger.Error("%+v", err)
+			logger.Error("%#v", err)
 		}
 
 		recoverRule := a.createSensorRecoverRuleDescription(sensor)
 		if recoverRule != nil {
 			if err := a.createRule(ctx, recoverRule); err != nil {
-				logger.Error("%+v", err)
+				logger.Error("%#v", err)
 			}
 		}
 
 		offRule := a.createSensorOffRuleDescription(sensor)
 		if err := a.createRule(ctx, offRule); err != nil {
-			logger.Error("%+v", err)
+			logger.Error("%#v", err)
 		}
 	}
 }

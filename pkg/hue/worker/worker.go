@@ -83,15 +83,15 @@ func (a *App) Start() {
 	ctx := context.Background()
 
 	if err := a.cleanSchedules(ctx); err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 	}
 
 	if err := a.cleanRules(ctx); err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 	}
 
 	if err := a.cleanScenes(ctx); err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 	}
 
 	a.configureSchedules(ctx, a.config.Schedules)

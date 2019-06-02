@@ -11,7 +11,7 @@ import (
 func (a *App) handleTextMessage(p []byte) {
 	var workerMessage provider.WorkerMessage
 	if err := json.Unmarshal(p, &workerMessage); err != nil {
-		logger.Error("%+v", errors.WithStack(err))
+		logger.Error("%#v", errors.WithStack(err))
 		return
 	}
 
@@ -21,13 +21,13 @@ func (a *App) handleTextMessage(p []byte) {
 
 	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
 		if err := workerProvider.WorkerHandler(&workerMessage); err != nil {
-			logger.Error("%+v", err)
+			logger.Error("%#v", err)
 		}
 
 		return
 	}
 
-	logger.Error("%+v", errors.New("no provider found for message: %+v", workerMessage))
+	logger.Error("%#v", errors.New("no provider found for message: %#v", workerMessage))
 }
 
 // HandleWorker listen from worker
@@ -35,6 +35,6 @@ func (a *App) HandleWorker() {
 	logger.Info("Connecting to MQTT %s", a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 	}
 }

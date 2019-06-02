@@ -79,7 +79,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt.App) *App {
 	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, "templates"), ".html")
 	if err != nil {
-		logger.Error("%+v", errors.WithStack(err))
+		logger.Error("%#v", errors.WithStack(err))
 	}
 
 	app := &App{
@@ -168,7 +168,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	if message != nil && message.Level == "error" {
-		logger.Error("%+v", message.Content)
+		logger.Error("%#v", message.Content)
 	}
 
 	for name, provider := range a.providers {

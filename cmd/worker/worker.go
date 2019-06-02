@@ -102,7 +102,7 @@ func (a *App) pingWorkers() {
 			return nil, nil
 		}
 
-		return nil, errors.New("unrecognized worker type: %+v", e)
+		return nil, errors.New("unrecognized worker type: %#v", e)
 	})
 
 	go func() {
@@ -116,7 +116,7 @@ func (a *App) pingWorkers() {
 	for i := 0; i < workersCount; i++ {
 		select {
 		case err := <-errors:
-			logger.Error("%+v", err)
+			logger.Error("%#v", err)
 			break
 
 		case result := <-results:
@@ -131,7 +131,7 @@ func (a *App) pingWorkers() {
 			for _, message := range result.([]*provider.WorkerMessage) {
 				for _, topic := range a.publishTopics {
 					if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
-						logger.Error("%+v", err)
+						logger.Error("%#v", err)
 					}
 				}
 			}
@@ -151,13 +151,13 @@ func (a *App) pinger() {
 func (a *App) handleTextMessage(p []byte) {
 	var message provider.WorkerMessage
 	if err := json.Unmarshal(p, &message); err != nil {
-		logger.Error("%+v", errors.WithStack(err))
+		logger.Error("%#v", errors.WithStack(err))
 		return
 	}
 
 	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), message.Tracing, message.Action)
 	if err != nil {
-		logger.Error("%+v", errors.WithStack(err))
+		logger.Error("%#v", errors.WithStack(err))
 	}
 	if span != nil {
 		defer span.Finish()
@@ -167,12 +167,12 @@ func (a *App) handleTextMessage(p []byte) {
 		output, err := worker.Handle(ctx, &message)
 
 		if err != nil {
-			logger.Error("%+v", err)
+			logger.Error("%#v", err)
 		}
 
 		if output != nil {
 			if err := provider.WriteMessage(ctx, a.mqttClient, message.ResponseTo, output); err != nil {
-				logger.Error("%+v", err)
+				logger.Error("%#v", err)
 			}
 		}
 
@@ -186,7 +186,7 @@ func (a *App) connect() {
 	logger.Info("Connecting to MQTT %s", a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 	}
 }
 
@@ -200,18 +200,18 @@ func main() {
 	sonosConfig := sonos_worker.Flags(fs, "sonos")
 
 	if err := fs.Parse(os.Args[1:]); err != nil {
-		logger.Fatal("%+v", err)
+		logger.Fatal("%#v", err)
 	}
 
 	hueApp, err := hue_worker.New(hueConfig)
 	if err != nil {
-		logger.Error("%+v", err)
+		logger.Error("%#v", err)
 		os.Exit(1)
 	}
 
 	mqttApp, err := mqtt.New(mqttConfig)
 	if err != nil {
-		logger.Fatal("%+v", err)
+		logger.Fatal("%#v", err)
 	}
 
 	netatmoApp := netatmo_worker.New(netatmoConfig)
