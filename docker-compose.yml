@@ -18,7 +18,7 @@ services:
     - -csp
     - default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
     - -tracingAgent
-    - monitoring_jaeger:6831
+    - monitoring_jaeger_1:6831
     - -tracingName
     - iot
     labels:
