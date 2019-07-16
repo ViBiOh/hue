@@ -1,3 +1,4 @@
 # Golang
 bin/
 coverage.*
+.env
