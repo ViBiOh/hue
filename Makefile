@@ -90,6 +90,12 @@ build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) $(SERVER_SOURCE)
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker $(WORKER_SOURCE)
 
+## build: Build binary for ARM
+.PHONY: build-arm
+build-arm:
+	CGO_ENABLED=0 GOARCH="arm" GOOS="linux" GOARM="6" go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-arm $(SERVER_SOURCE)
+	CGO_ENABLED=0 GOARCH="arm" GOOS="linux" GOARM="6" go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-arm-worker $(WORKER_SOURCE)
+
 ## install: Install binary in GOPATH
 .PHONY: install
 install:
