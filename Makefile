@@ -1,5 +1,4 @@
 SHELL = /bin/bash
-GOLANG = $(shell command -v go)
 
 APP_NAME = iot
 PACKAGES ?= ./...
@@ -9,13 +8,13 @@ GOBIN=bin
 BINARY_PATH=$(GOBIN)/$(APP_NAME)
 
 SERVER_SOURCE = cmd/iot/iot.go
-SERVER_RUNNER = $(GOLANG) run $(SERVER_SOURCE)
+SERVER_RUNNER = go run $(SERVER_SOURCE)
 ifeq ($(DEBUG), true)
 	SERVER_RUNNER = dlv debug $(SERVER_SOURCE) --
 endif
 
 WORKER_SOURCE = cmd/worker/worker.go
-WORKER_RUNNER = $(GOLANG) run $(WORKER_SOURCE)
+WORKER_RUNNER = go run $(WORKER_SOURCE)
 ifeq ($(DEBUG), true)
 	WORKER_RUNNER = dlv debug $(WORKER_SOURCE) --
 endif
@@ -58,9 +57,9 @@ author:
 ## deps: Download dependencies
 .PHONY: deps
 deps:
-	$(GOLANG) get github.com/kisielk/errcheck
-	$(GOLANG) get golang.org/x/lint/golint
-	$(GOLANG) get golang.org/x/tools/cmd/goimports
+	go get github.com/kisielk/errcheck
+	go get golang.org/x/lint/golint
+	go get golang.org/x/tools/cmd/goimports
 
 ## format: Format code
 .PHONY: format
@@ -73,7 +72,7 @@ format:
 lint:
 	golint $(PACKAGES)
 	errcheck -ignoretests $(PACKAGES)
-	$(GOLANG) vet $(PACKAGES)
+	go vet $(PACKAGES)
 
 ## test: Test code with coverage
 .PHONY: test
@@ -83,19 +82,19 @@ test:
 ## bench: Benchmark code
 .PHONY: bench
 bench:
-	$(GOLANG) test $(PACKAGES) -bench . -benchmem -run Benchmark.*
+	go test $(PACKAGES) -bench . -benchmem -run Benchmark.*
 
 ## build: Build binary
 .PHONY: build
 build:
-	CGO_ENABLED=0 $(GOLANG) build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) $(SERVER_SOURCE)
-	CGO_ENABLED=0 $(GOLANG) build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker $(WORKER_SOURCE)
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH) $(SERVER_SOURCE)
+	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(BINARY_PATH)-worker $(WORKER_SOURCE)
 
 ## install: Install binary in GOPATH
 .PHONY: install
 install:
-	$(GOLANG) install github.com/ViBiOh/iot/cmd/iot
-	$(GOLANG) install github.com/ViBiOh/iot/cmd/worker
+	go install github.com/ViBiOh/iot/cmd/iot
+	go install github.com/ViBiOh/iot/cmd/worker
 
 ## systemd: Configure systemd for launching local and remote worker
 .PHONY: systemd
