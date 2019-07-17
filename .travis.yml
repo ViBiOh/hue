@@ -26,6 +26,9 @@ jobs:
   - stage: Publish
 
     sudo: required
+    go: 1.12
+    env:
+    - GO111MODULE=on
     script:
     - ./script/build bin/iot cmd/iot/iot.go
     - ./script/build bin/worker cmd/worker/worker.go
