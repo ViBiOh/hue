@@ -1,3 +1,6 @@
 # Golang
 bin/
+release/
 coverage.*
+create.txt
+upload.txt

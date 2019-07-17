@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -o nounset -o pipefail -o errexit
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+main() {
+  "${SCRIPT_DIR}/build" "${SCRIPT_DIR}/../release/iot" "${SCRIPT_DIR}/../cmd/iot/iot.go"
+  "${SCRIPT_DIR}/build" "${SCRIPT_DIR}/../release/worker" "${SCRIPT_DIR}/../cmd/worker/worker.go"
+
+  GITHUB_REPOSITORY=ViBiOh/iot ASSETS=${SCRIPT_DIR}/../release/* "${SCRIPT_DIR}/release"
+}
+
+main

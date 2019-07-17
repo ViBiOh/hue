@@ -23,24 +23,6 @@ jobs:
     after_success:
     - curl -s -X POST https://goreportcard.com/checks?repo=github.com/ViBiOh/iot
 
-  - stage: Publish
-
-    language: go
-    go: 1.12
-    env:
-    - GO111MODULE=on
-    script:
-    - ./script/build bin/iot cmd/iot/iot.go
-    - ./script/build bin/worker cmd/worker/worker.go
-    deploy:
-      provider: releases
-      api_key: "${GITHUB_OAUTH_TOKEN}"
-      file_glob: true
-      file: bin/*
-      skip_cleanup: true
-      on:
-        tags: true
-
   - stage: Deploy
 
     script: |
