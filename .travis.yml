@@ -10,6 +10,16 @@ jobs:
     - echo "${DOCKER_PASS}" | docker login -u vibioh --password-stdin
     - docker push "vibioh/$(make name):$(make version)"
 
+  - stage: Release
+
+    language: go
+    go: 1.12
+    env:
+      - GO111MODULE=on
+      - GIT_TAG=${TRAVIS_TAG}
+      - RELEASE_NAME=${TRAVIS_TAG}
+    script: ./script/iot_release
+
   - stage: Publish
 
     sudo: required
@@ -41,6 +51,8 @@ jobs:
 
 stages:
   - Build
+  - name: Release
+    if: tag =~ /^v\d+\.\d+\.\d+$/
   - name: Publish
     if: branch = master
   - name: Deploy
