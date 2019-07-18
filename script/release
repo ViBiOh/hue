@@ -2,6 +2,10 @@
 
 set -o nounset -o pipefail -o errexit
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly OUTPUT_DIR="${SCRIPT_DIR}/../release"
+
+rm -rf "${OUTPUT_DIR}"
+mkdir "${OUTPUT_DIR}"
 
 readVariableIfRequired() {
   if [[ -z "${!1:-}" ]]; then
@@ -11,9 +15,27 @@ readVariableIfRequired() {
   fi
 }
 
-main() {
+build() {
+  if [[ "${#}" -lt 2 ]]; then
+    echo "Usage: build [BINARY_NAME] [MAIN_SOURCE]"
+    return 1
+  fi
+
+  local TARGETS=('darwin/amd64' 'linux/amd64' 'linux/arm' 'linux/arm64')
+
+  for os_arch in "${TARGETS[@]}"; do
+    IFS='/' read -ra context <<< "${os_arch}"
+
+    local GOOS="${context[0]}"
+    local GOARCH="${context[1]}"
+
+    GOOS="${GOOS}" GOARCH="${GOARCH}" CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o "${OUTPUT_DIR}/${1}_${GOOS}_${GOARCH}" "${SCRIPT_DIR}/../${2}"
+  done
+}
+
+release() {
+  readVariableIfRequired GITHUB_OAUTH_TOKEN
   readVariableIfRequired GITHUB_REPOSITORY
-  readVariableIfRequired ASSETS
   readVariableIfRequired GIT_TAG
   readVariableIfRequired RELEASE_NAME
 
@@ -21,8 +43,6 @@ main() {
   local GREEN='\033[0;32m'
   local BLUE='\033[0;34m'
   local RESET='\033[0m'
-
-  git tag -f "${GIT_TAG}"
 
   echo -e "${BLUE}Creating release ${GIT_TAG} for ${GITHUB_REPOSITORY}...${RESET}"
   echo
@@ -47,7 +67,7 @@ main() {
   local response_url=$(python -c 'import json; data = json.load(open("create.txt")); print(data["upload_url"])' | sed 's|{.*||')
   rm -rf create.txt
 
-  for asset in ${ASSETS}; do
+  for asset in "${OUTPUT_DIR}"/*; do
     echo -e "${BLUE}Uploading asset ${asset}...${RESET}"
     echo
 
@@ -72,4 +92,6 @@ main() {
   echo -e "${GREEN}Done!${RESET}"
 }
 
-main
+build "iot" "cmd/iot/iot.go"
+build "worker" "cmd/worker/worker.go"
+release
