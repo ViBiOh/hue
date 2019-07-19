@@ -5,7 +5,7 @@ ifneq ("$(wildcard .env)","")
 	export
 endif
 
-APP_NAME = api
+APP_NAME = iot
 PACKAGES ?= ./...
 GO_FILES ?= */*/*.go
 
