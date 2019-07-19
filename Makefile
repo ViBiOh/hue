@@ -1,6 +1,11 @@
-SHELL = /bin/bash
+SHELL = /bin/sh
 
-APP_NAME = iot
+ifneq ("$(wildcard .env)","")
+	include .env
+	export
+endif
+
+APP_NAME = api
 PACKAGES ?= ./...
 GO_FILES ?= */*/*.go
 
@@ -26,6 +31,16 @@ endif
 help: Makefile
 	@sed -n 's|^##||p' $< | column -t -s ':' | sed -e 's|^| |'
 
+## name: Output app name
+.PHONY: name
+name:
+	@echo -n $(APP_NAME)
+
+## version: Output last commit sha1
+.PHONY: version
+version:
+	@echo -n $(shell git rev-parse --short HEAD)
+
 ## app: Build app with dependencies download
 .PHONY: app
 app: deps go
@@ -33,26 +48,6 @@ app: deps go
 ## go: Build app
 .PHONY: go
 go: format lint test bench build
-
-## name: Output name
-.PHONY: name
-name:
-	@echo -n $(APP_NAME)
-
-## dist: Output build output path
-.PHONY: dist
-dist:
-	@echo -n $(BINARY_PATH)
-
-## version: Output sha1 of last commit
-.PHONY: version
-version:
-	@echo -n $(shell git rev-parse --short HEAD)
-
-## author: Output author's name of last commit
-.PHONY: author
-author:
-	@python -c 'import sys; import urllib; sys.stdout.write(urllib.quote_plus(sys.argv[1]))' "$(shell git log --pretty=format:'%an' -n 1)"
 
 ## deps: Download dependencies
 .PHONY: deps
@@ -74,7 +69,7 @@ lint:
 	errcheck -ignoretests $(PACKAGES)
 	go vet $(PACKAGES)
 
-## test: Test code with coverage
+## test: Test with coverage
 .PHONY: test
 test:
 	script/coverage
