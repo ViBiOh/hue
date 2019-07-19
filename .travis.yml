@@ -19,7 +19,7 @@ jobs:
       - GITHUB_REPOSITORY=ViBiOh/iot
       - GIT_TAG=${TRAVIS_TAG}
       - RELEASE_NAME=${TRAVIS_TAG}
-    script: ./script/iot_release
+    script: ./script/release
 
   - stage: Publish
 

@@ -1,6 +1,5 @@
 # Golang
 bin/
 release/
+output.txt
 coverage.*
-create.txt
-upload.txt
