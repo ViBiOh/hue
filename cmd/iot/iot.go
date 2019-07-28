@@ -45,16 +45,12 @@ func main() {
 	mqttConfig := mqtt.Flags(fs, "mqtt")
 	iotConfig := iot.Flags(fs, "")
 
-	if err := fs.Parse(os.Args[1:]); err != nil {
-		logger.Fatal("%#v", err)
-	}
+	logger.Fatal(fs.Parse(os.Args[1:]))
 
 	alcotest.DoAndExit(alcotestConfig)
 
 	serverApp, err := httputils.New(serverConfig)
-	if err != nil {
-		logger.Fatal("%#v", err)
-	}
+	logger.Fatal(err)
 
 	healthcheckApp := healthcheck.New()
 	prometheusApp := prometheus.New(prometheusConfig)
@@ -64,9 +60,7 @@ func main() {
 	corsApp := cors.New(corsConfig)
 
 	mqttApp, err := mqtt.New(mqttConfig)
-	if err != nil {
-		logger.Fatal("%#v", err)
-	}
+	logger.Fatal(err)
 
 	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()

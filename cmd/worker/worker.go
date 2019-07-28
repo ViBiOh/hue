@@ -199,9 +199,7 @@ func main() {
 	netatmoConfig := netatmo_worker.Flags(fs, "netatmo")
 	sonosConfig := sonos_worker.Flags(fs, "sonos")
 
-	if err := fs.Parse(os.Args[1:]); err != nil {
-		logger.Fatal("%#v", err)
-	}
+	logger.Fatal(fs.Parse(os.Args[1:]))
 
 	hueApp, err := hue_worker.New(hueConfig)
 	if err != nil {
@@ -210,9 +208,7 @@ func main() {
 	}
 
 	mqttApp, err := mqtt.New(mqttConfig)
-	if err != nil {
-		logger.Fatal("%#v", err)
-	}
+	logger.Fatal(err)
 
 	netatmoApp := netatmo_worker.New(netatmoConfig)
 	sonosApp := sonos_worker.New(sonosConfig)
