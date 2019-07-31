@@ -11,12 +11,10 @@ import (
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
 	"github.com/ViBiOh/httputils/pkg/gzip"
-	"github.com/ViBiOh/httputils/pkg/healthcheck"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
 	"github.com/ViBiOh/httputils/pkg/prometheus"
-	"github.com/ViBiOh/httputils/pkg/server"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/mqtt"
@@ -52,7 +50,6 @@ func main() {
 	serverApp, err := httputils.New(serverConfig)
 	logger.Fatal(err)
 
-	healthcheckApp := healthcheck.New()
 	prometheusApp := prometheus.New(prometheusConfig)
 	opentracingApp := opentracing.New(opentracingConfig)
 	gzipApp := gzip.New()
@@ -89,5 +86,5 @@ func main() {
 
 	iotApp.HandleWorker()
 
-	serverApp.ListenAndServe(server.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp), nil, healthcheckApp)
+	serverApp.ListenAndServe(httputils.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp), httputils.HealthHandler(nil), nil)
 }
