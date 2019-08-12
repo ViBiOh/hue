@@ -10,7 +10,6 @@ import (
 	httputils "github.com/ViBiOh/httputils/pkg"
 	"github.com/ViBiOh/httputils/pkg/alcotest"
 	"github.com/ViBiOh/httputils/pkg/cors"
-	"github.com/ViBiOh/httputils/pkg/gzip"
 	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/pkg/opentracing"
 	"github.com/ViBiOh/httputils/pkg/owasp"
@@ -52,7 +51,6 @@ func main() {
 
 	prometheusApp := prometheus.New(prometheusConfig)
 	opentracingApp := opentracing.New(opentracingConfig)
-	gzipApp := gzip.New()
 	owaspApp := owasp.New(owaspConfig)
 	corsApp := cors.New(corsConfig)
 
@@ -86,5 +84,5 @@ func main() {
 
 	iotApp.HandleWorker()
 
-	serverApp.ListenAndServe(httputils.ChainMiddlewares(handler, prometheusApp, opentracingApp, gzipApp, owaspApp, corsApp), httputils.HealthHandler(nil), nil)
+	serverApp.ListenAndServe(httputils.ChainMiddlewares(handler, prometheusApp, opentracingApp, owaspApp, corsApp), httputils.HealthHandler(nil), nil)
 }
