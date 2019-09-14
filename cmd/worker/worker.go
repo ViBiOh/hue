@@ -89,7 +89,7 @@ func (a *App) pingWorkers() {
 	ctx := context.Background()
 	workersCount := len(a.workers)
 
-	inputs, results, errors := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
+	inputs, results := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
 			if !worker.Enabled() {
 				return nil, nil
@@ -113,30 +113,27 @@ func (a *App) pingWorkers() {
 		}
 	}()
 
-	for i := 0; i < workersCount; i++ {
-		select {
-		case err := <-errors:
-			logger.Error("%#v", err)
+	for {
+		result := <-results
+		if result.Err != nil {
+			logger.Error("%#v", result.Err)
+			continue
+		}
+
+		if result.Output == nil {
 			break
+		}
 
-		case result := <-results:
-			if result == nil {
-				break
-			}
+		if !a.mqttClient.Enabled() {
+			break
+		}
 
-			if !a.mqttClient.Enabled() {
-				break
-			}
-
-			for _, message := range result.([]*provider.WorkerMessage) {
-				for _, topic := range a.publishTopics {
-					if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
-						logger.Error("%#v", err)
-					}
+		for _, message := range result.Output.([]*provider.WorkerMessage) {
+			for _, topic := range a.publishTopics {
+				if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
+					logger.Error("%#v", err)
 				}
 			}
-
-			break
 		}
 	}
 }
