@@ -8,6 +8,8 @@
 
 ```bash
 Usage of iot:
+  -address string
+        [http] Listen address
   -assetsDirectory string
         [iot] Assets directory (static and templates)
   -cert string
