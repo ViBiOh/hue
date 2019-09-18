@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/prometheus/client_golang/prometheus"
 )

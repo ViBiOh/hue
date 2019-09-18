@@ -3,7 +3,7 @@ module github.com/ViBiOh/iot
 go 1.13
 
 require (
-	github.com/ViBiOh/httputils v1.8.2
+	github.com/ViBiOh/httputils/v2 v2.0.1
 	github.com/prometheus/client_golang v1.1.0
 	github.com/prometheus/procfs v0.0.5 // indirect
 	github.com/uber/jaeger-client-go v2.18.1+incompatible // indirect

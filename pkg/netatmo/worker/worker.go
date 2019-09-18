@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -39,10 +39,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf("%sAccessToken", prefix)), "", "[netatmo] Access Token"),
-		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf("%sRefreshToken", prefix)), "", "[netatmo] Refresh Token"),
-		clientID:     fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "", "[netatmo] Client ID"),
-		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf("%sClientSecret", prefix)), "", "[netatmo] Client Secret"),
+		accessToken:  tools.NewFlag(prefix, "netatmo").Name("AccessToken").Default("").Label("Access Token").ToString(fs),
+		refreshToken: tools.NewFlag(prefix, "netatmo").Name("RefreshToken").Default("").Label("Refresh Token").ToString(fs),
+		clientID:     tools.NewFlag(prefix, "netatmo").Name("ClientID").Default("").Label("Client ID").ToString(fs),
+		clientSecret: tools.NewFlag(prefix, "netatmo").Name("ClientSecret").Default("").Label("Client Secret").ToString(fs),
 	}
 }
 

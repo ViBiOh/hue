@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -39,9 +39,9 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		bridgeIP: fs.String(tools.ToCamel(fmt.Sprintf("%sBridgeIP", prefix)), "", "[hue] IP of Bridge"),
-		username: fs.String(tools.ToCamel(fmt.Sprintf("%sUsername", prefix)), "", "[hue] Username for Bridge"),
-		config:   fs.String(tools.ToCamel(fmt.Sprintf("%sConfig", prefix)), "", "[hue] Configuration filename"),
+		bridgeIP: tools.NewFlag(prefix, "hue").Name("BridgeIP").Default("").Label("IP of Bridge").ToString(fs),
+		username: tools.NewFlag(prefix, "hue").Name("Username").Default("").Label("Username for Bridge").ToString(fs),
+		config:   tools.NewFlag(prefix, "hue").Name("Config").Default("").Label("Configuration filename").ToString(fs),
 	}
 }
 

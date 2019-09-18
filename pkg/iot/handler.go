@@ -9,11 +9,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/httputils/pkg/logger"
-	"github.com/ViBiOh/httputils/pkg/templates"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/httperror"
+	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v2/pkg/templates"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -68,10 +68,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		AssetsDirectory: fs.String(tools.ToCamel(fmt.Sprintf("%sAssetsDirectory", prefix)), "", "[iot] Assets directory (static and templates)"),
-		subscribe:       fs.String(tools.ToCamel(fmt.Sprintf("%sSubscribe", prefix)), "", "[iot] Topic to subscribe to"),
-		publish:         fs.String(tools.ToCamel(fmt.Sprintf("%sPublish", prefix)), "worker", "[iot] Topic to publish to"),
-		prometheus:      fs.Bool(tools.ToCamel(fmt.Sprintf("%sPrometheus", prefix)), false, "[iot] Expose Prometheus metrics"),
+		AssetsDirectory: tools.NewFlag(prefix, "iot").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
+		subscribe:       tools.NewFlag(prefix, "iot").Name("Subscribe").Default("").Label("Topic to subscribe to").ToString(fs),
+		publish:         tools.NewFlag(prefix, "iot").Name("Publish").Default("worker").Label("Topic to publish to").ToString(fs),
+		prometheus:      tools.NewFlag(prefix, "iot").Name("Prometheus").Default(false).Label("Expose Prometheus metrics").ToBool(fs),
 	}
 }
 

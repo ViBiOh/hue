@@ -9,59 +9,59 @@
 ```bash
 Usage of iot:
   -address string
-        [http] Listen address
+        [http] Listen address {IOT_ADDRESS}
   -assetsDirectory string
-        [iot] Assets directory (static and templates)
+        [iot] Assets directory (static and templates) {IOT_ASSETS_DIRECTORY}
   -cert string
-        [http] Certificate file
+        [http] Certificate file {IOT_CERT}
   -corsCredentials
-        [cors] Access-Control-Allow-Credentials
+        [cors] Access-Control-Allow-Credentials {IOT_CORS_CREDENTIALS}
   -corsExpose string
-        [cors] Access-Control-Expose-Headers
+        [cors] Access-Control-Expose-Headers {IOT_CORS_EXPOSE}
   -corsHeaders string
-        [cors] Access-Control-Allow-Headers (default "Content-Type")
+        [cors] Access-Control-Allow-Headers {IOT_CORS_HEADERS} (default "Content-Type")
   -corsMethods string
-        [cors] Access-Control-Allow-Methods (default "GET")
+        [cors] Access-Control-Allow-Methods {IOT_CORS_METHODS} (default "GET")
   -corsOrigin string
-        [cors] Access-Control-Allow-Origin (default "*")
+        [cors] Access-Control-Allow-Origin {IOT_CORS_ORIGIN} (default "*")
   -csp string
-        [owasp] Content-Security-Policy (default "default-src 'self'; base-uri 'self'")
+        [owasp] Content-Security-Policy {IOT_CSP} (default "default-src 'self'; base-uri 'self'")
   -frameOptions string
-        [owasp] X-Frame-Options (default "deny")
+        [owasp] X-Frame-Options {IOT_FRAME_OPTIONS} (default "deny")
   -hsts
-        [owasp] Indicate Strict Transport Security (default true)
+        [owasp] Indicate Strict Transport Security {IOT_HSTS} (default true)
   -key string
-        [http] Key file
+        [http] Key file {IOT_KEY}
   -mqttClientID string
-        [mqtt] Client ID (default "iot")
+        [mqtt] Client ID {IOT_MQTT_CLIENT_ID} (default "iot")
   -mqttPass string
-        [mqtt] Password
+        [mqtt] Password {IOT_MQTT_PASS}
   -mqttPort int
-        [mqtt] Port (default 80)
+        [mqtt] Port {IOT_MQTT_PORT} (default 80)
   -mqttServer string
-        [mqtt] Server name
+        [mqtt] Server name {IOT_MQTT_SERVER}
   -mqttUseTLS
-        [mqtt] Use TLS (default true)
+        [mqtt] Use TLS {IOT_MQTT_USE_TLS} (default true)
   -mqttUser string
-        [mqtt] Username
+        [mqtt] Username {IOT_MQTT_USER}
   -port int
-        [http] Listen port (default 1080)
+        [http] Listen port {IOT_PORT} (default 1080)
   -prometheus
-        [iot] Expose Prometheus metrics
+        [iot] Expose Prometheus metrics {IOT_PROMETHEUS}
   -prometheusPath string
-        [prometheus] Path for exposing metrics (default "/metrics")
+        [prometheus] Path for exposing metrics {IOT_PROMETHEUS_PATH} (default "/metrics")
   -publish string
-        [iot] Topic to publish to (default "worker")
+        [iot] Topic to publish to {IOT_PUBLISH} (default "worker")
   -subscribe string
-        [iot] Topic to subscribe to
+        [iot] Topic to subscribe to {IOT_SUBSCRIBE}
   -tracingAgent string
-        [tracing] Jaeger Agent (e.g. host:port) (default "jaeger:6831")
+        [tracing] Jaeger Agent (e.g. host:port) {IOT_TRACING_AGENT} (default "jaeger:6831")
   -tracingName string
-        [tracing] Service name
+        [tracing] Service name {IOT_TRACING_NAME}
   -url string
-        [alcotest] URL to check
+        [alcotest] URL to check {IOT_URL}
   -userAgent string
-        [alcotest] User-Agent for check (default "Golang alcotest")
+        [alcotest] User-Agent for check {IOT_USER_AGENT} (default "Golang alcotest")
 ```
 
 ## Usage of IoT worker
@@ -69,45 +69,43 @@ Usage of iot:
 ```bash
 Usage of iot-worker:
   -hueBridgeIP string
-        [hue] IP of Bridge
-  -hueClean
-        [hue] Clean Hue
+        [hue] IP of Bridge {IOT-WORKER_HUE_BRIDGE_IP}
   -hueConfig string
-        [hue] Configuration filename
+        [hue] Configuration filename {IOT-WORKER_HUE_CONFIG}
   -hueUsername string
-        [hue] Username for Bridge
+        [hue] Username for Bridge {IOT-WORKER_HUE_USERNAME}
   -mqttClientID string
-        [mqtt] Client ID (default "iot")
+        [mqtt] Client ID {IOT-WORKER_MQTT_CLIENT_ID} (default "iot")
   -mqttPass string
-        [mqtt] Password
+        [mqtt] Password {IOT-WORKER_MQTT_PASS}
   -mqttPort int
-        [mqtt] Port (default 80)
+        [mqtt] Port {IOT-WORKER_MQTT_PORT} (default 80)
   -mqttServer string
-        [mqtt] Server name
+        [mqtt] Server name {IOT-WORKER_MQTT_SERVER}
   -mqttUseTLS
-        [mqtt] Use TLS (default true)
+        [mqtt] Use TLS {IOT-WORKER_MQTT_USE_TLS} (default true)
   -mqttUser string
-        [mqtt] Username
+        [mqtt] Username {IOT-WORKER_MQTT_USER}
   -netatmoAccessToken string
-        [netatmo] Access Token
+        [netatmo] Access Token {IOT-WORKER_NETATMO_ACCESS_TOKEN}
   -netatmoClientID string
-        [netatmo] Client ID
+        [netatmo] Client ID {IOT-WORKER_NETATMO_CLIENT_ID}
   -netatmoClientSecret string
-        [netatmo] Client Secret
+        [netatmo] Client Secret {IOT-WORKER_NETATMO_CLIENT_SECRET}
   -netatmoRefreshToken string
-        [netatmo] Refresh Token
+        [netatmo] Refresh Token {IOT-WORKER_NETATMO_REFRESH_TOKEN}
   -publish string
-        Topics to publish to, comma separated (default "local,remote")
+        [worker] Topics to publish to, comma separated {IOT-WORKER_PUBLISH} (default "local,remote")
   -sonosAccessToken string
-        [sonos] Access Token
+        [sonos] Access Token {IOT-WORKER_SONOS_ACCESS_TOKEN}
   -sonosClientID string
-        [sonos] Client ID
+        [sonos] Client ID {IOT-WORKER_SONOS_CLIENT_ID}
   -sonosClientSecret string
-        [sonos] Client Secret
+        [sonos] Client Secret {IOT-WORKER_SONOS_CLIENT_SECRET}
   -sonosRefreshToken string
-        [sonos] Refresh Token
+        [sonos] Refresh Token {IOT-WORKER_SONOS_REFRESH_TOKEN}
   -subscribe string
-        Topic to subscribe to (default "worker")
+        [worker] Topic to subscribe to {IOT-WORKER_SUBSCRIBE} (default "worker")
 ```
 
 ## Create systemd service for worker

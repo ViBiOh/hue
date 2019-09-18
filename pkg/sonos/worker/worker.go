@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
@@ -41,10 +41,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		accessToken:  fs.String(tools.ToCamel(fmt.Sprintf("%sAccessToken", prefix)), "", "[sonos] Access Token"),
-		refreshToken: fs.String(tools.ToCamel(fmt.Sprintf("%sRefreshToken", prefix)), "", "[sonos] Refresh Token"),
-		clientID:     fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "", "[sonos] Client ID"),
-		clientSecret: fs.String(tools.ToCamel(fmt.Sprintf("%sClientSecret", prefix)), "", "[sonos] Client Secret"),
+		accessToken:  tools.NewFlag(prefix, "sonos").Name("AccessToken").Default("").Label("Access Token").ToString(fs),
+		refreshToken: tools.NewFlag(prefix, "sonos").Name("RefreshToken").Default("").Label("Refresh Token").ToString(fs),
+		clientID:     tools.NewFlag(prefix, "sonos").Name("ClientID").Default("").Label("Client ID").ToString(fs),
+		clientSecret: tools.NewFlag(prefix, "sonos").Name("ClientSecret").Default("").Label("Client Secret").ToString(fs),
 	}
 }
 

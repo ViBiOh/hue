@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
-	"github.com/ViBiOh/httputils/pkg/opentracing"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v2/pkg/opentracing"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
@@ -42,8 +41,8 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		publish:   fs.String(tools.ToCamel(fmt.Sprintf("%sPublish", prefix)), "local,remote", "Topics to publish to, comma separated"),
-		subscribe: fs.String(tools.ToCamel(fmt.Sprintf("%sSubscribe", prefix)), "worker", "Topic to subscribe to"),
+		publish:   tools.NewFlag(prefix, "worker").Name("Publish").Default("local,remote").Label("Topics to publish to, comma separated").ToString(fs),
+		subscribe: tools.NewFlag(prefix, "worker").Name("Subscribe").Default("worker").Label("Topic to subscribe to").ToString(fs),
 	}
 }
 

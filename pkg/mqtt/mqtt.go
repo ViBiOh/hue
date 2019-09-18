@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
-	"github.com/ViBiOh/httputils/pkg/logger"
-	"github.com/ViBiOh/httputils/pkg/tools"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/yosssi/gmq/mqtt"
 	"github.com/yosssi/gmq/mqtt/client"
 )
@@ -30,12 +30,12 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		server:   fs.String(tools.ToCamel(fmt.Sprintf("%sServer", prefix)), "", "[mqtt] Server name"),
-		port:     fs.Int(tools.ToCamel(fmt.Sprintf("%sPort", prefix)), 80, "[mqtt] Port"),
-		useTLS:   fs.Bool(tools.ToCamel(fmt.Sprintf("%sUseTLS", prefix)), true, "[mqtt] Use TLS"),
-		user:     fs.String(tools.ToCamel(fmt.Sprintf("%sUser", prefix)), "", "[mqtt] Username"),
-		pass:     fs.String(tools.ToCamel(fmt.Sprintf("%sPass", prefix)), "", "[mqtt] Password"),
-		clientID: fs.String(tools.ToCamel(fmt.Sprintf("%sClientID", prefix)), "iot", "[mqtt] Client ID"),
+		server:   tools.NewFlag(prefix, "mqtt").Name("Server").Default("").Label("Server name").ToString(fs),
+		port:     tools.NewFlag(prefix, "mqtt").Name("Port").Default(80).Label("Port").ToInt(fs),
+		useTLS:   tools.NewFlag(prefix, "mqtt").Name("UseTLS").Default(true).Label("Use TLS").ToBool(fs),
+		user:     tools.NewFlag(prefix, "mqtt").Name("User").Default("").Label("Username").ToString(fs),
+		pass:     tools.NewFlag(prefix, "mqtt").Name("Pass").Default("").Label("Password").ToString(fs),
+		clientID: tools.NewFlag(prefix, "mqtt").Name("ClientID").Default("iot").Label("Client ID").ToString(fs),
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/pkg/errors"
+	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
