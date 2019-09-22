@@ -88,7 +88,7 @@ func (a *App) pingWorkers() {
 	ctx := context.Background()
 	workersCount := len(a.workers)
 
-	inputs, results := tools.ConcurrentAction(uint(workersCount), func(e interface{}) (interface{}, error) {
+	inputs, results := tools.ConcurrentAction(uint(workersCount), false, func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
 			if !worker.Enabled() {
 				return nil, nil
