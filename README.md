@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/ViBiOh/iot.svg?branch=master)](https://travis-ci.org/ViBiOh/iot)
 [![codecov](https://codecov.io/gh/ViBiOh/iot/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/iot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/iot)](https://goreportcard.com/report/github.com/ViBiOh/iot)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ViBiOh/iot)](https://dependabot.com)
 
 ## Usage of Web server
 
