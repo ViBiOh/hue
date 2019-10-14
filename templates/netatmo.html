@@ -1,8 +1,8 @@
 {{- define "netatmo" -}}
-  <span class="container">
-    <h2 class="small no-margin margin-left">Netatmo</h2>
-    {{- if len . -}}
-      {{- range . -}}
+  {{- if len . -}}
+    {{- range . -}}
+      <span class="container">
+        <h2 class="small no-margin margin-left">Netatmo</h2>
         {{- range .Modules -}}
           <div class="flex flex-center flex-wrap">
             <div class="header center flex-full">{{- .ModuleName -}}</div>
@@ -46,7 +46,7 @@
             <strong>{{- .DashboardData.CO2 -}}ppm</strong>
           </span>
         </div>
-      {{- end -}}
+      </span>
     {{- end -}}
-  </span>
+  {{- end -}}
 {{- end -}}
