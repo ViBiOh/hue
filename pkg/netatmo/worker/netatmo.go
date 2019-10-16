@@ -7,14 +7,16 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/ViBiOh/httputils/pkg/logger"
 	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/httputils/v2/pkg/request"
 	"github.com/ViBiOh/iot/pkg/netatmo"
 )
 
 const (
-	netatmoGetStationsDataURL = "https://api.netatmo.com/api/getstationsdata?access_token="
-	netatmoRefreshTokenURL    = "https://api.netatmo.com/oauth2/token"
+	netatmoGetStationsDataURL  = "https://api.netatmo.com/api/getstationsdata?access_token="
+	netatmoGetHomeCoachDataURL = "https://api.netatmo.com/api/gethomecoachsdata?access_token="
+	netatmoRefreshTokenURL     = "https://api.netatmo.com/oauth2/token"
 )
 
 func (a *App) refreshAccessToken(ctx context.Context) error {
@@ -48,6 +50,32 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 	return nil
 }
 
+func (a *App) getHomeCoachData(ctx context.Context) (*netatmo.StationsData, error) {
+	if a.accessToken == "" {
+		return nil, nil
+	}
+
+	a.mutex.RLock()
+	body, _, _, err := request.Get(ctx, fmt.Sprintf("%s%s", netatmoGetHomeCoachDataURL, a.accessToken), nil)
+	a.mutex.RUnlock()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rawData, err := request.ReadBody(body)
+	if err != nil {
+		return nil, err
+	}
+
+	var infos netatmo.StationsData
+	if err := json.Unmarshal(rawData, &infos); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &infos, nil
+}
+
 func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.StationsData, error) {
 	if a.accessToken == "" {
 		return nil, nil
@@ -77,6 +105,14 @@ func (a *App) getStationsData(ctx context.Context, retry bool) (*netatmo.Station
 	var infos netatmo.StationsData
 	if err := json.Unmarshal(rawData, &infos); err != nil {
 		return nil, errors.WithStack(err)
+	}
+
+	if homeCoachData, err := a.getHomeCoachData(ctx); err != nil {
+		logger.Error("%+v", err)
+	} else {
+		for _, device := range homeCoachData.Body.Devices {
+			infos.Body.Devices = append(infos.Body.Devices, device)
+		}
 	}
 
 	return &infos, nil
