@@ -14,7 +14,6 @@ import (
 	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
-	netatmo_worker "github.com/ViBiOh/iot/pkg/netatmo/worker"
 	"github.com/ViBiOh/iot/pkg/provider"
 	sonos_worker "github.com/ViBiOh/iot/pkg/sonos/worker"
 )
@@ -192,7 +191,6 @@ func main() {
 	iotConfig := Flags(fs, "")
 	mqttConfig := mqtt.Flags(fs, "mqtt")
 	hueConfig := hue_worker.Flags(fs, "hue")
-	netatmoConfig := netatmo_worker.Flags(fs, "netatmo")
 	sonosConfig := sonos_worker.Flags(fs, "sonos")
 
 	logger.Fatal(fs.Parse(os.Args[1:]))
@@ -206,10 +204,9 @@ func main() {
 	mqttApp, err := mqtt.New(mqttConfig)
 	logger.Fatal(err)
 
-	netatmoApp := netatmo_worker.New(netatmoConfig)
 	sonosApp := sonos_worker.New(sonosConfig)
 
-	app := New(iotConfig, []provider.Worker{hueApp, netatmoApp, sonosApp}, mqttApp)
+	app := New(iotConfig, []provider.Worker{hueApp, sonosApp}, mqttApp)
 
 	if mqttApp.Enabled() {
 		app.connect()

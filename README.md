@@ -87,14 +87,6 @@ Usage of iot-worker:
         [mqtt] Use TLS {IOT_WORKER_MQTT_USE_TLS} (default true)
   -mqttUser string
         [mqtt] Username {IOT_WORKER_MQTT_USER}
-  -netatmoAccessToken string
-        [netatmo] Access Token {IOT_WORKER_NETATMO_ACCESS_TOKEN}
-  -netatmoClientID string
-        [netatmo] Client ID {IOT_WORKER_NETATMO_CLIENT_ID}
-  -netatmoClientSecret string
-        [netatmo] Client Secret {IOT_WORKER_NETATMO_CLIENT_SECRET}
-  -netatmoRefreshToken string
-        [netatmo] Refresh Token {IOT_WORKER_NETATMO_REFRESH_TOKEN}
   -publish string
         [worker] Topics to publish to, comma separated {IOT_WORKER_PUBLISH} (default "local,remote")
   -sonosAccessToken string

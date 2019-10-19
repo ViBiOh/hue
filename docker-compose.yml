@@ -20,7 +20,6 @@ services:
       IOT_MQTT_PORT: "${IOT_MQTT_PORT}"
       IOT_MQTT_USER: "${IOT_MQTT_USER}"
       IOT_MQTT_PASS: "${IOT_MQTT_PASS}"
-      IOT_PROMETHEUS: "true"
       IOT_SUBSCRIBE: remote
       IOT_CSP: default-src 'self'; base-uri 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'
     restart: on-failure:5

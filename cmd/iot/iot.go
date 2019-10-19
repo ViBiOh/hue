@@ -17,7 +17,6 @@ import (
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/mqtt"
-	"github.com/ViBiOh/iot/pkg/netatmo"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
@@ -54,13 +53,11 @@ func main() {
 	mqttApp, err := mqtt.New(mqttConfig)
 	logger.Fatal(err)
 
-	netatmoApp := netatmo.New()
 	sonosApp := sonos.New()
 	hueApp := hue.New()
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
-		"Netatmo": netatmoApp,
-		"Hue":     hueApp,
-		"Sonos":   sonosApp,
+		"Hue":   hueApp,
+		"Sonos": sonosApp,
 	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
