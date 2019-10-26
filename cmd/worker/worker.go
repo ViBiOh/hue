@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ViBiOh/httputils/v2/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/httputils/v2/pkg/logger"
 	"github.com/ViBiOh/httputils/v2/pkg/opentracing"
@@ -87,7 +88,7 @@ func (a *App) pingWorkers() {
 	ctx := context.Background()
 	workersCount := len(a.workers)
 
-	inputs, results := tools.ConcurrentAction(uint(workersCount), false, func(e interface{}) (interface{}, error) {
+	action := func(e interface{}) (interface{}, error) {
 		if worker, ok := e.(provider.Worker); ok {
 			if !worker.Enabled() {
 				return nil, nil
@@ -101,32 +102,14 @@ func (a *App) pingWorkers() {
 		}
 
 		return nil, errors.New("unrecognized worker type: %#v", e)
-	})
+	}
 
-	go func() {
-		defer close(inputs)
-
-		for _, worker := range a.workers {
-			inputs <- worker
-		}
-	}()
-
-	for {
-		result := <-results
-		if result.Err != nil {
-			logger.Error("%#v", result.Err)
-			continue
-		}
-
-		if result.Output == nil {
-			break
-		}
-
+	onSucces := func(output interface{}) {
 		if !a.mqttClient.Enabled() {
-			break
+			return
 		}
 
-		for _, message := range result.Output.([]*provider.WorkerMessage) {
+		for _, message := range output.([]*provider.WorkerMessage) {
 			for _, topic := range a.publishTopics {
 				if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
 					logger.Error("%#v", err)
@@ -134,6 +117,17 @@ func (a *App) pingWorkers() {
 			}
 		}
 	}
+
+	onError := func(err error) {
+		logger.Error("%#v", err)
+	}
+
+	inputs := concurrent.Run(uint(workersCount), action, onSucces, onError)
+
+	for _, worker := range a.workers {
+		inputs <- worker
+	}
+	close(inputs)
 }
 
 func (a *App) pinger() {
