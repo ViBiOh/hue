@@ -29,7 +29,7 @@ type Message struct {
 	Content string
 }
 
-// WorkerMessage describe how message are exchanged accross worker
+// WorkerMessage describe how message are exchanged across worker
 type WorkerMessage struct {
 	ID         string
 	ResponseTo string
