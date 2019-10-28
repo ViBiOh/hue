@@ -11,7 +11,6 @@ import (
 	"github.com/ViBiOh/httputils/v2/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/opentracing"
 	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
@@ -144,13 +143,7 @@ func (a *App) handleTextMessage(p []byte) {
 		return
 	}
 
-	ctx, span, err := opentracing.ExtractSpanFromMap(context.Background(), message.Tracing, message.Action)
-	if err != nil {
-		logger.Error("%#v", errors.WithStack(err))
-	}
-	if span != nil {
-		defer span.Finish()
-	}
+	ctx = context.Background()
 
 	if worker, ok := a.handlers[message.Source]; ok {
 		output, err := worker.Handle(ctx, &message)

@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/opentracing"
 	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 )
@@ -105,11 +103,6 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
 		return errors.New("no connection provided for sending: %#v", message)
-	}
-
-	message.Tracing = make(map[string]string)
-	if err := opentracing.InjectSpanToMap(ctx, message.Tracing); err != nil {
-		logger.Error("%#v", errors.WithStack(err))
 	}
 
 	messagePayload, err := json.Marshal(message)

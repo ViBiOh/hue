@@ -55,10 +55,6 @@ Usage of iot:
         [iot] Topic to publish to {IOT_PUBLISH} (default "worker")
   -subscribe string
         [iot] Topic to subscribe to {IOT_SUBSCRIBE}
-  -tracingAgent string
-        [tracing] Jaeger Agent (e.g. host:port) {IOT_TRACING_AGENT} (default "jaeger:6831")
-  -tracingName string
-        [tracing] Service name {IOT_TRACING_NAME}
   -url string
         [alcotest] URL to check {IOT_URL}
   -userAgent string
