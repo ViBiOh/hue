@@ -2,16 +2,16 @@ package iot
 
 import (
 	"encoding/json"
+	"fmt"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
 func (a *App) handleTextMessage(p []byte) {
 	var workerMessage provider.WorkerMessage
 	if err := json.Unmarshal(p, &workerMessage); err != nil {
-		logger.Error("%#v", errors.WithStack(err))
+		logger.Error("%s", err)
 		return
 	}
 
@@ -27,7 +27,7 @@ func (a *App) handleTextMessage(p []byte) {
 		return
 	}
 
-	logger.Error("%#v", errors.New("no provider found for message: %#v", workerMessage))
+	logger.Error("%#v", fmt.Errorf("no provider found for message: %#v", workerMessage))
 }
 
 // HandleWorker listen from worker

@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/request"
+	"github.com/ViBiOh/httputils/v3/pkg/request"
 )
 
 func hasError(content []byte) bool {
@@ -20,72 +20,82 @@ func get(ctx context.Context, url string, response interface{}) error {
 		return err
 	}
 
-	content, err := request.ReadBody(body)
+	content, err := request.ReadContent(body)
 	if err != nil {
 		return err
 	}
 
 	if err := json.Unmarshal(content, &response); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil
 }
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
-	body, _, _, err := request.DoJSON(ctx, url, payload, nil, http.MethodPost)
+	body, _, _, err := request.PostJSON(ctx, url, payload, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	content, err := request.ReadBody(body)
+	content, err := request.ReadContent(body)
 	if err != nil {
 		return nil, err
 	}
 
 	if hasError(content) {
-		return nil, errors.New("create error: %s", content)
+		return nil, fmt.Errorf("create error: %s", content)
 	}
 
 	var response []map[string]map[string]*string
 	if err := json.Unmarshal(content, &response); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return response[0]["success"]["id"], nil
 }
 
 func update(ctx context.Context, url string, payload interface{}) error {
-	body, _, _, err := request.DoJSON(ctx, url, payload, nil, http.MethodPut)
+	req, err := request.JSON(ctx, http.MethodPut, url, payload, nil)
 	if err != nil {
 		return err
 	}
 
-	content, err := request.ReadBody(body)
+	body, _, _, err := request.Do(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	content, err := request.ReadContent(body)
 	if err != nil {
 		return err
 	}
 
 	if hasError(content) {
-		return errors.New("update error: %s", content)
+		return fmt.Errorf("update error: %s", content)
 	}
 
 	return nil
 }
 
 func delete(ctx context.Context, url string) error {
-	body, _, _, err := request.Do(ctx, http.MethodDelete, url, nil, nil)
+	req, err := request.New(ctx, http.MethodDelete, url, nil, nil)
 	if err != nil {
 		return err
 	}
 
-	content, err := request.ReadBody(body)
+	body, _, _, err := request.Do(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	content, err := request.ReadContent(body)
 	if err != nil {
 		return err
 	}
 
 	if hasError(content) {
-		return errors.New("delete error: %s", content)
+		return fmt.Errorf("delete error: %s", content)
 	}
 
 	return nil

@@ -8,9 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/httperror"
-	"github.com/ViBiOh/httputils/v2/pkg/request"
+	"github.com/ViBiOh/httputils/v3/pkg/httperror"
+	"github.com/ViBiOh/httputils/v3/pkg/request"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -52,7 +51,7 @@ func (a *App) GetData() interface{} {
 func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []string, body []byte) {
 	volume, err := strconv.Atoi(string(body))
 	if err != nil {
-		httperror.BadRequest(w, errors.New("volume is not an integer: %v", err))
+		httperror.BadRequest(w, fmt.Errorf("volume is not an integer: %v", err))
 		return
 	}
 
@@ -60,7 +59,7 @@ func (a *App) volumeHandler(w http.ResponseWriter, r *http.Request, urlParts []s
 
 	output := a.hub.SendToWorker(r.Context(), nil, Source, VolumeAction, payload, true)
 	if output.Action == provider.WorkerErrorAction {
-		httperror.InternalServerError(w, errors.New("%v", output.Payload))
+		httperror.InternalServerError(w, fmt.Errorf("%s", output.Payload))
 		return
 	}
 }
@@ -145,7 +144,7 @@ func (a *App) handleHouseholdsWorker(message *provider.WorkerMessage) error {
 
 	var data []*Household
 	if err := json.Unmarshal([]byte(message.Payload), &data); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	a.households = data
@@ -161,7 +160,7 @@ func (a *App) handleMuteWorker(message *provider.WorkerMessage) error {
 	if len(parts) == 2 {
 		muted, err := strconv.ParseBool(parts[1])
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		for _, household := range a.households {

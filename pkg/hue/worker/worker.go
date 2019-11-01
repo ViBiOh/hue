@@ -3,14 +3,14 @@ package hue
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/hue"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
@@ -39,9 +39,9 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		bridgeIP: tools.NewFlag(prefix, "hue").Name("BridgeIP").Default("").Label("IP of Bridge").ToString(fs),
-		username: tools.NewFlag(prefix, "hue").Name("Username").Default("").Label("Username for Bridge").ToString(fs),
-		config:   tools.NewFlag(prefix, "hue").Name("Config").Default("").Label("Configuration filename").ToString(fs),
+		bridgeIP: flags.New(prefix, "hue").Name("BridgeIP").Default("").Label("IP of Bridge").ToString(fs),
+		username: flags.New(prefix, "hue").Name("Username").Default("").Label("Username for Bridge").ToString(fs),
+		config:   flags.New(prefix, "hue").Name("Config").Default("").Label("Configuration filename").ToString(fs),
 	}
 }
 
@@ -57,11 +57,11 @@ func New(config Config) (*App, error) {
 	if *config.config != "" {
 		rawConfig, err := ioutil.ReadFile(*config.config)
 		if err != nil {
-			return app, errors.WithStack(err)
+			return app, err
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return app, errors.WithStack(err)
+			return app, err
 		}
 	}
 
@@ -134,7 +134,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerListGroups(ctx, p)
 	}
 
-	return nil, errors.New("unknown request: %s", p)
+	return nil, fmt.Errorf("unknown request: %s", p)
 }
 
 // Ping send to worker updated data
@@ -166,14 +166,14 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 	if parts := strings.Split(p.Payload, "|"); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
-			return errors.New("unknown state %s", parts[1])
+			return fmt.Errorf("unknown state %s", parts[1])
 		}
 
 		if err := a.updateGroupState(ctx, parts[0], state); err != nil {
 			return err
 		}
 	} else {
-		return errors.New("invalid state request: %s", p.Payload)
+		return fmt.Errorf("invalid state request: %s", p.Payload)
 	}
 
 	return nil
@@ -184,7 +184,7 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 		var config hue.Schedule
 
 		if err := json.Unmarshal([]byte(p.Payload), &config); err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		if config.ID == "" {
@@ -226,7 +226,7 @@ func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMess
 
 	payload, err := json.Marshal(groups)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf("%s", payload)), nil
@@ -240,7 +240,7 @@ func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMess
 
 	payload, err := json.Marshal(scenes)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf("%s", payload)), nil
@@ -254,7 +254,7 @@ func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerM
 
 	payload, err := json.Marshal(schedules)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf("%s", payload)), nil
@@ -268,7 +268,7 @@ func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMes
 
 	payload, err := json.Marshal(sensors)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf("%s", payload)), nil

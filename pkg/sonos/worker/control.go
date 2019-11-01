@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/request"
+	"github.com/ViBiOh/httputils/v3/pkg/request"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
@@ -22,7 +21,7 @@ type HouseholdsOutput struct {
 
 // GetHouseholds retrieves household
 func (a *App) GetHouseholds(ctx context.Context) ([]*sonos.Household, error) {
-	req, err := request.New(http.MethodGet, fmt.Sprintf("%s/households", controlURL), nil, nil)
+	req, err := request.New(ctx, http.MethodGet, fmt.Sprintf("%s/households", controlURL), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func (a *App) GetHouseholds(ctx context.Context) ([]*sonos.Household, error) {
 
 	var data HouseholdsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return data.Households, nil
@@ -48,7 +47,7 @@ type GroupsOutput struct {
 
 // GetGroups retrieves groups of a Household
 func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput, error) {
-	req, err := request.New(http.MethodGet, fmt.Sprintf("%s/households/%s/groups", controlURL, householdID), nil, nil)
+	req, err := request.New(ctx, http.MethodGet, fmt.Sprintf("%s/households/%s/groups", controlURL, householdID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +59,7 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 
 	var data GroupsOutput
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &data, nil
@@ -68,7 +67,7 @@ func (a *App) GetGroups(ctx context.Context, householdID string) (*GroupsOutput,
 
 // GetGroupVolume retrieves volume of a Group
 func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*sonos.GroupVolume, error) {
-	req, err := request.New(http.MethodGet, fmt.Sprintf("%s/groups/%s/groupVolume", controlURL, groupID), nil, nil)
+	req, err := request.New(ctx, http.MethodGet, fmt.Sprintf("%s/groups/%s/groupVolume", controlURL, groupID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +79,7 @@ func (a *App) GetGroupVolume(ctx context.Context, groupID string) (*sonos.GroupV
 
 	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &data, nil
@@ -92,7 +91,7 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 		"volume": volume,
 	}
 
-	req, err := request.JSON(http.MethodPost, fmt.Sprintf("%s/groups/%s/groupVolume", controlURL, groupID), payload, nil)
+	req, err := request.JSON(ctx, http.MethodPost, fmt.Sprintf("%s/groups/%s/groupVolume", controlURL, groupID), payload, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +103,7 @@ func (a *App) SetGroupVolume(ctx context.Context, groupID string, volume int) (*
 
 	var data sonos.GroupVolume
 	if err := json.Unmarshal(rawData, &data); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &data, nil
@@ -116,7 +115,7 @@ func (a *App) SetGroupMute(ctx context.Context, groupID string, muted bool) erro
 		"muted": muted,
 	}
 
-	req, err := request.JSON(http.MethodPost, fmt.Sprintf("%s/groups/%s/groupVolume/mute", controlURL, groupID), payload, nil)
+	req, err := request.JSON(ctx, http.MethodPost, fmt.Sprintf("%s/groups/%s/groupVolume/mute", controlURL, groupID), payload, nil)
 	if err != nil {
 		return err
 	}

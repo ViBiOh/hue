@@ -3,12 +3,13 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
 	"github.com/ViBiOh/iot/pkg/mqtt"
+	"github.com/ViBiOh/iot/pkg/sha"
 )
 
 const (
@@ -86,7 +87,7 @@ type Starter interface {
 func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) *WorkerMessage {
 	var id string
 	if root == nil || strings.TrimSpace(root.ID) == "" {
-		id = tools.Sha1(payload)
+		id = sha.Sha1(payload)
 	} else {
 		id = root.ID
 	}
@@ -102,16 +103,16 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 // WriteMessage writes content as text message
 func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
-		return errors.New("no connection provided for sending: %#v", message)
+		return fmt.Errorf("no connection provided for sending: %#v", message)
 	}
 
 	messagePayload, err := json.Marshal(message)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if err := client.Publish(topic, messagePayload); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil

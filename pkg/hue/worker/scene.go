@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -52,12 +51,12 @@ func (a *App) createScene(ctx context.Context, o *hue.Scene) error {
 func (a *App) createSceneFromScheduleConfig(ctx context.Context, config *hue.ScheduleConfig, groups map[string]*hue.Group) (*hue.Scene, error) {
 	group, ok := groups[config.Group]
 	if !ok {
-		return nil, errors.New("unknown group id: %s", config.Group)
+		return nil, fmt.Errorf("unknown group id: %s", config.Group)
 	}
 
 	state, ok := hue.States[config.State]
 	if !ok {
-		return nil, errors.New("unknown state name: %s", config.State)
+		return nil, fmt.Errorf("unknown state name: %s", config.State)
 	}
 
 	scene := &hue.Scene{

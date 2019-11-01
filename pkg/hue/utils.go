@@ -5,8 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
 
 // FormatLocalTime formats local time of schedules to human readable version
@@ -17,7 +16,7 @@ func (s *Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		logger.Error("%#v", errors.WithStack(err))
+		logger.Error("%s", err)
 		return s.Localtime
 	}
 

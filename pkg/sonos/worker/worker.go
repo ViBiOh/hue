@@ -3,14 +3,14 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/ViBiOh/iot/pkg/sonos"
 )
@@ -41,10 +41,10 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		accessToken:  tools.NewFlag(prefix, "sonos").Name("AccessToken").Default("").Label("Access Token").ToString(fs),
-		refreshToken: tools.NewFlag(prefix, "sonos").Name("RefreshToken").Default("").Label("Refresh Token").ToString(fs),
-		clientID:     tools.NewFlag(prefix, "sonos").Name("ClientID").Default("").Label("Client ID").ToString(fs),
-		clientSecret: tools.NewFlag(prefix, "sonos").Name("ClientSecret").Default("").Label("Client Secret").ToString(fs),
+		accessToken:  flags.New(prefix, "sonos").Name("AccessToken").Default("").Label("Access Token").ToString(fs),
+		refreshToken: flags.New(prefix, "sonos").Name("RefreshToken").Default("").Label("Refresh Token").ToString(fs),
+		clientID:     flags.New(prefix, "sonos").Name("ClientID").Default("").Label("Client ID").ToString(fs),
+		clientSecret: flags.New(prefix, "sonos").Name("ClientSecret").Default("").Label("Client Secret").ToString(fs),
 	}
 }
 
@@ -78,7 +78,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 		return a.workerMute(ctx, p)
 	}
 
-	return nil, errors.New("unknown request: %s", p)
+	return nil, fmt.Errorf("unknown request: %s", p)
 }
 
 func (a *App) workerVolume(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
@@ -139,7 +139,7 @@ func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
 
 	payload, err := json.Marshal(households)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	message := provider.NewWorkerMessage(nil, sonos.Source, "households", fmt.Sprintf("%s", payload))

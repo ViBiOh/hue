@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 

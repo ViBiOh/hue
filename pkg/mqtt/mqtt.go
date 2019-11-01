@@ -2,17 +2,17 @@ package mqtt
 
 import (
 	"crypto/tls"
+	"errors"
 	"flag"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/yosssi/gmq/mqtt"
 	"github.com/yosssi/gmq/mqtt/client"
 )
 
-// Config of package
+// Config of packag
 type Config struct {
 	server   *string
 	port     *int
@@ -30,12 +30,12 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		server:   tools.NewFlag(prefix, "mqtt").Name("Server").Default("").Label("Server name").ToString(fs),
-		port:     tools.NewFlag(prefix, "mqtt").Name("Port").Default(80).Label("Port").ToInt(fs),
-		useTLS:   tools.NewFlag(prefix, "mqtt").Name("UseTLS").Default(true).Label("Use TLS").ToBool(fs),
-		user:     tools.NewFlag(prefix, "mqtt").Name("User").Default("").Label("Username").ToString(fs),
-		pass:     tools.NewFlag(prefix, "mqtt").Name("Pass").Default("").Label("Password").ToString(fs),
-		clientID: tools.NewFlag(prefix, "mqtt").Name("ClientID").Default("iot").Label("Client ID").ToString(fs),
+		server:   flags.New(prefix, "mqtt").Name("Server").Default("").Label("Server name").ToString(fs),
+		port:     flags.New(prefix, "mqtt").Name("Port").Default(80).Label("Port").ToInt(fs),
+		useTLS:   flags.New(prefix, "mqtt").Name("UseTLS").Default(true).Label("Use TLS").ToBool(fs),
+		user:     flags.New(prefix, "mqtt").Name("User").Default("").Label("Username").ToString(fs),
+		pass:     flags.New(prefix, "mqtt").Name("Pass").Default("").Label("Password").ToString(fs),
+		clientID: flags.New(prefix, "mqtt").Name("ClientID").Default("iot").Label("Client ID").ToString(fs),
 	}
 }
 
@@ -67,14 +67,14 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 	}
 
 	connect := func(mqttClient *client.Client) error {
-		return errors.WithStack(mqttClient.Connect(&client.ConnectOptions{
+		return mqttClient.Connect(&client.ConnectOptions{
 			Network:   "tcp",
 			Address:   fmt.Sprintf("%s:%d", server, port),
 			TLSConfig: tlsConfig,
 			UserName:  []byte(user),
 			Password:  []byte(pass),
 			ClientID:  []byte(clientID),
-		}))
+		})
 	}
 
 	var mqttClient *client.Client
@@ -94,7 +94,7 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 
 	err := connect(mqttClient)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &App{mqttClient}, nil
@@ -118,7 +118,7 @@ func (a App) Publish(topic string, message []byte) error {
 		Message:   message,
 	})
 
-	return errors.WithStack(err)
+	return err
 }
 
 // Subscribe to a topic
@@ -139,7 +139,7 @@ func (a App) Subscribe(topic string, handler func([]byte)) error {
 		},
 	})
 
-	return errors.WithStack(err)
+	return err
 }
 
 // Unsubscribe from a topic
@@ -154,7 +154,7 @@ func (a App) Unsubscribe(topic string) error {
 		},
 	})
 
-	return errors.WithStack(err)
+	return err
 }
 
 // End disconnect and release ressource properly
@@ -164,7 +164,7 @@ func (a App) End() {
 	}
 
 	if err := a.client.Disconnect(); err != nil {
-		logger.Error("%#v", errors.WithStack(err))
+		logger.Error("%s", err)
 	}
 
 	a.client.Terminate()

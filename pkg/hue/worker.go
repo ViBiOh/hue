@@ -3,7 +3,6 @@ package hue
 import (
 	"encoding/json"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
 	"github.com/ViBiOh/iot/pkg/provider"
 )
 
@@ -39,7 +38,7 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 
 	var newGroups map[string]*Group
 	if err := json.Unmarshal([]byte(message.Payload), &newGroups); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	a.groups = newGroups
@@ -53,7 +52,7 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 
 	var newSchedules map[string]*Schedule
 	if err := json.Unmarshal([]byte(message.Payload), &newSchedules); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	a.schedules = newSchedules
@@ -67,7 +66,7 @@ func (a *App) handleSensorsFromWorker(message *provider.WorkerMessage) error {
 
 	var newSensors map[string]*Sensor
 	if err := json.Unmarshal([]byte(message.Payload), &newSensors); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	a.sensors = newSensors
@@ -85,7 +84,7 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 
 	var newScenes map[string]*Scene
 	if err := json.Unmarshal([]byte(message.Payload), &newScenes); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	a.scenes = newScenes

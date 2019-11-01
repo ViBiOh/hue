@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/request"
+	"github.com/ViBiOh/httputils/v3/pkg/request"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
@@ -16,14 +15,14 @@ func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) 
 		return nil, err
 	}
 
-	content, err := request.ReadBody(body)
+	content, err := request.ReadContent(body)
 	if err != nil {
 		return nil, err
 	}
 
 	var light hue.Light
 	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &light, nil

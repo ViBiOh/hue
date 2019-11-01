@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/ViBiOh/httputils/v2/pkg/concurrent"
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
+	"github.com/ViBiOh/httputils/v3/pkg/concurrent"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
@@ -40,8 +40,8 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		publish:   tools.NewFlag(prefix, "worker").Name("Publish").Default("local,remote").Label("Topics to publish to, comma separated").ToString(fs),
-		subscribe: tools.NewFlag(prefix, "worker").Name("Subscribe").Default("worker").Label("Topic to subscribe to").ToString(fs),
+		publish:   flags.New(prefix, "worker").Name("Publish").Default("local,remote").Label("Topics to publish to, comma separated").ToString(fs),
+		subscribe: flags.New(prefix, "worker").Name("Subscribe").Default("worker").Label("Topic to subscribe to").ToString(fs),
 	}
 }
 
@@ -100,7 +100,7 @@ func (a *App) pingWorkers() {
 			return nil, nil
 		}
 
-		return nil, errors.New("unrecognized worker type: %#v", e)
+		return nil, fmt.Errorf("unrecognized worker type: %#v", e)
 	}
 
 	onSucces := func(output interface{}) {
@@ -139,11 +139,11 @@ func (a *App) pinger() {
 func (a *App) handleTextMessage(p []byte) {
 	var message provider.WorkerMessage
 	if err := json.Unmarshal(p, &message); err != nil {
-		logger.Error("%#v", errors.WithStack(err))
+		logger.Error("%s", err)
 		return
 	}
 
-	ctx = context.Background()
+	ctx := context.Background()
 
 	if worker, ok := a.handlers[message.Source]; ok {
 		output, err := worker.Handle(ctx, &message)

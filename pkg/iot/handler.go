@@ -9,13 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v2/pkg/errors"
-	"github.com/ViBiOh/httputils/v2/pkg/httperror"
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
-	"github.com/ViBiOh/httputils/v2/pkg/templates"
-	"github.com/ViBiOh/httputils/v2/pkg/tools"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/httputils/v3/pkg/httperror"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/templates"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/ViBiOh/iot/pkg/sha"
 )
 
 const (
@@ -68,16 +68,16 @@ type App struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		AssetsDirectory: tools.NewFlag(prefix, "iot").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
-		subscribe:       tools.NewFlag(prefix, "iot").Name("Subscribe").Default("").Label("Topic to subscribe to").ToString(fs),
-		publish:         tools.NewFlag(prefix, "iot").Name("Publish").Default("worker").Label("Topic to publish to").ToString(fs),
-		prometheus:      tools.NewFlag(prefix, "iot").Name("Prometheus").Default(false).Label("Expose Prometheus metrics").ToBool(fs),
+		AssetsDirectory: flags.New(prefix, "iot").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
+		subscribe:       flags.New(prefix, "iot").Name("Subscribe").Default("").Label("Topic to subscribe to").ToString(fs),
+		publish:         flags.New(prefix, "iot").Name("Publish").Default("worker").Label("Topic to publish to").ToString(fs),
+		prometheus:      flags.New(prefix, "iot").Name("Prometheus").Default(false).Label("Expose Prometheus metrics").ToBool(fs),
 	}
 }
 
 func getTemplate(filesTemplates []string) *template.Template {
 	return template.Must(template.New("iot").Funcs(template.FuncMap{
-		"sha": tools.Sha1,
+		"sha": sha.Sha1,
 		"battery": func(value uint) string {
 			switch {
 			case value >= 90:
@@ -131,7 +131,7 @@ func getTemplate(filesTemplates []string) *template.Template {
 func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt.App) *App {
 	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, "templates"), ".html")
 	if err != nil {
-		logger.Error("%#v", errors.WithStack(err))
+		logger.Error("%s", err)
 	}
 
 	app := &App{
@@ -195,7 +195,7 @@ func (a *App) svgHandler() http.Handler {
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		if err := tpl.Execute(w, r.URL.Query().Get("fill")); err != nil {
-			httperror.InternalServerError(w, errors.WithStack(err))
+			httperror.InternalServerError(w, err)
 		}
 	})
 }

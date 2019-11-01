@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/v2/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
 
