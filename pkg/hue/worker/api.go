@@ -15,12 +15,12 @@ func hasError(content []byte) bool {
 }
 
 func get(ctx context.Context, url string, response interface{}) error {
-	body, _, _, err := request.Get(ctx, url, nil)
+	resp, err := request.Get(ctx, url, nil)
 	if err != nil {
 		return err
 	}
 
-	content, err := request.ReadContent(body)
+	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
 		return err
 	}
@@ -33,12 +33,12 @@ func get(ctx context.Context, url string, response interface{}) error {
 }
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
-	body, _, _, err := request.PostJSON(ctx, url, payload, nil)
+	resp, err := request.PostJSON(ctx, url, payload, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	content, err := request.ReadContent(body)
+	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +61,12 @@ func update(ctx context.Context, url string, payload interface{}) error {
 		return err
 	}
 
-	body, _, _, err := request.Do(ctx, req)
+	resp, err := request.Do(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	content, err := request.ReadContent(body)
+	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
 		return err
 	}
@@ -84,12 +84,12 @@ func delete(ctx context.Context, url string) error {
 		return err
 	}
 
-	body, _, _, err := request.Do(ctx, req)
+	resp, err := request.Do(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	content, err := request.ReadContent(body)
+	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
 		return err
 	}

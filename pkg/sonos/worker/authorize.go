@@ -32,12 +32,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 
 	req.SetBasicAuth(a.clientID, a.clientSecret)
 
-	body, _, _, err := request.Do(ctx, req)
+	response, err := request.Do(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	rawData, err := request.ReadContent(body)
+	rawData, err := request.ReadBodyResponse(response)
 	if err != nil {
 		return err
 	}
@@ -61,16 +61,16 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 	a.mutex.RUnlock()
 
-	body, status, _, err := request.Do(ctx, req)
+	response, err := request.Do(ctx, req)
 	if err != nil {
-		if status == http.StatusUnauthorized {
+		if response != nil && response.StatusCode == http.StatusUnauthorized {
 			if err := a.refreshAccessToken(ctx); err != nil {
 				return nil, err
 			}
 
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 
-			body, _, _, err = request.Do(ctx, req)
+			response, err = request.Do(ctx, req)
 		}
 
 		if err != nil {
@@ -78,5 +78,5 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 		}
 	}
 
-	return request.ReadContent(body)
+	return request.ReadBodyResponse(response)
 }
