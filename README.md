@@ -66,35 +66,35 @@ Usage of iot:
 ```bash
 Usage of iot-worker:
   -hueBridgeIP string
-        [hue] IP of Bridge {IOT-WORKER_HUE_BRIDGE_IP}
+        [hue] IP of Bridge {IOT_WORKER_HUE_BRIDGE_IP}
   -hueConfig string
-        [hue] Configuration filename {IOT-WORKER_HUE_CONFIG}
+        [hue] Configuration filename {IOT_WORKER_HUE_CONFIG}
   -hueUsername string
-        [hue] Username for Bridge {IOT-WORKER_HUE_USERNAME}
+        [hue] Username for Bridge {IOT_WORKER_HUE_USERNAME}
   -mqttClientID string
-        [mqtt] Client ID {IOT-WORKER_MQTT_CLIENT_ID} (default "iot")
+        [mqtt] Client ID {IOT_WORKER_MQTT_CLIENT_ID} (default "iot")
   -mqttPass string
-        [mqtt] Password {IOT-WORKER_MQTT_PASS}
+        [mqtt] Password {IOT_WORKER_MQTT_PASS}
   -mqttPort int
-        [mqtt] Port {IOT-WORKER_MQTT_PORT} (default 80)
+        [mqtt] Port {IOT_WORKER_MQTT_PORT} (default 80)
   -mqttServer string
-        [mqtt] Server name {IOT-WORKER_MQTT_SERVER}
+        [mqtt] Server name {IOT_WORKER_MQTT_SERVER}
   -mqttUseTLS
-        [mqtt] Use TLS {IOT-WORKER_MQTT_USE_TLS} (default true)
+        [mqtt] Use TLS {IOT_WORKER_MQTT_USE_TLS} (default true)
   -mqttUser string
-        [mqtt] Username {IOT-WORKER_MQTT_USER}
+        [mqtt] Username {IOT_WORKER_MQTT_USER}
   -publish string
-        [worker] Topics to publish to, comma separated {IOT-WORKER_PUBLISH} (default "local,remote")
+        [worker] Topics to publish to, comma separated {IOT_WORKER_PUBLISH} (default "local,remote")
   -sonosAccessToken string
-        [sonos] Access Token {IOT-WORKER_SONOS_ACCESS_TOKEN}
+        [sonos] Access Token {IOT_WORKER_SONOS_ACCESS_TOKEN}
   -sonosClientID string
-        [sonos] Client ID {IOT-WORKER_SONOS_CLIENT_ID}
+        [sonos] Client ID {IOT_WORKER_SONOS_CLIENT_ID}
   -sonosClientSecret string
-        [sonos] Client Secret {IOT-WORKER_SONOS_CLIENT_SECRET}
+        [sonos] Client Secret {IOT_WORKER_SONOS_CLIENT_SECRET}
   -sonosRefreshToken string
-        [sonos] Refresh Token {IOT-WORKER_SONOS_REFRESH_TOKEN}
+        [sonos] Refresh Token {IOT_WORKER_SONOS_REFRESH_TOKEN}
   -subscribe string
-        [worker] Topic to subscribe to {IOT-WORKER_SUBSCRIBE} (default "worker")
+        [worker] Topic to subscribe to {IOT_WORKER_SUBSCRIBE} (default "worker")
 ```
 
 ## Create systemd service for worker
