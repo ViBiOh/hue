@@ -111,14 +111,14 @@ func (a *App) pingWorkers() {
 		for _, message := range output.([]*provider.WorkerMessage) {
 			for _, topic := range a.publishTopics {
 				if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
-					logger.Error("%#v", err)
+					logger.Error("%s", err)
 				}
 			}
 		}
 	}
 
 	onError := func(err error) {
-		logger.Error("%#v", err)
+		logger.Error("%s", err)
 	}
 
 	inputs := concurrent.Run(uint(workersCount), action, onSucces, onError)
@@ -149,12 +149,12 @@ func (a *App) handleTextMessage(p []byte) {
 		output, err := worker.Handle(ctx, &message)
 
 		if err != nil {
-			logger.Error("%#v", err)
+			logger.Error("%s", err)
 		}
 
 		if output != nil {
 			if err := provider.WriteMessage(ctx, a.mqttClient, message.ResponseTo, output); err != nil {
-				logger.Error("%#v", err)
+				logger.Error("%s", err)
 			}
 		}
 
@@ -168,7 +168,7 @@ func (a *App) connect() {
 	logger.Info("Connecting to MQTT %s", a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
-		logger.Error("%#v", err)
+		logger.Error("%s", err)
 	}
 }
 
@@ -184,7 +184,7 @@ func main() {
 
 	hueApp, err := hue_worker.New(hueConfig)
 	if err != nil {
-		logger.Error("%#v", err)
+		logger.Error("%s", err)
 		os.Exit(1)
 	}
 

@@ -114,13 +114,13 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 func (a *App) configureSchedules(ctx context.Context, schedules []*hue.ScheduleConfig) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		logger.Error("%#v", err)
+		logger.Error("%s", err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
-			logger.Error("%#v", err)
+			logger.Error("%s", err)
 		}
 	}
 }

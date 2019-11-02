@@ -51,7 +51,7 @@ func (a *App) configureTap(ctx context.Context, taps []*tapConfig) {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
 			if err := a.createRule(ctx, button.Rule); err != nil {
-				logger.Error("%#v", err)
+				logger.Error("%s", err)
 			}
 		}
 	}

@@ -21,7 +21,7 @@ func (a *App) handleTextMessage(p []byte) {
 
 	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
 		if err := workerProvider.WorkerHandler(&workerMessage); err != nil {
-			logger.Error("%#v", err)
+			logger.Error("%s", err)
 		}
 
 		return
@@ -35,6 +35,6 @@ func (a *App) HandleWorker() {
 	logger.Info("Connecting to MQTT %s", a.subscribeTopic)
 	err := a.mqttClient.Subscribe(a.subscribeTopic, a.handleTextMessage)
 	if err != nil {
-		logger.Error("%#v", err)
+		logger.Error("%s", err)
 	}
 }
