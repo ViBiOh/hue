@@ -96,28 +96,14 @@ build-arm:
 start-worker:
 	$(WORKER_RUNNER) \
 		-mqttClientID "iot-worker-dev" \
-		-mqttServer $(IOT_MQTT_SERVER) \
-		-mqttPort $(IOT_MQTT_PORT) \
-		-mqttUser $(IOT_MQTT_USER) \
-		-mqttPass $(IOT_MQTT_PASS) \
 		-subscribe "dev-worker" \
 		-publish "dev" \
-		-hueUsername $(BRIDGE_USERNAME) \
-		-hueBridgeIP $(BRIDGE_IP) \
-		-sonosAccessToken "$(SONOS_ACCESS_TOKEN)" \
-		-sonosClientID "$(SONOS_CLIENT_ID)" \
-		-sonosClientSecret "$(SONOS_CLIENT_SECRET)" \
-		-sonosRefreshToken "$(SONOS_REFRESH_TOKEN)"
 
 ## start: Start app
 .PHONY: start
 start:
 	$(SERVER_RUNNER) \
 		-mqttClientID "iot-dev" \
-		-mqttServer $(IOT_MQTT_SERVER) \
-		-mqttPort $(IOT_MQTT_PORT) \
-		-mqttUser $(IOT_MQTT_USER) \
-		-mqttPass $(IOT_MQTT_PASS) \
 		-subscribe "dev" \
 		-publish "dev-worker" \
 		-prometheus \

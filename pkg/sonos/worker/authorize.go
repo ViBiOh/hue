@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ViBiOh/httputils/v3/pkg/request"
 	"github.com/ViBiOh/iot/pkg/sonos"
@@ -25,19 +24,12 @@ func (a *App) refreshAccessToken(ctx context.Context) error {
 		"refresh_token": []string{a.refreshToken},
 	}
 
-	req, err := request.New(ctx, http.MethodPost, refreshTokenURL, strings.NewReader(payload.Encode()), nil)
+	resp, err := request.New().Post(refreshTokenURL).BasicAuth(a.clientID, a.clientSecret).Form(ctx, payload)
 	if err != nil {
 		return err
 	}
 
-	req.SetBasicAuth(a.clientID, a.clientSecret)
-
-	response, err := request.Do(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	rawData, err := request.ReadBodyResponse(response)
+	rawData, err := request.ReadBodyResponse(resp)
 	if err != nil {
 		return err
 	}
@@ -61,16 +53,16 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 	a.mutex.RUnlock()
 
-	response, err := request.Do(ctx, req)
+	resp, err := request.Do(req)
 	if err != nil {
-		if response != nil && response.StatusCode == http.StatusUnauthorized {
+		if resp != nil && resp.StatusCode == http.StatusUnauthorized {
 			if err := a.refreshAccessToken(ctx); err != nil {
 				return nil, err
 			}
 
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.accessToken))
 
-			response, err = request.Do(ctx, req)
+			resp, err = request.Do(req)
 		}
 
 		if err != nil {
@@ -78,5 +70,5 @@ func (a *App) requestWithAuth(ctx context.Context, req *http.Request) ([]byte, e
 		}
 	}
 
-	return request.ReadBodyResponse(response)
+	return request.ReadBodyResponse(resp)
 }

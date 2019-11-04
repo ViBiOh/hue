@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/ViBiOh/httputils/v3/pkg/request"
 )
@@ -15,7 +14,7 @@ func hasError(content []byte) bool {
 }
 
 func get(ctx context.Context, url string, response interface{}) error {
-	resp, err := request.Get(ctx, url, nil)
+	resp, err := request.New().Get(url).Send(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -33,7 +32,7 @@ func get(ctx context.Context, url string, response interface{}) error {
 }
 
 func create(ctx context.Context, url string, payload interface{}) (*string, error) {
-	resp, err := request.PostJSON(ctx, url, payload, nil)
+	resp, err := request.New().Post(url).JSON(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +55,7 @@ func create(ctx context.Context, url string, payload interface{}) (*string, erro
 }
 
 func update(ctx context.Context, url string, payload interface{}) error {
-	req, err := request.JSON(ctx, http.MethodPut, url, payload, nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := request.Do(ctx, req)
+	resp, err := request.New().Put(url).JSON(ctx, payload)
 	if err != nil {
 		return err
 	}
@@ -79,12 +73,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 }
 
 func delete(ctx context.Context, url string) error {
-	req, err := request.New(ctx, http.MethodDelete, url, nil, nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := request.Do(ctx, req)
+	resp, err := request.New().Delete(url).Send(ctx, nil)
 	if err != nil {
 		return err
 	}

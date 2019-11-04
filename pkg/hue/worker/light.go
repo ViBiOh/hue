@@ -10,7 +10,7 @@ import (
 )
 
 func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) {
-	resp, err := request.Get(ctx, fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID), nil)
+	resp, err := request.New().Get(fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID)).Send(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
