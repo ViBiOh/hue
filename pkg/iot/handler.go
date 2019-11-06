@@ -172,7 +172,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	if message != nil && message.Level == "error" {
-		logger.Error("%#v", message.Content)
+		logger.Error("%s", message.Content)
 	}
 
 	for name, provider := range a.providers {

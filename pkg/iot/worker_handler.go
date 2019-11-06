@@ -27,7 +27,7 @@ func (a *App) handleTextMessage(p []byte) {
 		return
 	}
 
-	logger.Error("%#v", fmt.Errorf("no provider found for message: %#v", workerMessage))
+	logger.Error("%s", fmt.Errorf("no provider found for message: %#v", workerMessage))
 }
 
 // HandleWorker listen from worker

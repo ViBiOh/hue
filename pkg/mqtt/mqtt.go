@@ -80,10 +80,10 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 	var mqttClient *client.Client
 
 	handleError := func(err error) {
-		logger.Error("error with %s as %s: %#v", server, clientID, err)
+		logger.Error("error with %s as %s: %s", server, clientID, err)
 		if err == client.ErrNotYetConnected {
 			if err := connect(mqttClient); err != nil {
-				logger.Error("error while attempting to reconnect: %#v", err)
+				logger.Error("error while attempting to reconnect: %s", err)
 			}
 		}
 	}
