@@ -1,4 +1,4 @@
-SHELL = /bin/sh
+SHELL = /bin/bash
 
 ifneq ("$(wildcard .env)","")
 	include .env
@@ -51,6 +51,7 @@ app: init dev
 ## init: Download dependencies
 .PHONY: init
 init:
+	@curl -q -sSL --max-time 10 "https://raw.githubusercontent.com/ViBiOh/scripts/master/bootstrap" | bash -s "git_hooks" "coverage"
 	go get github.com/kisielk/errcheck
 	go get golang.org/x/lint/golint
 	go get golang.org/x/tools/cmd/goimports
@@ -71,7 +72,7 @@ style:
 ## test: Test with coverage
 .PHONY: test
 test:
-	script/coverage
+	scripts/coverage
 	go test $(PACKAGES) -bench . -benchmem -run Benchmark.*
 
 ## build: Build binary
