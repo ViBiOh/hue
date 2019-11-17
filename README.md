@@ -58,7 +58,7 @@ Usage of iot:
   -url string
         [alcotest] URL to check {IOT_URL}
   -userAgent string
-        [alcotest] User-Agent for check {IOT_USER_AGENT} (default "Golang alcotest")
+        [alcotest] User-Agent for check {IOT_USER_AGENT} (default "Alcotest")
 ```
 
 ## Usage of IoT worker
