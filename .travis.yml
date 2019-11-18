@@ -27,17 +27,10 @@ jobs:
   - stage: Deploy
 
     language: minimal
-    script: |
-     sed \
-        -e "s|\${BASIC_USERS}|${BASIC_USERS}|g" \
-        -e "s/\${IOT_MQTT_SERVER}/${IOT_MQTT_SERVER}/g" \
-        -e "s/\${IOT_MQTT_PORT}/${IOT_MQTT_PORT}/g" \
-        -e "s/\${IOT_MQTT_USER}/${IOT_MQTT_USER}/g" \
-        -e "s/\${IOT_MQTT_PASS}/${IOT_MQTT_PASS}/g" \
-        -e "s|\\\$|\$\$|g" \
-        docker-compose.yml > docker-compose-env.yml
-      curl -q -sSL --max-time 10 "https://raw.githubusercontent.com/ViBiOh/scripts/master/bootstrap" | bash -s "deploy"
-      scripts/deploy "$(make name)" "@docker-compose-env.yml"
+    script:
+    - curl -q -sSL --max-time 10 "https://raw.githubusercontent.com/ViBiOh/scripts/master/bootstrap" | bash -s "deploy" "env_replace"
+    - scripts/env_replace docker-compose.yml BASIC_USERS IOT_MQTT_SERVER IOT_MQTT_PORT IOT_MQTT_USER IOT_MQTT_PASS | sed "s|\\\$|\$\$|g" > docker-compose-env.yml
+    - scripts/deploy "$(make name)" "@docker-compose-env.yml"
 
 stages:
   - Build
