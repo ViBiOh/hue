@@ -12,6 +12,14 @@ import (
 	"github.com/yosssi/gmq/mqtt/client"
 )
 
+// App of package
+type App interface {
+	Enabled() bool
+	Publish(string, []byte) error
+	Subscribe(string, func([]byte)) error
+	Unsubscribe(string) error
+}
+
 // Config of packag
 type Config struct {
 	server   *string
@@ -22,8 +30,7 @@ type Config struct {
 	clientID *string
 }
 
-// App of package
-type App struct {
+type app struct {
 	client *client.Client
 }
 
@@ -40,27 +47,22 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config) (*App, error) {
+func New(config Config) (App, error) {
 	if *config.server == "" {
 		logger.Warn("no server provided")
-		return &App{}, nil
+		return &app{}, nil
 	}
 
 	if *config.clientID == "" {
 		logger.Warn("no clientID provided")
-		return &App{}, nil
+		return &app{}, nil
 	}
 
-	app, err := Connect(*config.server, *config.user, *config.pass, *config.clientID, *config.port, *config.useTLS)
-	if err != nil {
-		return nil, err
-	}
-
-	return app, nil
+	return Connect(*config.server, *config.user, *config.pass, *config.clientID, *config.port, *config.useTLS)
 }
 
 // Connect to MQTT
-func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, error) {
+func Connect(server, user, pass, clientID string, port int, useTLS bool) (App, error) {
 	var tlsConfig *tls.Config
 	if useTLS {
 		tlsConfig = &tls.Config{}
@@ -78,10 +80,11 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 	}
 
 	var mqttClient *client.Client
+	connected := false
 
 	handleError := func(err error) {
 		logger.Error("error with %s as %s: %s", server, clientID, err)
-		if err == client.ErrNotYetConnected {
+		if connected {
 			if err := connect(mqttClient); err != nil {
 				logger.Error("error while attempting to reconnect: %s", err)
 			}
@@ -97,16 +100,17 @@ func Connect(server, user, pass, clientID string, port int, useTLS bool) (*App, 
 		return nil, err
 	}
 
-	return &App{mqttClient}, nil
+	connected = true
+	return &app{mqttClient}, nil
 }
 
 // Enabled determines if MQTT is enabled or not
-func (a App) Enabled() bool {
+func (a app) Enabled() bool {
 	return a.client != nil
 }
 
 // Publish to a topic
-func (a App) Publish(topic string, message []byte) error {
+func (a app) Publish(topic string, message []byte) error {
 	if !a.Enabled() {
 		return errors.New("client not configured")
 	}
@@ -122,7 +126,7 @@ func (a App) Publish(topic string, message []byte) error {
 }
 
 // Subscribe to a topic
-func (a App) Subscribe(topic string, handler func([]byte)) error {
+func (a app) Subscribe(topic string, handler func([]byte)) error {
 	if !a.Enabled() {
 		return errors.New("client not configured")
 	}
@@ -143,7 +147,7 @@ func (a App) Subscribe(topic string, handler func([]byte)) error {
 }
 
 // Unsubscribe from a topic
-func (a App) Unsubscribe(topic string) error {
+func (a app) Unsubscribe(topic string) error {
 	if !a.Enabled() {
 		return errors.New("client not configured")
 	}
@@ -158,7 +162,7 @@ func (a App) Unsubscribe(topic string) error {
 }
 
 // End disconnect and release ressource properly
-func (a App) End() {
+func (a app) End() {
 	if !a.Enabled() {
 		return
 	}

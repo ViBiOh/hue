@@ -101,7 +101,7 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 }
 
 // WriteMessage writes content as text message
-func WriteMessage(ctx context.Context, client *mqtt.App, topic string, message *WorkerMessage) error {
+func WriteMessage(ctx context.Context, client mqtt.App, topic string, message *WorkerMessage) error {
 	if client == nil {
 		return fmt.Errorf("no connection provided for sending: %#v", message)
 	}

@@ -59,7 +59,7 @@ type App struct {
 	workerProviders map[string]provider.WorkerProvider
 	workerCalls     sync.Map
 
-	mqttClient     *mqtt.App
+	mqttClient     mqtt.App
 	subscribeTopic string
 	publishTopic   string
 	prometheus     bool
@@ -128,7 +128,7 @@ func getTemplate(filesTemplates []string) *template.Template {
 }
 
 // New creates new App from Config
-func New(config Config, providers map[string]provider.Provider, mqttClient *mqtt.App) *App {
+func New(config Config, providers map[string]provider.Provider, mqttClient mqtt.App) *App {
 	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, "templates"), ".html")
 	if err != nil {
 		logger.Error("%s", err)

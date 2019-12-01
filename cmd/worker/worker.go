@@ -34,7 +34,7 @@ type App struct {
 	subscribeTopic string
 	workers        map[string]provider.Worker
 	handlers       map[string]provider.WorkerHandler
-	mqttClient     *mqtt.App
+	mqttClient     mqtt.App
 }
 
 // Flags adds flags for configuring package
@@ -46,7 +46,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, workers []provider.Worker, mqttClient *mqtt.App) *App {
+func New(config Config, workers []provider.Worker, mqttClient mqtt.App) *App {
 	workersMap := make(map[string]provider.Worker, len(workers))
 	handlersMap := make(map[string]provider.WorkerHandler, 0)
 
