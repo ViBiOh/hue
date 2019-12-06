@@ -146,16 +146,19 @@ func New(config Config, providers map[string]provider.Provider, mqttClient mqtt.
 		prometheus:     *config.prometheus,
 	}
 
-	for _, p := range providers {
+	for name, p := range providers {
 		if app.prometheus {
+			logger.Info("Enabling prometheus for %s", name)
 			p.EnablePrometheus()
 		}
 
 		if hubUser, ok := p.(provider.HubUser); ok {
+			logger.Info("Registering %s to hub", name)
 			hubUser.SetHub(app)
 		}
 
 		if worker, ok := p.(provider.WorkerProvider); ok {
+			logger.Info("Registering worker for %s", name)
 			app.registerWorker(worker)
 		}
 	}
