@@ -158,7 +158,6 @@ func New(config Config, providers map[string]provider.Provider, mqttClient mqtt.
 		}
 
 		if worker, ok := p.(provider.WorkerProvider); ok {
-			logger.Info("Registering worker for %s", name)
 			app.registerWorker(worker)
 		}
 	}
