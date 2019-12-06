@@ -32,7 +32,7 @@ const (
 	DeleteAction = "delete"
 )
 
-func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -46,7 +46,7 @@ func (a *App) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -60,7 +60,7 @@ func (a *App) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *App) handleSensorsFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleSensorsFromWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -71,14 +71,12 @@ func (a *App) handleSensorsFromWorker(message *provider.WorkerMessage) error {
 
 	a.sensors = newSensors
 
-	if a.prometheus {
-		a.updatePrometheusSensors()
-	}
+	a.updatePrometheusSensors()
 
 	return nil
 }
 
-func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleScenesFromWorker(message *provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -93,7 +91,7 @@ func (a *App) handleScenesFromWorker(message *provider.WorkerMessage) error {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *App) WorkerHandler(p *provider.WorkerMessage) error {
+func (a *app) WorkerHandler(p *provider.WorkerMessage) error {
 	if p.Action == WorkerGroupsAction {
 		return a.handleGroupsFromWorker(p)
 	}

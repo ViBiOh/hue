@@ -36,10 +36,6 @@ func (a *App) SetHub(hub provider.Hub) {
 	a.hub = hub
 }
 
-// EnablePrometheus start prometheus register
-func (a *App) EnablePrometheus() {
-}
-
 // GetData return data for Dashboard rendering
 func (a *App) GetData() interface{} {
 	a.mutex.RLock()

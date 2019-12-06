@@ -17,11 +17,18 @@ const (
 )
 
 var (
-	_ provider.WorkerProvider = &App{}
+	_ provider.WorkerProvider = &app{}
 )
 
 // App stores informations and secret of API
-type App struct {
+type App interface {
+	Handler() http.Handler
+	SetHub(provider.Hub)
+	GetWorkerSource() string
+	GetData() interface{}
+}
+
+type app struct {
 	hub       provider.Hub
 	groups    map[string]*Group
 	scenes    map[string]*Scene
@@ -29,16 +36,19 @@ type App struct {
 	sensors   map[string]*Sensor
 	mutex     sync.RWMutex
 
-	prometheus           bool
+	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
 }
 
 // New creates new App
-func New() *App {
-	return &App{}
+func New(registerer prometheus.Registerer) App {
+	return &app{
+		prometheusRegisterer: registerer,
+		prometheusCollectors: make(map[string]prometheus.Gauge),
+	}
 }
 
-func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload string, typeName, successMessage string) {
+func (a *app) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload string, typeName, successMessage string) {
 	output := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload, true)
 
 	if output == nil {
@@ -59,7 +69,7 @@ func (a *App) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload 
 	}
 }
 
-func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
+func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		postMethod := r.FormValue("method")
 
@@ -110,7 +120,7 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown schedule command", Source)})
 }
 
-func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
+func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		postMethod := r.FormValue("method")
 
@@ -132,7 +142,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handler create Handler with given App context
-func (a *App) Handler() http.Handler {
+func (a *app) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, groupsRequest) {
 			a.handleGroup(w, r)
@@ -149,23 +159,17 @@ func (a *App) Handler() http.Handler {
 }
 
 // SetHub receive Hub during init of it
-func (a *App) SetHub(hub provider.Hub) {
+func (a *app) SetHub(hub provider.Hub) {
 	a.hub = hub
 }
 
 // GetWorkerSource get source of message
-func (a *App) GetWorkerSource() string {
+func (a *app) GetWorkerSource() string {
 	return Source
 }
 
-// EnablePrometheus start prometheus register
-func (a *App) EnablePrometheus() {
-	a.prometheus = true
-	a.prometheusCollectors = make(map[string]prometheus.Gauge)
-}
-
 // GetData return data for Dashboard rendering
-func (a *App) GetData() interface{} {
+func (a *app) GetData() interface{} {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 

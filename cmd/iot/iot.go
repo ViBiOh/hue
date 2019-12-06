@@ -43,11 +43,14 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 
+	prometheusApp := prometheus.New(prometheusConfig)
+	prometheusRegisterer := prometheusApp.Registerer()
+
 	mqttApp, err := mqtt.New(mqttConfig)
 	logger.Fatal(err)
 
 	sonosApp := sonos.New()
-	hueApp := hue.New()
+	hueApp := hue.New(prometheusRegisterer)
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
 		"Hue":   hueApp,
 		"Sonos": sonosApp,
@@ -72,7 +75,7 @@ func main() {
 	iotApp.HandleWorker()
 
 	server := httputils.New(serverConfig)
-	server.Middleware(prometheus.New(prometheusConfig))
+	server.Middleware(prometheusApp)
 	server.Middleware(owasp.New(owaspConfig))
 	server.Middleware(cors.New(corsConfig))
 	server.ListenServeWait(handler)
