@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/ViBiOh/httputils/v3/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v3/pkg/flags"
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
@@ -85,30 +83,24 @@ func New(config Config, workers []provider.Worker, mqttClient mqtt.App) *App {
 
 func (a *App) pingWorkers() {
 	ctx := context.Background()
-	workersCount := len(a.workers)
 
-	action := func(e interface{}) (interface{}, error) {
-		if worker, ok := e.(provider.Worker); ok {
-			if !worker.Enabled() {
-				return nil, nil
-			}
-
-			if pinger, ok := e.(provider.Pinger); ok {
-				return pinger.Ping(ctx)
-			}
-
-			return nil, nil
+	for _, worker := range a.workers {
+		if !worker.Enabled() {
+			continue
 		}
 
-		return nil, fmt.Errorf("unrecognized worker type: %#v", e)
-	}
-
-	onSucces := func(output interface{}) {
-		if !a.mqttClient.Enabled() {
-			return
+		pinger, ok := worker.(provider.Pinger)
+		if !ok {
+			continue
 		}
 
-		for _, message := range output.([]*provider.WorkerMessage) {
+		messages, err := pinger.Ping(ctx)
+		if err != nil {
+			logger.Error("%s", err)
+			continue
+		}
+
+		for _, message := range messages {
 			for _, topic := range a.publishTopics {
 				if err := provider.WriteMessage(ctx, a.mqttClient, topic, message); err != nil {
 					logger.Error("%s", err)
@@ -116,20 +108,13 @@ func (a *App) pingWorkers() {
 			}
 		}
 	}
-
-	onError := func(err error) {
-		logger.Error("%s", err)
-	}
-
-	inputs := concurrent.Run(uint(workersCount), action, onSucces, onError)
-
-	for _, worker := range a.workers {
-		inputs <- worker
-	}
-	close(inputs)
 }
 
 func (a *App) pinger() {
+	if !a.mqttClient.Enabled() {
+		return
+	}
+
 	for {
 		a.pingWorkers()
 		time.Sleep(pingDelay)
