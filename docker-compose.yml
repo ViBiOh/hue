@@ -4,7 +4,7 @@ version: "2"
 
 services:
   site:
-    image: vibioh/iot
+    image: ${DOCKER_USER}/iot
     labels:
       traefik.http.routers.iot-http.rule: Host(`iot.vibioh.fr`)
       traefik.http.routers.iot-http.entrypoints: http
