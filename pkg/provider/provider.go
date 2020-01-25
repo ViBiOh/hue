@@ -20,6 +20,9 @@ const (
 var (
 	// ErrWorkerUnknownAction is default error when a worker provider doesn't know how to handle action
 	ErrWorkerUnknownAction = errors.New("unknown action")
+
+	// EmptyWorkerMessage for blank response
+	EmptyWorkerMessage = WorkerMessage{}
 )
 
 // Message rendered to user
@@ -34,13 +37,17 @@ type WorkerMessage struct {
 	ResponseTo string
 	Source     string
 	Action     string
-	Tracing    map[string]string
 	Payload    string
+}
+
+// IsValid verify if worker message is suitable for sending
+func (wm WorkerMessage) IsValid() bool {
+	return len(wm.ID) != 0 && len(wm.Source) != 0 && len(wm.Action) != 0
 }
 
 // Hub that renders UI to end user
 type Hub interface {
-	SendToWorker(ctx context.Context, root *WorkerMessage, source, action string, payload string, waitOutput bool) *WorkerMessage
+	SendToWorker(ctx context.Context, root *WorkerMessage, source, action string, payload string) (WorkerMessage, error)
 	RenderDashboard(http.ResponseWriter, *http.Request, int, *Message)
 }
 
@@ -57,7 +64,7 @@ type HubUser interface {
 // WorkerProvider is a provider that interact with the remote Worker
 type WorkerProvider interface {
 	GetWorkerSource() string
-	WorkerHandler(*WorkerMessage) error
+	WorkerHandler(WorkerMessage) error
 }
 
 // Worker is a remote worker in another network, connected to hub
@@ -68,12 +75,12 @@ type Worker interface {
 
 // Pinger is a Worker that respond to frequent Ping
 type Pinger interface {
-	Ping(context.Context) ([]*WorkerMessage, error)
+	Ping(context.Context) ([]WorkerMessage, error)
 }
 
 // WorkerHandler is a Worker that can handle request from outside
 type WorkerHandler interface {
-	Handle(context.Context, *WorkerMessage) (*WorkerMessage, error)
+	Handle(context.Context, WorkerMessage) (WorkerMessage, error)
 }
 
 // Starter is a component that need to be started
@@ -83,7 +90,7 @@ type Starter interface {
 }
 
 // NewWorkerMessage instantiates a worker message
-func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) *WorkerMessage {
+func NewWorkerMessage(root *WorkerMessage, source, action string, payload string) WorkerMessage {
 	var id string
 	if root == nil || strings.TrimSpace(root.ID) == "" {
 		id = sha.Sha1(payload)
@@ -91,7 +98,7 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 		id = root.ID
 	}
 
-	return &WorkerMessage{
+	return WorkerMessage{
 		ID:      id,
 		Source:  source,
 		Action:  action,
@@ -100,7 +107,7 @@ func NewWorkerMessage(root *WorkerMessage, source, action string, payload string
 }
 
 // WriteMessage writes content as text message
-func WriteMessage(ctx context.Context, client mqtt.App, topic string, message *WorkerMessage) error {
+func WriteMessage(ctx context.Context, client mqtt.App, topic string, message WorkerMessage) error {
 	if client == nil {
 		return fmt.Errorf("no connection provided for sending: %#v", message)
 	}

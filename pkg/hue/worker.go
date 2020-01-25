@@ -32,7 +32,7 @@ const (
 	DeleteAction = "delete"
 )
 
-func (a *app) handleGroupsFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleGroupsFromWorker(message provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -46,7 +46,7 @@ func (a *app) handleGroupsFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *app) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleSchedulesFromWorker(message provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -60,7 +60,7 @@ func (a *app) handleSchedulesFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *app) handleSensorsFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleSensorsFromWorker(message provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -76,7 +76,7 @@ func (a *app) handleSensorsFromWorker(message *provider.WorkerMessage) error {
 	return nil
 }
 
-func (a *app) handleScenesFromWorker(message *provider.WorkerMessage) error {
+func (a *app) handleScenesFromWorker(message provider.WorkerMessage) error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
@@ -91,22 +91,21 @@ func (a *app) handleScenesFromWorker(message *provider.WorkerMessage) error {
 }
 
 // WorkerHandler handle commands receive from worker
-func (a *app) WorkerHandler(p *provider.WorkerMessage) error {
-	if p.Action == WorkerGroupsAction {
+func (a *app) WorkerHandler(p provider.WorkerMessage) error {
+	switch p.Action {
+	case WorkerGroupsAction:
 		return a.handleGroupsFromWorker(p)
-	}
 
-	if p.Action == WorkerSchedulesAction {
+	case WorkerSchedulesAction:
 		return a.handleSchedulesFromWorker(p)
-	}
 
-	if p.Action == WorkerSensorsAction {
+	case WorkerSensorsAction:
 		return a.handleSensorsFromWorker(p)
-	}
 
-	if p.Action == WorkerScenesAction {
+	case WorkerScenesAction:
 		return a.handleScenesFromWorker(p)
-	}
 
-	return provider.ErrWorkerUnknownAction
+	default:
+		return provider.ErrWorkerUnknownAction
+	}
 }

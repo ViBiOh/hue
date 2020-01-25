@@ -2,6 +2,7 @@ package iot
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
@@ -12,6 +13,11 @@ const (
 	workerWaitDelay = 10 * time.Second
 )
 
+var (
+	// ErrWorkerResponseTimeout occurs when worker didn't respond in delay
+	ErrWorkerResponseTimeout = errors.New("timeout exceeded for waiting for worker response")
+)
+
 func (a *App) registerWorker(worker provider.WorkerProvider) {
 	a.workerProviders[worker.GetWorkerSource()] = worker
 
@@ -19,31 +25,22 @@ func (a *App) registerWorker(worker provider.WorkerProvider) {
 }
 
 // SendToWorker sends payload to worker
-func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, source, action string, payload string, waitOutput bool) *provider.WorkerMessage {
+func (a *App) SendToWorker(ctx context.Context, root *provider.WorkerMessage, source, action string, payload string) (provider.WorkerMessage, error) {
 	message := provider.NewWorkerMessage(root, source, action, payload)
-
-	var outputChan chan *provider.WorkerMessage
-	if waitOutput {
-		outputChan = make(chan *provider.WorkerMessage)
-		a.workerCalls.Store(message.ID, outputChan)
-
-		defer a.workerCalls.Delete(message.ID)
-	}
-
 	message.ResponseTo = a.subscribeTopic
 
+	outputChan := make(chan provider.WorkerMessage)
+	a.workerCalls.Store(message.ID, outputChan)
+	defer a.workerCalls.Delete(message.ID)
+
 	if err := provider.WriteMessage(ctx, a.mqttClient, a.publishTopic, message); err != nil {
-		return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, err.Error())
+		return provider.EmptyWorkerMessage, err
 	}
 
-	if waitOutput {
-		select {
-		case output := <-outputChan:
-			return output
-		case <-time.After(workerWaitDelay):
-			return provider.NewWorkerMessage(root, message.Source, provider.WorkerErrorAction, "timeout exceeded")
-		}
+	select {
+	case output := <-outputChan:
+		return output, nil
+	case <-time.After(workerWaitDelay):
+		return provider.EmptyWorkerMessage, ErrWorkerResponseTimeout
 	}
-
-	return nil
 }

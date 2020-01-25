@@ -15,12 +15,14 @@ func (a *App) handleTextMessage(p []byte) {
 		return
 	}
 
-	if outputChan, ok := a.workerCalls.Load(workerMessage.ID); ok {
-		outputChan.(chan *provider.WorkerMessage) <- &workerMessage
+	if outputter, ok := a.workerCalls.Load(workerMessage.ID); ok {
+		outputter := outputter.(chan provider.WorkerMessage)
+		outputter <- workerMessage
+		close(outputter)
 	}
 
 	if workerProvider, ok := a.workerProviders[workerMessage.Source]; ok {
-		if err := workerProvider.WorkerHandler(&workerMessage); err != nil {
+		if err := workerProvider.WorkerHandler(workerMessage); err != nil {
 			logger.Error("%s", err)
 		}
 

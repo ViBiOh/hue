@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/iot/pkg/provider"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -49,19 +50,16 @@ func New(registerer prometheus.Registerer) App {
 }
 
 func (a *app) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload string, typeName, successMessage string) {
-	output := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload, true)
+	output, err := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload)
 
-	if output == nil {
+	if err != nil {
 		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
 			Level:   "error",
-			Content: fmt.Sprintf("[%s] Timeout while sending message %s to Worker", Source, typeName),
-		})
-	} else if output.Action == provider.WorkerErrorAction {
-		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
-			Level:   "error",
-			Content: fmt.Sprintf("[%s] Error while sending message %s to worker: %v", Source, typeName, output.Payload),
+			Content: fmt.Sprintf("[%s] %s", Source, err),
 		})
 	} else {
+		logger.Info("[%s] %s: %s", output.Source, output.Action, output.Payload)
+
 		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
 			Level:   "success",
 			Content: successMessage,

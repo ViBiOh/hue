@@ -130,13 +130,13 @@ func (a *App) handleTextMessage(p []byte) {
 	ctx := context.Background()
 
 	if worker, ok := a.handlers[message.Source]; ok {
-		output, err := worker.Handle(ctx, &message)
+		output, err := worker.Handle(ctx, message)
 
 		if err != nil {
 			logger.Error("error while handling %s from %s: %s", message.Action, message.Source, err)
 		}
 
-		if output != nil {
+		if output.IsValid() {
 			if err := provider.WriteMessage(ctx, a.mqttClient, message.ResponseTo, output); err != nil {
 				logger.Error("%s", err)
 			}

@@ -76,7 +76,7 @@ func (a *App) Enabled() bool {
 // Start the App
 func (a *App) Start() {
 	if a.config == nil {
-		logger.Warn("no config provided")
+		logger.Warn("no config init for hue")
 		return
 	}
 
@@ -105,7 +105,7 @@ func (a *App) GetSource() string {
 }
 
 // Handle handle worker requests for Hue
-func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) Handle(ctx context.Context, p provider.WorkerMessage) (provider.WorkerMessage, error) {
 	if strings.HasPrefix(p.Action, hue.WorkerGroupsAction) {
 		return a.workerListGroups(ctx, p)
 	}
@@ -120,7 +120,7 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 
 	if strings.HasPrefix(p.Action, hue.WorkerSchedulesAction) {
 		if err := a.handleSchedules(ctx, p); err != nil {
-			return nil, err
+			return provider.EmptyWorkerMessage, err
 		}
 
 		return a.workerListSchedules(ctx, p)
@@ -128,41 +128,43 @@ func (a *App) Handle(ctx context.Context, p *provider.WorkerMessage) (*provider.
 
 	if strings.HasPrefix(p.Action, hue.WorkerStateAction) {
 		if err := a.handleStates(ctx, p); err != nil {
-			return nil, err
+			return provider.EmptyWorkerMessage, err
 		}
 
 		return a.workerListGroups(ctx, p)
 	}
 
-	return nil, fmt.Errorf("unknown request: %s", p)
+	return provider.EmptyWorkerMessage, fmt.Errorf("unknown request: %s", p)
 }
 
 // Ping send to worker updated data
-func (a *App) Ping(ctx context.Context) ([]*provider.WorkerMessage, error) {
-	groups, err := a.workerListGroups(ctx, nil)
+func (a *App) Ping(ctx context.Context) ([]provider.WorkerMessage, error) {
+	pingMessage := provider.NewWorkerMessage(nil, hue.Source, "ping", "")
+
+	groups, err := a.workerListGroups(ctx, pingMessage)
 	if err != nil {
 		return nil, err
 	}
 
-	scenes, err := a.workerListScenes(ctx, nil)
+	scenes, err := a.workerListScenes(ctx, pingMessage)
 	if err != nil {
 		return nil, err
 	}
 
-	schedules, err := a.workerListSchedules(ctx, nil)
+	schedules, err := a.workerListSchedules(ctx, pingMessage)
 	if err != nil {
 		return nil, err
 	}
 
-	sensors, err := a.workerListSensors(ctx, nil)
+	sensors, err := a.workerListSensors(ctx, pingMessage)
 	if err != nil {
 		return nil, err
 	}
 
-	return []*provider.WorkerMessage{groups, scenes, schedules, sensors}, nil
+	return []provider.WorkerMessage{groups, scenes, schedules, sensors}, nil
 }
 
-func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error {
+func (a *App) handleStates(ctx context.Context, p provider.WorkerMessage) error {
 	if parts := strings.Split(p.Payload, "|"); len(parts) == 2 {
 		state, ok := hue.States[parts[1]]
 		if !ok {
@@ -179,7 +181,7 @@ func (a *App) handleStates(ctx context.Context, p *provider.WorkerMessage) error
 	return nil
 }
 
-func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) error {
+func (a *App) handleSchedules(ctx context.Context, p provider.WorkerMessage) error {
 	if strings.HasSuffix(p.Action, hue.UpdateAction) {
 		var config hue.Schedule
 
@@ -218,58 +220,58 @@ func (a *App) handleSchedules(ctx context.Context, p *provider.WorkerMessage) er
 	return errors.New("unknown schedule command")
 }
 
-func (a *App) workerListGroups(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerListGroups(ctx context.Context, initial provider.WorkerMessage) (provider.WorkerMessage, error) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
 	payload, err := json.Marshal(groups)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf("%s", payload)), nil
+	return provider.NewWorkerMessage(&initial, hue.Source, hue.WorkerGroupsAction, fmt.Sprintf("%s", payload)), nil
 }
 
-func (a *App) workerListScenes(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerListScenes(ctx context.Context, initial provider.WorkerMessage) (provider.WorkerMessage, error) {
 	scenes, err := a.listScenes(ctx)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
 	payload, err := json.Marshal(scenes)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf("%s", payload)), nil
+	return provider.NewWorkerMessage(&initial, hue.Source, hue.WorkerScenesAction, fmt.Sprintf("%s", payload)), nil
 }
 
-func (a *App) workerListSchedules(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerListSchedules(ctx context.Context, initial provider.WorkerMessage) (provider.WorkerMessage, error) {
 	schedules, err := a.listSchedules(ctx)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
 	payload, err := json.Marshal(schedules)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf("%s", payload)), nil
+	return provider.NewWorkerMessage(&initial, hue.Source, hue.WorkerSchedulesAction, fmt.Sprintf("%s", payload)), nil
 }
 
-func (a *App) workerListSensors(ctx context.Context, initial *provider.WorkerMessage) (*provider.WorkerMessage, error) {
+func (a *App) workerListSensors(ctx context.Context, initial provider.WorkerMessage) (provider.WorkerMessage, error) {
 	sensors, err := a.listSensors(ctx)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
 	payload, err := json.Marshal(sensors)
 	if err != nil {
-		return nil, err
+		return provider.EmptyWorkerMessage, err
 	}
 
-	return provider.NewWorkerMessage(initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf("%s", payload)), nil
+	return provider.NewWorkerMessage(&initial, hue.Source, hue.WorkerSensorsAction, fmt.Sprintf("%s", payload)), nil
 }
