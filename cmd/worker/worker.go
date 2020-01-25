@@ -13,7 +13,6 @@ import (
 	hue_worker "github.com/ViBiOh/iot/pkg/hue/worker"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
-	sonos_worker "github.com/ViBiOh/iot/pkg/sonos/worker"
 )
 
 const (
@@ -96,7 +95,7 @@ func (a *App) pingWorkers() {
 
 		messages, err := pinger.Ping(ctx)
 		if err != nil {
-			logger.Error("%s", err)
+			logger.Error("unable to ping %s: %s", worker.GetSource(), err)
 			continue
 		}
 
@@ -134,7 +133,7 @@ func (a *App) handleTextMessage(p []byte) {
 		output, err := worker.Handle(ctx, &message)
 
 		if err != nil {
-			logger.Error("%s", err)
+			logger.Error("error while handling %s from %s: %s", message.Action, message.Source, err)
 		}
 
 		if output != nil {
@@ -163,7 +162,6 @@ func main() {
 	iotConfig := Flags(fs, "")
 	mqttConfig := mqtt.Flags(fs, "mqtt")
 	hueConfig := hue_worker.Flags(fs, "hue")
-	sonosConfig := sonos_worker.Flags(fs, "sonos")
 
 	logger.Fatal(fs.Parse(os.Args[1:]))
 
@@ -176,9 +174,7 @@ func main() {
 	mqttApp, err := mqtt.New(mqttConfig)
 	logger.Fatal(err)
 
-	sonosApp := sonos_worker.New(sonosConfig)
-
-	app := New(iotConfig, []provider.Worker{hueApp, sonosApp}, mqttApp)
+	app := New(iotConfig, []provider.Worker{hueApp}, mqttApp)
 
 	if mqttApp.Enabled() {
 		app.connect()

@@ -12,12 +12,8 @@
         </p>
 
         <p class="center">
-          <a href="#" class="button clear">
-            Cancel
-          </a>
-          <button type="submit" class="button bg-important">
-            Confirm
-          </button>
+          <a href="#" class="button clear">Cancel</a>
+          <button type="submit" class="button bg-important">Confirm</button>
         </p>
       </form>
     </div>
@@ -94,7 +90,7 @@
       </div>
 
       <div class="center flex-full flex flex-center flex-evenly margin-bottom">
-        <form class="inline-block" method="post" action="/hue/schedules/{{- .ID -}}">
+        <form class="inline" method="post" action="/hue/schedules/{{- .ID -}}">
           <input type="hidden" name="method" value="PATCH" />
           <input type="hidden" name="name" value="{{- .Name -}}" />
           <input type="hidden" name="status" value="{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}" />

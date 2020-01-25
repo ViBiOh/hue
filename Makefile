@@ -89,7 +89,6 @@ run:
 		-mqttClientID "iot-dev" \
 		-subscribe "dev" \
 		-publish "dev-worker" \
-		-prometheus \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
 
 ## run: Run worker

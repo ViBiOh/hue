@@ -17,14 +17,12 @@ import (
 	"github.com/ViBiOh/iot/pkg/iot"
 	"github.com/ViBiOh/iot/pkg/mqtt"
 	"github.com/ViBiOh/iot/pkg/provider"
-	"github.com/ViBiOh/iot/pkg/sonos"
 )
 
 const (
 	healthcheckPath = "/health"
 	faviconPath     = "/favicon"
 	huePath         = "/hue"
-	sonosPath       = "/sonos"
 )
 
 func main() {
@@ -49,22 +47,17 @@ func main() {
 	mqttApp, err := mqtt.New(mqttConfig)
 	logger.Fatal(err)
 
-	sonosApp := sonos.New()
 	hueApp := hue.New(prometheusRegisterer)
 	iotApp := iot.New(iotConfig, map[string]provider.Provider{
-		"Hue":   hueApp,
-		"Sonos": sonosApp,
+		"Hue": hueApp,
 	}, mqttApp)
 
 	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
-	sonosHandler := http.StripPrefix(sonosPath, sonosApp.Handler())
 	iotHandler := iotApp.Handler()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, huePath) {
 			hueHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, sonosPath) {
-			sonosHandler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
 			http.ServeFile(w, r, path.Join(*iotConfig.AssetsDirectory, "static", r.URL.Path))
 		} else {

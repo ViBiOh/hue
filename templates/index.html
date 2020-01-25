@@ -28,7 +28,7 @@
     {{- template "style-modal" . -}}
   </head>
 
-  <body>
+  <body class="no-margin">
     {{- if .Hue -}}
       {{- template "hue-modal" . -}}
     {{- end -}}
@@ -43,16 +43,8 @@
       {{- template "message" .Message -}}
 
       <div class="grid">
-        {{- if .Netatmo -}}
-          {{- template "netatmo" .Netatmo -}}
-        {{- end -}}
-
         {{- if .Hue -}}
           {{- template "hue" .Hue -}}
-        {{- end -}}
-
-        {{- if .Sonos -}}
-          {{- template "sonos" .Sonos -}}
         {{- end -}}
       </div>
     </div>

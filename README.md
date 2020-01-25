@@ -45,10 +45,10 @@ Usage of iot:
         [mqtt] Use TLS {IOT_MQTT_USE_TLS} (default true)
   -mqttUser string
         [mqtt] Username {IOT_MQTT_USER}
-  -port int
+  -okStatus int
+        [http] Healthy HTTP Status code {IOT_OK_STATUS} (default 204)
+  -port uint
         [http] Listen port {IOT_PORT} (default 1080)
-  -prometheus
-        [iot] Expose Prometheus metrics {IOT_PROMETHEUS}
   -prometheusPath string
         [prometheus] Path for exposing metrics {IOT_PROMETHEUS_PATH} (default "/metrics")
   -publish string
@@ -85,14 +85,6 @@ Usage of iot-worker:
         [mqtt] Username {IOT_WORKER_MQTT_USER}
   -publish string
         [worker] Topics to publish to, comma separated {IOT_WORKER_PUBLISH} (default "local,remote")
-  -sonosAccessToken string
-        [sonos] Access Token {IOT_WORKER_SONOS_ACCESS_TOKEN}
-  -sonosClientID string
-        [sonos] Client ID {IOT_WORKER_SONOS_CLIENT_ID}
-  -sonosClientSecret string
-        [sonos] Client Secret {IOT_WORKER_SONOS_CLIENT_SECRET}
-  -sonosRefreshToken string
-        [sonos] Refresh Token {IOT_WORKER_SONOS_REFRESH_TOKEN}
   -subscribe string
         [worker] Topic to subscribe to {IOT_WORKER_SUBSCRIBE} (default "worker")
 ```

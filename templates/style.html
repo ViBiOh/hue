@@ -1,11 +1,12 @@
 {{- define "style" -}}
   <style>
     :root {
-      --dark: #272727;
-      --grey: #3b3b3b;
-      --clear: silver;
+      --primary: royalblue;
       --success: limegreen;
       --danger: crimson;
+      --dark: #272727;
+      --grey: #3b3b3b;
+      --white: silver;
     }
 
     * {
@@ -18,18 +19,16 @@
 
     body {
       -webkit-overflow-scrolling: touch;
-      margin: 0;
-      padding-bottom: 4rem;
       background-color: var(--dark);
-      color: var(--clear);
+      height: 100vh;
     }
 
     body,
     button,
     input {
+      color: var(--white);
       font-family:
         -apple-system,
-        BlinkMacSystemFont,
         'Segoe UI',
         'Roboto',
         'Oxygen-Sans',
@@ -40,14 +39,6 @@
       font-size: 1.6rem;
       font-style: normal;
       font-weight: 400;
-    }
-
-    .full {
-      width: 100%;
-    }
-
-    .center {
-      text-align: center;
     }
 
     .header {
@@ -62,40 +53,8 @@
       margin: .5rem;
     }
 
-    .flex {
-      display: flex;
-    }
-
-    .flex-full {
-      flex: 1 1;
-      flex-basis: 100%;
-    }
-
-    .flex-half {
-      flex: 1 1;
-      flex-basis: 50%;
-      max-width: 50%;
-    }
-
-    .flex-center {
-      align-items: center;
-      justify-content: center;
-    }
-
-    .flex-grow {
-      flex-grow: 1;
-    }
-
-    .flex-wrap {
-      flex-wrap: wrap;
-    }
-
-    .flex-evenly {
-      justify-content: space-evenly;
-    }
-
     .container {
-      border: 1px solid var(--clear);
+      border: 1px solid var(--white);
       display: inline-flex;
       flex-direction: column;
       height: 25rem;
@@ -105,34 +64,6 @@
       .container {
         height: auto;
       }
-    }
-
-    .full-height {
-      height: 100%;
-    }
-
-    .inline-block {
-      display: inline-block;
-    }
-
-    .padding {
-      padding: 1rem;
-    }
-
-    .no-margin {
-      margin: 0;
-    }
-
-    .margin-top {
-      margin-top: 1rem;
-    }
-
-    .margin-bottom {
-      margin-bottom: 1rem;
-    }
-
-    .margin-left {
-      margin-left: 1rem;
     }
 
     .title {
@@ -165,22 +96,17 @@
     }
 
     .bg-important {
-      background-color: royalblue;
-      color: var(--clear);
+      background-color: var(--primary);
+      color: var(--white);
     }
 
     .modal {
-      background-color: var(--dark);
+      background-color: rgba(84, 84, 84, 0.75);
       height: 100%;
       left: 0;
       pointer-events: none;
       position: fixed;
       top: 0;
-      z-index: 10;
-    }
-
-    .modal-header {
-      color: #aaa;
     }
 
     .modal-content {
@@ -201,6 +127,28 @@
       text-align: center;
     }
 
+    .flex {
+      display: flex;
+    }
+
+    .flex-full {
+      flex: 1 1;
+      flex-basis: 100%;
+    }
+
+    .flex-center {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flex-grow {
+      flex-grow: 1;
+    }
+
+    .flex-evenly {
+      justify-content: space-evenly;
+    }
+
     .success {
       color: var(--success);
     }
@@ -210,21 +158,49 @@
     }
 
     .clear {
-      color: var(--clear);
+      color: var(--white);
     }
- 
+
     .ellipsis {
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .small {
       font-size: 1.5rem;
     }
 
-    .volume {
-      text-align: right;
-      width: 5rem;
+    .full {
+      width: 100%;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .inline {
+      display: inline-block;
+    }
+
+    .padding {
+      padding: 1rem;
+    }
+
+    .no-margin {
+      margin: 0;
+    }
+
+    .margin-top {
+      margin-top: 1rem;
+    }
+
+    .margin-bottom {
+      margin-bottom: 1rem;
+    }
+
+    .margin-left {
+      margin-left: 1rem;
     }
 
     .no-style,
