@@ -121,7 +121,7 @@ func (a *App) RenderDashboard(w http.ResponseWriter, r *http.Request, status int
 	}
 
 	w.Header().Set("content-language", "fr")
-	if err := templates.WriteHTMLTemplate(a.tpl.Lookup("iot"), w, response, status); err != nil {
+	if err := templates.ResponseHTMLTemplate(a.tpl.Lookup("iot"), w, response, status); err != nil {
 		httperror.InternalServerError(w, err)
 	}
 }
