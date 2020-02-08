@@ -12,7 +12,7 @@ services:
       traefik.http.routers.iot-https.rule: Host(`iot.vibioh.fr`)
       traefik.http.routers.iot-https.entrypoints: https
       traefik.http.routers.iot-https.middlewares: compress@file, web-limit@file, iot-auth
-      traefik.http.routers.iot-https.tls: true
+      traefik.http.routers.iot-https.tls: "true"
       traefik.http.routers.iot-https.tls.certresolver: default
       traefik.http.services.iot-service.loadbalancer.server.port: "1080"
       traefik.http.middlewares.iot-auth.basicauth.removeheader: true
