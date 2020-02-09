@@ -5,22 +5,16 @@ ifneq ("$(wildcard .env)","")
 	export
 endif
 
-APP_NAME = iot
+APP_NAME = hue
 PACKAGES ?= ./...
 GO_FILES ?= $(shell find . -name "*.go")
 
 MAIN_BINARY = bin/$(APP_NAME)
-MAIN_SOURCE = cmd/iot/iot.go
+MAIN_SOURCE = cmd/hue/hue.go
 
 MAIN_RUNNER = go run $(MAIN_SOURCE)
 ifeq ($(DEBUG), true)
 	MAIN_RUNNER = dlv debug $(MAIN_SOURCE) --
-endif
-
-WORKER_SOURCE = cmd/worker/worker.go
-WORKER_RUNNER = go run $(WORKER_SOURCE)
-ifeq ($(DEBUG), true)
-	WORKER_RUNNER = dlv debug $(WORKER_SOURCE) --
 endif
 
 .DEFAULT_GOAL := app
@@ -80,21 +74,9 @@ test:
 .PHONY: build
 build:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(MAIN_BINARY) $(MAIN_SOURCE)
-	CGO_ENABLED=0 go build -ldflags="-s -w" -installsuffix nocgo -o $(MAIN_BINARY)-worker $(WORKER_SOURCE)
 
 ## run: Run app
 .PHONY: run
 run:
 	$(MAIN_RUNNER) \
-		-mqttClientID "iot-dev" \
-		-subscribe "dev" \
-		-publish "dev-worker" \
 		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
-
-## run: Run worker
-.PHONY: run-worker
-run-worker:
-	$(WORKER_RUNNER) \
-		-mqttClientID "iot-worker-dev" \
-		-subscribe "dev-worker" \
-		-publish "dev" \

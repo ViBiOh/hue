@@ -13,7 +13,7 @@ func (a *app) getMetrics(prefix, suffix string) prometheus.Gauge {
 	}
 
 	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("%s_%s_%s", strings.ToLower(Source), prefix, suffix),
+		Name: fmt.Sprintf("hue_%s_%s", prefix, suffix),
 	})
 
 	a.prometheusCollectors[fmt.Sprintf("%s_%s", prefix, suffix)] = gauge

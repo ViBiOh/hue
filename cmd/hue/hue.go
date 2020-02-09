@@ -14,19 +14,15 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/owasp"
 	"github.com/ViBiOh/httputils/v3/pkg/prometheus"
 	"github.com/ViBiOh/iot/pkg/hue"
-	"github.com/ViBiOh/iot/pkg/iot"
-	"github.com/ViBiOh/iot/pkg/mqtt"
-	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/ViBiOh/iot/pkg/renderer"
 )
 
 const (
-	healthcheckPath = "/health"
-	faviconPath     = "/favicon"
-	huePath         = "/hue"
+	faviconPath = "/favicon"
 )
 
 func main() {
-	fs := flag.NewFlagSet("iot", flag.ExitOnError)
+	fs := flag.NewFlagSet("hue", flag.ExitOnError)
 
 	serverConfig := httputils.Flags(fs, "")
 	alcotestConfig := alcotest.Flags(fs, "")
@@ -34,8 +30,8 @@ func main() {
 	owaspConfig := owasp.Flags(fs, "")
 	corsConfig := cors.Flags(fs, "cors")
 
-	mqttConfig := mqtt.Flags(fs, "mqtt")
-	iotConfig := iot.Flags(fs, "")
+	hueConfig := hue.Flags(fs, "")
+	rendererConfig := renderer.Flags(fs, "")
 
 	logger.Fatal(fs.Parse(os.Args[1:]))
 
@@ -44,28 +40,21 @@ func main() {
 	prometheusApp := prometheus.New(prometheusConfig)
 	prometheusRegisterer := prometheusApp.Registerer()
 
-	mqttApp, err := mqtt.New(mqttConfig)
+	hueApp, err := hue.New(hueConfig, prometheusRegisterer)
 	logger.Fatal(err)
 
-	hueApp := hue.New(prometheusRegisterer)
-	iotApp := iot.New(iotConfig, map[string]provider.Provider{
-		"Hue": hueApp,
-	}, mqttApp)
-
-	hueHandler := http.StripPrefix(huePath, hueApp.Handler())
-	iotHandler := iotApp.Handler()
+	rendererApp := renderer.New(rendererConfig, hueApp)
+	rendererHandler := rendererApp.Handler()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, huePath) {
-			hueHandler.ServeHTTP(w, r)
-		} else if strings.HasPrefix(r.URL.Path, faviconPath) {
-			http.ServeFile(w, r, path.Join(*iotConfig.AssetsDirectory, "static", r.URL.Path))
+		if strings.HasPrefix(r.URL.Path, faviconPath) {
+			http.ServeFile(w, r, path.Join(*rendererConfig.AssetsDirectory, "static", r.URL.Path))
 		} else {
-			iotHandler.ServeHTTP(w, r)
+			rendererHandler.ServeHTTP(w, r)
 		}
 	})
 
-	iotApp.HandleWorker()
+	go hueApp.Start()
 
 	server := httputils.New(serverConfig)
 	server.Middleware(prometheusApp.Middleware)

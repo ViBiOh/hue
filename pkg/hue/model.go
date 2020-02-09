@@ -12,9 +12,6 @@ const (
 	weekday = monday | tuesday | wednesday | thursday | friday
 	weekend = saturday | sunday
 	alldays = weekday | weekend
-
-	// Source constant for worker message
-	Source = "hue"
 )
 
 var (
@@ -47,14 +44,38 @@ var (
 			"bri":            254,
 		},
 	}
+
+	emptyMessage = Message{}
 )
+
+// Message for render
+type Message struct {
+	Level   string
+	Content string
+}
+
+// NewSuccessMessage create a success message
+func NewSuccessMessage(content string) Message {
+	return Message{
+		Level:   "success",
+		Content: content,
+	}
+}
+
+// NewErrorMessage create a error message
+func NewErrorMessage(content string) Message {
+	return Message{
+		Level:   "error",
+		Content: content,
+	}
+}
 
 // Group description
 type Group struct {
-	Name   string      `json:"name,omitempty"`
-	Tap    bool        `json:"tap,omitempty"`
-	Lights []string    `json:"lights,omitempty"`
-	State  *groupState `json:"state,omitempty"`
+	Name   string     `json:"name,omitempty"`
+	Tap    bool       `json:"tap,omitempty"`
+	Lights []string   `json:"lights,omitempty"`
+	State  groupState `json:"state,omitempty"`
 }
 
 type groupState struct {
@@ -63,8 +84,8 @@ type groupState struct {
 
 // Light description
 type Light struct {
-	Type  string      `json:"type,omitempty"`
-	State *lightState `json:"state,omitempty"`
+	Type  string     `json:"type,omitempty"`
+	State lightState `json:"state,omitempty"`
 }
 
 type lightState struct {
@@ -82,21 +103,21 @@ type APIScene struct {
 // Scene description
 type Scene struct {
 	ID string `json:"id,omitempty"`
-	*APIScene
+	APIScene
 }
 
 // APISchedule describe schedule as from Hue API
 type APISchedule struct {
-	Name      string  `json:"name,omitempty"`
-	Localtime string  `json:"localtime,omitempty"`
-	Command   *Action `json:"command,omitempty"`
-	Status    string  `json:"status,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Localtime string `json:"localtime,omitempty"`
+	Command   Action `json:"command,omitempty"`
+	Status    string `json:"status,omitempty"`
 }
 
 // Schedule description
 type Schedule struct {
 	ID string `json:"id,omitempty"`
-	*APISchedule
+	APISchedule
 }
 
 // ScheduleConfig configuration (made simple)
@@ -109,11 +130,11 @@ type ScheduleConfig struct {
 
 // Rule description
 type Rule struct {
-	ID         string       `json:"-"`
-	Status     string       `json:"status,omitempty"`
-	Name       string       `json:"name,omitempty"`
-	Actions    []*Action    `json:"actions,omitempty"`
-	Conditions []*Condition `json:"conditions,omitempty"`
+	ID         string      `json:"-"`
+	Status     string      `json:"status,omitempty"`
+	Name       string      `json:"name,omitempty"`
+	Actions    []Action    `json:"actions,omitempty"`
+	Conditions []Condition `json:"conditions,omitempty"`
 }
 
 // Sensor description
@@ -150,11 +171,29 @@ type Condition struct {
 	Value    string `json:"value,omitempty"`
 }
 
-// Data stores data fo hub
-type Data struct {
-	Groups    map[string]*Group
-	Scenes    map[string]*Scene
-	Schedules map[string]*Schedule
-	Sensors   map[string]*Sensor
-	States    map[string]map[string]interface{}
+type configHue struct {
+	Schedules []ScheduleConfig
+	Sensors   []configSensor
+	Taps      []configTap
+}
+
+type configSensor struct {
+	ID            string
+	LightSensorID string
+	CompanionID   string
+	OffDelay      string
+	Groups        []string
+	EvenIfNotDark bool
+}
+
+type configTap struct {
+	ID      string
+	Buttons []configTapButton
+}
+
+type configTapButton struct {
+	ID     string
+	State  string
+	Groups []string
+	Rule   Rule
 }

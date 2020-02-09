@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
-	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) listGroups(ctx context.Context) (map[string]*hue.Group, error) {
-	var groups map[string]*hue.Group
+func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
+	var groups map[string]Group
 	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &groups)
 	if err != nil {
 		return nil, err
@@ -33,6 +31,6 @@ func (a *App) listGroups(ctx context.Context) (map[string]*hue.Group, error) {
 	return groups, nil
 }
 
-func (a *App) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
+func (a *app) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
 	return update(ctx, fmt.Sprintf("%s/groups/%s/action", a.bridgeURL, groupID), state)
 }

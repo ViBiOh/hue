@@ -9,106 +9,55 @@
 ## Usage of Web server
 
 ```bash
-Usage of iot:
+Usage of hue:
   -address string
-        [http] Listen address {IOT_ADDRESS}
+        [http] Listen address {HUE_ADDRESS}
   -assetsDirectory string
-        [iot] Assets directory (static and templates) {IOT_ASSETS_DIRECTORY}
+        [iot] Assets directory (static and templates) {HUE_ASSETS_DIRECTORY}
+  -bridgeIP string
+        [hue] IP of Bridge {HUE_BRIDGE_IP}
   -cert string
-        [http] Certificate file {IOT_CERT}
+        [http] Certificate file {HUE_CERT}
+  -config string
+        [hue] Configuration filename {HUE_CONFIG}
   -corsCredentials
-        [cors] Access-Control-Allow-Credentials {IOT_CORS_CREDENTIALS}
+        [cors] Access-Control-Allow-Credentials {HUE_CORS_CREDENTIALS}
   -corsExpose string
-        [cors] Access-Control-Expose-Headers {IOT_CORS_EXPOSE}
+        [cors] Access-Control-Expose-Headers {HUE_CORS_EXPOSE}
   -corsHeaders string
-        [cors] Access-Control-Allow-Headers {IOT_CORS_HEADERS} (default "Content-Type")
+        [cors] Access-Control-Allow-Headers {HUE_CORS_HEADERS} (default "Content-Type")
   -corsMethods string
-        [cors] Access-Control-Allow-Methods {IOT_CORS_METHODS} (default "GET")
+        [cors] Access-Control-Allow-Methods {HUE_CORS_METHODS} (default "GET")
   -corsOrigin string
-        [cors] Access-Control-Allow-Origin {IOT_CORS_ORIGIN} (default "*")
+        [cors] Access-Control-Allow-Origin {HUE_CORS_ORIGIN} (default "*")
   -csp string
-        [owasp] Content-Security-Policy {IOT_CSP} (default "default-src 'self'; base-uri 'self'")
+        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; base-uri 'self'")
   -frameOptions string
-        [owasp] X-Frame-Options {IOT_FRAME_OPTIONS} (default "deny")
+        [owasp] X-Frame-Options {HUE_FRAME_OPTIONS} (default "deny")
   -hsts
-        [owasp] Indicate Strict Transport Security {IOT_HSTS} (default true)
+        [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
   -key string
-        [http] Key file {IOT_KEY}
-  -mqttClientID string
-        [mqtt] Client ID {IOT_MQTT_CLIENT_ID} (default "iot")
-  -mqttPass string
-        [mqtt] Password {IOT_MQTT_PASS}
-  -mqttPort int
-        [mqtt] Port {IOT_MQTT_PORT} (default 80)
-  -mqttServer string
-        [mqtt] Server name {IOT_MQTT_SERVER}
-  -mqttUseTLS
-        [mqtt] Use TLS {IOT_MQTT_USE_TLS} (default true)
-  -mqttUser string
-        [mqtt] Username {IOT_MQTT_USER}
+        [http] Key file {HUE_KEY}
   -okStatus int
-        [http] Healthy HTTP Status code {IOT_OK_STATUS} (default 204)
+        [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -port uint
-        [http] Listen port {IOT_PORT} (default 1080)
+        [http] Listen port {HUE_PORT} (default 1080)
   -prometheusPath string
-        [prometheus] Path for exposing metrics {IOT_PROMETHEUS_PATH} (default "/metrics")
-  -publish string
-        [iot] Topic to publish to {IOT_PUBLISH} (default "worker")
-  -subscribe string
-        [iot] Topic to subscribe to {IOT_SUBSCRIBE}
+        [prometheus] Path for exposing metrics {HUE_PROMETHEUS_PATH} (default "/metrics")
   -url string
-        [alcotest] URL to check {IOT_URL}
+        [alcotest] URL to check {HUE_URL}
   -userAgent string
-        [alcotest] User-Agent for check {IOT_USER_AGENT} (default "Alcotest")
+        [alcotest] User-Agent for check {HUE_USER_AGENT} (default "Alcotest")
+  -username string
+        [hue] Username for Bridge {HUE_USERNAME}
 ```
 
-## Usage of IoT worker
-
-```bash
-Usage of iot-worker:
-  -hueBridgeIP string
-        [hue] IP of Bridge {IOT_WORKER_HUE_BRIDGE_IP}
-  -hueConfig string
-        [hue] Configuration filename {IOT_WORKER_HUE_CONFIG}
-  -hueUsername string
-        [hue] Username for Bridge {IOT_WORKER_HUE_USERNAME}
-  -mqttClientID string
-        [mqtt] Client ID {IOT_WORKER_MQTT_CLIENT_ID} (default "iot")
-  -mqttPass string
-        [mqtt] Password {IOT_WORKER_MQTT_PASS}
-  -mqttPort int
-        [mqtt] Port {IOT_WORKER_MQTT_PORT} (default 80)
-  -mqttServer string
-        [mqtt] Server name {IOT_WORKER_MQTT_SERVER}
-  -mqttUseTLS
-        [mqtt] Use TLS {IOT_WORKER_MQTT_USE_TLS} (default true)
-  -mqttUser string
-        [mqtt] Username {IOT_WORKER_MQTT_USER}
-  -publish string
-        [worker] Topics to publish to, comma separated {IOT_WORKER_PUBLISH} (default "local,remote")
-  -subscribe string
-        [worker] Topic to subscribe to {IOT_WORKER_SUBSCRIBE} (default "worker")
-```
-
-## Create systemd service for worker
-
-Compile go binary
-
-```bash
-go install github.com/ViBiOh/iot/cmd/worker
-go install github.com/ViBiOh/iot/cmd/iot
-```
+## Get credentials from bridge
 
 Get username for Hue API by browsing `http://192.168.1.10/debug/clip.html` and add credentials to `.env` file.
 
 ```
 POST /api
-Body: {"devicetype":"iot-worker"}
+Body: {"devicetype":"hue"}
 ```
 
-Enable and start services
-
-```bash
-make systemd
-journalctl -u iot-remote-worker.service
-```

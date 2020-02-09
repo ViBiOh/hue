@@ -6,10 +6,9 @@ import (
 	"fmt"
 
 	"github.com/ViBiOh/httputils/v3/pkg/request"
-	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) {
+func (a *app) getLight(ctx context.Context, lightID string) (*Light, error) {
 	resp, err := request.New().Get(fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID)).Send(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -20,7 +19,7 @@ func (a *App) getLight(ctx context.Context, lightID string) (*hue.Light, error) 
 		return nil, err
 	}
 
-	var light hue.Light
+	var light Light
 	if err := json.Unmarshal(content, &light); err != nil {
 		return nil, err
 	}
