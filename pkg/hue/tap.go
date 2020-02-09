@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
-	"github.com/ViBiOh/iot/pkg/hue"
 )
 
 var (
@@ -18,10 +17,10 @@ var (
 	}
 )
 
-func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
-	newRule := &hue.Rule{
+func (a *app) createRuleDescription(tapID string, button configTapButton) Rule {
+	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
-		Conditions: []*hue.Condition{
+		Conditions: []Condition{
 			{
 				Address:  fmt.Sprintf("/sensors/%s/state/buttonevent", tapID),
 				Operator: "dx",
@@ -32,25 +31,25 @@ func (a *App) createRuleDescription(tapID string, button *tapButton) *hue.Rule {
 				Value:    tapButtonMapping[button.ID],
 			},
 		},
-		Actions: make([]*hue.Action, 0),
+		Actions: make([]Action, 0),
 	}
 
 	for _, group := range button.Groups {
-		newRule.Actions = append(newRule.Actions, &hue.Action{
+		newRule.Actions = append(newRule.Actions, Action{
 			Address: fmt.Sprintf("/groups/%s/action", group),
 			Method:  http.MethodPut,
-			Body:    hue.States[button.State],
+			Body:    States[button.State],
 		})
 	}
 
 	return newRule
 }
 
-func (a *App) configureTap(ctx context.Context, taps []*tapConfig) {
+func (a *app) configureTap(ctx context.Context, taps []configTap) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
-			if err := a.createRule(ctx, button.Rule); err != nil {
+			if err := a.createRule(ctx, &button.Rule); err != nil {
 				logger.Error("%s", err)
 			}
 		}

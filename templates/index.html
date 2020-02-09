@@ -17,7 +17,7 @@
 
 {{- define "iot" -}}
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <title>House</title>
     <meta charset="utf-8">
@@ -25,14 +25,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{- template "favicon" . -}}
     {{- template "style" . -}}
-    {{- template "style-modal" . -}}
   </head>
 
   <body class="no-margin">
-    {{- if .Hue -}}
-      {{- template "hue-modal" . -}}
-    {{- end -}}
-
     <div class="content">
       <header class="padding">
         <h1 class="title">

@@ -9,7 +9,7 @@ import (
 )
 
 // FormatLocalTime formats local time of schedules to human readable version
-func (s *Schedule) FormatLocalTime() string {
+func (s Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, "W") {
 		return s.Localtime
 	}
@@ -59,12 +59,8 @@ func (s *Schedule) FormatLocalTime() string {
 	return fmt.Sprintf("%s at %s", recurrenceStr, s.Localtime[6:])
 }
 
-func formatStateValue(state map[string]interface{}) string {
-	return fmt.Sprintf("%v|%v|%v|%v", state["on"], state["transitiontime"], state["sat"], state["bri"])
-}
-
 // FindStateName finds matching state's name
-func (s *Schedule) FindStateName(scenes map[string]*Scene) string {
+func (s Schedule) FindStateName(scenes map[string]Scene) string {
 	if sceneID, ok := s.Command.Body["scene"]; ok {
 		if scene, ok := scenes[sceneID.(string)]; ok {
 			for _, lightState := range scene.Lightstates {
@@ -82,33 +78,6 @@ func (s *Schedule) FindStateName(scenes map[string]*Scene) string {
 	return "unknown"
 }
 
-// ComputeScheduleReccurence formats local time of schedules to API version
-func ComputeScheduleReccurence(days []string, hours, minutes string) string {
-	var recurrence int
-
-	for _, day := range days {
-		if day == "Mon" {
-			recurrence |= monday
-		}
-		if day == "Tue" {
-			recurrence |= tuesday
-		}
-		if day == "Wed" {
-			recurrence |= wednesday
-		}
-		if day == "Thu" {
-			recurrence |= thursday
-		}
-		if day == "Fri" {
-			recurrence |= friday
-		}
-		if day == "Sat" {
-			recurrence |= saturday
-		}
-		if day == "Sun" {
-			recurrence |= sunday
-		}
-	}
-
-	return fmt.Sprintf("W%03d/T%02s:%02s:00", recurrence, hours, minutes)
+func formatStateValue(state map[string]interface{}) string {
+	return fmt.Sprintf("%v|%v|%v|%v", state["on"], state["transitiontime"], state["sat"], state["bri"])
 }

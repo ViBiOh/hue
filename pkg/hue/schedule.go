@@ -7,11 +7,10 @@ import (
 	"net/http"
 
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
-	"github.com/ViBiOh/iot/pkg/hue"
 )
 
-func (a *App) listSchedules(ctx context.Context) (map[string]*hue.Schedule, error) {
-	var response map[string]*hue.Schedule
+func (a *app) listSchedules(ctx context.Context) (map[string]*Schedule, error) {
+	var response map[string]*Schedule
 
 	if err := get(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), &response); err != nil {
 		return nil, err
@@ -24,8 +23,8 @@ func (a *App) listSchedules(ctx context.Context) (map[string]*hue.Schedule, erro
 	return response, nil
 }
 
-func (a *App) getSchedule(ctx context.Context, id string) (*hue.Schedule, error) {
-	var response hue.Schedule
+func (a *app) getSchedule(ctx context.Context, id string) (*Schedule, error) {
+	var response Schedule
 
 	if err := get(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id), &response); err != nil {
 		return &response, nil
@@ -34,7 +33,7 @@ func (a *App) getSchedule(ctx context.Context, id string) (*hue.Schedule, error)
 	return &response, nil
 }
 
-func (a *App) createSchedule(ctx context.Context, o *hue.Schedule) error {
+func (a *app) createSchedule(ctx context.Context, o *Schedule) error {
 	id, err := create(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), o)
 	if err != nil {
 		return err
@@ -45,7 +44,7 @@ func (a *App) createSchedule(ctx context.Context, o *hue.Schedule) error {
 	return nil
 }
 
-func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.ScheduleConfig, groups map[string]*hue.Group) error {
+func (a *app) createScheduleFromConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) error {
 	if groups == nil {
 		var err error
 
@@ -59,11 +58,11 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 		return err
 	}
 
-	schedule := &hue.Schedule{
-		APISchedule: &hue.APISchedule{
+	schedule := &Schedule{
+		APISchedule: APISchedule{
 			Name:      config.Name,
 			Localtime: config.Localtime,
-			Command: &hue.Action{
+			Command: Action{
 				Address: fmt.Sprintf("/api/%s/groups/%s/action", a.bridgeUsername, config.Group),
 				Body: map[string]interface{}{
 					"scene": scene.ID,
@@ -80,11 +79,7 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config *hue.Schedule
 	return nil
 }
 
-func (a *App) updateSchedule(ctx context.Context, schedule *hue.Schedule) error {
-	if schedule == nil {
-		return errors.New("missing schedule to update")
-	}
-
+func (a *app) updateSchedule(ctx context.Context, schedule Schedule) error {
 	if schedule.ID == "" {
 		return errors.New("missing schedule ID to update")
 	}
@@ -92,11 +87,11 @@ func (a *App) updateSchedule(ctx context.Context, schedule *hue.Schedule) error 
 	return update(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, schedule.ID), schedule.APISchedule)
 }
 
-func (a *App) deleteSchedule(ctx context.Context, id string) error {
+func (a *app) deleteSchedule(ctx context.Context, id string) error {
 	return delete(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id))
 }
 
-func (a *App) cleanSchedules(ctx context.Context) error {
+func (a *app) cleanSchedules(ctx context.Context) error {
 	schedules, err := a.listSchedules(ctx)
 	if err != nil {
 		return err
@@ -111,7 +106,7 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) configureSchedules(ctx context.Context, schedules []*hue.ScheduleConfig) {
+func (a *app) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
 		logger.Error("%s", err)

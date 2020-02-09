@@ -1,42 +1,14 @@
-{{- define "hue-delete-schedule-modal" -}}
-  <div id="hue-delete-schedule-{{- sha . -}}" class="modal full flex flex-center">
-    <div class="modal-content">
-      <h2 class="modal-header">Confirmation</h2>
+{{ define "hue" }}
+  {{ $root := . }}
 
-      <form method="post" action="/hue/schedules/{{- .ID -}}">
-        <input type="hidden" name="method" value="DELETE" />
-        <input type="hidden" name="name" value="{{- .Name -}}" />
-
-        <p class="center">
-          Are you sure you want to delete <strong>{{- .Name -}}</strong>?
-        </p>
-
-        <p class="center">
-          <a href="#" class="button clear">Cancel</a>
-          <button type="submit" class="button bg-important">Confirm</button>
-        </p>
-      </form>
-    </div>
-  </div>
-{{- end -}}
-
-{{- define "hue-modal" -}}
-  {{- range $id, $schedule := .Hue.Schedules -}}
-    {{- template "hue-delete-schedule-modal" $schedule -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "hue" -}}
-  {{- $root := . -}}
-
-  {{- range $id, $group := .Groups -}}
+  {{ range $id, $group := .Groups }}
     <span class="container">
       <h2 class="small no-margin margin-left">Hue - Group</h2>
-      <h3 class="header center no-margin {{ if $group.State.AnyOn -}}success{{- end -}}">{{- $group.Name -}}</h3>
+      <h3 class="header center no-margin {{ if $group.State.AnyOn }}success{{ end }}">{{ $group.Name }}</h3>
 
       <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
-        {{- if $group.Tap -}}
-          <form method="post" action="/hue/groups/{{- $id -}}">
+        {{ if $group.Tap }}
+          <form method="post" action="/groups/{{ $id }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
             <button type="submit" class="icon">
@@ -44,15 +16,15 @@
             </button>
           </form>
 
-          <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
+          <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
             <button type="submit" class="icon">
               <img src="/svg/power-off?fill=crimson" alt="power-off">
             </button>
           </form>
-        {{- else -}}
-          <form method="post" action="/hue/groups/{{- $id -}}">
+        {{ else }}
+          <form method="post" action="/groups/{{ $id }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
             <button type="submit" class="icon">
@@ -60,7 +32,7 @@
             </button>
           </form>
 
-          <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
+          <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="dimmed" />
             <button type="submit" class="icon">
@@ -68,70 +40,66 @@
             </button>
           </form>
 
-          <form method="post" action="/hue/groups/{{- $id -}}" class="margin-left">
+          <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
             <button type="submit" class="icon">
               <img src="/svg/moon?fill=silver" alt="off light">
             </button>
           </form>
-        {{- end -}}
+        {{ end }}
       </div>
     </span>
-  {{- end -}}
+  {{ end }}
 
-  {{- range $id, $schedule := .Schedules }}
+  {{ range $id, $schedule := .Schedules }}
     <span class="container">
       <h2 class="small no-margin margin-left">Hue - Schedule</h2>
-      <h3 class="header center no-margin">{{- $schedule.Name -}}</h3>
+      <h3 class="header center no-margin">{{ $schedule.Name }}</h3>
 
       <div class="center padding">
-        <strong>{{- $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime -}}</strong>
+        <strong>{{ $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime }}</strong>
       </div>
 
       <div class="center flex-full flex flex-center flex-evenly margin-bottom">
-        <form class="inline" method="post" action="/hue/schedules/{{- .ID -}}">
+        <form class="inline" method="post" action="/schedules/{{ .ID }}">
           <input type="hidden" name="method" value="PATCH" />
-          <input type="hidden" name="name" value="{{- .Name -}}" />
-          <input type="hidden" name="status" value="{{- if eq $schedule.Status "enabled" -}}disabled{{- else -}}enabled{{- end -}}" />
+          <input type="hidden" name="name" value="{{ .Name }}" />
+          <input type="hidden" name="status" value="{{ if eq $schedule.Status "enabled" }}disabled{{ else }}enabled{{ end }}" />
 
           <button type="submit" class="button icon">
-            {{- if eq $schedule.Status "enabled" -}}
+            {{ if eq $schedule.Status "enabled" }}
               <img src="/svg/toggle-on?fill=limegreen" alt="toggled on">
-            {{- else -}}
+            {{ else }}
               <img src="/svg/toggle-on-reverse?fill=crimson" alt="toggled off">
-            {{- end -}}
+            {{ end }}
           </button>
         </form>
-
-        <a href="#hue-delete-schedule-{{- sha . -}}" class="margin-left icon">
-          <img src="/svg/trash-alt?fill=crimson" alt="trash">
-        </a>
       </div>
     </span>
-  {{- end -}}
+  {{ end }}
 
-  {{- range $name, $sensor := .Sensors }}
+  {{ range $name, $sensor := .Sensors }}
     <span class="container">
       <h2 class="small no-margin margin-left">Hue - Sensor</h2>
-      <h3 class="header center no-margin {{ if $sensor.State.Presence -}}success{{- end -}}">{{- $sensor.Name }} Sensor</h3>
+      <h3 class="header center no-margin {{ if $sensor.State.Presence }}success{{ end }}">{{ $sensor.Name }} Sensor</h3>
 
-      {{- if $sensor.Config.LedIndication -}}
+      {{ if $sensor.Config.LedIndication }}
         <h3 class="header center no-margin danger">LED</h3>
-      {{- end -}}
+      {{ end }}
 
       <div class="center padding">
         <div class="icon icon-small">
-          <img src="/svg/{{- battery $sensor.Config.Battery -}}" alt="{{- $sensor.Config.Battery -}}%" title="{{- $sensor.Config.Battery -}}%">
+          <img src="/svg/{{ battery $sensor.Config.Battery }}" alt="{{ $sensor.Config.Battery }}%" title="{{ $sensor.Config.Battery }}%">
         </div>
       </div>
 
       <div class="flex flex-center padding">
         <span class="icon icon-small">
-          <img src="/svg/{{- temperature $sensor.State.Temperature -}}" alt="Temperature">
+          <img src="/svg/{{ temperature $sensor.State.Temperature }}" alt="Temperature">
         </span>
-        <strong>{{- $sensor.State.Temperature -}}°c</strong>
+        <strong>{{ $sensor.State.Temperature }}°c</strong>
       </div>
     </span>
-  {{- end -}}
-{{- end -}}
+  {{ end }}
+{{ end }}

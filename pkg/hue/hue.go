@@ -2,184 +2,95 @@ package hue
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v3/pkg/logger"
-	"github.com/ViBiOh/iot/pkg/provider"
+	"github.com/ViBiOh/httputils/v3/pkg/cron"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-const (
-	groupsRequest    = "/groups"
-	schedulesRequest = "/schedules"
-)
-
 var (
-	_ provider.WorkerProvider = &app{}
+	_ App = &app{}
 )
 
 // App stores informations and secret of API
 type App interface {
-	Handler() http.Handler
-	SetHub(provider.Hub)
-	GetWorkerSource() string
-	GetData() interface{}
+	Handle(*http.Request) (Message, int)
+	Data() map[string]interface{}
+	Start()
+}
+
+// Config of package
+type Config struct {
+	bridgeIP       *string
+	bridgeUsername *string
+	config         *string
 }
 
 type app struct {
-	hub       provider.Hub
-	groups    map[string]*Group
-	scenes    map[string]*Scene
+	bridgeURL      string
+	bridgeUsername string
+	config         *configHue
+	cron           *cron.Cron
+
+	groups    map[string]Group
+	scenes    map[string]Scene
 	schedules map[string]*Schedule
-	sensors   map[string]*Sensor
+	sensors   map[string]Sensor
 	mutex     sync.RWMutex
 
 	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
 }
 
-// New creates new App
-func New(registerer prometheus.Registerer) App {
-	return &app{
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string) Config {
+	return Config{
+		bridgeIP:       flags.New(prefix, "hue").Name("BridgeIP").Default("").Label("IP of Bridge").ToString(fs),
+		bridgeUsername: flags.New(prefix, "hue").Name("Username").Default("").Label("Username for Bridge").ToString(fs),
+		config:         flags.New(prefix, "hue").Name("Config").Default("").Label("Configuration filename").ToString(fs),
+	}
+}
+
+// New creates new App from Config
+func New(config Config, registerer prometheus.Registerer) (App, error) {
+	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
+
+	app := &app{
+		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
+		bridgeUsername: bridgeUsername,
+
 		prometheusRegisterer: registerer,
 		prometheusCollectors: make(map[string]prometheus.Gauge),
 	}
-}
 
-func (a *app) sendWorkerMessage(w http.ResponseWriter, r *http.Request, payload string, typeName, successMessage string) {
-	output, err := a.hub.SendToWorker(r.Context(), nil, Source, typeName, payload)
-
-	if err != nil {
-		a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{
-			Level:   "error",
-			Content: fmt.Sprintf("[%s] %s", Source, err),
-		})
-	} else {
-		logger.Info("[%s] %s: %s", output.Source, output.Action, output.Payload)
-
-		a.hub.RenderDashboard(w, r, http.StatusOK, &provider.Message{
-			Level:   "success",
-			Content: successMessage,
-		})
-	}
-}
-
-func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		postMethod := r.FormValue("method")
-
-		if postMethod == http.MethodPost {
-			config := &ScheduleConfig{
-				Name:      r.FormValue("name"),
-				Group:     r.FormValue("group"),
-				Localtime: ComputeScheduleReccurence(r.Form["days[]"], r.FormValue("hours"), r.FormValue("minutes")),
-				State:     r.FormValue("state"),
-			}
-
-			payload, err := json.Marshal(config)
-			if err != nil {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Error while marshalling schedule config: %v", Source, err)})
-				return
-			}
-
-			a.sendWorkerMessage(w, r, fmt.Sprintf("%s", payload), fmt.Sprintf("%s/%s", WorkerSchedulesAction, CreateAction), fmt.Sprintf("%s schedule has been created", config.Name))
-			return
+	if *config.config != "" {
+		rawConfig, err := ioutil.ReadFile(*config.config)
+		if err != nil {
+			return app, err
 		}
 
-		id := strings.Trim(strings.TrimPrefix(r.URL.Path, schedulesRequest), "/")
-
-		if postMethod == http.MethodPatch {
-			schedule := &Schedule{
-				ID: id,
-				APISchedule: &APISchedule{
-					Status: r.FormValue("status"),
-				},
-			}
-
-			payload, err := json.Marshal(schedule)
-			if err != nil {
-				a.hub.RenderDashboard(w, r, http.StatusInternalServerError, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Error while marshalling schedule: %v", Source, err)})
-				return
-			}
-
-			a.sendWorkerMessage(w, r, fmt.Sprintf("%s", payload), fmt.Sprintf("%s/%s", WorkerSchedulesAction, UpdateAction), fmt.Sprintf("%s schedule has been %s", r.FormValue("name"), schedule.Status))
-			return
-		}
-
-		if postMethod == http.MethodDelete {
-			a.sendWorkerMessage(w, r, id, fmt.Sprintf("%s/%s", WorkerSchedulesAction, DeleteAction), fmt.Sprintf("%s schedule has been deleted", r.FormValue("name")))
-			return
+		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
+			return app, err
 		}
 	}
 
-	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown schedule command", Source)})
+	return app, nil
 }
 
-func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		postMethod := r.FormValue("method")
-
-		if postMethod == http.MethodPatch {
-			group := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsRequest), "/")
-			state := r.FormValue("state")
-
-			groupObj, ok := a.groups[group]
-			if !ok {
-				a.hub.RenderDashboard(w, r, http.StatusNotFound, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown group", Source)})
-			}
-
-			a.sendWorkerMessage(w, r, fmt.Sprintf("%s|%s", group, state), fmt.Sprintf("%s/%s", WorkerStateAction, UpdateAction), fmt.Sprintf("%s is now %s", groupObj.Name, state))
-			return
-		}
-	}
-
-	a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown group command", Source)})
-}
-
-// Handler create Handler with given App context
-func (a *app) Handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, groupsRequest) {
-			a.handleGroup(w, r)
-			return
-		}
-
-		if strings.HasPrefix(r.URL.Path, schedulesRequest) {
-			a.handleSchedule(w, r)
-			return
-		}
-
-		a.hub.RenderDashboard(w, r, http.StatusServiceUnavailable, &provider.Message{Level: "error", Content: fmt.Sprintf("[%s] Unknown command", Source)})
-	})
-}
-
-// SetHub receive Hub during init of it
-func (a *app) SetHub(hub provider.Hub) {
-	a.hub = hub
-}
-
-// GetWorkerSource get source of message
-func (a *app) GetWorkerSource() string {
-	return Source
-}
-
-// GetData return data for Dashboard rendering
-func (a *app) GetData() interface{} {
+func (a *app) Data() map[string]interface{} {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
-	if len(a.groups) == 0 && len(a.scenes) == 0 && len(a.schedules) == 0 {
-		return false
-	}
-
-	return &Data{
-		Groups:    a.groups,
-		Scenes:    a.scenes,
-		Schedules: a.schedules,
-		Sensors:   a.sensors,
-		States:    States,
+	return map[string]interface{}{
+		"Groups":    a.groups,
+		"Scenes":    a.scenes,
+		"Schedules": a.schedules,
+		"Sensors":   a.sensors,
 	}
 }
