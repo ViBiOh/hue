@@ -3,7 +3,7 @@
 
   {{ range $id, $group := .Groups }}
     <span class="container">
-      <h2 class="small no-margin margin-left">Hue - Group</h2>
+      <h2 class="small padding-left">Hue - Group</h2>
       <h3 class="header center no-margin {{ if $group.State.AnyOn }}success{{ end }}">{{ $group.Name }}</h3>
 
       <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
@@ -11,40 +11,40 @@
           <form method="post" action="/groups/{{ $id }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
-            <button type="submit" class="icon">
-              <img src="/svg/power-off?fill=limegreen" alt="power-on">
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="/svg/power-off?fill=limegreen" alt="power-on">
             </button>
           </form>
 
           <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
-            <button type="submit" class="icon">
-              <img src="/svg/power-off?fill=crimson" alt="power-off">
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="/svg/power-off?fill=crimson" alt="power-off">
             </button>
           </form>
         {{ else }}
           <form method="post" action="/groups/{{ $id }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="on" />
-            <button type="submit" class="icon">
-              <img src="/svg/lightbulb?fill=gold" alt="bright light">
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="/svg/lightbulb?fill=gold" alt="bright light">
             </button>
           </form>
 
           <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="dimmed" />
-            <button type="submit" class="icon">
-              <img src="/svg/lightbulb?fill=lightyellow" alt="dim light">
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="/svg/lightbulb?fill=lightyellow" alt="dim light">
             </button>
           </form>
 
           <form method="post" action="/groups/{{ $id }}" class="margin-left">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="state" value="off" />
-            <button type="submit" class="icon">
-              <img src="/svg/moon?fill=silver" alt="off light">
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="/svg/moon?fill=silver" alt="off light">
             </button>
           </form>
         {{ end }}
@@ -54,7 +54,7 @@
 
   {{ range $id, $schedule := .Schedules }}
     <span class="container">
-      <h2 class="small no-margin margin-left">Hue - Schedule</h2>
+      <h2 class="small padding-left">Hue - Schedule</h2>
       <h3 class="header center no-margin">{{ $schedule.Name }}</h3>
 
       <div class="center padding">
@@ -67,11 +67,11 @@
           <input type="hidden" name="name" value="{{ .Name }}" />
           <input type="hidden" name="status" value="{{ if eq $schedule.Status "enabled" }}disabled{{ else }}enabled{{ end }}" />
 
-          <button type="submit" class="button icon">
+          <button type="submit" class="button button-icon">
             {{ if eq $schedule.Status "enabled" }}
-              <img src="/svg/toggle-on?fill=limegreen" alt="toggled on">
+              <img class="icon icon-large" src="/svg/toggle-on?fill=limegreen" alt="toggled on">
             {{ else }}
-              <img src="/svg/toggle-on-reverse?fill=crimson" alt="toggled off">
+              <img class="icon icon-large" src="/svg/toggle-on-reverse?fill=crimson" alt="toggled off">
             {{ end }}
           </button>
         </form>
@@ -81,7 +81,7 @@
 
   {{ range $name, $sensor := .Sensors }}
     <span class="container">
-      <h2 class="small no-margin margin-left">Hue - Sensor</h2>
+      <h2 class="small padding-left">Hue - Sensor</h2>
       <h3 class="header center no-margin {{ if $sensor.State.Presence }}success{{ end }}">{{ $sensor.Name }} Sensor</h3>
 
       {{ if $sensor.Config.LedIndication }}
@@ -89,15 +89,11 @@
       {{ end }}
 
       <div class="center padding">
-        <div class="icon icon-small">
-          <img src="/svg/{{ battery $sensor.Config.Battery }}" alt="{{ $sensor.Config.Battery }}%" title="{{ $sensor.Config.Battery }}%">
-        </div>
+        <img class="icon icon-large" src="/svg/{{ battery $sensor.Config.Battery }}" alt="{{ $sensor.Config.Battery }}%" title="{{ $sensor.Config.Battery }}%">
       </div>
 
       <div class="flex flex-center padding">
-        <span class="icon icon-small">
-          <img src="/svg/{{ temperature $sensor.State.Temperature }}" alt="Temperature">
-        </span>
+        <img class="icon icon-large" src="/svg/{{ temperature $sensor.State.Temperature }}" alt="Temperature">
         <strong>{{ $sensor.State.Temperature }}°c</strong>
       </div>
     </span>
