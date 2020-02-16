@@ -65,6 +65,8 @@ func (a *app) refreshState(_ time.Time) error {
 	a.sensors = sensors
 	a.mutex.Unlock()
 
+	go a.updatePrometheusSensors()
+
 	return nil
 }
 
