@@ -27,6 +27,9 @@ func (a *app) updatePrometheusSensors() {
 		return
 	}
 
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
 	for _, sensor := range a.sensors {
 		a.getMetrics(strings.ToLower(sensor.Name), "temperature").Set(float64(sensor.State.Temperature))
 		a.getMetrics(strings.ToLower(sensor.Name), "battery").Set(float64(sensor.Config.Battery))
