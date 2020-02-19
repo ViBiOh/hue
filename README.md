@@ -13,7 +13,7 @@ Usage of hue:
   -address string
         [http] Listen address {HUE_ADDRESS}
   -assetsDirectory string
-        [iot] Assets directory (static and templates) {HUE_ASSETS_DIRECTORY}
+        [hue] Assets directory (static and templates) {HUE_ASSETS_DIRECTORY}
   -bridgeIP string
         [hue] IP of Bridge {HUE_BRIDGE_IP}
   -cert string
