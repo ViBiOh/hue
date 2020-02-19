@@ -42,7 +42,7 @@ type app struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		AssetsDirectory: flags.New(prefix, "iot").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
+		AssetsDirectory: flags.New(prefix, "hue").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
 	}
 }
 
