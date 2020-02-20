@@ -2,6 +2,8 @@ FROM scratch
 
 EXPOSE 1080
 
+COPY templates/ /templates
+
 HEALTHCHECK --retries=10 CMD [ "/hue", "-url", "http://localhost:1080/health" ]
 ENTRYPOINT [ "/hue" ]
 
