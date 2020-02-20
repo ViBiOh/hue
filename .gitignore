@@ -4,7 +4,10 @@ scripts/
 # Golang
 bin/
 release/
-output.txt
 coverage.*
+profile.out
 
+# Files
 .env
+cacert.pem
+zoneinfo.zip
