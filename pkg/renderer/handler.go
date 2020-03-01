@@ -1,16 +1,14 @@
 package renderer
 
 import (
-	"flag"
 	"fmt"
 	"html/template"
 	"net/http"
-	"path"
+	"net/url"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v3/pkg/flags"
 	"github.com/ViBiOh/httputils/v3/pkg/httperror"
-	"github.com/ViBiOh/httputils/v3/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/query"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
 	"github.com/ViBiOh/iot/pkg/hue"
 )
@@ -28,57 +26,54 @@ type App interface {
 	Handler() http.Handler
 }
 
-// Config of package
-type Config struct {
-	AssetsDirectory *string
-}
-
 type app struct {
 	tpl *template.Template
 
 	hueApp hue.App
 }
 
-// Flags adds flags for configuring package
-func Flags(fs *flag.FlagSet, prefix string) Config {
-	return Config{
-		AssetsDirectory: flags.New(prefix, "hue").Name("AssetsDirectory").Default("").Label("Assets directory (static and templates)").ToString(fs),
-	}
-}
-
 // New creates new App from Config
-func New(config Config, hueApp hue.App) App {
-	filesTemplates, err := templates.GetTemplates(path.Join(*config.AssetsDirectory, "templates"), ".html")
+func New(hueApp hue.App) (App, error) {
+	filesTemplates, err := templates.GetTemplates("templates", ".html")
 	if err != nil {
-		logger.Error("%s", err)
+		return nil, err
 	}
 
 	return &app{
 		tpl:    getTemplate(filesTemplates),
 		hueApp: hueApp,
-	}
+	}, nil
 }
 
 // Handler create Handler with given App context
 func (a app) Handler() http.Handler {
-	strippedSvgHandler := http.StripPrefix(svgPath, a.svgHandler())
+	svgHandler := http.StripPrefix(svgPath, a.svgHandler())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, svgPath) {
-			strippedSvgHandler.ServeHTTP(w, r)
+			svgHandler.ServeHTTP(w, r)
 			return
 		}
 
-		message, status := a.hueApp.Handle(r)
-		a.uiHandler(w, r, status, message)
+		if query.IsRoot(r) {
+			a.uiHandler(w, r, http.StatusOK, hue.Message{
+				Level:   "success",
+				Content: r.URL.Query().Get("message"),
+			})
+			return
+		}
+
+		if message, status := a.hueApp.Handle(r); status >= http.StatusBadRequest {
+			a.uiHandler(w, r, status, message)
+		} else {
+			http.Redirect(w, r, fmt.Sprintf("/?message=%s", url.QueryEscape(message.Content)), http.StatusFound)
+		}
 	})
 }
 
 func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, message hue.Message) {
 	response := map[string]interface{}{
-		"Hours":   hours,
-		"Minutes": minutes,
-		"Hue":     a.hueApp.Data(),
+		"Hue": a.hueApp.Data(),
 	}
 
 	if len(message.Content) > 0 {

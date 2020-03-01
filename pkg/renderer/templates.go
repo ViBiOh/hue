@@ -38,19 +38,5 @@ func getTemplate(filesTemplates []string) *template.Template {
 				return "snowflake?fill=royalblue"
 			}
 		},
-		"humidity": func(value float32) string {
-			switch {
-			case value >= 80:
-				return "tint?fill=crimson"
-			case value >= 60:
-				return "tint?fill=darkorange"
-			case value >= 40:
-				return "tint?fill=limegreen"
-			case value >= 20:
-				return "tint?fill=darkorange"
-			default:
-				return "tint?fill=crimson"
-			}
-		},
 	}).ParseFiles(filesTemplates...))
 }
