@@ -46,7 +46,15 @@ func (a *app) handleSchedule(r *http.Request) (Message, int) {
 		return NewErrorMessage(err.Error()), http.StatusInternalServerError
 	}
 
-	return NewSuccessMessage(fmt.Sprintf("Schedule is now %s", status)), http.StatusOK
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	name := "Schedule"
+	if updated, ok := a.schedules[schedule.ID]; ok {
+		name = updated.Name
+	}
+
+	return NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)), http.StatusOK
 }
 
 func (a *app) handleGroup(r *http.Request) (Message, int) {
