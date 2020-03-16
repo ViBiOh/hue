@@ -35,7 +35,7 @@ func (a *app) getScene(ctx context.Context, id string) (Scene, error) {
 	return response, nil
 }
 
-func (a *app) createScene(ctx context.Context, o Scene) error {
+func (a *app) createScene(ctx context.Context, o *Scene) error {
 	id, err := create(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), o)
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (a *app) createSceneFromScheduleConfig(ctx context.Context, config Schedule
 		},
 	}
 
-	if err := a.createScene(ctx, scene); err != nil {
+	if err := a.createScene(ctx, &scene); err != nil {
 		return scene, err
 	}
 
