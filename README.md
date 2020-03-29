@@ -12,8 +12,6 @@
 Usage of hue:
   -address string
         [http] Listen address {HUE_ADDRESS}
-  -assetsDirectory string
-        [hue] Assets directory (static and templates) {HUE_ASSETS_DIRECTORY}
   -bridgeIP string
         [hue] IP of Bridge {HUE_BRIDGE_IP}
   -cert string
@@ -34,6 +32,8 @@ Usage of hue:
         [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; base-uri 'self'")
   -frameOptions string
         [owasp] X-Frame-Options {HUE_FRAME_OPTIONS} (default "deny")
+  -graceDuration string
+        [http] Grace duration when SIGTERM received {HUE_GRACE_DURATION} (default "15s")
   -hsts
         [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
   -key string
