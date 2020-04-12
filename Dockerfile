@@ -6,6 +6,7 @@ ENV HUE_CSP "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-i
 ENV HUE_PORT 1080
 
 COPY templates/ /templates
+COPY static/ /static
 
 HEALTHCHECK --retries=10 CMD [ "/hue", "-url", "http://localhost:1080/health" ]
 ENTRYPOINT [ "/hue" ]
