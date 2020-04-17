@@ -1,52 +1,71 @@
-{{- define "favicon" -}}
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v={{- .Version -}}">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v={{- .Version -}}">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v={{- .Version -}}">
-  <link rel="manifest" href="/favicon/manifest.json?v={{- .Version -}}">
-  <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v={{- .Version -}}" color="#5bbad5">
-  <meta name="theme-color" content="#f8f8f8">
-{{- end -}}
+{{ define "header" }}
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <title>Ketchup</title>
+      <meta charset="utf-8">
+      <meta name="format-detection" content="telephone=no">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v={{ .Version }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v={{ .Version }}">
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v={{ .Version }}">
+      <link rel="manifest" href="/favicon/site.webmanifest?v={{ .Version }}">
+      <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v={{ .Version }}" color="#5bbad5">
+      <meta name="theme-color" content="#f8f8f8">
+      {{ template "style-color" . }}
+      {{ template "style-icon" . }}
+      {{ template "style-button" . }}
+      {{ template "style" . }}
+    </head>
 
-{{- define "message" -}}
-  {{- if . -}}
-    <p class="message {{- if eq .Level "success" }} success{{- else }} danger{{- end -}}">
-      {{- .Content -}}
-    </p>
-  {{- end -}}
-{{- end -}}
+    <body class="no-margin">
+      <div class="content">
+        <header class="padding">
+          <h1 class="no-margin no-padding">
+            <a href="/" class="no-style clear">Hue</a>
+          </h1>
+        </header>
 
-{{- define "iot" -}}
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>House</title>
-    <meta charset="utf-8">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{- template "favicon" . -}}
-    {{- template "style-color" . -}}
-    {{- template "style-icon" . -}}
-    {{- template "style-button" . -}}
-    {{- template "style" . -}}
-  </head>
+        {{ template "message" .Message }}
+{{ end }}
 
-  <body class="no-margin">
-    <div class="content">
-      <header class="padding">
-        <h1 class="title">
-          <a href="/" class="no-style clear">IoT</a>
-        </h1>
-      </header>
-
-      {{- template "message" .Message -}}
-
-      <div class="grid">
-        {{- if .Hue -}}
-          {{- template "hue" .Hue -}}
-        {{- end -}}
-      </div>
+{{ define "footer" }}
     </div>
   </body>
 
 </html>
-{{- end -}}
+{{ end }}
+
+{{ define "message" }}
+  {{ if . }}
+    <p class="padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
+      {{ .Content }}
+    </p>
+  {{ end }}
+{{ end }}
+
+{{ define "app" }}
+  {{ template "header" . }}
+
+  <div class="grid">
+    {{- if .Hue -}}
+      {{- template "hue" .Hue -}}
+    {{- end -}}
+  </div>
+
+  {{ template "footer" . }}
+{{ end }}
+
+{{ define "error" }}
+  {{ template "header" . }}
+
+  {{ if .Errors }}
+    {{ range .Errors }}
+      <p class="padding no-margin center">
+        {{ .Label }}
+      </p>
+    {{ end }}
+  {{ end }}
+
+  {{ template "footer" . }}
+{{ end }}
