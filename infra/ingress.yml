@@ -1,0 +1,62 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hue-local-http
+spec:
+  entryPoints:
+    - http
+  routes:
+    - match: Host(`alice.local`)
+      kind: Rule
+      services:
+        - name: hue
+          port: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: hue-auth
+spec:
+  basicAuth:
+    secret: hue-auth
+    removeHeader: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hue-http
+spec:
+  entryPoints:
+    - http
+  routes:
+    - match: Host(`hue.vibioh.fr`)
+      kind: Rule
+      middlewares:
+        - name: redirect
+      services:
+        - name: hue
+          port: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hue-https
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`hue.vibioh.fr`)
+      kind: Rule
+      middlewares:
+        - name: hue-auth
+        - name: compress
+        - name: ratelimit
+      services:
+        - name: hue
+          port: 80
+  tls:
+    certResolver: default
