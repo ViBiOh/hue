@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/ViBiOh/hue/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/hue)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/hue)](https://goreportcard.com/report/github.com/ViBiOh/hue)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ViBiOh/hue)](https://dependabot.com)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ViBiOh_iot&metric=alert_status)](https://sonarcloud.io/dashboard?id=ViBiOh_iot)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ViBiOh_hue&metric=alert_status)](https://sonarcloud.io/dashboard?id=ViBiOh_hue)
 
 ## Getting started
 
@@ -12,7 +12,7 @@ Golang binary is built with static link. You can download it directly from the [
 
 A Docker image is available for `amd64`, `arm` and `arm64` platforms on Docker Hub: [vibioh/hue](https://hub.docker.com/r/vibioh/hue/tags).
 
-You can configure app by passing CLI args or environment variables (cf. [Usage of hue](#usage-of-hue) section). CLI override environment variables.
+You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). CLI override environment variables.
 
 You'll find a Kubernetes exemple (without secrets) in the [`infra/`](infra/) folder. It contains two ingresses : one for "same network access" and another, publicly available but with basic-auth.
 
@@ -27,7 +27,7 @@ POST /api
 Body: {"devicetype":"hue"}
 ```
 
-## Usage of hue
+## Usage
 
 ```bash
 Usage of hue:

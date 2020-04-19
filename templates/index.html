@@ -25,7 +25,6 @@
           --icon-large: 4.8rem;
         }
 
-
         * {
           box-sizing: border-box;
         }
@@ -159,6 +158,28 @@
           pointer-events: none;
         }
 
+        .modal {
+          align-items: center;
+          background-color: rgba(84, 84, 84, 0.75);
+          display: none;
+          height: 100vh;
+          justify-content: center;
+          left: 0;
+          pointer-events: none;
+          position: fixed;
+          top: 0;
+          width: 100vw;
+        }
+
+        .modal-content {
+          background-color: var(--dark);
+          display: flex;
+          flex-direction: column;
+          max-height: 100%;
+          max-width: 100%;
+          pointer-events: auto;
+        }
+
         .header {
           background-color: var(--grey);
           margin-top: 0;
@@ -218,9 +239,11 @@
 
 {{ define "message" }}
   {{ if . }}
-    <p class="no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
-      {{ .Content }}
-    </p>
+    {{ if gt (len .Content) 0 }}
+      <p class="no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
+        {{ .Content }}
+      </p>
+    {{ end }}
   {{ end }}
 {{ end }}
 
@@ -238,7 +261,7 @@
   {{ if .Errors }}
     {{ range .Errors }}
       <p class="padding no-margin center">
-        {{ .Label }}
+        {{ . }}
       </p>
     {{ end }}
   {{ end }}

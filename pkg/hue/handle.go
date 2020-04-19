@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/ViBiOh/hue/pkg/model"
 )
 
 const (
@@ -12,7 +14,7 @@ const (
 )
 
 // Handler for request. Should be use with net/http
-func (a *app) Handle(r *http.Request) (Message, int) {
+func (a *app) Handle(r *http.Request) (model.Message, int) {
 	if strings.HasPrefix(r.URL.Path, groupsRequest) {
 		return a.handleGroup(r)
 	}
@@ -24,9 +26,9 @@ func (a *app) Handle(r *http.Request) (Message, int) {
 	return emptyMessage, http.StatusOK
 }
 
-func (a *app) handleSchedule(r *http.Request) (Message, int) {
+func (a *app) handleSchedule(r *http.Request) (model.Message, int) {
 	if r.FormValue("method") != http.MethodPatch {
-		return NewErrorMessage("Invalid method for updating schedule"), http.StatusMethodNotAllowed
+		return model.NewErrorMessage("Invalid method for updating schedule"), http.StatusMethodNotAllowed
 	}
 
 	status := r.FormValue("status")
@@ -39,11 +41,11 @@ func (a *app) handleSchedule(r *http.Request) (Message, int) {
 	}
 
 	if err := a.updateSchedule(r.Context(), schedule); err != nil {
-		return NewErrorMessage(err.Error()), http.StatusInternalServerError
+		return model.NewErrorMessage(err.Error()), http.StatusInternalServerError
 	}
 
 	if err := a.syncSchedules(); err != nil {
-		return NewErrorMessage(err.Error()), http.StatusInternalServerError
+		return model.NewErrorMessage(err.Error()), http.StatusInternalServerError
 	}
 
 	a.mutex.RLock()
@@ -54,12 +56,12 @@ func (a *app) handleSchedule(r *http.Request) (Message, int) {
 		name = updated.Name
 	}
 
-	return NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)), http.StatusOK
+	return model.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)), http.StatusOK
 }
 
-func (a *app) handleGroup(r *http.Request) (Message, int) {
+func (a *app) handleGroup(r *http.Request) (model.Message, int) {
 	if r.FormValue("method") != http.MethodPatch {
-		return NewErrorMessage("Invalid method for updating group"), http.StatusMethodNotAllowed
+		return model.NewErrorMessage("Invalid method for updating group"), http.StatusMethodNotAllowed
 	}
 
 	groupID := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsRequest), "/")
@@ -67,21 +69,21 @@ func (a *app) handleGroup(r *http.Request) (Message, int) {
 
 	group, ok := a.groups[groupID]
 	if !ok {
-		return NewErrorMessage(fmt.Sprintf("Unknown group '%s'", groupID)), http.StatusNotFound
+		return model.NewErrorMessage(fmt.Sprintf("Unknown group '%s'", groupID)), http.StatusNotFound
 	}
 
 	state, ok := States[stateName]
 	if !ok {
-		return NewErrorMessage(fmt.Sprintf("Unknown state '%s'", stateName)), http.StatusNotFound
+		return model.NewErrorMessage(fmt.Sprintf("Unknown state '%s'", stateName)), http.StatusNotFound
 	}
 
 	if err := a.updateGroupState(r.Context(), groupID, state); err != nil {
-		return NewErrorMessage(err.Error()), http.StatusInternalServerError
+		return model.NewErrorMessage(err.Error()), http.StatusInternalServerError
 	}
 
 	if err := a.syncGroups(); err != nil {
-		return NewErrorMessage(err.Error()), http.StatusInternalServerError
+		return model.NewErrorMessage(err.Error()), http.StatusInternalServerError
 	}
 
-	return NewSuccessMessage(fmt.Sprintf("%s is now %s", group.Name, stateName)), http.StatusOK
+	return model.NewSuccessMessage(fmt.Sprintf("%s is now %s", group.Name, stateName)), http.StatusOK
 }
