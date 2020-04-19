@@ -6,13 +6,25 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/v3/pkg/httperror"
+	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
-	"github.com/ViBiOh/hue/pkg/hue"
+	"github.com/ViBiOh/hue/pkg/model"
 )
 
-func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, message hue.Message) {
+func (a app) getData(r *http.Request) (interface{}, error) {
+	return a.hueApp.Data(), nil
+}
+
+func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, message model.Message) {
+	hue, err := a.getData(r)
+	if err != nil {
+		a.errorHandler(w, http.StatusInternalServerError, err, nil)
+		return
+	}
+
 	content := map[string]interface{}{
-		"Hue": a.hueApp.Data(),
+		"Version": a.version,
+		"Hue":     hue,
 	}
 
 	if len(message.Content) > 0 {
@@ -21,6 +33,27 @@ func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, messa
 
 	if err := templates.ResponseHTMLTemplate(a.tpl.Lookup("app"), w, content, status); err != nil {
 		httperror.InternalServerError(w, err)
+	}
+}
+
+func (a app) errorHandler(w http.ResponseWriter, status int, errs ...error) {
+	logger.Error("%s", errs)
+
+	content := map[string]interface{}{
+		"Version": a.version,
+	}
+
+	if len(errs) > 0 {
+		content["Message"] = model.NewErrorMessage(errs[0].Error())
+
+		if len(errs) > 1 {
+			content["Errors"] = errs[1:]
+		}
+	}
+
+	if err := templates.ResponseHTMLTemplate(a.tpl.Lookup("error"), w, content, status); err != nil {
+		httperror.InternalServerError(w, err)
+		return
 	}
 }
 

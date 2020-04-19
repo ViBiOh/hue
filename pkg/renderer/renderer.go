@@ -5,19 +5,17 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/ViBiOh/httputils/v3/pkg/query"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
 	"github.com/ViBiOh/hue/pkg/hue"
+	"github.com/ViBiOh/hue/pkg/model"
 )
 
 const (
 	svgPath = "/svg"
-)
-
-var (
-	_ App = app{}
 )
 
 // App of package
@@ -26,7 +24,8 @@ type App interface {
 }
 
 type app struct {
-	tpl *template.Template
+	tpl     *template.Template
+	version string
 
 	hueApp hue.App
 }
@@ -74,12 +73,13 @@ func New(hueApp hue.App) (App, error) {
 	}
 
 	return &app{
-		tpl:    template.Must(tpl.ParseFiles(filesTemplates...)),
-		hueApp: hueApp,
+		tpl:     template.Must(tpl.ParseFiles(filesTemplates...)),
+		version: os.Getenv("VERSION"),
+		hueApp:  hueApp,
 	}, nil
 }
 
-// Handler create Handler with given App context
+// Handler for request. Should be use with net/http
 func (a app) Handler() http.Handler {
 	svgHandler := http.StripPrefix(svgPath, a.svg())
 
@@ -90,7 +90,7 @@ func (a app) Handler() http.Handler {
 		}
 
 		if query.IsRoot(r) {
-			a.uiHandler(w, r, http.StatusOK, hue.Message{
+			a.uiHandler(w, r, http.StatusOK, model.Message{
 				Level:   r.URL.Query().Get("messageLevel"),
 				Content: r.URL.Query().Get("messageContent"),
 			})
@@ -104,5 +104,6 @@ func (a app) Handler() http.Handler {
 		}
 
 		http.Redirect(w, r, fmt.Sprintf("/?messageContent=%s", url.QueryEscape(message.Content)), http.StatusFound)
+
 	})
 }

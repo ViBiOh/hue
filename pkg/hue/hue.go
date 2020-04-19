@@ -11,6 +11,7 @@ import (
 
 	"github.com/ViBiOh/httputils/v3/pkg/cron"
 	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/hue/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -20,7 +21,7 @@ var (
 
 // App stores informations and secret of API
 type App interface {
-	Handle(*http.Request) (Message, int)
+	Handle(*http.Request) (model.Message, int)
 	Data() map[string]interface{}
 	Start()
 }
