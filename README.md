@@ -1,9 +1,9 @@
-# iot
+# hue
 
-[![Build Status](https://travis-ci.com/ViBiOh/iot.svg?branch=master)](https://travis-ci.com/ViBiOh/iot)
-[![codecov](https://codecov.io/gh/ViBiOh/iot/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/iot)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/iot)](https://goreportcard.com/report/github.com/ViBiOh/iot)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ViBiOh/iot)](https://dependabot.com)
+[![Build Status](https://travis-ci.com/ViBiOh/hue.svg?branch=master)](https://travis-ci.com/ViBiOh/hue)
+[![codecov](https://codecov.io/gh/ViBiOh/hue/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/hue)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/hue)](https://goreportcard.com/report/github.com/ViBiOh/hue)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ViBiOh/hue)](https://dependabot.com)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ViBiOh_iot&metric=alert_status)](https://sonarcloud.io/dashboard?id=ViBiOh_iot)
 
 ## Usage of Web server

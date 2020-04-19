@@ -2,7 +2,7 @@
   <!doctype html>
   <html lang="en">
     <head>
-      <title>Ketchup</title>
+      <title>Hue</title>
       <meta charset="utf-8">
       <meta name="format-detection" content="telephone=no">
       <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -227,11 +227,7 @@
 {{ define "app" }}
   {{ template "header" . }}
 
-  <div class="grid">
-    {{- if .Hue -}}
-      {{- template "hue" .Hue -}}
-    {{- end -}}
-  </div>
+  {{- template "hue" .Hue -}}
 
   {{ template "footer" . }}
 {{ end }}
