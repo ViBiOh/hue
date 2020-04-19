@@ -1,4 +1,4 @@
-module github.com/ViBiOh/iot
+module github.com/ViBiOh/hue
 
 go 1.14
 

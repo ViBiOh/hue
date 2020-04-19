@@ -13,8 +13,8 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/httputils/v3/pkg/owasp"
 	"github.com/ViBiOh/httputils/v3/pkg/prometheus"
-	"github.com/ViBiOh/iot/pkg/hue"
-	"github.com/ViBiOh/iot/pkg/renderer"
+	"github.com/ViBiOh/hue/pkg/hue"
+	"github.com/ViBiOh/hue/pkg/renderer"
 )
 
 const (

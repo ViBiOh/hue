@@ -9,7 +9,7 @@ import (
 
 	"github.com/ViBiOh/httputils/v3/pkg/query"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
-	"github.com/ViBiOh/iot/pkg/hue"
+	"github.com/ViBiOh/hue/pkg/hue"
 )
 
 const (

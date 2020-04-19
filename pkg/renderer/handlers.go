@@ -7,7 +7,7 @@ import (
 
 	"github.com/ViBiOh/httputils/v3/pkg/httperror"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
-	"github.com/ViBiOh/iot/pkg/hue"
+	"github.com/ViBiOh/hue/pkg/hue"
 )
 
 func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, message hue.Message) {
