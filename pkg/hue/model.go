@@ -2,20 +2,6 @@ package hue
 
 import "github.com/ViBiOh/hue/pkg/model"
 
-const (
-	monday    = 1 << 6
-	tuesday   = 1 << 5
-	wednesday = 1 << 4
-	thursday  = 1 << 3
-	friday    = 1 << 2
-	saturday  = 1 << 1
-	sunday    = 1
-
-	weekday = monday | tuesday | wednesday | thursday | friday
-	weekend = saturday | sunday
-	alldays = weekday | weekend
-)
-
 var (
 	// States available states of lights
 	States = map[string]map[string]interface{}{
@@ -48,6 +34,8 @@ var (
 	}
 
 	emptyMessage = model.Message{}
+	noneLight    = Light{}
+	noneRule     = Rule{}
 )
 
 // Group description
@@ -86,28 +74,6 @@ type Scene struct {
 	APIScene
 }
 
-// APISchedule describe schedule as from Hue API
-type APISchedule struct {
-	Name      string `json:"name,omitempty"`
-	Localtime string `json:"localtime,omitempty"`
-	Command   Action `json:"command,omitempty"`
-	Status    string `json:"status,omitempty"`
-}
-
-// Schedule description
-type Schedule struct {
-	ID string `json:"id,omitempty"`
-	APISchedule
-}
-
-// ScheduleConfig configuration (made simple)
-type ScheduleConfig struct {
-	Name      string
-	Localtime string
-	Group     string
-	State     string
-}
-
 // Rule description
 type Rule struct {
 	ID         string      `json:"-"`
@@ -119,11 +85,11 @@ type Rule struct {
 
 // Sensor description
 type Sensor struct {
-	ID     string        `json:"-"`
-	Name   string        `json:"name,omitempty"`
-	Type   string        `json:"type,omitempty"`
-	State  *sensorState  `json:"state,omitempty"`
-	Config *sensorConfig `json:"config,omitempty"`
+	ID     string       `json:"-"`
+	Name   string       `json:"name,omitempty"`
+	Type   string       `json:"type,omitempty"`
+	State  sensorState  `json:"state,omitempty"`
+	Config sensorConfig `json:"config,omitempty"`
 }
 
 type sensorState struct {
@@ -149,31 +115,4 @@ type Condition struct {
 	Address  string `json:"address,omitempty"`
 	Operator string `json:"operator,omitempty"`
 	Value    string `json:"value,omitempty"`
-}
-
-type configHue struct {
-	Schedules []ScheduleConfig
-	Sensors   []configSensor
-	Taps      []configTap
-}
-
-type configSensor struct {
-	ID            string
-	LightSensorID string
-	CompanionID   string
-	OffDelay      string
-	Groups        []string
-	EvenIfNotDark bool
-}
-
-type configTap struct {
-	ID      string
-	Buttons []configTapButton
-}
-
-type configTapButton struct {
-	ID     string
-	State  string
-	Groups []string
-	Rule   Rule
 }

@@ -9,28 +9,27 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
 
-func (a *app) listSchedules(ctx context.Context) (map[string]*Schedule, error) {
-	var response map[string]*Schedule
+func (a *app) listSchedules(ctx context.Context) (map[string]Schedule, error) {
+	var response map[string]Schedule
 
 	if err := get(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), &response); err != nil {
 		return nil, err
 	}
 
+	output := make(map[string]Schedule, len(response))
 	for id, schedule := range response {
 		schedule.ID = id
+		output[id] = schedule
 	}
 
-	return response, nil
+	return output, nil
 }
 
-func (a *app) getSchedule(ctx context.Context, id string) (*Schedule, error) {
+func (a *app) getSchedule(ctx context.Context, id string) (Schedule, error) {
 	var response Schedule
+	err := get(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id), response)
 
-	if err := get(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id), &response); err != nil {
-		return &response, nil
-	}
-
-	return &response, nil
+	return response, err
 }
 
 func (a *app) createSchedule(ctx context.Context, o *Schedule) error {
@@ -39,7 +38,7 @@ func (a *app) createSchedule(ctx context.Context, o *Schedule) error {
 		return err
 	}
 
-	o.ID = *id
+	o.ID = id
 
 	return nil
 }

@@ -11,7 +11,7 @@
       border: 1px solid var(--white);
       display: inline-flex;
       flex-direction: column;
-      height: 25rem;
+      height: 20rem;
     }
 
     @media screen and (max-width: 424px) {
@@ -78,7 +78,6 @@
   <div class="grid">
     {{ range $id, $group := .Groups }}
       <span class="container">
-        <h2 class="small padding-left">Hue - Group</h2>
         <h3 class="header center no-margin {{ if $group.State.AnyOn }}success{{ end }}">{{ $group.Name }}</h3>
 
         <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
@@ -129,7 +128,6 @@
 
     {{ range $id, $schedule := .Schedules }}
       <span class="container">
-        <h2 class="small padding-left">Hue - Schedule</h2>
         <h3 class="header center no-margin">{{ $schedule.Name }}</h3>
 
         <div class="center padding">
@@ -156,7 +154,6 @@
 
     {{ range $name, $sensor := .Sensors }}
       <span class="container">
-        <h2 class="small padding-left">Hue - Sensor</h2>
         <h3 class="header center no-margin {{ if $sensor.State.Presence }}success{{ end }}">{{ $sensor.Name }} Sensor</h3>
 
         {{ if $sensor.Config.LedIndication }}

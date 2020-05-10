@@ -8,6 +8,42 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
 
+const (
+	monday    = 1 << 6
+	tuesday   = 1 << 5
+	wednesday = 1 << 4
+	thursday  = 1 << 3
+	friday    = 1 << 2
+	saturday  = 1 << 1
+	sunday    = 1
+
+	weekday = monday | tuesday | wednesday | thursday | friday
+	weekend = saturday | sunday
+	alldays = weekday | weekend
+)
+
+// Schedule description
+type Schedule struct {
+	ID string `json:"id,omitempty"`
+	APISchedule
+}
+
+// APISchedule describe schedule as from Hue API
+type APISchedule struct {
+	Name      string `json:"name,omitempty"`
+	Localtime string `json:"localtime,omitempty"`
+	Command   Action `json:"command,omitempty"`
+	Status    string `json:"status,omitempty"`
+}
+
+// ScheduleConfig configuration (made simple)
+type ScheduleConfig struct {
+	Name      string
+	Localtime string
+	Group     string
+	State     string
+}
+
 // FormatLocalTime formats local time of schedules to human readable version
 func (s Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, "W") {
@@ -60,22 +96,31 @@ func (s Schedule) FormatLocalTime() string {
 }
 
 // FindStateName finds matching state's name
-func (s Schedule) FindStateName(scenes map[string]Scene) string {
-	if sceneID, ok := s.Command.Body["scene"]; ok {
-		if scene, ok := scenes[sceneID.(string)]; ok {
-			for _, lightState := range scene.Lightstates {
-				lightStateValue := formatStateValue(lightState)
+func (s Schedule) FindStateName(scenes map[string]Scene) (output string) {
+	output = "unknown"
 
-				for stateName, state := range States {
-					if lightStateValue == formatStateValue(state) {
-						return stateName
-					}
-				}
+	sceneID, ok := s.Command.Body["scene"]
+	if !ok {
+		return
+	}
+
+	scene, ok := scenes[sceneID.(string)]
+	if !ok {
+		return
+	}
+
+	for _, lightState := range scene.Lightstates {
+		lightStateValue := formatStateValue(lightState)
+
+		for stateName, state := range States {
+			if lightStateValue == formatStateValue(state) {
+				output = stateName
+				return
 			}
 		}
 	}
 
-	return "unknown"
+	return
 }
 
 func formatStateValue(state map[string]interface{}) string {

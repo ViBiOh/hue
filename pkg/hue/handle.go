@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	groupsRequest    = "/groups"
-	schedulesRequest = "/schedules"
+	groupsPath    = "/groups"
+	schedulesPath = "/schedules"
 )
 
 // Handler for request. Should be use with net/http
 func (a *app) Handle(r *http.Request) (model.Message, int) {
-	if strings.HasPrefix(r.URL.Path, groupsRequest) {
+	if strings.HasPrefix(r.URL.Path, groupsPath) {
 		return a.handleGroup(r)
 	}
 
-	if strings.HasPrefix(r.URL.Path, schedulesRequest) {
+	if strings.HasPrefix(r.URL.Path, schedulesPath) {
 		return a.handleSchedule(r)
 	}
 
@@ -34,7 +34,7 @@ func (a *app) handleSchedule(r *http.Request) (model.Message, int) {
 	status := r.FormValue("status")
 
 	schedule := Schedule{
-		ID: strings.Trim(strings.TrimPrefix(r.URL.Path, schedulesRequest), "/"),
+		ID: strings.Trim(strings.TrimPrefix(r.URL.Path, schedulesPath), "/"),
 		APISchedule: APISchedule{
 			Status: r.FormValue("status"),
 		},
@@ -64,7 +64,7 @@ func (a *app) handleGroup(r *http.Request) (model.Message, int) {
 		return model.NewErrorMessage("Invalid method for updating group"), http.StatusMethodNotAllowed
 	}
 
-	groupID := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsRequest), "/")
+	groupID := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsPath), "/")
 	stateName := r.FormValue("state")
 
 	group, ok := a.groups[groupID]

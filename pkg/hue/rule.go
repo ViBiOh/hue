@@ -16,7 +16,7 @@ func (a *app) createRule(ctx context.Context, o *Rule) error {
 		return err
 	}
 
-	o.ID = *id
+	o.ID = id
 
 	return nil
 }
