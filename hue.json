@@ -65,7 +65,7 @@
         },
         {
           "id": "4",
-          "state": "on",
+          "state": "off",
           "groups": [
             "1",
             "2",
@@ -102,7 +102,7 @@
         },
         {
           "id": "4",
-          "state": "on",
+          "state": "off",
           "groups": [
             "1",
             "2",
@@ -139,7 +139,7 @@
         },
         {
           "id": "4",
-          "state": "on",
+          "state": "off",
           "groups": [
             "1",
             "2",
