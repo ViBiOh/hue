@@ -31,24 +31,24 @@ func get(ctx context.Context, url string, response interface{}) error {
 	return nil
 }
 
-func create(ctx context.Context, url string, payload interface{}) (*string, error) {
+func create(ctx context.Context, url string, payload interface{}) (string, error) {
 	resp, err := request.New().Post(url).JSON(ctx, payload)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if hasError(content) {
-		return nil, fmt.Errorf("create error: %s", content)
+		return "", fmt.Errorf("create error: %s", content)
 	}
 
-	var response []map[string]map[string]*string
+	var response []map[string]map[string]string
 	if err := json.Unmarshal(content, &response); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return response[0]["success"]["id"], nil

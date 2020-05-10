@@ -8,21 +8,21 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/request"
 )
 
-func (a *app) getLight(ctx context.Context, lightID string) (*Light, error) {
+func (a *app) getLight(ctx context.Context, lightID string) (Light, error) {
 	resp, err := request.New().Get(fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID)).Send(ctx, nil)
 	if err != nil {
-		return nil, err
+		return noneLight, err
 	}
 
 	content, err := request.ReadBodyResponse(resp)
 	if err != nil {
-		return nil, err
+		return noneLight, err
 	}
 
 	var light Light
 	if err := json.Unmarshal(content, &light); err != nil {
-		return nil, err
+		return noneLight, err
 	}
 
-	return &light, nil
+	return light, nil
 }

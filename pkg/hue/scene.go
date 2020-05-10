@@ -41,7 +41,7 @@ func (a *app) createScene(ctx context.Context, o *Scene) error {
 		return err
 	}
 
-	o.ID = *id
+	o.ID = id
 
 	return nil
 }

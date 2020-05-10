@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
@@ -32,6 +33,7 @@ func (a *app) listSensors(ctx context.Context) (map[string]Sensor, error) {
 		if sensor.Type == temperatureSensorType {
 			if presenceSensor, ok := sensors[sensor.Name]; ok {
 				presenceSensor.State.Temperature = sensor.State.Temperature / 100
+				sensors[sensor.Name] = presenceSensor
 			}
 		}
 	}
@@ -85,12 +87,12 @@ func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
 	return newRule
 }
 
-func (a *app) createSensorRecoverRuleDescription(sensor configSensor) *Rule {
+func (a *app) createSensorRecoverRuleDescription(sensor configSensor) Rule {
 	if sensor.EvenIfNotDark {
-		return nil
+		return noneRule
 	}
 
-	newRule := &Rule{
+	newRule := Rule{
 		Name: fmt.Sprintf("MotionSensor %s - recover", sensor.ID),
 		Conditions: []Condition{
 			{
@@ -143,9 +145,8 @@ func (a *app) configureMotionSensor(ctx context.Context, sensors []configSensor)
 			logger.Error("%s", err)
 		}
 
-		recoverRule := a.createSensorRecoverRuleDescription(sensor)
-		if recoverRule != nil {
-			if err := a.createRule(ctx, recoverRule); err != nil {
+		if recoverRule := a.createSensorRecoverRuleDescription(sensor); !reflect.DeepEqual(recoverRule, noneRule) {
+			if err := a.createRule(ctx, &recoverRule); err != nil {
 				logger.Error("%s", err)
 			}
 		}

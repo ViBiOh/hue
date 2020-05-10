@@ -41,7 +41,7 @@ type app struct {
 
 	groups    map[string]Group
 	scenes    map[string]Scene
-	schedules map[string]*Schedule
+	schedules map[string]Schedule
 	sensors   map[string]Sensor
 	mutex     sync.RWMutex
 
