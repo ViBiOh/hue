@@ -3,6 +3,10 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: hue-local-http
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
 spec:
   entryPoints:
     - http
@@ -18,6 +22,10 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: hue-auth
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
 spec:
   basicAuth:
     secret: hue-auth
@@ -28,6 +36,10 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: hue-http
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
 spec:
   entryPoints:
     - http
@@ -45,6 +57,10 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: hue-https
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
 spec:
   entryPoints:
     - https
