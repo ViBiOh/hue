@@ -38,6 +38,14 @@
       flex: 1 1;
     }
 
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+
+    .flex-half {
+      flex-basis: 50%;
+    }
+
     .flex-column {
       flex-direction: column;
     }
@@ -80,7 +88,7 @@
       <span class="container">
         <h3 class="header center no-margin {{ if $group.State.AnyOn }}success{{ end }}">{{ $group.Name }}</h3>
 
-        <div class="flex flex-center flex-grow flex-evenly margin-top margin-bottom">
+        <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
           {{ if $group.Tap }}
             <form method="post" action="/groups/{{ $id }}">
               <input type="hidden" name="method" value="PATCH" />
@@ -98,15 +106,23 @@
               </button>
             </form>
           {{ else }}
-            <form method="post" action="/groups/{{ $id }}">
+            <form class="center flex-half" method="post" action="/groups/{{ $id }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
               <button type="submit" class="button button-icon">
-                <img class="icon icon-large" src="/svg/lightbulb?fill=gold" alt="bright light">
+                <img class="icon icon-large" src="/svg/lightbulb?fill=limegreen" alt="bright light">
               </button>
             </form>
 
-            <form method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
+              <input type="hidden" name="method" value="PATCH" />
+              <input type="hidden" name="state" value="half" />
+              <button type="submit" class="button button-icon">
+                <img class="icon icon-large" src="/svg/lightbulb?fill=gold" alt="half light">
+              </button>
+            </form>
+
+            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="dimmed" />
               <button type="submit" class="button button-icon">
@@ -114,7 +130,7 @@
               </button>
             </form>
 
-            <form method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="off" />
               <button type="submit" class="button button-icon">
@@ -134,7 +150,7 @@
           <strong>{{ $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime }}</strong>
         </div>
 
-        <div class="center flex-full flex flex-center flex-evenly margin-bottom">
+        <div class="center flex flex-center margin-bottom">
           <form class="inline" method="post" action="/schedules/{{ .ID }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="name" value="{{ .Name }}" />
