@@ -226,8 +226,6 @@
             <a href="/" class="no-style clear">Hue</a>
           </h1>
         </header>
-
-        {{ template "message" .Message }}
 {{ end }}
 
 {{ define "footer" }}
@@ -249,6 +247,7 @@
 
 {{ define "app" }}
   {{ template "header" . }}
+  {{ template "message" .Message }}
 
   {{- template "hue" .Hue -}}
 
@@ -257,6 +256,7 @@
 
 {{ define "error" }}
   {{ template "header" . }}
+  {{ template "message" .Message }}
 
   {{ if .Errors }}
     {{ range .Errors }}
@@ -265,6 +265,10 @@
       </p>
     {{ end }}
   {{ end }}
+
+  <h3 class="center">
+    <a href="javascript:history.back()">Go Back</a>
+  </h3>
 
   {{ template "footer" . }}
 {{ end }}

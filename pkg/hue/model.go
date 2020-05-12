@@ -17,7 +17,13 @@ var (
 			"on":             true,
 			"transitiontime": 30,
 			"sat":            0,
-			"bri":            254,
+			"bri":            255,
+		},
+		"half": {
+			"on":             true,
+			"transitiontime": 30,
+			"sat":            0,
+			"bri":            96,
 		},
 		"dimmed": {
 			"on":             true,
@@ -29,7 +35,7 @@ var (
 			"on":             true,
 			"transitiontime": 3000,
 			"sat":            0,
-			"bri":            254,
+			"bri":            255,
 		},
 	}
 
