@@ -3,6 +3,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hue
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
 spec:
   selector:
     matchLabels:
