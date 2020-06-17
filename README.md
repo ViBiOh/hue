@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.com/ViBiOh/hue.svg?branch=master)](https://travis-ci.com/ViBiOh/hue)
 [![codecov](https://codecov.io/gh/ViBiOh/hue/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/hue)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/hue)](https://goreportcard.com/report/github.com/ViBiOh/hue)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ViBiOh/hue)](https://dependabot.com)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ViBiOh_hue&metric=alert_status)](https://sonarcloud.io/dashboard?id=ViBiOh_hue)
 
 ## Getting started
