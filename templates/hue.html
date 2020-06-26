@@ -54,6 +54,10 @@
       width: 100%;
     }
 
+    .inline {
+      display: inline-block;
+    }
+
     .full-screen {
       max-width: 100vw;
     }
@@ -177,6 +181,19 @@
         {{ end }}
 
         <div class="center padding">
+          <form class="inline" method="post" action="/sensors/{{ $sensor.ID }}">
+            <input type="hidden" name="method" value="PATCH" />
+            <input type="hidden" name="status" value="{{ if $sensor.Config.On }}disabled{{ else }}enabled{{ end }}" />
+
+            <button type="submit" class="button button-icon">
+              {{ if $sensor.Config.On }}
+                <img class="icon icon-large" src="/svg/toggle-on?fill=limegreen" alt="toggled on">
+              {{ else }}
+                <img class="icon icon-large" src="/svg/toggle-on-reverse?fill=crimson" alt="toggled off">
+              {{ end }}
+            </button>
+          </form>
+
           <img class="icon icon-large" src="/svg/{{ battery $sensor.Config.Battery }}" alt="{{ $sensor.Config.Battery }}%" title="{{ $sensor.Config.Battery }}%">
         </div>
 

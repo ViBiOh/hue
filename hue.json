@@ -1,142 +1,161 @@
 {
-  "schedules": [
-    {
-      "name": "Wake Up",
-      "localtime": "W124/T07:55:00",
-      "group": "2",
-      "state": "long_on"
-    }
-  ],
-  "sensors": [
-    {
-      "id": "6",
-      "lightSensorId": "7",
-      "companionId": "17",
-      "groups": [
-        "4"
-      ],
-      "offDelay": "PT00:01:00",
-      "evenIfNotDark": true
-    },
-    {
-      "id": "10",
-      "lightSensorId": "11",
-      "companionId": "12",
-      "groups": [
-        "3"
-      ],
-      "offDelay": "PT00:01:00",
-      "evenIfNotDark": true
-    },
-    {
-      "id": "14",
-      "lightSensorId": "15",
-      "companionId": "16",
-      "groups": [
-        "5"
-      ],
-      "offDelay": "PT00:01:00"
-    }
-  ],
-  "taps": [
-    {
-      "id": "2",
-      "buttons": [
+    "schedules":
+    [
         {
-          "id": "1",
-          "state": "on",
-          "groups": [
-            "2"
-          ]
-        },
-        {
-          "id": "2",
-          "state": "dimmed",
-          "groups": [
-            "2"
-          ]
-        },
-        {
-          "id": "3",
-          "state": "off",
-          "groups": [
-            "2"
-          ]
-        },
-        {
-          "id": "4",
-          "state": "off",
-          "groups": [
-            "1"
-          ]
+            "name": "Wake Up",
+            "localtime": "W124/T07:55:00",
+            "group": "2",
+            "state": "long_on"
         }
-      ]
-    },
-    {
-      "id": "3",
-      "buttons": [
+    ],
+    "sensors":
+    [
         {
-          "id": "1",
-          "state": "on",
-          "groups": [
-            "1"
-          ]
+            "id": "6",
+            "lightSensorId": "7",
+            "companionId": "17",
+            "groups":
+            [
+                "4"
+            ],
+            "offDelay": "PT00:01:00"
         },
         {
-          "id": "2",
-          "state": "dimmed",
-          "groups": [
-            "1"
-          ]
+            "id": "10",
+            "lightSensorId": "11",
+            "companionId": "12",
+            "groups":
+            [
+                "3"
+            ],
+            "offDelay": "PT00:01:00"
         },
         {
-          "id": "3",
-          "state": "off",
-          "groups": [
-            "1"
-          ]
-        },
-        {
-          "id": "4",
-          "state": "off",
-          "groups": [
-            "1"
-          ]
+            "id": "14",
+            "lightSensorId": "15",
+            "companionId": "16",
+            "groups":
+            [
+                "5"
+            ],
+            "offDelay": "PT00:01:00"
         }
-      ]
-    },
-    {
-      "id": "4",
-      "buttons": [
+    ],
+    "taps":
+    [
         {
-          "id": "1",
-          "state": "on",
-          "groups": [
-            "2"
-          ]
+            "id": "2",
+            "buttons":
+            [
+                {
+                    "id": "1",
+                    "state": "on",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "2",
+                    "state": "dimmed",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "3",
+                    "state": "off",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "4",
+                    "state": "off",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                }
+            ]
         },
         {
-          "id": "2",
-          "state": "dimmed",
-          "groups": [
-            "2"
-          ]
+            "id": "3",
+            "buttons":
+            [
+                {
+                    "id": "1",
+                    "state": "on",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                },
+                {
+                    "id": "2",
+                    "state": "dimmed",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                },
+                {
+                    "id": "3",
+                    "state": "off",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                },
+                {
+                    "id": "4",
+                    "state": "off",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                }
+            ]
         },
         {
-          "id": "3",
-          "state": "off",
-          "groups": [
-            "2"
-          ]
-        },
-        {
-          "id": "4",
-          "state": "off",
-          "groups": [
-            "1"
-          ]
+            "id": "4",
+            "buttons":
+            [
+                {
+                    "id": "1",
+                    "state": "on",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "2",
+                    "state": "dimmed",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "3",
+                    "state": "off",
+                    "groups":
+                    [
+                        "2"
+                    ]
+                },
+                {
+                    "id": "4",
+                    "state": "off",
+                    "groups":
+                    [
+                        "1"
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

@@ -12,7 +12,6 @@ type configSensor struct {
 	CompanionID   string
 	OffDelay      string
 	Groups        []string
-	EvenIfNotDark bool
 }
 
 type configTap struct {

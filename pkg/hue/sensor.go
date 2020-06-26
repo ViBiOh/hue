@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
@@ -70,45 +69,16 @@ func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
 				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
 				Operator: "dx",
 			},
-		},
-		Actions: make([]Action, 0),
-	}
-
-	if !sensor.EvenIfNotDark {
-		newRule.Conditions = append(newRule.Conditions, Condition{
-			Address:  fmt.Sprintf("/sensors/%s/state/dark", sensor.LightSensorID),
-			Operator: "eq",
-			Value:    "true",
-		})
-	}
-
-	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
-
-	return newRule
-}
-
-func (a *app) createSensorRecoverRuleDescription(sensor configSensor) Rule {
-	if sensor.EvenIfNotDark {
-		return noneRule
-	}
-
-	newRule := Rule{
-		Name: fmt.Sprintf("MotionSensor %s - recover", sensor.ID),
-		Conditions: []Condition{
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
+				Address:  fmt.Sprintf("/sensors/%s/state/dark", sensor.LightSensorID),
 				Operator: "eq",
 				Value:    "true",
 			},
-			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
-				Operator: "dx",
-			},
 		},
 		Actions: make([]Action, 0),
 	}
 
-	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, "on")...)
+	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
@@ -143,12 +113,6 @@ func (a *app) configureMotionSensor(ctx context.Context, sensors []configSensor)
 		onRule := a.createSensorOnRuleDescription(sensor)
 		if err := a.createRule(ctx, &onRule); err != nil {
 			logger.Error("%s", err)
-		}
-
-		if recoverRule := a.createSensorRecoverRuleDescription(sensor); !reflect.DeepEqual(recoverRule, noneRule) {
-			if err := a.createRule(ctx, &recoverRule); err != nil {
-				logger.Error("%s", err)
-			}
 		}
 
 		offRule := a.createSensorOffRuleDescription(sensor)
