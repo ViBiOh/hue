@@ -70,9 +70,9 @@ func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
 				Operator: "dx",
 			},
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/dark", sensor.LightSensorID),
+				Address:  fmt.Sprintf("/sensors/%s/state/daylight", sensor.LightSensorID),
 				Operator: "eq",
-				Value:    "true",
+				Value:    "false",
 			},
 		},
 		Actions: make([]Action, 0),
