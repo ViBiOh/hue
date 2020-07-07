@@ -87,7 +87,7 @@ func (a *app) updateSchedule(ctx context.Context, schedule Schedule) error {
 }
 
 func (a *app) deleteSchedule(ctx context.Context, id string) error {
-	return delete(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id))
+	return remove(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id))
 }
 
 func (a *app) cleanSchedules(ctx context.Context) error {

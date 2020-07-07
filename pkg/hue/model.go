@@ -41,7 +41,6 @@ var (
 
 	emptyMessage = model.Message{}
 	noneLight    = Light{}
-	noneRule     = Rule{}
 )
 
 // Group description

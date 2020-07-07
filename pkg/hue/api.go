@@ -72,7 +72,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 	return nil
 }
 
-func delete(ctx context.Context, url string) error {
+func remove(ctx context.Context, url string) error {
 	resp, err := request.New().Delete(url).Send(ctx, nil)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func delete(ctx context.Context, url string) error {
 	}
 
 	if hasError(content) {
-		return fmt.Errorf("delete error: %s", content)
+		return fmt.Errorf("remove error: %s", content)
 	}
 
 	return nil

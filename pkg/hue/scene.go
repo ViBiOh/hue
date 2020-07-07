@@ -83,7 +83,7 @@ func (a *app) updateSceneLightState(ctx context.Context, o Scene, lightID string
 }
 
 func (a *app) deleteScene(ctx context.Context, id string) error {
-	return delete(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id))
+	return remove(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id))
 }
 
 func (a *app) cleanScenes(ctx context.Context) error {

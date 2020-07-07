@@ -11,7 +11,7 @@ import (
 	"github.com/ViBiOh/hue/pkg/model"
 )
 
-func (a app) getData(r *http.Request) (interface{}, error) {
+func (a app) getData(_ *http.Request) (interface{}, error) {
 	return a.hueApp.Data(), nil
 }
 
