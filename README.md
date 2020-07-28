@@ -71,4 +71,3 @@ Usage of hue:
   -username string
         [hue] Username for Bridge {HUE_USERNAME}
 ```
-
