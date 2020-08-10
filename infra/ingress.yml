@@ -1,5 +1,19 @@
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: hue-whitelist
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  ipWhiteList:
+    sourceRange:
+      - 192.168.1.0/24
+
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: hue-local-http
@@ -13,6 +27,8 @@ spec:
   routes:
     - match: Host(`alice.local`)
       kind: Rule
+      middlewares:
+        - name: hue-whitelist
       services:
         - name: hue
           port: 80
