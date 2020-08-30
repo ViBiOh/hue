@@ -58,6 +58,16 @@ Usage of hue:
         [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
   -key string
         [http] Key file {HUE_KEY}
+  -loggerJson
+        [logger] Log format as JSON {HUE_LOGGER_JSON}
+  -loggerLevel string
+        [logger] Logger level {HUE_LOGGER_LEVEL} (default "INFO")
+  -loggerLevelKey string
+        [logger] Key for level in JSON {HUE_LOGGER_LEVEL_KEY} (default "level")
+  -loggerMessageKey string
+        [logger] Key for message in JSON {HUE_LOGGER_MESSAGE_KEY} (default "message")
+  -loggerTimeKey string
+        [logger] Key for timestam in JSON {HUE_LOGGER_TIME_KEY} (default "time")
   -okStatus int
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -port uint
