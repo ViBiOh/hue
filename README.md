@@ -67,7 +67,7 @@ Usage of hue:
   -loggerMessageKey string
         [logger] Key for message in JSON {HUE_LOGGER_MESSAGE_KEY} (default "message")
   -loggerTimeKey string
-        [logger] Key for timestam in JSON {HUE_LOGGER_TIME_KEY} (default "time")
+        [logger] Key for timestamp in JSON {HUE_LOGGER_TIME_KEY} (default "time")
   -okStatus int
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -port uint
