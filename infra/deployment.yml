@@ -23,6 +23,9 @@ spec:
       containers:
         - name: hue
           image: vibioh/hue
+          env:
+            - name: HUE_LOGGER_JSON
+              value: "true"
           envFrom:
             - secretRef:
                 name: hue
