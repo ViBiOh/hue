@@ -1,0 +1,19 @@
+---
+nameOverride: hue
+
+image:
+  repository: vibioh/hue
+
+config:
+  HUE_LOGGER_JSON: "true"
+
+secretRef: hue
+
+ingress:
+  enabled: true
+  hosts:
+    - hue.vibioh.fr
+  https_middlewares:
+    - hue-auth
+    - compress
+    - ratelimit
