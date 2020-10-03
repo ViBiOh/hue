@@ -37,6 +37,7 @@ func main() {
 
 	alcotest.DoAndExit(alcotestConfig)
 	logger.Global(logger.New(loggerConfig))
+	defer logger.Close()
 
 	prometheusApp := prometheus.New(prometheusConfig)
 	prometheusRegisterer := prometheusApp.Registerer()
