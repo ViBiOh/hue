@@ -11,6 +11,7 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/cors"
 	"github.com/ViBiOh/httputils/v3/pkg/httputils"
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
+	"github.com/ViBiOh/httputils/v3/pkg/model"
 	"github.com/ViBiOh/httputils/v3/pkg/owasp"
 	"github.com/ViBiOh/httputils/v3/pkg/prometheus"
 	"github.com/ViBiOh/hue/pkg/hue"
@@ -60,9 +61,9 @@ func main() {
 
 	go hueApp.Start()
 
-	server := httputils.New(serverConfig)
-	server.Middleware(prometheusApp.Middleware)
-	server.Middleware(owasp.New(owaspConfig).Middleware)
-	server.Middleware(cors.New(corsConfig).Middleware)
-	server.ListenServeWait(handler)
+	httputils.New(serverConfig).ListenAndServe(handler, []model.Middleware{
+		prometheusApp.Middleware,
+		owasp.New(owaspConfig).Middleware,
+		cors.New(corsConfig).Middleware,
+	})
 }
