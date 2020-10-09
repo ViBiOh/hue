@@ -56,6 +56,8 @@ Usage of hue:
         [http] Grace duration when SIGTERM received {HUE_GRACE_DURATION} (default "30s")
   -hsts
         [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
+  -idleTimeout string
+        [http] Idle Timeout {HUE_IDLE_TIMEOUT} (default "2m")
   -key string
         [http] Key file {HUE_KEY}
   -loggerJson
@@ -74,10 +76,16 @@ Usage of hue:
         [http] Listen port {HUE_PORT} (default 1080)
   -prometheusPath string
         [prometheus] Path for exposing metrics {HUE_PROMETHEUS_PATH} (default "/metrics")
+  -readTimeout string
+        [http] Read Timeout {HUE_READ_TIMEOUT} (default "5s")
+  -shutdownTimeout string
+        [http] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
   -url string
         [alcotest] URL to check {HUE_URL}
   -userAgent string
         [alcotest] User-Agent for check {HUE_USER_AGENT} (default "Alcotest")
   -username string
         [hue] Username for Bridge {HUE_USERNAME}
+  -writeTimeout string
+        [http] Write Timeout {HUE_WRITE_TIMEOUT} (default "10s")
 ```
