@@ -49,7 +49,7 @@ Usage of hue:
   -corsOrigin string
         [cors] Access-Control-Allow-Origin {HUE_CORS_ORIGIN} (default "*")
   -csp string
-        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; base-uri 'self'")
+        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'")
   -frameOptions string
         [owasp] X-Frame-Options {HUE_FRAME_OPTIONS} (default "deny")
   -graceDuration string

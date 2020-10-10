@@ -1,9 +1,8 @@
 FROM vibioh/scratch
 
-EXPOSE 1080
-
-ENV HUE_CSP "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
 ENV HUE_PORT 1080
+
+EXPOSE 1080
 
 COPY templates/ /templates
 COPY static/ /static
