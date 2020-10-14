@@ -81,5 +81,4 @@ build:
 .PHONY: run
 run:
 	$(MAIN_RUNNER) \
-		-csp "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" \
 		-config hue.json
