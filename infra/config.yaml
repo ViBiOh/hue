@@ -16,6 +16,6 @@ ingress:
   hosts:
     - hue.vibioh.fr
   https_middlewares:
-    - hue-auth
-    - compress
-    - ratelimit
+    - default-hue-auth@kubernetescrd
+    - compress@file
+    - rate-limit@file
