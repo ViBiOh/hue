@@ -13,6 +13,20 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
+  name: hue-auth
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  basicAuth:
+    secret: hue-auth
+    removeHeader: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
   name: hue-whitelist
   labels:
     app.kubernetes.io/name: hue
@@ -24,36 +38,25 @@ spec:
       - 192.168.1.0/24
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: hue-local-http
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-hue-whitelist@kubernetescrd
   labels:
     app.kubernetes.io/name: hue
     app.kubernetes.io/instance: hue
     app.kubernetes.io/managed-by: kubectl
 spec:
-  entryPoints:
-    - http
-  routes:
-    - match: Host(`alice.local`)
-      kind: Rule
-      middlewares:
-        - name: hue-whitelist
-      services:
-        - name: hue
-          port: 80
-
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: hue-auth
-  labels:
-    app.kubernetes.io/name: hue
-    app.kubernetes.io/instance: hue
-    app.kubernetes.io/managed-by: kubectl
-spec:
-  basicAuth:
-    secret: hue-auth
-    removeHeader: true
+  rules:
+    - host: alice.local
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 80
