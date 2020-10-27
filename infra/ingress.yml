@@ -57,6 +57,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: grafana
+                name: hue
                 port:
                   number: 80
