@@ -24,12 +24,26 @@ spec:
     removeHeader: true
 
 ---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: hue-whitelist
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  ipWhiteList:
+    sourceRange:
+      - 192.168.1.0/24
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: hue-local-http
   annotations:
-    ingress.kubernetes.io/whitelist-source-range: 192.168.1.0/24
+    traefik.ingress.kubernetes.io/router.middlewares: default-hue-whitelist@kubernetescrd
   labels:
     app.kubernetes.io/name: hue
     app.kubernetes.io/instance: hue
