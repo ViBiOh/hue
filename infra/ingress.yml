@@ -43,6 +43,7 @@ kind: Ingress
 metadata:
   name: hue-local-http
   annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
     traefik.ingress.kubernetes.io/router.middlewares: default-hue-whitelist@kubernetescrd
   labels:
     app.kubernetes.io/name: hue
