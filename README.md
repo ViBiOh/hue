@@ -74,6 +74,8 @@ Usage of hue:
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -port uint
         [http] Listen port {HUE_PORT} (default 1080)
+  -prometheusIgnore string
+        [prometheus] Ignored path prefixes for metrics, comma separated {HUE_PROMETHEUS_IGNORE}
   -prometheusPath string
         [prometheus] Path for exposing metrics {HUE_PROMETHEUS_PATH} (default "/metrics")
   -readTimeout string
