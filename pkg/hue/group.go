@@ -13,7 +13,9 @@ func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
 		return nil, err
 	}
 
-	for _, value := range groups {
+	var output map[string]Group
+
+	for key, value := range groups {
 		value.Tap = false
 
 		for _, lightID := range value.Lights {
@@ -26,9 +28,11 @@ func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
 				value.Tap = true
 			}
 		}
+
+		output[key] = value
 	}
 
-	return groups, nil
+	return output, nil
 }
 
 func (a *app) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
