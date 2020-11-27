@@ -13,7 +13,7 @@ func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
 		return nil, err
 	}
 
-	var output map[string]Group
+	output := make(map[string]Group, len(groups))
 
 	for key, value := range groups {
 		value.Tap = false
