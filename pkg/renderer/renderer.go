@@ -65,6 +65,12 @@ func New(hueApp hue.App) (App, error) {
 				return "snowflake?fill=royalblue"
 			}
 		},
+		"groupName": func(groups map[string]hue.Group, id string) string {
+			if group, ok := groups[id]; ok {
+				return group.Name
+			}
+			return ""
+		},
 	})
 
 	filesTemplates, err := templates.GetTemplates("templates", ".html")

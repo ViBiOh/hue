@@ -150,8 +150,14 @@
       <span class="container">
         <h3 class="header center no-margin">{{ $schedule.Name }}</h3>
 
+        <h4 class="center margin primary">
+          {{ groupName $root.Groups $schedule.Command.GetGroup }}
+        </h4>
+
         <div class="center padding">
-          <strong>{{ $schedule.FindStateName $root.Scenes }} state on {{ $schedule.FormatLocalTime }}</strong>
+          <strong>{{ $schedule.FindStateName $root.Scenes }}</strong> state
+          <br />
+          on <strong>{{ $schedule.FormatLocalTime }}</strong>
         </div>
 
         <div class="center flex flex-center margin-bottom">

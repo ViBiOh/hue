@@ -1,6 +1,10 @@
 package hue
 
-import "github.com/ViBiOh/hue/pkg/model"
+import (
+	"regexp"
+
+	"github.com/ViBiOh/hue/pkg/model"
+)
 
 var (
 	// States available states of lights
@@ -38,6 +42,8 @@ var (
 			"bri":            255,
 		},
 	}
+
+	scheduleGroupFinder = regexp.MustCompile(`(?mi)groups/(.*?)/`)
 
 	emptyMessage = model.Message{}
 	noneLight    = Light{}
@@ -113,6 +119,16 @@ type Action struct {
 	Address string                 `json:"address,omitempty"`
 	Body    map[string]interface{} `json:"body,omitempty"`
 	Method  string                 `json:"method,omitempty"`
+}
+
+// GetGroup returns the group ID of the Action performed
+func (a Action) GetGroup() string {
+	matches := scheduleGroupFinder.FindStringSubmatch(a.Address)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+
+	return ""
 }
 
 // Condition description

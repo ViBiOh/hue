@@ -5,6 +5,18 @@
       "localtime": "W124/T07:55:00",
       "group": "2",
       "state": "long_on"
+    },
+    {
+      "name": "Remote",
+      "localtime": "W124/T08:00:00",
+      "group": "7",
+      "state": "on"
+    },
+    {
+      "name": "Sleeping",
+      "localtime": "W124/T00:00:00",
+      "group": "7",
+      "state": "off"
     }
   ],
   "sensors": [
