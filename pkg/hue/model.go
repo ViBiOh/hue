@@ -100,18 +100,19 @@ type Sensor struct {
 	Name   string       `json:"name,omitempty"`
 	Type   string       `json:"type,omitempty"`
 	State  sensorState  `json:"state,omitempty"`
-	Config sensorConfig `json:"config,omitempty"`
+	Config SensorConfig `json:"config,omitempty"`
 }
 
 type sensorState struct {
-	Presence    bool    `json:"presence,omitempty"`
+	Presence    bool    `json:"presence"`
 	Temperature float32 `json:"temperature,omitempty"`
 }
 
-type sensorConfig struct {
-	On            bool `json:"on,omitempty"`
+// SensorConfig description
+type SensorConfig struct {
+	On            bool `json:"on"`
 	Battery       uint `json:"battery,omitempty"`
-	LedIndication bool `json:"ledindication,omitempty"`
+	LedIndication bool `json:"ledindication"`
 }
 
 // Action description

@@ -2,6 +2,7 @@ package hue
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -22,8 +23,9 @@ func (a *app) listSensors(ctx context.Context) (map[string]Sensor, error) {
 
 	sensors := make(map[string]Sensor)
 
-	for _, sensor := range response {
+	for id, sensor := range response {
 		if sensor.Type == presenceSensorType {
+			sensor.ID = id
 			sensors[sensor.Name] = sensor
 		}
 	}
@@ -120,4 +122,12 @@ func (a *app) configureMotionSensor(ctx context.Context, sensors []configSensor)
 			logger.Error("%s", err)
 		}
 	}
+}
+
+func (a *app) updateSensorConfig(ctx context.Context, sensor Sensor) error {
+	if sensor.ID == "" {
+		return errors.New("missing sensor ID to update")
+	}
+
+	return update(ctx, fmt.Sprintf("%s/sensors/%s/config", a.bridgeURL, sensor.ID), sensor.Config)
 }

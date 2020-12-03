@@ -50,19 +50,17 @@ func (a *app) refreshState(_ time.Time) error {
 		return err
 	}
 
-	scenes, err := a.listScenes(context.Background())
-	if err != nil {
+	if err := a.syncSensors(); err != nil {
 		return err
 	}
 
-	sensors, err := a.listSensors(context.Background())
+	scenes, err := a.listScenes(context.Background())
 	if err != nil {
 		return err
 	}
 
 	a.mutex.Lock()
 	a.scenes = scenes
-	a.sensors = sensors
 	a.mutex.Unlock()
 
 	go a.updatePrometheusSensors()
@@ -91,6 +89,19 @@ func (a *app) syncSchedules() error {
 
 	a.mutex.Lock()
 	a.schedules = schedules
+	a.mutex.Unlock()
+
+	return nil
+}
+
+func (a *app) syncSensors() error {
+	sensors, err := a.listSensors(context.Background())
+	if err != nil {
+		return err
+	}
+
+	a.mutex.Lock()
+	a.sensors = sensors
 	a.mutex.Unlock()
 
 	return nil
