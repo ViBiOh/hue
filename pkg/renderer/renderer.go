@@ -25,9 +25,8 @@ type App interface {
 
 type app struct {
 	tpl     *template.Template
+	hueApp  hue.App
 	version string
-
-	hueApp hue.App
 }
 
 // New creates new App from Config

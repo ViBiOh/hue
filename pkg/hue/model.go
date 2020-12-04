@@ -52,9 +52,9 @@ var (
 // Group description
 type Group struct {
 	Name   string     `json:"name,omitempty"`
-	Tap    bool       `json:"tap,omitempty"`
 	Lights []string   `json:"lights,omitempty"`
 	State  groupState `json:"state,omitempty"`
+	Tap    bool       `json:"tap,omitempty"`
 }
 
 type groupState struct {
@@ -73,9 +73,9 @@ type lightState struct {
 
 // APIScene describe scene as from Hue API
 type APIScene struct {
+	Lightstates map[string]map[string]interface{} `json:"lightstates,omitempty"`
 	Name        string                            `json:"name,omitempty"`
 	Lights      []string                          `json:"lights,omitempty"`
-	Lightstates map[string]map[string]interface{} `json:"lightstates,omitempty"`
 	Recycle     bool                              `json:"recycle"`
 }
 
@@ -110,8 +110,8 @@ type sensorState struct {
 
 // SensorConfig description
 type SensorConfig struct {
-	On            bool `json:"on"`
 	Battery       uint `json:"battery,omitempty"`
+	On            bool `json:"on"`
 	LedIndication bool `json:"ledindication"`
 }
 

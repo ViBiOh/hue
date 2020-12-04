@@ -34,19 +34,21 @@ type Config struct {
 }
 
 type app struct {
-	bridgeURL      string
-	bridgeUsername string
-	config         *configHue
-	cron           *cron.Cron
+	config *configHue
+	cron   *cron.Cron
 
 	groups    map[string]Group
 	scenes    map[string]Scene
 	schedules map[string]Schedule
 	sensors   map[string]Sensor
-	mutex     sync.RWMutex
 
 	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
+
+	bridgeURL      string
+	bridgeUsername string
+
+	mutex sync.RWMutex
 }
 
 // Flags adds flags for configuring package
