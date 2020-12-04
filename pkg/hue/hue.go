@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v3/pkg/cron"
 	"github.com/ViBiOh/httputils/v3/pkg/flags"
 	"github.com/ViBiOh/hue/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,7 +34,6 @@ type Config struct {
 
 type app struct {
 	config *configHue
-	cron   *cron.Cron
 
 	groups    map[string]Group
 	scenes    map[string]Scene

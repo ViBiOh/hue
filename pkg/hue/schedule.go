@@ -25,13 +25,6 @@ func (a *app) listSchedules(ctx context.Context) (map[string]Schedule, error) {
 	return output, nil
 }
 
-func (a *app) getSchedule(ctx context.Context, id string) (Schedule, error) {
-	var response Schedule
-	err := get(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id), response)
-
-	return response, err
-}
-
 func (a *app) createSchedule(ctx context.Context, o *Schedule) error {
 	id, err := create(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), o)
 	if err != nil {

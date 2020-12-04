@@ -21,10 +21,6 @@ func (a *app) createRule(ctx context.Context, o *Rule) error {
 	return nil
 }
 
-func (a *app) updateRule(ctx context.Context, o Rule) error {
-	return update(ctx, fmt.Sprintf("%s/rules/%s", a.bridgeURL, o.ID), o)
-}
-
 func (a *app) deleteRule(ctx context.Context, id string) error {
 	return remove(ctx, fmt.Sprintf("%s/rules/%s", a.bridgeURL, id))
 }
