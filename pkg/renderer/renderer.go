@@ -1,114 +1,128 @@
 package renderer
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"net/http"
-	"net/url"
 	"os"
+	"path"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v3/pkg/query"
+	"github.com/ViBiOh/httputils/v3/pkg/flags"
+	"github.com/ViBiOh/httputils/v3/pkg/httperror"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
-	"github.com/ViBiOh/hue/pkg/hue"
-	"github.com/ViBiOh/hue/pkg/model"
+	"github.com/ViBiOh/hue/pkg/renderer/model"
 )
 
 const (
-	svgPath = "/svg"
+	faviconPath = "/favicon"
+	svgPath     = "/svg"
+)
+
+var (
+	rootPaths = []string{"/robots.txt", "/sitemap.xml"}
+	staticDir = "static"
 )
 
 // App of package
 type App interface {
-	Handler() http.Handler
+	Handler(model.TemplateFunc) http.Handler
+	Error(http.ResponseWriter, error)
+	Redirect(http.ResponseWriter, *http.Request, string, string)
+}
+
+// Config of package
+type Config struct {
+	templates *string
+	statics   *string
+	publicURL *string
+	title     *string
 }
 
 type app struct {
-	tpl     *template.Template
-	hueApp  hue.App
-	version string
+	tpl        *template.Template
+	staticsDir string
+	content    map[string]interface{}
+}
+
+// Flags adds flags for configuring package
+func Flags(fs *flag.FlagSet, prefix string, overrides ...flags.Override) Config {
+	return Config{
+		templates: flags.New(prefix, "").Name("Templates").Default(flags.Default("Templates", "./templates/", overrides)).Label("HTML Templates folder").ToString(fs),
+		statics:   flags.New(prefix, "").Name("Static").Default(flags.Default("Static", "./static/", overrides)).Label("Static folder, content served directly").ToString(fs),
+		publicURL: flags.New(prefix, "").Name("PublicURL").Default(flags.Default("PublicURL", "http://localhost", overrides)).Label("Public URL").ToString(fs),
+		title:     flags.New(prefix, "").Name("Title").Default(flags.Default("Title", "App", overrides)).Label("Application title").ToString(fs),
+	}
 }
 
 // New creates new App from Config
-func New(hueApp hue.App) (App, error) {
-	tpl := template.New("hue").Funcs(template.FuncMap{
-		"battery": func(value uint) string {
-			switch {
-			case value >= 90:
-				return "battery-full?fill=limegreen"
-			case value >= 75:
-				return "battery-three-quarters?fill=limegreen"
-			case value >= 50:
-				return "battery-half?fill=darkorange"
-			case value >= 25:
-				return "battery-quarter?fill=darkorange"
-			default:
-				return "battery-empty?fill=crimson"
-			}
-		},
-		"temperature": func(value float32) string {
-			switch {
-			case value >= 28:
-				return "thermometer-full?fill=crimson"
-			case value >= 24:
-				return "thermometer-three-quarters?fill=darkorange"
-			case value >= 18:
-				return "thermometer-half?fill=limegreen"
-			case value >= 14:
-				return "thermometer-half?fill=darkorange"
-			case value >= 10:
-				return "thermometer-quarter?fill=darkorange"
-			case value >= 4:
-				return "thermometer-empty?fill=crimson"
-			default:
-				return "snowflake?fill=royalblue"
-			}
-		},
-		"groupName": func(groups map[string]hue.Group, id string) string {
-			if group, ok := groups[id]; ok {
-				return group.Name
-			}
-			return ""
-		},
-	})
-
-	filesTemplates, err := templates.GetTemplates("templates", ".html")
+func New(config Config, funcMap template.FuncMap) (App, error) {
+	filesTemplates, err := templates.GetTemplates(strings.TrimSpace(*config.templates), ".html")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get templates: %s", err)
 	}
 
-	return &app{
-		tpl:     template.Must(tpl.ParseFiles(filesTemplates...)),
-		version: os.Getenv("VERSION"),
-		hueApp:  hueApp,
+	return app{
+		tpl: template.Must(template.New("app").Funcs(funcMap).ParseFiles(filesTemplates...)),
+		content: map[string]interface{}{
+			"PublicURL": strings.TrimSpace(*config.publicURL),
+			"Title":     strings.TrimSpace(*config.title),
+			"Version":   os.Getenv("VERSION"),
+		},
 	}, nil
 }
 
-// Handler for request. Should be use with net/http
-func (a app) Handler() http.Handler {
+func isRootPaths(requestPath string) bool {
+	for _, rootPath := range rootPaths {
+		if strings.EqualFold(rootPath, requestPath) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (a app) feedContent(content map[string]interface{}) {
+	for key, value := range a.content {
+		content[key] = value
+	}
+}
+
+func (a app) Handler(templateFunc model.TemplateFunc) http.Handler {
 	svgHandler := http.StripPrefix(svgPath, a.svg())
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, faviconPath) || isRootPaths(r.URL.Path) {
+			http.ServeFile(w, r, path.Join(a.staticsDir, r.URL.Path))
+			return
+		}
+
+		if a.tpl == nil {
+			httperror.NotFound(w)
+			return
+		}
+
 		if strings.HasPrefix(r.URL.Path, svgPath) {
 			svgHandler.ServeHTTP(w, r)
 			return
 		}
 
-		if query.IsRoot(r) {
-			a.uiHandler(w, r, http.StatusOK, model.Message{
-				Level:   r.URL.Query().Get("messageLevel"),
-				Content: r.URL.Query().Get("messageContent"),
-			})
+		templateName, status, content, err := templateFunc(r)
+		if err != nil {
+			a.Error(w, err)
 			return
 		}
 
-		message, status := a.hueApp.Handle(r)
-		if status >= http.StatusBadRequest {
-			a.uiHandler(w, r, status, message)
-			return
+		a.feedContent(content)
+
+		message := model.ParseMessage(r)
+		if len(message.Content) > 0 {
+			content["Message"] = message
 		}
 
-		http.Redirect(w, r, fmt.Sprintf("/?messageContent=%s", url.QueryEscape(message.Content)), http.StatusFound)
-
+		if err := templates.ResponseHTMLTemplate(a.tpl.Lookup(templateName), w, content, status); err != nil {
+			httperror.InternalServerError(w, err)
+		}
 	})
 }

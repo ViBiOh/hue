@@ -2,8 +2,6 @@ package hue
 
 import (
 	"regexp"
-
-	"github.com/ViBiOh/hue/pkg/model"
 )
 
 var (
@@ -45,8 +43,7 @@ var (
 
 	scheduleGroupFinder = regexp.MustCompile(`(?mi)groups/(.*?)/`)
 
-	emptyMessage = model.Message{}
-	noneLight    = Light{}
+	noneLight = Light{}
 )
 
 // Group description

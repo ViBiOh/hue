@@ -1,64 +1,64 @@
 package renderer
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ViBiOh/httputils/v3/pkg/httperror"
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 	"github.com/ViBiOh/httputils/v3/pkg/templates"
-	"github.com/ViBiOh/hue/pkg/model"
+	"github.com/ViBiOh/hue/pkg/renderer/model"
 )
 
-func (a app) getData(_ *http.Request) (interface{}, error) {
-	return a.hueApp.Data(), nil
+func (a app) Redirect(w http.ResponseWriter, r *http.Request, path, message string) {
+	http.Redirect(w, r, fmt.Sprintf("%s?messageContent=%s", path, url.QueryEscape(message)), http.StatusFound)
 }
 
-func (a app) uiHandler(w http.ResponseWriter, r *http.Request, status int, message model.Message) {
-	hue, err := a.getData(r)
+func (a app) Error(w http.ResponseWriter, err error) {
+	logger.Error("%s", err)
+
+	content := make(map[string]interface{})
+	a.feedContent(content)
+
+	var message string
+	status := http.StatusInternalServerError
+
 	if err != nil {
-		a.errorHandler(w, http.StatusInternalServerError, err, nil)
-		return
-	}
+		message = err.Error()
+		subMessages := ""
 
-	content := map[string]interface{}{
-		"Version": a.version,
-		"Hue":     hue,
-	}
+		if errors.Is(err, model.ErrInvalid) {
+			status = http.StatusBadRequest
+		} else if errors.Is(err, model.ErrNotFound) {
+			status = http.StatusNotFound
+		} else if errors.Is(err, model.ErrMethodNotAllowed) {
+			status = http.StatusMethodNotAllowed
+		} else if errors.Is(err, model.ErrInternalError) {
+			status = http.StatusInternalServerError
+			message = "Oops! Something went wrong."
+		}
 
-	if len(message.Content) > 0 {
-		content["Message"] = message
-	}
-
-	if err := templates.ResponseHTMLTemplate(a.tpl.Lookup("app"), w, content, status); err != nil {
-		httperror.InternalServerError(w, err)
-	}
-}
-
-func (a app) errorHandler(w http.ResponseWriter, status int, errs ...error) {
-	logger.Error("%s", errs)
-
-	content := map[string]interface{}{
-		"Version": a.version,
-	}
-
-	if len(errs) > 0 {
-		content["Message"] = model.NewErrorMessage(errs[0].Error())
-
-		if len(errs) > 1 {
-			content["Errors"] = errs[1:]
+		content["Message"] = model.NewErrorMessage(message)
+		if len(subMessages) > 0 {
+			content["Errors"] = strings.Split(subMessages, ", ")
 		}
 	}
 
 	if err := templates.ResponseHTMLTemplate(a.tpl.Lookup("error"), w, content, status); err != nil {
 		httperror.InternalServerError(w, err)
-		return
 	}
 }
 
 func (a app) svg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if a.tpl == nil {
+			httperror.NotFound(w)
+			return
+		}
+
 		tpl := a.tpl.Lookup(fmt.Sprintf("svg-%s", strings.Trim(r.URL.Path, "/")))
 		if tpl == nil {
 			httperror.NotFound(w)

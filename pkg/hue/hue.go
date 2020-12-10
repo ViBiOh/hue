@@ -10,18 +10,14 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/v3/pkg/flags"
-	"github.com/ViBiOh/hue/pkg/model"
+	"github.com/ViBiOh/hue/pkg/renderer"
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-var (
-	_ App = &app{}
 )
 
 // App stores informations and secret of API
 type App interface {
-	Handle(*http.Request) (model.Message, int)
-	Data() map[string]interface{}
+	Handler() http.Handler
+	TemplateFunc(*http.Request) (string, int, map[string]interface{}, error)
 	Start()
 }
 
@@ -40,6 +36,7 @@ type app struct {
 	schedules map[string]Schedule
 	sensors   map[string]Sensor
 
+	renderer             renderer.App
 	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
 
@@ -59,19 +56,22 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, registerer prometheus.Registerer) (App, error) {
+func New(config Config, registerer prometheus.Registerer, renderer renderer.App) (App, error) {
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
 	app := &app{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
 		bridgeUsername: bridgeUsername,
 
+		renderer: renderer,
+
 		prometheusRegisterer: registerer,
 		prometheusCollectors: make(map[string]prometheus.Gauge),
 	}
 
-	if *config.config != "" {
-		rawConfig, err := ioutil.ReadFile(*config.config)
+	configFile := strings.TrimSpace(*config.config)
+	if len(configFile) != 0 {
+		rawConfig, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			return app, err
 		}
@@ -84,14 +84,14 @@ func New(config Config, registerer prometheus.Registerer) (App, error) {
 	return app, nil
 }
 
-func (a *app) Data() map[string]interface{} {
+func (a *app) TemplateFunc(_ *http.Request) (string, int, map[string]interface{}, error) {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
-	return map[string]interface{}{
+	return "public", http.StatusOK, map[string]interface{}{
 		"Groups":    a.groups,
 		"Scenes":    a.scenes,
 		"Schedules": a.schedules,
 		"Sensors":   a.sensors,
-	}
+	}, nil
 }

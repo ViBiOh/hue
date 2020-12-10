@@ -4,7 +4,6 @@ import (
 	"flag"
 	"net/http"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/ViBiOh/httputils/v3/pkg/alcotest"
@@ -19,7 +18,7 @@ import (
 )
 
 const (
-	faviconPath = "/favicon"
+	apiPath = "/api"
 )
 
 func main() {
@@ -31,6 +30,7 @@ func main() {
 	prometheusConfig := prometheus.Flags(fs, "prometheus")
 	owaspConfig := owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"))
 	corsConfig := cors.Flags(fs, "cors")
+	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"))
 
 	hueConfig := hue.Flags(fs, "")
 
@@ -43,20 +43,22 @@ func main() {
 	prometheusApp := prometheus.New(prometheusConfig)
 	prometheusRegisterer := prometheusApp.Registerer()
 
-	hueApp, err := hue.New(hueConfig, prometheusRegisterer)
+	rendererApp, err := renderer.New(rendererConfig, hue.FuncMap)
 	logger.Fatal(err)
 
-	rendererApp, err := renderer.New(hueApp)
+	hueApp, err := hue.New(hueConfig, prometheusRegisterer, rendererApp)
 	logger.Fatal(err)
 
-	rendererHandler := rendererApp.Handler()
+	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
+	hueHandler := http.StripPrefix(apiPath, hueApp.Handler())
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, faviconPath) {
-			http.ServeFile(w, r, path.Join("static", r.URL.Path))
-		} else {
-			rendererHandler.ServeHTTP(w, r)
+		if strings.HasPrefix(r.URL.Path, apiPath) {
+			hueHandler.ServeHTTP(w, r)
+			return
 		}
+
+		rendererHandler.ServeHTTP(w, r)
 	})
 
 	go hueApp.Start()
