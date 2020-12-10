@@ -1,4 +1,30 @@
-{{ define "hue" }}
+{{ define "seo" }}
+  {{ $description := "Manage your Hue installation easily from your browser" }}
+
+  <title>{{ .Title }}</title>
+  <meta name="description" content="{{ $description }}">
+  <meta property="og:title" content="{{ .Title }}" />
+  <meta property="og:description" content="{{ $description }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ .PublicURL }}" />
+  <meta property="og:image" content="{{ .PublicURL }}/favicon/android-chrome-512x512.png" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:width" content="512" />
+{{ end }}
+
+{{ define "favicon" }}
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v={{ .Version }}">
+  <link rel="manifest" href="/favicon/site.webmanifest?v={{ .Version }}">
+  <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v={{ .Version }}" color="#5bbad5">
+  <meta name="theme-color" content="#f8f8f8">
+{{ end}}
+
+{{ define "header-part" }}
+{{ end }}
+
+{{ define "app" }}
   <style>
     .grid {
       display: grid;
@@ -94,7 +120,7 @@
 
         <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
           {{ if $group.Tap }}
-            <form method="post" action="/groups/{{ $id }}">
+            <form method="post" action="/api/groups/{{ $id }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
               <button type="submit" class="button button-icon">
@@ -102,7 +128,7 @@
               </button>
             </form>
 
-            <form method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form method="post" action="/api/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="off" />
               <button type="submit" class="button button-icon">
@@ -110,7 +136,7 @@
               </button>
             </form>
           {{ else }}
-            <form class="center flex-half" method="post" action="/groups/{{ $id }}">
+            <form class="center flex-half" method="post" action="/api/groups/{{ $id }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
               <button type="submit" class="button button-icon">
@@ -118,7 +144,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="/api/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="half" />
               <button type="submit" class="button button-icon">
@@ -126,7 +152,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="/api/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="dimmed" />
               <button type="submit" class="button button-icon">
@@ -134,7 +160,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="/groups/{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="/api/groups/{{ $id }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="off" />
               <button type="submit" class="button button-icon">
@@ -159,7 +185,7 @@
         </div>
 
         <div class="center flex flex-center margin-bottom">
-          <form class="inline" method="post" action="/schedules/{{ .ID }}">
+          <form class="inline" method="post" action="/api/schedules/{{ .ID }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="name" value="{{ .Name }}" />
             <input type="hidden" name="status" value="{{ if eq $schedule.Status "enabled" }}disabled{{ else }}enabled{{ end }}" />
@@ -185,7 +211,7 @@
         {{ end }}
 
         <div class="center padding">
-          <form class="inline" method="post" action="/sensors/{{ $sensor.ID }}">
+          <form class="inline" method="post" action="/api/sensors/{{ $sensor.ID }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="on" value="{{ if $sensor.Config.On }}false{{ else }}true{{ end }}" />
 

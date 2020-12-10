@@ -1,230 +1,293 @@
+{{ define "main-style" }}
+  <style>
+    :root {
+      --primary: royalblue;
+      --success: limegreen;
+      --danger: crimson;
+      --dark: #272727;
+      --grey: #3b3b3b;
+      --white: silver;
+
+      --icon-size: 2.4rem;
+      --icon-large: 4.8rem;
+
+      --space-size: 1rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 62.5%;
+    }
+
+    body {
+      -webkit-overflow-scrolling: touch;
+      background-color: var(--dark);
+      height: 100vh;
+    }
+
+    body,
+    button,
+    input {
+      color: var(--white);
+      font-family:
+        -apple-system,
+        'Segoe UI',
+        'Roboto',
+        'Oxygen-Sans',
+        'Ubuntu',
+        'Cantarell',
+        'Helvetica Nue',
+        sans-serif;
+      font-size: 1.6rem;
+      font-style: normal;
+      font-weight: 400;
+    }
+
+    input {
+      color: var(--dark);
+    }
+
+    a {
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .primary {
+      color: var(--primary);
+    }
+
+    .success {
+      color: var(--success);
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    .grey {
+      color: var(--grey);
+    }
+
+    .white {
+      color: var(--white);
+    }
+
+    .bg-primary,
+    .bg-primary:hover {
+      background-color: var(--primary);
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .bg-success,
+    .bg-success:hover {
+      background-color: var(--success);
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .bg-danger,
+    .bg-danger:hover {
+      background-color: var(--danger);
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .bg-grey,
+    .bg-grey:hover {
+      background-color: var(--grey);
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .button {
+      border-radius: 4px;
+      border: 0;
+      cursor: pointer;
+      display: inline-block;
+      margin: 0;
+      padding: var(--space-size);
+      text-decoration: none;
+    }
+
+    .button-icon {
+      background-color: transparent;
+    }
+
+    .icon {
+      background-position: center center;
+      background-repeat: no-repeat;
+      color: var(--white);
+      display: inline-block;
+      height: var(--icon-size);
+      text-decoration: none;
+      vertical-align: middle;
+      width: var(--icon-size);
+    }
+
+    .icon-large {
+      height: var(--icon-large);
+      width: var(--icon-large);
+    }
+
+    .icon-overlay {
+      height: var(--icon-large);
+      left: calc((100% - var(--icon-large)) / 2);
+      pointer-events: none;
+      position: absolute;
+      top: calc((100% - var(--icon-large)) / 2);
+      width: var(--icon-large);
+    }
+
+    .modal {
+      align-items: center;
+      background-color: rgba(84, 84, 84, 0.75);
+      display: none;
+      height: 100vh;
+      justify-content: center;
+      left: 0;
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      width: 100vw;
+    }
+
+    .modal-content {
+      background-color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      max-height: 100%;
+      max-width: 100%;
+      pointer-events: auto;
+    }
+
+    .header {
+      background-color: var(--grey);
+      margin-top: 0;
+      padding: calc(var(--space-size) / 2) var(--space-size);
+      text-align: left;
+    }
+
+    .flex {
+      align-items: center;
+      display: flex;
+    }
+
+    .flex-grow {
+      flex: 1 1;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .padding {
+      padding: var(--space-size);
+    }
+
+    .padding-half {
+      padding: calc(var(--space-size) / 2);
+    }
+
+    .no-padding {
+      padding: 0;
+    }
+
+    .margin {
+      margin: var(--space-size);
+    }
+
+    .margin-half {
+      margin: calc(var(--space-size) / 2);
+    }
+
+    .no-margin {
+      margin: 0;
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .full {
+      width: 100%;
+    }
+
+    @media print {
+      body::after {
+        content: 'Save ink, share link. {{ .PublicURL }}';
+      }
+
+      body > * {
+        display: none !important;
+      }
+    }
+  </style>
+{{ end }}
+
+{{ define "main-script" }}
+  <script>
+    /**
+    * Go back from state.
+    */
+    function goBack() {
+      const previousHash = document.location.hash;
+      document.location.hash = '';
+
+      if (/success$/gim.test(previousHash)) {
+        window.location.reload(true);
+      }
+    }
+
+    /**
+    * Handle Previous/next.
+    */
+    window.onkeyup = e => {
+      switch(e.key) {
+        case 'Escape':
+          goBack();
+          break;
+      }
+    };
+  </script>
+{{ end }}
+
 {{ define "header" }}
   <!doctype html>
   <html lang="en">
     <head>
-      <title>Hue</title>
-      <meta charset="utf-8">
+      <meta charset="utf-8" />
       <meta name="format-detection" content="telephone=no">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v={{ .Version }}">
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v={{ .Version }}">
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v={{ .Version }}">
-      <link rel="manifest" href="/favicon/site.webmanifest?v={{ .Version }}">
-      <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v={{ .Version }}" color="#5bbad5">
-      <meta name="theme-color" content="#f8f8f8">
-      <style>
-        :root {
-          --primary: royalblue;
-          --success: limegreen;
-          --danger: crimson;
-          --dark: #272727;
-          --grey: #3b3b3b;
-          --white: silver;
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-          --icon-size: 2.4rem;
-          --icon-large: 4.8rem;
-        }
+      {{ template "seo" . }}
+      {{ template "favicon" . }}
 
-        * {
-          box-sizing: border-box;
-        }
-
-        html {
-          font-size: 62.5%;
-        }
-
-        body {
-          -webkit-overflow-scrolling: touch;
-          background-color: var(--dark);
-          height: 100vh;
-        }
-
-        body,
-        button,
-        input {
-          color: var(--white);
-          font-family:
-            -apple-system,
-            'Segoe UI',
-            'Roboto',
-            'Oxygen-Sans',
-            'Ubuntu',
-            'Cantarell',
-            'Helvetica Nue',
-            sans-serif;
-          font-size: 1.6rem;
-          font-style: normal;
-          font-weight: 400;
-        }
-
-        input {
-          color: var(--dark);
-        }
-
-        a {
-          color: var(--white);
-          text-decoration: none;
-        }
-
-        a:hover {
-          color: var(--primary);
-          text-decoration: underline;
-        }
-
-        .primary {
-          color: var(--success);
-        }
-
-        .success {
-          color: var(--success);
-        }
-
-        .danger {
-          color: var(--danger);
-        }
-
-        .grey {
-          color: var(--grey);
-        }
-
-        .white {
-          color: var(--white);
-        }
-
-        .bg-primary,
-        .bg-primary:hover {
-          background-color: var(--primary);
-          color: var(--white);
-          text-decoration: none;
-        }
-
-        .bg-success,
-        .bg-success:hover {
-          background-color: var(--success);
-          color: var(--white);
-          text-decoration: none;
-        }
-
-        .bg-danger,
-        .bg-danger:hover {
-          background-color: var(--danger);
-          color: var(--white);
-          text-decoration: none;
-        }
-
-        .bg-grey,
-        .bg-grey:hover {
-          background-color: var(--grey);
-          color: var(--white);
-          text-decoration: none;
-        }
-
-        .button {
-          border-radius: 4px;
-          border: 0;
-          cursor: pointer;
-          display: inline-block;
-          margin: 0;
-          padding: 1rem;
-          text-decoration: none;
-        }
-
-        .button-icon {
-          background-color: transparent;
-        }
-
-        .icon {
-          background-position: center center;
-          background-repeat: no-repeat;
-          color: var(--white);
-          display: inline-block;
-          height: var(--icon-size);
-          text-decoration: none;
-          vertical-align: middle;
-          width: var(--icon-size);
-        }
-
-        .icon-large {
-          height: var(--icon-large);
-          width: var(--icon-large);
-        }
-
-        .icon-overlay {
-          height: var(--icon-large);
-          left: calc((100% - var(--icon-large)) / 2);
-          position: absolute;
-          top: calc((100% - var(--icon-large)) / 2);
-          width: var(--icon-large);
-          pointer-events: none;
-        }
-
-        .modal {
-          align-items: center;
-          background-color: rgba(84, 84, 84, 0.75);
-          display: none;
-          height: 100vh;
-          justify-content: center;
-          left: 0;
-          pointer-events: none;
-          position: fixed;
-          top: 0;
-          width: 100vw;
-        }
-
-        .modal-content {
-          background-color: var(--dark);
-          display: flex;
-          flex-direction: column;
-          max-height: 100%;
-          max-width: 100%;
-          pointer-events: auto;
-        }
-
-        .header {
-          background-color: var(--grey);
-          margin-top: 0;
-          padding: 0.5rem 1rem;
-          text-align: left;
-        }
-
-        .center {
-          text-align: center;
-        }
-
-        .padding {
-          padding: 1rem;
-        }
-
-        .no-padding {
-          padding: 0;
-        }
-
-        .margin {
-          margin: 1rem;
-        }
-
-        .no-margin {
-          margin: 0;
-        }
-
-        @media print {
-          body::after {
-            content: 'Save ink, share link. https://hue.vibioh.fr';
-          }
-
-          body > * {
-            display: none !important;
-          }
-        }
-      </style>
+      {{ template "main-style" . }}
+      {{ template "main-script" . }}
     </head>
 
     <body class="no-margin">
       <div class="content">
-        <header class="padding">
+        <header class="flex padding">
           <h1 class="no-margin no-padding">
-            <a href="/" class="no-style clear">Hue</a>
+            <a href="/{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
           </h1>
+
+          <span class="flex-grow"></span>
+
+          {{ template "header-part" . }}
         </header>
 {{ end }}
 
@@ -236,20 +299,20 @@
 {{ end }}
 
 {{ define "message" }}
-  {{ if . }}
+  {{ with . }}
     {{ if gt (len .Content) 0 }}
-      <p class="no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
+      <p class="message no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
         {{ .Content }}
       </p>
     {{ end }}
   {{ end }}
 {{ end }}
 
-{{ define "app" }}
+{{ define "public" }}
   {{ template "header" . }}
-  {{ template "message" .Message }}
 
-  {{- template "hue" .Hue -}}
+  {{ template "message" .Message }}
+  {{ template "app" . }}
 
   {{ template "footer" . }}
 {{ end }}
@@ -258,7 +321,7 @@
   {{ template "header" . }}
   {{ template "message" .Message }}
 
-  {{ if .Errors }}
+  {{ with .Errors }}
     {{ range .Errors }}
       <p class="padding no-margin center">
         {{ . }}
