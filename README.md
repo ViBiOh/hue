@@ -17,6 +17,8 @@ A Docker image is available for `amd64`, `arm` and `arm64` platforms on Docker H
 
 You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). CLI override environment variables.
 
+It's a single static binary with external html templates. No Javascript framework. HTTP and HTML have all we need. If you want to use binary directly, download the templates folder and configure it (cf. [Usage](#usage) section). The recommended way to use it is the Docker container.
+
 You'll find a Kubernetes exemple (without secrets) in the [`infra/`](infra/) folder. It contains two ingresses : one for "same network access" and another, publicly available but with basic-auth.
 
 ### Get credentials from bridge
@@ -55,6 +57,10 @@ Most IoT devices and platforms are relying on applications installed on your sma
 This interface allows anybody who have access to manage lights. In a local network, with a properly configured firewall, anyone on the WiFi can turn off/on lights, from mobile-ready dark mode web interface.
 
 The application is not a app or hub replacement, it uses the Hub's API and is not required to continue to use your existing remotes ou app like you already do.
+
+### Metrics
+
+The web service exposes two specifics metrics gathered from the motions sensors: the battery life and the temperature. They are available on the prometheus endpoint `/metrics` (cf. [Usage](#usage) section). It also exposes basic Golang and HTTP metrics.
 
 ## Usage
 
