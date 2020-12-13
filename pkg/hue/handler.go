@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/hue/pkg/renderer/model"
+	"github.com/ViBiOh/httputils/v3/pkg/renderer/model"
 )
 
 const (

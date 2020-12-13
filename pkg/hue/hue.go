@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/ViBiOh/httputils/v3/pkg/flags"
-	"github.com/ViBiOh/hue/pkg/renderer"
+	"github.com/ViBiOh/httputils/v3/pkg/renderer"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
