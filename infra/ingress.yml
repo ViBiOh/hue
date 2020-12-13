@@ -1,4 +1,3 @@
----
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
@@ -8,7 +7,6 @@ metadata:
 spec:
   encryptedData:
     users: AgCWxs7l0l7CdS3UWa9QHNdFPNlrBvaHAS+0xdT6zx5Fq7y+8H6LmxT7ku03mfFs8EgEWWuqydzFNm0IIcXUh1hZ/014QCjDwnzBJSEVhVE4hqhnxY/8k3hTA0xz+Whj/pf6Cj+2XT+SExhTVfnpAR8IuhiT5pPxsBmJWMYGU09Ah5aoWcY0wmkL//G09m33UxwsulH4NWG8Ab9VufAFb02qnMxFdYVGKhDuKsTnax/kPMx4ZP4qNm+uoggkrKCei61crXNP9h+lghBA3smqqduimZ1kjPbKH+sAfRwmYSszyiD6OTWIxt33xvnLoiHF+P8c73lJUcVafP4s9jEjvS1svXhiCwHz/EX7yQHTAYfdu4lUXp0Uvhz9SIAY1k47xAeoQjBv/L3HmSFJIhcfhDEv1NqpLRCGc8QjW+KCu4fJka8EDHDlFxPm3aXGf9OMbAMG2OXCVM+MpUdoGdff8y316wXFzECG9H0FmpJVfzckPHzvvBF026SGZdS21j2bCdBMGtPF8S4x2SYcWVxSD+l+gNMCyiQ6rFOeLBnvOsYDOg7JUJTcg4YhCB8ErFSVtRFAPnDnTSyQABSmzuf7/t2nOeAtIHctOWigcutSap/QawhGfPPBOj/wcHMo0nEjdkaceII5RV3ruZYsgk6RUCHRIxVLbfZNDl7DG6O6HeDjRe3TI/lyGlLNZ1Ty7qRAaYqq0eo3zWITnT+ZXp3L6YCNM6GD1G6jg1LyOpMyeIooEU1YV+q1x4K3pB8PPxZwkhyHQZPo4NEb4bBKVCPk/3/JQrPB
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -22,7 +20,6 @@ spec:
   basicAuth:
     secret: hue-auth
     removeHeader: true
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -35,8 +32,7 @@ metadata:
 spec:
   ipWhiteList:
     sourceRange:
-      - 192.168.1.0/24
-
+    - 192.168.1.0/24
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -51,13 +47,13 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 spec:
   rules:
-    - host: alice.local
-      http:
-        paths:
-          - path: "/"
-            pathType: Prefix
-            backend:
-              service:
-                name: hue
-                port:
-                  number: 80
+  - host: alice.local
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: hue
+            port:
+              number: 80
