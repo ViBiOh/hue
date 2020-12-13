@@ -16,8 +16,7 @@ spec:
   values:
     nameOverride: hue
     image:
-      repository: vibioh/hue # {"$imagepolicy": "default:hue"}
-
+      repository: vibioh/hue:latest # {"$imagepolicy": "default:hue"}
     config:
       HUE_LOGGER_JSON: "true"
     secrets:
