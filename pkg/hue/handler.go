@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/ViBiOh/httputils/pkg/httperror"
-	"github.com/ViBiOh/httputils/v3/pkg/renderer"
 	"github.com/ViBiOh/httputils/v3/pkg/renderer/model"
 )
 
@@ -70,7 +69,7 @@ func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", group.Name, stateName)))
+	a.renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", group.Name, stateName)))
 }
 
 func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +106,7 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 	a.mutex.RUnlock()
 
-	renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)))
+	a.renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)))
 }
 
 func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
@@ -157,5 +156,5 @@ func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 		stateName = "off"
 	}
 
-	renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, stateName)))
+	a.renderer.Redirect(w, r, "/", model.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, stateName)))
 }
