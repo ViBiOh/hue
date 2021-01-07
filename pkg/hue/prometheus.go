@@ -8,15 +8,17 @@ import (
 )
 
 func (a *app) getMetrics(prefix, suffix string) prometheus.Gauge {
-	if gauge, ok := a.prometheusCollectors[fmt.Sprintf("%s_%s", prefix, suffix)]; ok {
+	name := fmt.Sprintf("%s_%s", prefix, suffix)
+	if gauge, ok := a.prometheusCollectors[name]; ok {
 		return gauge
 	}
 
 	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("hue_%s_%s", prefix, suffix),
+		Namespace: "hue",
+		Name:      name,
 	})
 
-	a.prometheusCollectors[fmt.Sprintf("%s_%s", prefix, suffix)] = gauge
+	a.prometheusCollectors[name] = gauge
 	a.prometheusRegisterer.MustRegister(gauge)
 
 	return gauge
