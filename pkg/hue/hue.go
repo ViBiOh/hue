@@ -18,7 +18,7 @@ import (
 type App interface {
 	Handler() http.Handler
 	TemplateFunc(*http.Request) (string, int, map[string]interface{}, error)
-	Start()
+	Start(<-chan struct{})
 }
 
 // Config of package

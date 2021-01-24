@@ -61,7 +61,8 @@ func main() {
 		rendererHandler.ServeHTTP(w, r)
 	})
 
-	go hueApp.Start()
+	server := httputils.New(serverConfig)
+	go hueApp.Start(server.GetDone())
 
-	httputils.New(serverConfig).ListenAndServe(handler, nil, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware)
+	server.ListenAndServe(handler, nil, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware)
 }
