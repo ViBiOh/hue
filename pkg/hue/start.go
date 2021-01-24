@@ -8,12 +8,12 @@ import (
 	"github.com/ViBiOh/httputils/v3/pkg/logger"
 )
 
-func (a *app) Start() {
+func (a *app) Start(done <-chan struct{}) {
 	a.initConfig()
 
-	cron.New().Each(time.Minute).Now().Start(a.refreshState, func(err error) {
+	cron.New().Each(time.Minute).Now().OnError(func(err error) {
 		logger.Error("%s", err)
-	})
+	}).Start(a.refreshState, done)
 }
 
 func (a *app) initConfig() {
