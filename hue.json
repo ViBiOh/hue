@@ -7,14 +7,14 @@
       "state": "long_on"
     },
     {
-      "name": "Remote",
-      "localtime": "W124/T08:00:00",
+      "name": "Desk",
+      "localtime": "W127/T08:30:00",
       "group": "7",
       "state": "on"
     },
     {
       "name": "Sleeping",
-      "localtime": "W127/T23:59:00",
+      "localtime": "W127/T00:00:00",
       "group": "7",
       "state": "off"
     }
