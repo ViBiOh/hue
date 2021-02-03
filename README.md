@@ -1,7 +1,7 @@
 # hue
 
 [![Build](https://github.com/ViBiOh/hue/workflows/Build/badge.svg)](https://github.com/ViBiOh/hue/actions)
-[![codecov](https://codecov.io/gh/ViBiOh/hue/branch/master/graph/badge.svg)](https://codecov.io/gh/ViBiOh/hue)
+[![codecov](https://codecov.io/gh/ViBiOh/hue/branch/main/graph/badge.svg)](https://codecov.io/gh/ViBiOh/hue)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ViBiOh/hue)](https://goreportcard.com/report/github.com/ViBiOh/hue)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ViBiOh_hue&metric=alert_status)](https://sonarcloud.io/dashboard?id=ViBiOh_hue)
 
