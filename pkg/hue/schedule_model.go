@@ -44,6 +44,44 @@ type ScheduleConfig struct {
 	State     string
 }
 
+func recurrenceStr(recurrence int) string {
+	if recurrence == alldays {
+		return "All days"
+	}
+	if recurrence == weekday {
+		return "Week days"
+	}
+	if recurrence == weekend {
+		return "Weekend"
+	}
+
+	days := make([]string, 0)
+
+	if recurrence&monday != 0 {
+		days = append(days, "Mon")
+	}
+	if recurrence&tuesday != 0 {
+		days = append(days, "Tue")
+	}
+	if recurrence&wednesday != 0 {
+		days = append(days, "Wed")
+	}
+	if recurrence&thursday != 0 {
+		days = append(days, "Thu")
+	}
+	if recurrence&friday != 0 {
+		days = append(days, "Fri")
+	}
+	if recurrence&saturday != 0 {
+		days = append(days, "Sat")
+	}
+	if recurrence&sunday != 0 {
+		days = append(days, "Sun")
+	}
+
+	return strings.Join(days, ", ")
+}
+
 // FormatLocalTime formats local time of schedules to human readable version
 func (s Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, "W") {
@@ -56,43 +94,7 @@ func (s Schedule) FormatLocalTime() string {
 		return s.Localtime
 	}
 
-	var recurrenceStr string
-
-	if recurrence == alldays {
-		recurrenceStr = "All days"
-	} else if recurrence == weekday {
-		recurrenceStr = "Week days"
-	} else if recurrence == weekend {
-		recurrenceStr = "Weekend"
-	} else {
-		days := make([]string, 0)
-
-		if recurrence&monday != 0 {
-			days = append(days, "Mon")
-		}
-		if recurrence&tuesday != 0 {
-			days = append(days, "Tue")
-		}
-		if recurrence&wednesday != 0 {
-			days = append(days, "Wed")
-		}
-		if recurrence&thursday != 0 {
-			days = append(days, "Thu")
-		}
-		if recurrence&friday != 0 {
-			days = append(days, "Fri")
-		}
-		if recurrence&saturday != 0 {
-			days = append(days, "Sat")
-		}
-		if recurrence&sunday != 0 {
-			days = append(days, "Sun")
-		}
-
-		recurrenceStr = strings.Join(days, ", ")
-	}
-
-	return fmt.Sprintf("%s at %s", recurrenceStr, s.Localtime[6:])
+	return fmt.Sprintf("%s at %s", recurrenceStr(recurrence), s.Localtime[6:])
 }
 
 // FindStateName finds matching state's name

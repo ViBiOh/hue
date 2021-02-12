@@ -12,6 +12,8 @@ import (
 const (
 	presenceSensorType    = "ZLLPresence"
 	temperatureSensorType = "ZLLTemperature"
+
+	sensorPresenceURL = "/sensors/%s/state/presence"
 )
 
 func (a *app) listSensors(ctx context.Context) (map[string]Sensor, error) {
@@ -63,12 +65,12 @@ func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
 		Name: fmt.Sprintf("MotionSensor %s - %s", sensor.ID, state),
 		Conditions: []Condition{
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
 				Operator: "eq",
 				Value:    "true",
 			},
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
 				Operator: "dx",
 			},
 			{
@@ -92,12 +94,12 @@ func (a *app) createSensorOffRuleDescription(sensor configSensor) Rule {
 		Name: fmt.Sprintf("MotionSensor %s - %s", sensor.ID, state),
 		Conditions: []Condition{
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
 				Operator: "eq",
 				Value:    "false",
 			},
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/presence", sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
 				Operator: "ddx",
 				Value:    sensor.OffDelay,
 			},

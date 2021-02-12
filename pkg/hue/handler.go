@@ -15,6 +15,8 @@ const (
 	groupsPath    = "/groups"
 	schedulesPath = "/schedules"
 	sensorsPath   = "/sensors"
+
+	updateSuccessMessage = "%s is now %s"
 )
 
 // Handler for request. Should be use with net/http
@@ -70,7 +72,7 @@ func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf("%s is now %s", group.Name, stateName)))
+	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
 }
 
 func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +109,7 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 	a.mutex.RUnlock()
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, status)))
+	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
 }
 
 func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
@@ -157,5 +159,5 @@ func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 		stateName = "off"
 	}
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf("%s is now %s", name, stateName)))
+	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
 }
