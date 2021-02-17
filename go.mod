@@ -1,6 +1,6 @@
 module github.com/ViBiOh/hue
 
-go 1.15
+go 1.16
 
 require (
 	github.com/ViBiOh/httputils v1.8.2
