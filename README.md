@@ -67,11 +67,11 @@ The web service exposes two specifics metrics gathered from the motions sensors:
 ```bash
 Usage of hue:
   -address string
-        [http] Listen address {HUE_ADDRESS}
+        [server] Listen address {HUE_ADDRESS}
   -bridgeIP string
         [hue] IP of Bridge {HUE_BRIDGE_IP}
   -cert string
-        [http] Certificate file {HUE_CERT}
+        [server] Certificate file {HUE_CERT}
   -config string
         [hue] Configuration filename {HUE_CONFIG}
   -corsCredentials
@@ -93,9 +93,9 @@ Usage of hue:
   -hsts
         [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
   -idleTimeout string
-        [http] Idle Timeout {HUE_IDLE_TIMEOUT} (default "2m")
+        [server] Idle Timeout {HUE_IDLE_TIMEOUT} (default "2m")
   -key string
-        [http] Key file {HUE_KEY}
+        [server] Key file {HUE_KEY}
   -loggerJson
         [logger] Log format as JSON {HUE_LOGGER_JSON}
   -loggerLevel string
@@ -109,23 +109,37 @@ Usage of hue:
   -okStatus int
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -port uint
-        [http] Listen port {HUE_PORT} (default 1080)
+        [server] Listen port {HUE_PORT} (default 1080)
+  -prometheusAddress string
+        [prometheus] Listen address {HUE_PROMETHEUS_ADDRESS}
+  -prometheusCert string
+        [prometheus] Certificate file {HUE_PROMETHEUS_CERT}
+  -prometheusIdleTimeout string
+        [prometheus] Idle Timeout {HUE_PROMETHEUS_IDLE_TIMEOUT} (default "10s")
   -prometheusIgnore string
         [prometheus] Ignored path prefixes for metrics, comma separated {HUE_PROMETHEUS_IGNORE}
-  -prometheusPath string
-        [prometheus] Path for exposing metrics {HUE_PROMETHEUS_PATH} (default "/metrics")
+  -prometheusKey string
+        [prometheus] Key file {HUE_PROMETHEUS_KEY}
+  -prometheusPort uint
+        [prometheus] Listen port {HUE_PROMETHEUS_PORT} (default 9090)
+  -prometheusReadTimeout string
+        [prometheus] Read Timeout {HUE_PROMETHEUS_READ_TIMEOUT} (default "5s")
+  -prometheusShutdownTimeout string
+        [prometheus] Shutdown Timeout {HUE_PROMETHEUS_SHUTDOWN_TIMEOUT} (default "5s")
+  -prometheusWriteTimeout string
+        [prometheus] Write Timeout {HUE_PROMETHEUS_WRITE_TIMEOUT} (default "10s")
   -publicURL string
-        [] Public URL {HUE_PUBLIC_URL} (default "https://hue.vibioh.fr")
+        Public URL {HUE_PUBLIC_URL} (default "https://hue.vibioh.fr")
   -readTimeout string
-        [http] Read Timeout {HUE_READ_TIMEOUT} (default "5s")
+        [server] Read Timeout {HUE_READ_TIMEOUT} (default "5s")
   -shutdownTimeout string
-        [http] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
+        [server] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
   -static string
-        [] Static folder, content served directly {HUE_STATIC} (default "./static/")
+        Static folder, content served directly {HUE_STATIC} (default "./static/")
   -templates string
-        [] HTML Templates folder {HUE_TEMPLATES} (default "./templates/")
+        HTML Templates folder {HUE_TEMPLATES} (default "./templates/")
   -title string
-        [] Application title {HUE_TITLE} (default "Hue")
+        Application title {HUE_TITLE} (default "Hue")
   -url string
         [alcotest] URL to check {HUE_URL}
   -userAgent string
@@ -133,5 +147,5 @@ Usage of hue:
   -username string
         [hue] Username for Bridge {HUE_USERNAME}
   -writeTimeout string
-        [http] Write Timeout {HUE_WRITE_TIMEOUT} (default "10s")
+        [server] Write Timeout {HUE_WRITE_TIMEOUT} (default "10s")
 ```

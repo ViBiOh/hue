@@ -6,14 +6,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ViBiOh/httputils/v3/pkg/alcotest"
-	"github.com/ViBiOh/httputils/v3/pkg/cors"
-	"github.com/ViBiOh/httputils/v3/pkg/flags"
-	"github.com/ViBiOh/httputils/v3/pkg/httputils"
-	"github.com/ViBiOh/httputils/v3/pkg/logger"
-	"github.com/ViBiOh/httputils/v3/pkg/owasp"
-	"github.com/ViBiOh/httputils/v3/pkg/prometheus"
-	"github.com/ViBiOh/httputils/v3/pkg/renderer"
+	"github.com/ViBiOh/httputils/v4/pkg/alcotest"
+	"github.com/ViBiOh/httputils/v4/pkg/cors"
+	"github.com/ViBiOh/httputils/v4/pkg/flags"
+	"github.com/ViBiOh/httputils/v4/pkg/health"
+	"github.com/ViBiOh/httputils/v4/pkg/httputils"
+	"github.com/ViBiOh/httputils/v4/pkg/logger"
+	"github.com/ViBiOh/httputils/v4/pkg/owasp"
+	"github.com/ViBiOh/httputils/v4/pkg/prometheus"
+	"github.com/ViBiOh/httputils/v4/pkg/renderer"
+	"github.com/ViBiOh/httputils/v4/pkg/server"
 	"github.com/ViBiOh/hue/pkg/hue"
 )
 
@@ -24,7 +26,10 @@ const (
 func main() {
 	fs := flag.NewFlagSet("hue", flag.ExitOnError)
 
-	serverConfig := httputils.Flags(fs, "")
+	appServerConfig := server.Flags(fs, "")
+	promServerConfig := server.Flags(fs, "prometheus", flags.NewOverride("Port", 9090), flags.NewOverride("IdleTimeout", "10s"), flags.NewOverride("ShutdownTimeout", "5s"))
+	healthConfig := health.Flags(fs, "")
+
 	alcotestConfig := alcotest.Flags(fs, "")
 	loggerConfig := logger.Flags(fs, "logger")
 	prometheusConfig := prometheus.Flags(fs, "prometheus")
@@ -40,19 +45,21 @@ func main() {
 	logger.Global(logger.New(loggerConfig))
 	defer logger.Close()
 
+	appServer := server.New(appServerConfig)
+	promServer := server.New(promServerConfig)
 	prometheusApp := prometheus.New(prometheusConfig)
-	prometheusRegisterer := prometheusApp.Registerer()
+	healthApp := health.New(healthConfig)
 
 	rendererApp, err := renderer.New(rendererConfig, hue.FuncMap)
 	logger.Fatal(err)
 
-	hueApp, err := hue.New(hueConfig, prometheusRegisterer, rendererApp)
+	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)
 	logger.Fatal(err)
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 	hueHandler := http.StripPrefix(apiPath, hueApp.Handler())
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	appHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, apiPath) {
 			hueHandler.ServeHTTP(w, r)
 			return
@@ -61,8 +68,11 @@ func main() {
 		rendererHandler.ServeHTTP(w, r)
 	})
 
-	server := httputils.New(serverConfig)
-	go hueApp.Start(server.GetDone())
+	go hueApp.Start(healthApp.Done())
 
-	server.ListenAndServe(handler, nil, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware)
+	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
+	go appServer.Start("http", healthApp.End(), httputils.Handler(appHandler, healthApp, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+
+	healthApp.WaitForTermination(appServer.Done())
+	server.GracefulWait(appServer.Done(), promServer.Done())
 }

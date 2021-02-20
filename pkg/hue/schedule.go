@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ViBiOh/httputils/v3/pkg/logger"
+	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 func (a *app) listSchedules(ctx context.Context) (map[string]Schedule, error) {
