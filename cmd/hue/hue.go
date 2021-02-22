@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"net/http"
 	"os"
@@ -23,6 +24,9 @@ const (
 	apiPath = "/api"
 )
 
+//go:embed "templates/*"
+var content embed.FS
+
 func main() {
 	fs := flag.NewFlagSet("hue", flag.ExitOnError)
 
@@ -35,7 +39,7 @@ func main() {
 	prometheusConfig := prometheus.Flags(fs, "prometheus")
 	owaspConfig := owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"))
 	corsConfig := cors.Flags(fs, "cors")
-	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"))
+	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"), flags.NewOverride("Templates", nil))
 
 	hueConfig := hue.Flags(fs, "")
 
@@ -50,7 +54,7 @@ func main() {
 	prometheusApp := prometheus.New(prometheusConfig)
 	healthApp := health.New(healthConfig)
 
-	rendererApp, err := renderer.New(rendererConfig, hue.FuncMap)
+	rendererApp, err := renderer.New(rendererConfig, hue.FuncMap, content)
 	logger.Fatal(err)
 
 	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)
