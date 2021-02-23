@@ -24,7 +24,7 @@ const (
 	apiPath = "/api"
 )
 
-//go:embed "templates/*"
+//go:embed templates static
 var content embed.FS
 
 func main() {
@@ -54,7 +54,7 @@ func main() {
 	prometheusApp := prometheus.New(prometheusConfig)
 	healthApp := health.New(healthConfig)
 
-	rendererApp, err := renderer.New(rendererConfig, hue.FuncMap, content)
+	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap)
 	logger.Fatal(err)
 
 	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)

@@ -17,7 +17,7 @@ A Docker image is available for `amd64`, `arm` and `arm64` platforms on Docker H
 
 You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). CLI override environment variables.
 
-It's a single static binary with embedded templates but external static for now. No Javascript framework. HTTP and HTML have all we need. If you want to use binary directly, download the static folder and configure it (cf. [Usage](#usage) section). The recommended way to use it is the Docker container.
+It's a single static binary with embedded templates and static. No Javascript framework. HTTP and HTML have all we need. The recommended way to use it is the Docker container but binary is self-sufficient too.
 
 You'll find a Kubernetes exemple in the [`infra/`](infra/) folder. It contains two ingresses : one for "same network access" and another, publicly available but with basic-auth.
 
@@ -134,8 +134,6 @@ Usage of hue:
         [server] Read Timeout {HUE_READ_TIMEOUT} (default "5s")
   -shutdownTimeout string
         [server] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
-  -static string
-        Static folder, content served directly {HUE_STATIC} (default "./static/")
   -title string
         Application title {HUE_TITLE} (default "Hue")
   -url string
