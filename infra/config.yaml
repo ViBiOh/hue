@@ -24,7 +24,7 @@ spec:
   values:
     nameOverride: hue
     image:
-      repository: vibioh/hue:202102230914 # {"$imagepolicy": "default:hue"}
+      repository: vibioh/hue:202102230914 # {"$imagepolicy": "default:flux-hue-web"}
     config:
       HUE_LOGGER_JSON: "true"
     secrets:
@@ -33,8 +33,8 @@ spec:
     ingress:
       enabled: true
       hosts:
-      - hue.vibioh.fr
+        - hue.vibioh.fr
       https_middlewares:
-      - default-hue-auth@kubernetescrd
-      - compress@file
-      - rate-limit@file
+        - default-hue-auth@kubernetescrd
+        - compress@file
+        - rate-limit@file
