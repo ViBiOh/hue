@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: app
-      version: '0.0.47'
+      version: '0.0.48'
       sourceRef:
         kind: HelmRepository
         name: vibioh
@@ -25,7 +25,8 @@ spec:
   values:
     nameOverride: hue
     image:
-      repository: vibioh/hue:202103020810 # {"$imagepolicy": "default:flux-hue-web"}
+      name: vibioh/hue
+      tag: 202103020810 # {"$imagepolicy": "default:flux-hue-web:tag"}
     config:
       HUE_LOGGER_JSON: 'true'
     secrets:
