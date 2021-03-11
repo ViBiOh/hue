@@ -26,7 +26,7 @@ spec:
     nameOverride: hue
     image:
       name: vibioh/hue
-      tag: "202103092219" # {"$imagepolicy": "default:flux-hue-web:tag"}
+      tag: "202103111316" # {"$imagepolicy": "default:flux-hue-web:tag"}
     config:
       HUE_LOGGER_JSON: "true"
     secrets:
