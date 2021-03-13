@@ -3,6 +3,7 @@ apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
   name: hue-auth
+  namespace: default
   annotations:
     sealedsecrets.bitnami.com/namespace-wide: "true"
 spec:
@@ -14,6 +15,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: hue-auth
+  namespace: default
   labels:
     app.kubernetes.io/name: hue
     app.kubernetes.io/instance: hue
@@ -28,6 +30,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: hue-whitelist
+  namespace: default
   labels:
     app.kubernetes.io/name: hue
     app.kubernetes.io/instance: hue
@@ -42,6 +45,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: hue-local-http
+  namespace: default
   labels:
     app.kubernetes.io/name: hue
     app.kubernetes.io/instance: hue
