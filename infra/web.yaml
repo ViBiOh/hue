@@ -1,0 +1,41 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hue
+  namespace: default
+spec:
+  interval: 120m
+  chart:
+    spec:
+      chart: app
+      version: "0.0.58"
+      sourceRef:
+        kind: HelmRepository
+        name: vibioh
+      interval: 120m
+  install:
+    skipCRDs: true
+  maxHistory: 3
+  upgrade:
+    remediation:
+      retries: 3
+  rollback:
+    cleanupOnFail: true
+  values:
+    nameOverride: hue
+    image:
+      name: vibioh/hue
+      tag: "202103171437" # {"$imagepolicy": "default:flux-hue-web:tag"}
+    config:
+      HUE_LOGGER_JSON: "true"
+    secrets:
+      HUE_BRIDGE_IP: AgCV1vs30IZb3wz4iiszT1Q5nEEUXczbhs7q7IU1pfV9ikLreTUK2rLgFNKvsjVOihXF46ZEBvGfYtV2tBANw89/78OPnRRh25emCI+iQK0B5XVzRQtOoMAkSma+UEZqu/+CN+/AegTBLkcCO3dVPYqcAoNCNfbDxfhycCQg/GKPm6ddT1dtVz64na0C3A2lrcc8uNOeOnVYwZctf7hJ8Le/0748FOeaMYTWvKBuP6sbxcjYBPopAAC1+aFA0HMnJpZ7zcWGCuPOWWbsEMAksrwe3Gq94H5f9vBIEkuKtMenj/uKxp05Nk9w/uzZRm1j84fDSZbxBbrBGB2hBxXZ1heEe4CsseW0/iFp1FXGs5lrG7nnduXIcOpck1ExvciMGlrkJiPqSRsR8QJnPv1gjeJ6/2Xab2dG6KBs/FsZf2hPPutXBBSnf6UXvJD3luoOzZ3JV5l2Ej0kzim+uqnhNVtO8Opks3kfhdZoV1s6r8tf8/o5na5ZlnC6ALSgJCUaZQ2yWd/WeVnSHy0XY1orP9CfmwHn+yv8KGIc1Kb0Wqh0d/ZJjvXXr5dvEsXcelXVILTjxhIIWZpKa2IA/OjwVfYSCqZ4OF4UFG6+yPtRk2vm7nexZiEKOizN7yT7AvZWFFdUNqvmaa6bHbi9FDkvMLn+++vKPqoghRiZBeuJfxAJ2qOPLt6FPxZ3ahEc9q4ch9j7xQmK8zSSJFjXdCam
+      HUE_USERNAME: AgC607Nc/ZzNCV+SBRbQxmoi5eanuZd3WSo8KG8BlDBQx8LsaxlCnlWDtBpvnO2NsmnSbLjo0WLPba6tSlhz7ab0N8VBL9ZMF4NwPfUbVYCz5uu35bPLsB6nA+KroLf523WjwnrAIMAc+3BirEoDXJDYQn7uocJAAJ8V25TkpelLJree0m5WrxLYWviWORK4zHZpW6E+UzpWTIRCmy5BP2UxpMdawYAVqWetRVMsiOTEZl+edXU0rDDI5nf6wv5l5JcAe1b/rp7adS/lY82F8lE9YEJdUAHPpbYuchlZw4LSOATsOiSfwvAH8Qtmb30tdK66VBRDyN7mUM7hLSIDsaSat4xPSCJxSSswuKGPcshnTM1EILkxysfcHc3fDX5EwjlGx3t7KE0ZxfP3soZZ4fiA+jfbNe10a5U989JGX9yYZGpjh056NCzf6g5yWamFbSll0SQjzGa9v/f/ALBxH08ehDYn0gSiOkPGb/tzWPOP2VXoZkwgpf6tvzRiDcXsk46U7RSDKWzoBKoBqH7EP9QJ+a12CFF1nMp28/pAUQ75EaTRP8W0eyx6q/Vj7rcz3N42ZCzb4iBPz/fUUia5obUowTuV1722MmHFFc+vnGPplzs7VELePLbDssx4M0fUPkDhRdP69O9XI8L7C8agO98+3sPHw9m2s5ikttL+dTJDN43WEhs0sSDz3GoXPeR9/r/cCU+13/KSiVIwU28CZAmaLimSZF/NEtdfDXQ5Gq9KOSBmgHrHZx3l
+    ingress:
+      enabled: true
+      hosts:
+      - hue.vibioh.fr
+      https_middlewares:
+      - default-hue-auth@kubernetescrd
+      - compress@file
+      - rate-limit@file
