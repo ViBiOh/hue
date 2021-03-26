@@ -43,7 +43,7 @@ func (a *app) Handler() http.Handler {
 
 func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapNotFound(fmt.Errorf("Invalid method for updating group")))
+		a.renderer.Error(w, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
 	}
 
@@ -77,7 +77,7 @@ func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("Invalid method for updating schedule")))
+		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
 	}
 
@@ -114,7 +114,7 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("Invalid method for updating sensor")))
+		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return
 	}
 
