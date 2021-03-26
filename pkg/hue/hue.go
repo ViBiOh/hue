@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -71,7 +71,7 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 
 	configFile := strings.TrimSpace(*config.config)
 	if len(configFile) != 0 {
-		rawConfig, err := ioutil.ReadFile(configFile)
+		rawConfig, err := os.ReadFile(configFile)
 		if err != nil {
 			return app, err
 		}
