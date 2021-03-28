@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ViBiOh/httputils/v4/pkg/httpjson"
 	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
@@ -19,16 +20,7 @@ func get(ctx context.Context, url string, response interface{}) error {
 		return err
 	}
 
-	content, err := request.ReadBodyResponse(resp)
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(content, &response); err != nil {
-		return err
-	}
-
-	return nil
+	return httpjson.Read(resp, &response, "hue response")
 }
 
 func create(ctx context.Context, url string, payload interface{}) (string, error) {
