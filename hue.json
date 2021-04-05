@@ -64,7 +64,7 @@
         {
           "id": "4",
           "state": "off",
-          "groups": ["1"]
+          "groups": ["4"]
         }
       ]
     },
@@ -89,7 +89,7 @@
         {
           "id": "4",
           "state": "off",
-          "groups": ["1"]
+          "groups": ["6"]
         }
       ]
     },
@@ -114,7 +114,7 @@
         {
           "id": "4",
           "state": "off",
-          "groups": ["1"]
+          "groups": ["5"]
         }
       ]
     }
