@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -26,7 +25,7 @@ spec:
     nameOverride: hue
     image:
       name: vibioh/hue
-      tag: "202104111753" # {"$imagepolicy": "default:flux-hue-web:tag"}
+      tag: "202104121156" # {"$imagepolicy": "default:flux-hue-web:tag"}
     config:
       HUE_LOGGER_JSON: "true"
     secrets:
@@ -35,7 +34,7 @@ spec:
     ingress:
       enabled: true
       hosts:
-        - hue.vibioh.fr
+      - hue.vibioh.fr
       https_middlewares:
-        - default-hue-auth@kubernetescrd
-        - compress@file
+      - default-hue-auth@kubernetescrd
+      - compress@file
