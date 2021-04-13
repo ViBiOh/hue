@@ -22,6 +22,9 @@ func (a *app) initConfig() {
 		return
 	}
 
+	logger.Info("Configuring hue...")
+	defer logger.Info("Configuration done.")
+
 	ctx := context.Background()
 
 	if err := a.cleanSchedules(ctx); err != nil {
