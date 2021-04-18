@@ -44,7 +44,7 @@ func (a *app) initConfig() {
 	a.configureMotionSensor(ctx, a.config.Sensors)
 }
 
-func (a *app) refreshState(_ time.Time) error {
+func (a *app) refreshState(ctx context.Context) error {
 	if err := a.syncGroups(); err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (a *app) refreshState(_ time.Time) error {
 		return err
 	}
 
-	scenes, err := a.listScenes(context.Background())
+	scenes, err := a.listScenes(ctx)
 	if err != nil {
 		return err
 	}
