@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	monday    = 1 << 6
-	tuesday   = 1 << 5
-	wednesday = 1 << 4
-	thursday  = 1 << 3
-	friday    = 1 << 2
-	saturday  = 1 << 1
-	sunday    = 1
+	sunday = 1 << iota
+	saturday
+	friday
+	thursday
+	wednesday
+	tuesday
+	monday
 
 	weekday = monday | tuesday | wednesday | thursday | friday
 	weekend = saturday | sunday
