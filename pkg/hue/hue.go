@@ -36,7 +36,7 @@ type app struct {
 	schedules map[string]Schedule
 	sensors   map[string]Sensor
 
-	renderer             renderer.App
+	rendererApp          renderer.App
 	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
 
@@ -63,7 +63,7 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
 		bridgeUsername: bridgeUsername,
 
-		renderer: renderer,
+		rendererApp: renderer,
 
 		prometheusRegisterer: registerer,
 		prometheusCollectors: make(map[string]prometheus.Gauge),

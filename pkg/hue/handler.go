@@ -43,7 +43,7 @@ func (a *app) Handler() http.Handler {
 
 func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
+		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
 	}
 
@@ -52,32 +52,32 @@ func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 	group, ok := a.groups[groupID]
 	if !ok {
-		a.renderer.Error(w, model.WrapNotFound(fmt.Errorf("unknown group '%s'", groupID)))
+		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("unknown group '%s'", groupID)))
 		return
 	}
 
 	state, ok := States[stateName]
 	if !ok {
-		a.renderer.Error(w, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
+		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
 		return
 	}
 
 	if err := a.updateGroupState(r.Context(), groupID, state); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
 	if err := a.syncGroups(); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
+	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
 }
 
 func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
+		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
 	}
 
@@ -91,12 +91,12 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := a.updateSchedule(r.Context(), schedule); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
 	if err := a.syncSchedules(); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
@@ -109,19 +109,19 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 	a.mutex.RUnlock()
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
+	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
 }
 
 func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.renderer.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
+		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return
 	}
 
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)
 	if err != nil {
-		a.renderer.Error(w, model.WrapInvalid(fmt.Errorf("unable to parse boolean with value `%s`: %s", status, err)))
+		a.rendererApp.Error(w, model.WrapInvalid(fmt.Errorf("unable to parse boolean with value `%s`: %s", status, err)))
 		return
 	}
 
@@ -133,12 +133,12 @@ func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := a.updateSensorConfig(r.Context(), sensor); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
 	if err := a.syncSensors(); err != nil {
-		a.renderer.Error(w, err)
+		a.rendererApp.Error(w, err)
 		return
 	}
 
@@ -159,5 +159,5 @@ func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
 		stateName = "off"
 	}
 
-	renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
+	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
 }
