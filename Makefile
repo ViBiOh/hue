@@ -81,5 +81,4 @@ build:
 .PHONY: run
 run:
 	$(MAIN_RUNNER) \
-		-config hue.json \
-		-publicURL "http://localhost:1080"
+		-config hue.json

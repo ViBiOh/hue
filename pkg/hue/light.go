@@ -15,8 +15,8 @@ func (a *app) getLight(ctx context.Context, lightID string) (Light, error) {
 	}
 
 	var light Light
-	if err := httpjson.Read(resp, &light, "lights"); err != nil {
-		return noneLight, err
+	if err := httpjson.Read(resp, &light); err != nil {
+		return noneLight, fmt.Errorf("unable to read light payload: %s", err)
 	}
 
 	return light, nil

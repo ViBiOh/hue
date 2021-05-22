@@ -107,6 +107,8 @@ Usage of hue:
         [logger] Key for timestamp in JSON {HUE_LOGGER_TIME_KEY} (default "time")
   -okStatus int
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
+  -pathPrefix string
+        Root Path Prefix {HUE_PATH_PREFIX}
   -port uint
         [server] Listen port {HUE_PORT} (default 1080)
   -prometheusAddress string

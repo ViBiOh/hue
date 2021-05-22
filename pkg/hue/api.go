@@ -20,7 +20,10 @@ func get(ctx context.Context, url string, response interface{}) error {
 		return err
 	}
 
-	return httpjson.Read(resp, &response, "hue response")
+	if err := httpjson.Read(resp, &response); err != nil {
+		return fmt.Errorf("unable to read hue content: %s", err)
+	}
+	return nil
 }
 
 func create(ctx context.Context, url string, payload interface{}) (string, error) {

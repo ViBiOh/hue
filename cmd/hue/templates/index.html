@@ -226,7 +226,7 @@
 
     @media print {
       body::after {
-        content: 'Save ink, share link. {{ .PublicURL }}';
+        content: 'Save ink, share link. {{ publicURL "" }}';
       }
 
       body > * {
@@ -282,7 +282,7 @@
       <div class="content">
         <header class="flex padding">
           <h1 class="no-margin no-padding">
-            <a href="{{ .PublicURL }}/{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
+            <a href="{{ url "/" }}{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
           </h1>
 
           <span class="flex-grow"></span>
