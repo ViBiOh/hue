@@ -17,7 +17,7 @@ import (
 // App stores informations and secret of API
 type App interface {
 	Handler() http.Handler
-	TemplateFunc(*http.Request) (string, int, map[string]interface{}, error)
+	TemplateFunc(http.ResponseWriter, *http.Request) (string, int, map[string]interface{}, error)
 	Start(<-chan struct{})
 }
 
@@ -29,16 +29,17 @@ type Config struct {
 }
 
 type app struct {
-	config *configHue
+	prometheusRegisterer prometheus.Registerer
+	prometheusCollectors map[string]prometheus.Gauge
+
+	config      *configHue
+	apiHandler  http.Handler
+	rendererApp renderer.App
 
 	groups    map[string]Group
 	scenes    map[string]Scene
 	schedules map[string]Schedule
 	sensors   map[string]Sensor
-
-	rendererApp          renderer.App
-	prometheusRegisterer prometheus.Registerer
-	prometheusCollectors map[string]prometheus.Gauge
 
 	bridgeURL      string
 	bridgeUsername string
@@ -69,6 +70,8 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 		prometheusCollectors: make(map[string]prometheus.Gauge),
 	}
 
+	app.apiHandler = http.StripPrefix(apiPath, app.Handler())
+
 	configFile := strings.TrimSpace(*config.config)
 	if len(configFile) != 0 {
 		rawConfig, err := os.ReadFile(configFile)
@@ -84,7 +87,12 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 	return app, nil
 }
 
-func (a *app) TemplateFunc(_ *http.Request) (string, int, map[string]interface{}, error) {
+func (a *app) TemplateFunc(w http.ResponseWriter, r *http.Request) (string, int, map[string]interface{}, error) {
+	if strings.HasPrefix(r.URL.Path, apiPath) {
+		a.apiHandler.ServeHTTP(w, r)
+		return "", 0, nil, nil
+	}
+
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 

@@ -81,4 +81,4 @@ build:
 .PHONY: run
 run:
 	$(MAIN_RUNNER) \
-		-config hue.json
+		-config "hue.json"

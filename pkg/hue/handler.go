@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	apiPath       = "/api"
 	groupsPath    = "/groups"
 	schedulesPath = "/schedules"
 	sensorsPath   = "/sensors"

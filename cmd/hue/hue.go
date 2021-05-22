@@ -3,9 +3,7 @@ package main
 import (
 	"embed"
 	"flag"
-	"net/http"
 	"os"
-	"strings"
 
 	"github.com/ViBiOh/httputils/v4/pkg/alcotest"
 	"github.com/ViBiOh/httputils/v4/pkg/cors"
@@ -19,10 +17,6 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
 	"github.com/ViBiOh/httputils/v4/pkg/server"
 	"github.com/ViBiOh/hue/pkg/hue"
-)
-
-const (
-	apiPath = "/api"
 )
 
 //go:embed templates static
@@ -62,21 +56,11 @@ func main() {
 	logger.Fatal(err)
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
-	hueHandler := http.StripPrefix(apiPath, hueApp.Handler())
-
-	appHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, apiPath) {
-			hueHandler.ServeHTTP(w, r)
-			return
-		}
-
-		rendererHandler.ServeHTTP(w, r)
-	})
 
 	go hueApp.Start(healthApp.Done())
 
 	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
-	go appServer.Start("http", healthApp.End(), httputils.Handler(appHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthApp.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done(), promServer.Done())
