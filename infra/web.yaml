@@ -34,7 +34,9 @@ spec:
     ingress:
       enabled: true
       hosts:
-      - hue.vibioh.fr
+        - hue.vibioh.fr
       https_middlewares:
-      - default-hue-auth@kubernetescrd
-      - compress@file
+        - default-hue-auth@kubernetescrd
+        - compress@file
+    podDisruption:
+      enabled: false
