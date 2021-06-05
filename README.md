@@ -110,11 +110,13 @@ Usage of hue:
   -pathPrefix string
         Root Path Prefix {HUE_PATH_PREFIX}
   -port uint
-        [server] Listen port {HUE_PORT} (default 1080)
+        [server] Listen port (0 to disable) {HUE_PORT} (default 1080)
   -prometheusAddress string
         [prometheus] Listen address {HUE_PROMETHEUS_ADDRESS}
   -prometheusCert string
         [prometheus] Certificate file {HUE_PROMETHEUS_CERT}
+  -prometheusGzip
+        [prometheus] Enable gzip compression of metrics output {HUE_PROMETHEUS_GZIP}
   -prometheusIdleTimeout string
         [prometheus] Idle Timeout {HUE_PROMETHEUS_IDLE_TIMEOUT} (default "10s")
   -prometheusIgnore string
@@ -122,7 +124,7 @@ Usage of hue:
   -prometheusKey string
         [prometheus] Key file {HUE_PROMETHEUS_KEY}
   -prometheusPort uint
-        [prometheus] Listen port {HUE_PROMETHEUS_PORT} (default 9090)
+        [prometheus] Listen port (0 to disable) {HUE_PROMETHEUS_PORT} (default 9090)
   -prometheusReadTimeout string
         [prometheus] Read Timeout {HUE_PROMETHEUS_READ_TIMEOUT} (default "5s")
   -prometheusShutdownTimeout string
