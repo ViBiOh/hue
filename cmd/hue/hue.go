@@ -3,11 +3,7 @@ package main
 import (
 	"embed"
 	"flag"
-	"fmt"
 	"os"
-
-	"net/http"
-	_ "net/http/pprof"
 
 	"github.com/ViBiOh/httputils/v4/pkg/alcotest"
 	"github.com/ViBiOh/httputils/v4/pkg/cors"
@@ -65,9 +61,6 @@ func main() {
 
 	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
 	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
-	go func() {
-		fmt.Println(http.ListenAndServe("localhost:9999", http.DefaultServeMux))
-	}()
 
 	healthApp.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done(), promServer.Done())
