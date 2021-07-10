@@ -33,6 +33,7 @@ spec:
       HUE_USERNAME: AgC607Nc/ZzNCV+SBRbQxmoi5eanuZd3WSo8KG8BlDBQx8LsaxlCnlWDtBpvnO2NsmnSbLjo0WLPba6tSlhz7ab0N8VBL9ZMF4NwPfUbVYCz5uu35bPLsB6nA+KroLf523WjwnrAIMAc+3BirEoDXJDYQn7uocJAAJ8V25TkpelLJree0m5WrxLYWviWORK4zHZpW6E+UzpWTIRCmy5BP2UxpMdawYAVqWetRVMsiOTEZl+edXU0rDDI5nf6wv5l5JcAe1b/rp7adS/lY82F8lE9YEJdUAHPpbYuchlZw4LSOATsOiSfwvAH8Qtmb30tdK66VBRDyN7mUM7hLSIDsaSat4xPSCJxSSswuKGPcshnTM1EILkxysfcHc3fDX5EwjlGx3t7KE0ZxfP3soZZ4fiA+jfbNe10a5U989JGX9yYZGpjh056NCzf6g5yWamFbSll0SQjzGa9v/f/ALBxH08ehDYn0gSiOkPGb/tzWPOP2VXoZkwgpf6tvzRiDcXsk46U7RSDKWzoBKoBqH7EP9QJ+a12CFF1nMp28/pAUQ75EaTRP8W0eyx6q/Vj7rcz3N42ZCzb4iBPz/fUUia5obUowTuV1722MmHFFc+vnGPplzs7VELePLbDssx4M0fUPkDhRdP69O9XI8L7C8agO98+3sPHw9m2s5ikttL+dTJDN43WEhs0sSDz3GoXPeR9/r/cCU+13/KSiVIwU28CZAmaLimSZF/NEtdfDXQ5Gq9KOSBmgHrHZx3l
     ingress:
       enabled: true
+      compress: true
       hosts:
         - hue.vibioh.fr
       https_middlewares:
