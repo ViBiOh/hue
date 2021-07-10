@@ -105,6 +105,8 @@ Usage of hue:
         [logger] Key for message in JSON {HUE_LOGGER_MESSAGE_KEY} (default "message")
   -loggerTimeKey string
         [logger] Key for timestamp in JSON {HUE_LOGGER_TIME_KEY} (default "time")
+  -minify
+        Minify HTML {HUE_MINIFY} (default true)
   -okStatus int
         [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
   -pathPrefix string
