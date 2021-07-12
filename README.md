@@ -14,7 +14,7 @@ Golang binary is built with static link. You can download it directly from the [
 
 A Docker image is available for `amd64`, `arm` and `arm64` platforms on Docker Hub: [vibioh/hue](https://hub.docker.com/r/vibioh/hue/tags).
 
-You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). CLI override environment variables.
+You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). The args override environment variables.
 
 It's a single static binary with embedded templates and static. No Javascript framework. HTTP and HTML have all we need. The recommended way to use it is the Docker container but binary is self-sufficient too.
 
