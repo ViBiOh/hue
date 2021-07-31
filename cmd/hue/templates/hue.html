@@ -7,17 +7,17 @@
   <meta property="og:description" content="{{ $description }}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ publicURL "" }}" />
-  <meta property="og:image" content="{{ publicURL "/favicon/android-chrome-512x512.png" }}" />
+  <meta property="og:image" content="{{ publicURL "/images/favicon/android-chrome-512x512.png" }}" />
   <meta property="og:image:height" content="512" />
   <meta property="og:image:width" content="512" />
 {{ end }}
 
 {{ define "favicon" }}
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ url "/favicon/apple-touch-icon.png" }}?v={{ .Version }}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ url "/favicon/favicon-32x32.png" }}?v={{ .Version }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{ url "/favicon/favicon-16x16.png" }}?v={{ .Version }}">
-  <link rel="manifest" href="{{ url "/favicon/site.webmanifest" }}?v={{ .Version }}">
-  <link rel="mask-icon" href="{{ url "/favicon/safari-pinned-tab.svg" }}?v={{ .Version }}" color="#5bbad5">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url "/images/favicon/apple-touch-icon.png" }}?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url "/images/favicon/favicon-32x32.png" }}?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url "/images/favicon/favicon-16x16.png" }}?v={{ .Version }}">
+  <link rel="manifest" href="{{ url "/images/favicon/site.webmanifest" }}?v={{ .Version }}">
+  <link rel="mask-icon" href="{{ url "/images/favicon/safari-pinned-tab.svg" }}?v={{ .Version }}" color="#5bbad5">
   <meta name="theme-color" content="#f8f8f8">
 {{ end}}
 
