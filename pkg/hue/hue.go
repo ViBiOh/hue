@@ -15,20 +15,7 @@ import (
 )
 
 // App stores informations and secret of API
-type App interface {
-	Handler() http.Handler
-	TemplateFunc(http.ResponseWriter, *http.Request) (string, int, map[string]interface{}, error)
-	Start(<-chan struct{})
-}
-
-// Config of package
-type Config struct {
-	bridgeIP       *string
-	bridgeUsername *string
-	config         *string
-}
-
-type app struct {
+type App struct {
 	prometheusRegisterer prometheus.Registerer
 	prometheusCollectors map[string]prometheus.Gauge
 
@@ -47,6 +34,13 @@ type app struct {
 	mutex sync.RWMutex
 }
 
+// Config of package
+type Config struct {
+	bridgeIP       *string
+	bridgeUsername *string
+	config         *string
+}
+
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
@@ -57,10 +51,10 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, registerer prometheus.Registerer, renderer renderer.App) (App, error) {
+func New(config Config, registerer prometheus.Registerer, renderer renderer.App) (*App, error) {
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
-	app := &app{
+	app := App{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
 		bridgeUsername: bridgeUsername,
 
@@ -76,18 +70,19 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 	if len(configFile) != 0 {
 		rawConfig, err := os.ReadFile(configFile)
 		if err != nil {
-			return app, err
+			return &app, err
 		}
 
 		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return app, err
+			return &app, err
 		}
 	}
 
-	return app, nil
+	return &app, nil
 }
 
-func (a *app) TemplateFunc(w http.ResponseWriter, r *http.Request) (string, int, map[string]interface{}, error) {
+// TemplateFunc for rendering GUI
+func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (string, int, map[string]interface{}, error) {
 	if strings.HasPrefix(r.URL.Path, apiPath) {
 		a.apiHandler.ServeHTTP(w, r)
 		return "", 0, nil, nil

@@ -8,7 +8,7 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
-func (a *app) getLight(ctx context.Context, lightID string) (Light, error) {
+func (a *App) getLight(ctx context.Context, lightID string) (Light, error) {
 	resp, err := request.New().Get(fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID)).Send(ctx, nil)
 	if err != nil {
 		return noneLight, err

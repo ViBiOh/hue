@@ -21,7 +21,7 @@ const (
 )
 
 // Handler for request. Should be use with net/http
-func (a *app) Handler() http.Handler {
+func (a *App) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, groupsPath) {
 			a.handleGroup(w, r)
@@ -42,7 +42,7 @@ func (a *app) Handler() http.Handler {
 	})
 }
 
-func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
+func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
@@ -76,7 +76,7 @@ func (a *app) handleGroup(w http.ResponseWriter, r *http.Request) {
 	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
 }
 
-func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
+func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
@@ -113,7 +113,7 @@ func (a *app) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
 }
 
-func (a *app) handleSensors(w http.ResponseWriter, r *http.Request) {
+func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return

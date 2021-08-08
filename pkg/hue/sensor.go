@@ -16,7 +16,7 @@ const (
 	sensorPresenceURL = "/sensors/%s/state/presence"
 )
 
-func (a *app) listSensors(ctx context.Context) (map[string]Sensor, error) {
+func (a *App) listSensors(ctx context.Context) (map[string]Sensor, error) {
 	var response map[string]Sensor
 
 	if err := get(ctx, fmt.Sprintf("%s/sensors", a.bridgeURL), &response); err != nil {
@@ -58,7 +58,7 @@ func getGroupsActions(groups []string, state string) []Action {
 	return actions
 }
 
-func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
+func (a *App) createSensorOnRuleDescription(sensor configSensor) Rule {
 	state := "on"
 
 	newRule := Rule{
@@ -87,7 +87,7 @@ func (a *app) createSensorOnRuleDescription(sensor configSensor) Rule {
 	return newRule
 }
 
-func (a *app) createSensorOffRuleDescription(sensor configSensor) Rule {
+func (a *App) createSensorOffRuleDescription(sensor configSensor) Rule {
 	state := "long_off"
 
 	newRule := Rule{
@@ -112,7 +112,7 @@ func (a *app) createSensorOffRuleDescription(sensor configSensor) Rule {
 	return newRule
 }
 
-func (a *app) configureMotionSensor(ctx context.Context, sensors []configSensor) {
+func (a *App) configureMotionSensor(ctx context.Context, sensors []configSensor) {
 	for _, sensor := range sensors {
 		onRule := a.createSensorOnRuleDescription(sensor)
 		if err := a.createRule(ctx, &onRule); err != nil {
@@ -126,7 +126,7 @@ func (a *app) configureMotionSensor(ctx context.Context, sensors []configSensor)
 	}
 }
 
-func (a *app) updateSensorConfig(ctx context.Context, sensor Sensor) error {
+func (a *App) updateSensorConfig(ctx context.Context, sensor Sensor) error {
 	if sensor.ID == "" {
 		return errors.New("missing sensor ID to update")
 	}

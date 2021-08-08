@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
+func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
 	var groups map[string]Group
 	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &groups)
 	if err != nil {
@@ -35,6 +35,6 @@ func (a *app) listGroups(ctx context.Context) (map[string]Group, error) {
 	return output, nil
 }
 
-func (a *app) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
+func (a *App) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
 	return update(ctx, fmt.Sprintf("%s/groups/%s/action", a.bridgeURL, groupID), state)
 }

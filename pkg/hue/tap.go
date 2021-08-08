@@ -17,7 +17,7 @@ var (
 	}
 )
 
-func (a *app) createRuleDescription(tapID string, button configTapButton) Rule {
+func (a *App) createRuleDescription(tapID string, button configTapButton) Rule {
 	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
 		Conditions: []Condition{
@@ -45,7 +45,7 @@ func (a *app) createRuleDescription(tapID string, button configTapButton) Rule {
 	return newRule
 }
 
-func (a *app) configureTap(ctx context.Context, taps []configTap) {
+func (a *App) configureTap(ctx context.Context, taps []configTap) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)

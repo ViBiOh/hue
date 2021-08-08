@@ -8,7 +8,8 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
-func (a *app) Start(done <-chan struct{}) {
+// Start worker
+func (a *App) Start(done <-chan struct{}) {
 	a.initConfig()
 
 	cron.New().Each(time.Minute).Now().OnError(func(err error) {
@@ -16,7 +17,7 @@ func (a *app) Start(done <-chan struct{}) {
 	}).Start(a.refreshState, done)
 }
 
-func (a *app) initConfig() {
+func (a *App) initConfig() {
 	if a.config == nil {
 		logger.Warn("no config init for hue")
 		return
@@ -44,7 +45,7 @@ func (a *app) initConfig() {
 	a.configureMotionSensor(ctx, a.config.Sensors)
 }
 
-func (a *app) refreshState(ctx context.Context) error {
+func (a *App) refreshState(ctx context.Context) error {
 	if err := a.syncGroups(); err != nil {
 		return err
 	}
@@ -71,7 +72,7 @@ func (a *app) refreshState(ctx context.Context) error {
 	return nil
 }
 
-func (a *app) syncGroups() error {
+func (a *App) syncGroups() error {
 	groups, err := a.listGroups(context.Background())
 	if err != nil {
 		return err
@@ -84,7 +85,7 @@ func (a *app) syncGroups() error {
 	return nil
 }
 
-func (a *app) syncSchedules() error {
+func (a *App) syncSchedules() error {
 	schedules, err := a.listSchedules(context.Background())
 	if err != nil {
 		return err
@@ -97,7 +98,7 @@ func (a *app) syncSchedules() error {
 	return nil
 }
 
-func (a *app) syncSensors() error {
+func (a *App) syncSensors() error {
 	sensors, err := a.listSensors(context.Background())
 	if err != nil {
 		return err

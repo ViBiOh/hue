@@ -7,7 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func (a *app) getMetrics(prefix, suffix string) prometheus.Gauge {
+func (a *App) getMetrics(prefix, suffix string) prometheus.Gauge {
 	name := fmt.Sprintf("%s_%s", prefix, suffix)
 	if gauge, ok := a.prometheusCollectors[name]; ok {
 		return gauge
@@ -24,7 +24,7 @@ func (a *app) getMetrics(prefix, suffix string) prometheus.Gauge {
 	return gauge
 }
 
-func (a *app) updatePrometheusSensors() {
+func (a *App) updatePrometheusSensors() {
 	if a.prometheusRegisterer == nil {
 		return
 	}
