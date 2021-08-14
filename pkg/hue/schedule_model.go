@@ -28,6 +28,15 @@ type Schedule struct {
 	APISchedule
 }
 
+// ByScheduleID sort Schedule by id
+type ByScheduleID []Schedule
+
+func (a ByScheduleID) Len() int      { return len(a) }
+func (a ByScheduleID) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByScheduleID) Less(i, j int) bool {
+	return a[i].ID < a[j].ID
+}
+
 // APISchedule describe schedule as from Hue API
 type APISchedule struct {
 	Name      string `json:"name,omitempty"`

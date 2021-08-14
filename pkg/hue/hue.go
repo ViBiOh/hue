@@ -1,11 +1,10 @@
 package hue
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
+	"sort"
 	"strings"
 	"sync"
 
@@ -17,21 +16,23 @@ import (
 // App stores informations and secret of API
 type App struct {
 	prometheusRegisterer prometheus.Registerer
+	apiHandler           http.Handler
 	prometheusCollectors map[string]prometheus.Gauge
 
-	config      *configHue
-	apiHandler  http.Handler
-	rendererApp renderer.App
+	syncers []syncer
 
+	lights    map[string]Light
 	groups    map[string]Group
 	scenes    map[string]Scene
 	schedules map[string]Schedule
 	sensors   map[string]Sensor
 
-	bridgeURL      string
 	bridgeUsername string
+	bridgeURL      string
+	configFileName string
 
-	mutex sync.RWMutex
+	rendererApp renderer.App
+	mutex       sync.RWMutex
 }
 
 // Config of package
@@ -57,6 +58,7 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 	app := App{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
 		bridgeUsername: bridgeUsername,
+		configFileName: strings.TrimSpace(*config.config),
 
 		rendererApp: renderer,
 
@@ -64,19 +66,14 @@ func New(config Config, registerer prometheus.Registerer, renderer renderer.App)
 		prometheusCollectors: make(map[string]prometheus.Gauge),
 	}
 
-	app.apiHandler = http.StripPrefix(apiPath, app.Handler())
-
-	configFile := strings.TrimSpace(*config.config)
-	if len(configFile) != 0 {
-		rawConfig, err := os.ReadFile(configFile)
-		if err != nil {
-			return &app, err
-		}
-
-		if err := json.Unmarshal(rawConfig, &app.config); err != nil {
-			return &app, err
-		}
+	app.syncers = []syncer{
+		app.syncGroups,
+		app.syncSchedules,
+		app.syncSensors,
+		app.syncScenes,
 	}
+
+	app.apiHandler = http.StripPrefix(apiPath, app.Handler())
 
 	return &app, nil
 }
@@ -92,9 +89,57 @@ func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (string, int,
 	defer a.mutex.RUnlock()
 
 	return "public", http.StatusOK, map[string]interface{}{
-		"Groups":    a.groups,
-		"Scenes":    a.scenes,
-		"Schedules": a.schedules,
-		"Sensors":   a.sensors,
+		"Groups":    a.toGroups(),
+		"Scenes":    a.toScenes(),
+		"Schedules": a.toSchedules(),
+		"Sensors":   a.toSensors(),
 	}, nil
+}
+
+func (a *App) toGroups() map[string]Group {
+	output := make(map[string]Group, len(a.groups))
+
+	for key, item := range a.groups {
+		output[key] = item
+	}
+
+	return output
+}
+
+func (a *App) toScenes() map[string]Scene {
+	output := make(map[string]Scene, len(a.scenes))
+
+	for key, item := range a.scenes {
+		output[key] = item
+	}
+
+	return output
+}
+
+func (a *App) toSchedules() []Schedule {
+	output := make([]Schedule, len(a.schedules))
+
+	i := 0
+	for _, item := range a.schedules {
+		output[i] = item
+		i++
+	}
+
+	sort.Sort(ByScheduleID(output))
+
+	return output
+}
+
+func (a *App) toSensors() []Sensor {
+	output := make([]Sensor, len(a.sensors))
+
+	i := 0
+	for _, item := range a.sensors {
+		output[i] = item
+		i++
+	}
+
+	sort.Sort(BySensorID(output))
+
+	return output
 }

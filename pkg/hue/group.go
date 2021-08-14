@@ -7,28 +7,24 @@ import (
 )
 
 func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
-	var groups map[string]Group
-	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &groups)
+	var response map[string]Group
+	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get: %s", err)
 	}
 
-	output := make(map[string]Group, len(groups))
+	output := make(map[string]Group, len(response))
 
-	for key, value := range groups {
+	for key, value := range response {
 		value.Tap = false
 
 		for _, lightID := range value.Lights {
-			light, err := a.getLight(ctx, lightID)
-			if err != nil {
-				return nil, err
-			}
-
-			if strings.HasPrefix(light.Type, "On/Off") {
+			if strings.HasPrefix(a.lights[lightID].Type, "On/Off") {
 				value.Tap = true
 			}
 		}
 
+		value.ID = key
 		output[key] = value
 	}
 

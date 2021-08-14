@@ -9,7 +9,7 @@ func (a *App) listScenes(ctx context.Context) (map[string]Scene, error) {
 	var response map[string]Scene
 
 	if err := get(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), &response); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get: %s", err)
 	}
 
 	for id := range response {

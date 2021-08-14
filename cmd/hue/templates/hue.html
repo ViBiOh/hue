@@ -114,13 +114,13 @@
   {{ $root := . }}
 
   <div class="grid">
-    {{ range $id, $group := .Groups }}
+    {{ range .Groups }}
       <span class="container">
-        <h3 class="header center no-margin {{ if $group.State.AnyOn }}success{{ end }}">{{ $group.Name }}</h3>
+        <h3 class="header center no-margin {{ if .State.AnyOn }}success{{ end }}">{{ .Name }}</h3>
 
         <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
-          {{ if $group.Tap }}
-            <form method="post" action="{{ url "/api/groups/" }}{{ $id }}">
+          {{ if .Tap }}
+            <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
               <button type="submit" class="button button-icon">
@@ -128,7 +128,7 @@
               </button>
             </form>
 
-            <form method="post" action="{{ url "/api/groups/" }}{{ $id }}" class="margin-left">
+            <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="off" />
               <button type="submit" class="button button-icon">
@@ -136,7 +136,7 @@
               </button>
             </form>
           {{ else }}
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ $id }}">
+            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
               <button type="submit" class="button button-icon">
@@ -144,7 +144,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="half" />
               <button type="submit" class="button button-icon">
@@ -152,7 +152,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="dimmed" />
               <button type="submit" class="button button-icon">
@@ -160,7 +160,7 @@
               </button>
             </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ $id }}" class="margin-left">
+            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="off" />
               <button type="submit" class="button button-icon">
@@ -172,26 +172,26 @@
       </span>
     {{ end }}
 
-    {{ range $id, $schedule := .Schedules }}
+    {{ range .Schedules }}
       <span class="container">
-        <h3 class="header center no-margin">{{ $schedule.Name }}</h3>
+        <h3 class="header center no-margin">{{ .Name }}</h3>
 
         <h4 class="center margin primary">
-          {{ groupName $root.Groups $schedule.Command.GetGroup }}
+          {{ groupName $root.Groups .Command.GetGroup }}
         </h4>
 
         <div class="center padding">
-          <strong>{{ $schedule.FindStateName $root.Scenes }}</strong> state on <strong>{{ $schedule.FormatLocalTime }}</strong>
+          <strong>{{ .FindStateName $root.Scenes }}</strong> state on <strong>{{ .FormatLocalTime }}</strong>
         </div>
 
         <div class="center flex flex-center margin-bottom">
           <form class="inline" method="post" action="{{ url "" }}/api/schedules/{{ .ID }}">
             <input type="hidden" name="method" value="PATCH" />
             <input type="hidden" name="name" value="{{ .Name }}" />
-            <input type="hidden" name="status" value="{{ if eq $schedule.Status "enabled" }}disabled{{ else }}enabled{{ end }}" />
+            <input type="hidden" name="status" value="{{ if eq .Status "enabled" }}disabled{{ else }}enabled{{ end }}" />
 
             <button type="submit" class="button button-icon">
-              {{ if eq $schedule.Status "enabled" }}
+              {{ if eq .Status "enabled" }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
               {{ else }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
@@ -202,21 +202,21 @@
       </span>
     {{ end }}
 
-    {{ range $name, $sensor := .Sensors }}
+    {{ range .Sensors }}
       <span class="container">
-        <h3 class="header center no-margin {{ if $sensor.State.Presence }}success{{ end }}">{{ $sensor.Name }} Sensor</h3>
+        <h3 class="header center no-margin {{ if .State.Presence }}success{{ end }}">{{ .Name }} Sensor</h3>
 
-        {{ if $sensor.Config.LedIndication }}
+        {{ if .Config.LedIndication }}
           <h3 class="header center no-margin danger">LED</h3>
         {{ end }}
 
         <div class="center padding">
-          <form class="inline" method="post" action="{{ url "" }}/api/sensors/{{ $sensor.ID }}">
+          <form class="inline" method="post" action="{{ url "" }}/api/sensors/{{ .ID }}">
             <input type="hidden" name="method" value="PATCH" />
-            <input type="hidden" name="on" value="{{ if $sensor.Config.On }}false{{ else }}true{{ end }}" />
+            <input type="hidden" name="on" value="{{ if .Config.On }}false{{ else }}true{{ end }}" />
 
             <button type="submit" class="button button-icon">
-              {{ if $sensor.Config.On }}
+              {{ if .Config.On }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
               {{ else }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
@@ -224,12 +224,12 @@
             </button>
           </form>
 
-          <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery $sensor.Config.Battery }}" alt="{{ $sensor.Config.Battery }}%" title="{{ $sensor.Config.Battery }}%">
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery .Config.Battery }}" alt="{{ .Config.Battery }}%" title="{{ .Config.Battery }}%">
         </div>
 
         <div class="flex flex-center padding">
-          <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature $sensor.State.Temperature }}" alt="Temperature">
-          <strong>{{ $sensor.State.Temperature }}°c</strong>
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature .State.Temperature }}" alt="Temperature">
+          <strong>{{ .State.Temperature }}°c</strong>
         </div>
       </span>
     {{ end }}

@@ -2,11 +2,17 @@ package hue
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
+
+type syncer func() error
 
 // Start worker
 func (a *App) Start(done <-chan struct{}) {
@@ -18,8 +24,20 @@ func (a *App) Start(done <-chan struct{}) {
 }
 
 func (a *App) initConfig() {
-	if a.config == nil {
+	if len(a.configFileName) == 0 {
 		logger.Warn("no config init for hue")
+		return
+	}
+
+	configFile, err := os.Open(a.configFileName)
+	if err != nil {
+		logger.Error("unable to open config file: %s", err)
+		return
+	}
+
+	var config configHue
+	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
+		logger.Error("unable to decode config file: %s", err)
 		return
 	}
 
@@ -40,34 +58,44 @@ func (a *App) initConfig() {
 		logger.Error("%s", err)
 	}
 
-	a.configureSchedules(ctx, a.config.Schedules)
-	a.configureTap(ctx, a.config.Taps)
-	a.configureMotionSensor(ctx, a.config.Sensors)
+	a.configureSchedules(ctx, config.Schedules)
+	a.configureTap(ctx, config.Taps)
+	a.configureMotionSensor(ctx, config.Sensors)
 }
 
 func (a *App) refreshState(ctx context.Context) error {
-	if err := a.syncGroups(); err != nil {
+	if err := a.syncLights(); err != nil {
 		return err
 	}
 
-	if err := a.syncSchedules(); err != nil {
-		return err
+	var wg sync.WaitGroup
+	wg.Add(len(a.syncers))
+
+	for _, fn := range a.syncers {
+		go func(syncer syncer) {
+			defer wg.Done()
+			if err := syncer(); err != nil {
+				logger.Error("error while syncing: %s", err)
+			}
+		}(fn)
 	}
 
-	if err := a.syncSensors(); err != nil {
-		return err
-	}
+	wg.Wait()
 
-	scenes, err := a.listScenes(ctx)
+	go a.updatePrometheusSensors()
+
+	return nil
+}
+
+func (a *App) syncLights() error {
+	lights, err := a.listLights(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to list lights: %s", err)
 	}
 
 	a.mutex.Lock()
-	a.scenes = scenes
-	a.mutex.Unlock()
-
-	go a.updatePrometheusSensors()
+	defer a.mutex.Unlock()
+	a.lights = lights
 
 	return nil
 }
@@ -75,12 +103,12 @@ func (a *App) refreshState(ctx context.Context) error {
 func (a *App) syncGroups() error {
 	groups, err := a.listGroups(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to list groups: %s", err)
 	}
 
 	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	a.groups = groups
-	a.mutex.Unlock()
 
 	return nil
 }
@@ -88,12 +116,12 @@ func (a *App) syncGroups() error {
 func (a *App) syncSchedules() error {
 	schedules, err := a.listSchedules(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to list schedules: %s", err)
 	}
 
 	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	a.schedules = schedules
-	a.mutex.Unlock()
 
 	return nil
 }
@@ -101,12 +129,25 @@ func (a *App) syncSchedules() error {
 func (a *App) syncSensors() error {
 	sensors, err := a.listSensors(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to list sensors: %s", err)
 	}
 
 	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	a.sensors = sensors
-	a.mutex.Unlock()
+
+	return nil
+}
+
+func (a *App) syncScenes() error {
+	scenes, err := a.listScenes(context.Background())
+	if err != nil {
+		return fmt.Errorf("unable to list scenes: %s", err)
+	}
+
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	a.scenes = scenes
 
 	return nil
 }

@@ -20,7 +20,7 @@ func (a *App) listSensors(ctx context.Context) (map[string]Sensor, error) {
 	var response map[string]Sensor
 
 	if err := get(ctx, fmt.Sprintf("%s/sensors", a.bridgeURL), &response); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get: %s", err)
 	}
 
 	sensors := make(map[string]Sensor)

@@ -13,7 +13,7 @@ func (a *App) listSchedules(ctx context.Context) (map[string]Schedule, error) {
 	var response map[string]Schedule
 
 	if err := get(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), &response); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get: %s", err)
 	}
 
 	output := make(map[string]Schedule, len(response))

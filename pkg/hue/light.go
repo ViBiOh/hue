@@ -3,21 +3,20 @@ package hue
 import (
 	"context"
 	"fmt"
-
-	"github.com/ViBiOh/httputils/v4/pkg/httpjson"
-	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
-func (a *App) getLight(ctx context.Context, lightID string) (Light, error) {
-	resp, err := request.New().Get(fmt.Sprintf("%s/lights/%s", a.bridgeURL, lightID)).Send(ctx, nil)
-	if err != nil {
-		return noneLight, err
+func (a *App) listLights(ctx context.Context) (map[string]Light, error) {
+	var response map[string]Light
+
+	if err := get(ctx, fmt.Sprintf("%s/lights", a.bridgeURL), &response); err != nil {
+		return nil, fmt.Errorf("unable to get: %s", err)
 	}
 
-	var light Light
-	if err := httpjson.Read(resp, &light); err != nil {
-		return noneLight, fmt.Errorf("unable to read light payload: %s", err)
+	output := make(map[string]Light, len(response))
+	for id, light := range response {
+		light.ID = id
+		output[id] = light
 	}
 
-	return light, nil
+	return output, nil
 }

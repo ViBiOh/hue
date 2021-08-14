@@ -58,7 +58,6 @@ func main() {
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 
 	go hueApp.Start(healthApp.Done())
-
 	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
 	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 

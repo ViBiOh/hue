@@ -48,6 +48,7 @@ var (
 
 // Group description
 type Group struct {
+	ID     string     `json:"id,omitempty"`
 	Name   string     `json:"name,omitempty"`
 	Lights []string   `json:"lights,omitempty"`
 	State  groupState `json:"state,omitempty"`
@@ -60,6 +61,7 @@ type groupState struct {
 
 // Light description
 type Light struct {
+	ID    string     `json:"id,omitempty"`
 	Type  string     `json:"type,omitempty"`
 	State lightState `json:"state,omitempty"`
 }
@@ -98,6 +100,15 @@ type Sensor struct {
 	Type   string       `json:"type,omitempty"`
 	State  sensorState  `json:"state,omitempty"`
 	Config SensorConfig `json:"config,omitempty"`
+}
+
+// BySensorID sort Sensor by id
+type BySensorID []Sensor
+
+func (a BySensorID) Len() int      { return len(a) }
+func (a BySensorID) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a BySensorID) Less(i, j int) bool {
+	return a[i].ID < a[j].ID
 }
 
 type sensorState struct {
