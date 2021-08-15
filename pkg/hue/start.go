@@ -82,7 +82,7 @@ func (a *App) refreshState(ctx context.Context) error {
 
 	wg.Wait()
 
-	go a.updatePrometheusSensors()
+	go a.updatePrometheus()
 
 	return nil
 }

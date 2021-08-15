@@ -15,9 +15,8 @@ import (
 
 // App stores informations and secret of API
 type App struct {
-	prometheusRegisterer prometheus.Registerer
-	apiHandler           http.Handler
-	prometheusCollectors map[string]prometheus.Gauge
+	apiHandler http.Handler
+	metrics    map[string]*prometheus.GaugeVec
 
 	syncers []syncer
 
@@ -52,18 +51,20 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, registerer prometheus.Registerer, renderer renderer.App) (*App, error) {
+func New(config Config, prometheusRegisterer prometheus.Registerer, renderer renderer.App) (*App, error) {
+	metrics, err := createMetrics(prometheusRegisterer, "temperature", "battery")
+	if err != nil {
+		return nil, err
+	}
+
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
 	app := App{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
 		bridgeUsername: bridgeUsername,
 		configFileName: strings.TrimSpace(*config.config),
-
-		rendererApp: renderer,
-
-		prometheusRegisterer: registerer,
-		prometheusCollectors: make(map[string]prometheus.Gauge),
+		rendererApp:    renderer,
+		metrics:        metrics,
 	}
 
 	app.syncers = []syncer{
