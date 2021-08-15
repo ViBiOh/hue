@@ -42,8 +42,6 @@ var (
 	}
 
 	scheduleGroupFinder = regexp.MustCompile(`(?mi)groups/(.*?)/`)
-
-	noneLight = Light{}
 )
 
 // Group description
