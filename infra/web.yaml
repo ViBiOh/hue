@@ -37,4 +37,4 @@ spec:
       hosts:
         - hue.vibioh.fr
       https_middlewares:
-        - default-hue-auth@kubernetescrd
+        - hue-auth
