@@ -3,10 +3,10 @@ module github.com/ViBiOh/hue
 go 1.17
 
 require (
-	github.com/ViBiOh/httputils/v4 v4.23.0
+	github.com/ViBiOh/httputils/v4 v4.24.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0 // indirect
-	golang.org/x/sys v0.0.0-20210611083646-a4fc73990273 // indirect
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
-	github.com/tdewolff/minify/v2 v2.9.21 // indirect
-	github.com/tdewolff/parse/v2 v2.5.19 // indirect
+	github.com/tdewolff/minify/v2 v2.9.22 // indirect
+	github.com/tdewolff/parse/v2 v2.5.21 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
