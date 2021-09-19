@@ -24,3 +24,78 @@ spec:
   basicAuth:
     secret: hue-auth
     removeHeader: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hue
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: hue
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.120
+    ports:
+      - port: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  labels:
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: hue
+  name: hue-http
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`hue.vibioh.fr`)
+      middlewares:
+        - name: ratelimit@file
+        - name: compress@file
+        - name: redirect@file
+      services:
+        - name: hue
+          port: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  labels:
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: hue
+  name: hue-https
+  namespace: default
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`hue.vibioh.fr`)
+      middlewares:
+        - name: ratelimit@file
+        - name: compress@file
+        - name: hue-auth
+          namespace: default
+      services:
+        - name: hue
+          port: 80
+  tls:
+    secretName: hue-tls
