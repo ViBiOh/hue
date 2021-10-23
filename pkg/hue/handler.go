@@ -44,7 +44,7 @@ func (a *App) Handler() http.Handler {
 
 func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
+		a.rendererApp.Error(w, r, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
 	}
 
@@ -53,23 +53,23 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 	group, ok := a.groups[groupID]
 	if !ok {
-		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("unknown group '%s'", groupID)))
+		a.rendererApp.Error(w, r, model.WrapNotFound(fmt.Errorf("unknown group '%s'", groupID)))
 		return
 	}
 
 	state, ok := States[stateName]
 	if !ok {
-		a.rendererApp.Error(w, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
+		a.rendererApp.Error(w, r, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
 		return
 	}
 
 	if err := a.updateGroupState(r.Context(), groupID, state); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
 	if err := a.syncGroups(); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
+		a.rendererApp.Error(w, r, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
 	}
 
@@ -92,12 +92,12 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := a.updateSchedule(r.Context(), schedule); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
 	if err := a.syncSchedules(); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
@@ -115,14 +115,14 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
+		a.rendererApp.Error(w, r, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return
 	}
 
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)
 	if err != nil {
-		a.rendererApp.Error(w, model.WrapInvalid(fmt.Errorf("unable to parse boolean with value `%s`: %s", status, err)))
+		a.rendererApp.Error(w, r, model.WrapInvalid(fmt.Errorf("unable to parse boolean with value `%s`: %s", status, err)))
 		return
 	}
 
@@ -134,12 +134,12 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := a.updateSensorConfig(r.Context(), sensor); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
 	if err := a.syncSensors(); err != nil {
-		a.rendererApp.Error(w, err)
+		a.rendererApp.Error(w, r, err)
 		return
 	}
 
