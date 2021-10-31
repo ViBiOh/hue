@@ -8,14 +8,12 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
-var (
-	tapButtonMapping = map[string]string{
-		"1": "34",
-		"2": "16",
-		"3": "17",
-		"4": "18",
-	}
-)
+var tapButtonMapping = map[string]string{
+	"1": "34",
+	"2": "16",
+	"3": "17",
+	"4": "18",
+}
 
 func (a *App) createRuleDescription(tapID string, button configTapButton) Rule {
 	newRule := Rule{

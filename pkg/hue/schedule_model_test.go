@@ -9,7 +9,7 @@ func TestFormatLocalTime(t *testing.T) {
 		instance Schedule
 	}
 
-	var cases = []struct {
+	cases := []struct {
 		intention string
 		args      args
 		want      string
