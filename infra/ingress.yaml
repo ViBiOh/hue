@@ -54,6 +54,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: hue
+  namespace: default
   labels:
     app.kubernetes.io/instance: hue
     app.kubernetes.io/managed-by: kubectl
