@@ -50,6 +50,24 @@ subsets:
       - port: 80
 
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hue
+  labels:
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: hue
+spec:
+  secretName: hue-tls
+  dnsNames:
+    - hue.vibioh.fr
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+    group: cert-manager.io
+
+---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
