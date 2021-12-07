@@ -8,6 +8,7 @@
       --grey: #3b3b3b;
       --white: silver;
 
+      --icon-small: 1.6rem;
       --icon-size: 2.4rem;
       --icon-large: 4.8rem;
 
@@ -104,7 +105,7 @@
     .bg-grey,
     .bg-grey:hover {
       background-color: var(--grey);
-      color: var(--dark);
+      color: var(--white);
       text-decoration: none;
     }
 
@@ -136,6 +137,11 @@
     .icon-large {
       height: var(--icon-large);
       width: var(--icon-large);
+    }
+
+    .icon-small {
+      height: var(--icon-small);
+      width: var(--icon-small);
     }
 
     .icon-overlay {
@@ -205,6 +211,22 @@
       margin: var(--space-size);
     }
 
+    .margin-top {
+      margin-top: var(--space-size);
+    }
+
+    .margin-right {
+      margin-right: var(--space-size);
+    }
+
+    .margin-bottom {
+      margin-bottom: var(--space-size);
+    }
+
+    .margin-left {
+      margin-left: var(--space-size);
+    }
+
     .margin-half {
       margin: calc(var(--space-size) / 2);
     }
@@ -261,14 +283,19 @@
       }
     };
 
-    const link = document.getElementById("go-back");
-    if (link) {
-      link.setAttribute("href", document.referrer);
-      link.addEventListener("click", () => {
-        history.back();
-        return false;
-      });
-    }
+    document.addEventListener('readystatechange', async (event) => {
+      if (event.target.readyState === 'complete') {
+        const link = document.getElementById('go-back');
+        if (link) {
+          link.setAttribute('href', document.referrer);
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            history.back();
+            return false;
+          });
+        }
+      }
+    });
   </script>
 {{ end }}
 
