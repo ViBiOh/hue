@@ -15,7 +15,7 @@ func hasError(content []byte) bool {
 }
 
 func get(ctx context.Context, url string, response interface{}) error {
-	resp, err := request.New().Get(url).Send(ctx, nil)
+	resp, err := request.Get(url).Send(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func get(ctx context.Context, url string, response interface{}) error {
 }
 
 func create(ctx context.Context, url string, payload interface{}) (string, error) {
-	resp, err := request.New().Post(url).JSON(ctx, payload)
+	resp, err := request.Post(url).JSON(ctx, payload)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func create(ctx context.Context, url string, payload interface{}) (string, error
 }
 
 func update(ctx context.Context, url string, payload interface{}) error {
-	resp, err := request.New().Put(url).JSON(ctx, payload)
+	resp, err := request.Put(url).JSON(ctx, payload)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func update(ctx context.Context, url string, payload interface{}) error {
 }
 
 func remove(ctx context.Context, url string) error {
-	resp, err := request.New().Delete(url).Send(ctx, nil)
+	resp, err := request.Delete(url).Send(ctx, nil)
 	if err != nil {
 		return err
 	}
