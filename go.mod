@@ -3,7 +3,7 @@ module github.com/ViBiOh/hue
 go 1.17
 
 require (
-	github.com/ViBiOh/httputils/v4 v4.32.0
+	github.com/ViBiOh/httputils/v4 v4.33.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.32.1 // indirect
 	golang.org/x/sys v0.0.0-20211113001501-0c823b97ae02 // indirect
