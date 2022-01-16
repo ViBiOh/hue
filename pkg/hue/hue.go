@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ViBiOh/httputils/v4/pkg/flags"
+	"github.com/ViBiOh/flags"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
 	"github.com/prometheus/client_golang/prometheus"
 )
