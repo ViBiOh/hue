@@ -36,8 +36,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/ViBiOh/flags v0.0.1 h1:S6oBYVimXiUSXBc5NlgvXUcfcr8u5sJSaoxYnEbm7RM=
 github.com/ViBiOh/flags v0.0.1/go.mod h1:3b6jZJblDDYDXKgGdsIT6ogEVKU8+7DDUBq08CLI5Ws=
-github.com/ViBiOh/httputils/v4 v4.34.4 h1:2c6/Do+CIVbaRQJpyL8PdfDZsrovuNeG91tjkjXyv10=
-github.com/ViBiOh/httputils/v4 v4.34.4/go.mod h1:M8nL4MOC+oOzKLnmbsojRYq2iGBXpbVoFcZbWTLhQ/E=
+github.com/ViBiOh/httputils/v4 v4.34.5 h1:uJ6ab4z2pSS2oCv5b0rVZBrnh4DO0+ZFWZB0jIbRCMU=
+github.com/ViBiOh/httputils/v4 v4.34.5/go.mod h1:LCF8FfjYmXgubliyj3kSwR5j2m0ZoCYcR+zcG7SptuI=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
@@ -289,8 +289,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tdewolff/minify/v2 v2.9.28 h1:70GT62rRyLcH4jbkTFGcy6rktHKGiaSNZb/h8pnuQYw=
-github.com/tdewolff/minify/v2 v2.9.28/go.mod h1:6XAjcHM46pFcRE0eztigFPm0Q+Cxsw8YhEWT+rDkcZM=
+github.com/tdewolff/minify/v2 v2.9.29 h1:QMVJaCJzWL0mXS33cX792YD074xz4lOhkyBS8hAzYAY=
+github.com/tdewolff/minify/v2 v2.9.29/go.mod h1:6XAjcHM46pFcRE0eztigFPm0Q+Cxsw8YhEWT+rDkcZM=
 github.com/tdewolff/parse/v2 v2.5.27 h1:PL3LzzXaOpmdrknnOlIeO2muIBHAwiKp6TxN1RbU5gI=
 github.com/tdewolff/parse/v2 v2.5.27/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
 github.com/tdewolff/test v1.0.6 h1:76mzYJQ83Op284kMT+63iCNCI7NEERsIN8dLM+RiKr4=
