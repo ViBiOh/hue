@@ -88,7 +88,7 @@ Usage of hue:
   -corsOrigin string
         [cors] Access-Control-Allow-Origin {HUE_CORS_ORIGIN} (default "*")
   -csp string
-        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; script-src 'nonce'; style-src 'nonce'")
+        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")
   -frameOptions string
         [owasp] X-Frame-Options {HUE_FRAME_OPTIONS} (default "deny")
   -graceDuration string
