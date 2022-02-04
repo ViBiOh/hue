@@ -4,12 +4,9 @@ kind: SealedSecret
 metadata:
   name: hue-auth
   namespace: default
-  annotations:
-    sealedsecrets.bitnami.com/namespace-wide: "true"
 spec:
   encryptedData:
-    users: AgCWxs7l0l7CdS3UWa9QHNdFPNlrBvaHAS+0xdT6zx5Fq7y+8H6LmxT7ku03mfFs8EgEWWuqydzFNm0IIcXUh1hZ/014QCjDwnzBJSEVhVE4hqhnxY/8k3hTA0xz+Whj/pf6Cj+2XT+SExhTVfnpAR8IuhiT5pPxsBmJWMYGU09Ah5aoWcY0wmkL//G09m33UxwsulH4NWG8Ab9VufAFb02qnMxFdYVGKhDuKsTnax/kPMx4ZP4qNm+uoggkrKCei61crXNP9h+lghBA3smqqduimZ1kjPbKH+sAfRwmYSszyiD6OTWIxt33xvnLoiHF+P8c73lJUcVafP4s9jEjvS1svXhiCwHz/EX7yQHTAYfdu4lUXp0Uvhz9SIAY1k47xAeoQjBv/L3HmSFJIhcfhDEv1NqpLRCGc8QjW+KCu4fJka8EDHDlFxPm3aXGf9OMbAMG2OXCVM+MpUdoGdff8y316wXFzECG9H0FmpJVfzckPHzvvBF026SGZdS21j2bCdBMGtPF8S4x2SYcWVxSD+l+gNMCyiQ6rFOeLBnvOsYDOg7JUJTcg4YhCB8ErFSVtRFAPnDnTSyQABSmzuf7/t2nOeAtIHctOWigcutSap/QawhGfPPBOj/wcHMo0nEjdkaceII5RV3ruZYsgk6RUCHRIxVLbfZNDl7DG6O6HeDjRe3TI/lyGlLNZ1Ty7qRAaYqq0eo3zWITnT+ZXp3L6YCNM6GD1G6jg1LyOpMyeIooEU1YV+q1x4K3pB8PPxZwkhyHQZPo4NEb4bBKVCPk/3/JQrPB
-
+    users: AgBHYa358nher8z/7toY3X80r3Ec1u7e+46TAHZSp9WJUwLgi+LurLZzq4f5erJO2DTY4WVApQJUA9uEyl3i0yxS85k9q56p22pFvQF5hgrf24Q5F3OCU8ams1RBIhyTwuG3sqin05VouMJUyXt93oRyrFG8efmXY3Rru5X23IH13uaJ9g3MY9YEJuHUH/DWQF6myc4MaiaonsmN0U+XhJGlA1xyo3IjnmItVK5xqxsEdROgOGEfEZzgsNlEmsYi4klpZbULiMwH2txOlztE0rrrjH4YzXSXTPzOJcYdFcf4wYd0/E735bZOmYT5/6xN40c1CjmQx+/WPVMWhqHlFrtHgUSXtihgiXXaHPhdrSSVogfmBqJvU7y5FFs7UlDOrRdc/jsZ0Hs5nq0MDe2WDwpbNbqgNXnJdBKtn1jD2Yc3xlLTFAqlugfcn4T2kaLJLimw8pQVvzfu/dmsV9fF9HEJBs1OtyHQHgEZfJ+HCDCrPEr4+l1HfCpsx66GjgERU2Fh+jzIK0vT203zz6bpUTzIIhKhYba2Km3322wbuamRL53/n44Kga3OtFrys7tJc8JqzD3RzKsFpyYfyrq55UT1d18kPF1uQrjXyXJVeBXmY/7kW8aZPGErrWaC1kq1136FZMhmiCZZagd4Hw98/YvoqU3HedNINj3IttfUkBrX1X2CI+OzvMPVe5kvQwJAkmPrc0G0LQ5Sn8GQzYaZ4OBFphVbNJfchD1h7N/lNUICa7M1ZrvKjFU5mHnOBWa1zS5T+/ncSRMp90YBWCcq2rb70L6g
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -24,7 +21,6 @@ spec:
   basicAuth:
     secret: hue-auth
     removeHeader: true
-
 ---
 apiVersion: v1
 kind: Service
@@ -36,7 +32,6 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-
 ---
 apiVersion: v1
 kind: Endpoints
@@ -48,7 +43,6 @@ subsets:
       - ip: 192.168.1.120
     ports:
       - port: 80
-
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -67,7 +61,6 @@ spec:
     kind: ClusterIssuer
     name: letsencrypt
     group: cert-manager.io
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -91,7 +84,6 @@ spec:
       services:
         - name: hue
           port: 80
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
