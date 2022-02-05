@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/ViBiOh/flags v0.0.1
-	github.com/ViBiOh/httputils/v4 v4.34.7
-	github.com/prometheus/client_golang v1.12.0
+	github.com/ViBiOh/httputils/v4 v4.34.8
+	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/common v0.32.1 // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 )
