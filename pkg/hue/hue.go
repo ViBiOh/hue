@@ -80,21 +80,21 @@ func New(config Config, prometheusRegisterer prometheus.Registerer, renderer ren
 }
 
 // TemplateFunc for rendering GUI
-func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (string, int, map[string]interface{}, error) {
+func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Page, error) {
 	if strings.HasPrefix(r.URL.Path, apiPath) {
 		a.apiHandler.ServeHTTP(w, r)
-		return "", 0, nil, nil
+		return renderer.Page{}, nil
 	}
 
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
-	return "public", http.StatusOK, map[string]interface{}{
+	return renderer.NewPage("public", http.StatusOK, map[string]interface{}{
 		"Groups":    a.toGroups(),
 		"Scenes":    a.toScenes(),
 		"Schedules": a.toSchedules(),
 		"Sensors":   a.toSensors(),
-	}, nil
+	}), nil
 }
 
 func (a *App) toGroups() map[string]Group {
