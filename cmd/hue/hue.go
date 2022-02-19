@@ -15,7 +15,9 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/prometheus"
 	"github.com/ViBiOh/httputils/v4/pkg/recoverer"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
+	"github.com/ViBiOh/httputils/v4/pkg/request"
 	"github.com/ViBiOh/httputils/v4/pkg/server"
+	"github.com/ViBiOh/httputils/v4/pkg/tracer"
 	"github.com/ViBiOh/hue/pkg/hue"
 )
 
@@ -31,6 +33,7 @@ func main() {
 
 	alcotestConfig := alcotest.Flags(fs, "")
 	loggerConfig := logger.Flags(fs, "logger")
+	tracerConfig := tracer.Flags(fs, "tracer")
 	prometheusConfig := prometheus.Flags(fs, "prometheus", flags.NewOverride("Gzip", false))
 	owaspConfig := owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'"))
 	corsConfig := cors.Flags(fs, "cors")
@@ -44,12 +47,17 @@ func main() {
 	logger.Global(logger.New(loggerConfig))
 	defer logger.Close()
 
+	tracerApp, err := tracer.New(tracerConfig)
+	logger.Fatal(err)
+	defer tracerApp.Close()
+	request.AddTracerToDefaultClient(tracerApp.GetProvider())
+
 	appServer := server.New(appServerConfig)
 	promServer := server.New(promServerConfig)
 	prometheusApp := prometheus.New(prometheusConfig)
 	healthApp := health.New(healthConfig)
 
-	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap)
+	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, tracerApp)
 	logger.Fatal(err)
 
 	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)
@@ -59,7 +67,7 @@ func main() {
 
 	go hueApp.Start(healthApp.Done())
 	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
-	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, tracerApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthApp.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done(), promServer.Done())
