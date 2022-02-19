@@ -145,6 +145,10 @@ Usage of hue:
         [server] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
   -title string
         Application title {HUE_TITLE} (default "Hue")
+  -tracerRate string
+        [tracer] Jaeger sample rate, 'always', 'never' or a float value {HUE_TRACER_RATE} (default "always")
+  -tracerURL string
+        [tracer] Jaeger endpoint URL (e.g. http://jaeger:14268/api/traces) {HUE_TRACER_URL}
   -url string
         [alcotest] URL to check {HUE_URL}
   -userAgent string
