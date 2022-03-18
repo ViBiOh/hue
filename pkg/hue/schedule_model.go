@@ -134,6 +134,6 @@ func (s Schedule) FindStateName(scenes map[string]Scene) (output string) {
 	return
 }
 
-func formatStateValue(state map[string]interface{}) string {
+func formatStateValue(state map[string]any) string {
 	return fmt.Sprintf("%v|%v|%v|%v", state["on"], state["transitiontime"], state["sat"], state["bri"])
 }

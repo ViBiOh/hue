@@ -56,7 +56,7 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config ScheduleConfi
 			Localtime: config.Localtime,
 			Command: Action{
 				Address: fmt.Sprintf("/api/%s/groups/%s/action", a.bridgeUsername, config.Group),
-				Body: map[string]interface{}{
+				Body: map[string]any{
 					"scene": scene.ID,
 				},
 				Method: http.MethodPut,

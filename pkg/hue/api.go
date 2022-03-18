@@ -14,7 +14,7 @@ func hasError(content []byte) bool {
 	return !bytes.Contains(content, []byte("success"))
 }
 
-func get(ctx context.Context, url string, response interface{}) error {
+func get(ctx context.Context, url string, response any) error {
 	resp, err := request.Get(url).Send(ctx, nil)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func get(ctx context.Context, url string, response interface{}) error {
 	return nil
 }
 
-func create(ctx context.Context, url string, payload interface{}) (string, error) {
+func create(ctx context.Context, url string, payload any) (string, error) {
 	resp, err := request.Post(url).JSON(ctx, payload)
 	if err != nil {
 		return "", err
@@ -49,7 +49,7 @@ func create(ctx context.Context, url string, payload interface{}) (string, error
 	return response[0]["success"]["id"], nil
 }
 
-func update(ctx context.Context, url string, payload interface{}) error {
+func update(ctx context.Context, url string, payload any) error {
 	resp, err := request.Put(url).JSON(ctx, payload)
 	if err != nil {
 		return err

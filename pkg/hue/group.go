@@ -31,6 +31,6 @@ func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
 	return output, nil
 }
 
-func (a *App) updateGroupState(ctx context.Context, groupID string, state interface{}) error {
+func (a *App) updateGroupState(ctx context.Context, groupID string, state any) error {
 	return update(ctx, fmt.Sprintf("%s/groups/%s/action", a.bridgeURL, groupID), state)
 }

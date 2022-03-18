@@ -89,7 +89,7 @@ func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Pag
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
-	return renderer.NewPage("public", http.StatusOK, map[string]interface{}{
+	return renderer.NewPage("public", http.StatusOK, map[string]any{
 		"Groups":    a.toGroups(),
 		"Scenes":    a.toScenes(),
 		"Schedules": a.toSchedules(),

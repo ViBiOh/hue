@@ -78,7 +78,7 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config Schedule
 	return scene, nil
 }
 
-func (a *App) updateSceneLightState(ctx context.Context, o Scene, lightID string, state map[string]interface{}) error {
+func (a *App) updateSceneLightState(ctx context.Context, o Scene, lightID string, state map[string]any) error {
 	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", a.bridgeURL, o.ID, lightID), state)
 }
 

@@ -6,7 +6,7 @@ import (
 
 var (
 	// States available states of lights
-	States = map[string]map[string]interface{}{
+	States = map[string]map[string]any{
 		"off": {
 			"on":             false,
 			"transitiontime": 30,
@@ -70,10 +70,10 @@ type lightState struct {
 
 // APIScene describe scene as from Hue API
 type APIScene struct {
-	Lightstates map[string]map[string]interface{} `json:"lightstates,omitempty"`
-	Name        string                            `json:"name,omitempty"`
-	Lights      []string                          `json:"lights,omitempty"`
-	Recycle     bool                              `json:"recycle"`
+	Lightstates map[string]map[string]any `json:"lightstates,omitempty"`
+	Name        string                    `json:"name,omitempty"`
+	Lights      []string                  `json:"lights,omitempty"`
+	Recycle     bool                      `json:"recycle"`
 }
 
 // Scene description
@@ -123,9 +123,9 @@ type SensorConfig struct {
 
 // Action description
 type Action struct {
-	Address string                 `json:"address,omitempty"`
-	Body    map[string]interface{} `json:"body,omitempty"`
-	Method  string                 `json:"method,omitempty"`
+	Address string         `json:"address,omitempty"`
+	Body    map[string]any `json:"body,omitempty"`
+	Method  string         `json:"method,omitempty"`
 }
 
 // GetGroup returns the group ID of the Action performed
