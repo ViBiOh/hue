@@ -9,13 +9,11 @@ func TestFormatLocalTime(t *testing.T) {
 		instance Schedule
 	}
 
-	cases := []struct {
-		intention string
-		args      args
-		want      string
+	cases := map[string]struct {
+		args args
+		want string
 	}{
-		{
-			"no prefix",
+		"no prefix": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -26,8 +24,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"08:00:00",
 		},
-		{
-			"invalid number",
+		"invalid number": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -38,8 +35,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"WABC 08:00:00",
 		},
-		{
-			"all days",
+		"all days": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -50,8 +46,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"All days at 08:00:00",
 		},
-		{
-			"week days",
+		"week days": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -62,8 +57,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"Week days at 10:00:00",
 		},
-		{
-			"weekend",
+		"weekend": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -74,8 +68,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"Weekend at 10:00:00",
 		},
-		{
-			"mon, wed, fri, sun",
+		"mon, wed, fri, sun": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -86,8 +79,7 @@ func TestFormatLocalTime(t *testing.T) {
 			},
 			"Mon, Wed, Fri, Sun at 12:00:00",
 		},
-		{
-			"tue, thu, sat",
+		"tue, thu, sat": {
 			args{
 				instance: Schedule{
 					ID: "",
@@ -100,8 +92,8 @@ func TestFormatLocalTime(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
-		t.Run(tc.intention, func(t *testing.T) {
+	for intention, tc := range cases {
+		t.Run(intention, func(t *testing.T) {
 			if got := tc.args.instance.FormatLocalTime(); got != tc.want {
 				t.Errorf("FormatLocalTime() = `%s`, want `%s`", got, tc.want)
 			}
