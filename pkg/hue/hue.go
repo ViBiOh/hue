@@ -44,9 +44,9 @@ type Config struct {
 // Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
 	return Config{
-		bridgeIP:       flags.New(prefix, "hue", "BridgeIP").Default("", nil).Label("IP of Bridge").ToString(fs),
-		bridgeUsername: flags.New(prefix, "hue", "Username").Default("", nil).Label("Username for Bridge").ToString(fs),
-		config:         flags.New(prefix, "hue", "Config").Default("", nil).Label("Configuration filename").ToString(fs),
+		bridgeIP:       flags.String(fs, prefix, "hue", "BridgeIP", "IP of Bridge", "", nil),
+		bridgeUsername: flags.String(fs, prefix, "hue", "Username", "Username for Bridge", "", nil),
+		config:         flags.String(fs, prefix, "hue", "Config", "Configuration filename", "", nil),
 	}
 }
 
