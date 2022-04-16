@@ -65,7 +65,7 @@ func main() {
 	prometheusApp := prometheus.New(prometheusConfig)
 	healthApp := health.New(healthConfig)
 
-	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, tracerApp)
+	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, tracerApp.GetTracer("renderer"))
 	logger.Fatal(err)
 
 	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)
