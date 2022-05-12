@@ -7,14 +7,17 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/ViBiOh/flags"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
+	"github.com/ViBiOh/httputils/v4/pkg/request"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // App stores informations and secret of API
 type App struct {
+	v2Req      request.Request
 	apiHandler http.Handler
 	metrics    map[string]*prometheus.GaugeVec
 
@@ -57,10 +60,12 @@ func New(config Config, prometheusRegisterer prometheus.Registerer, renderer ren
 		return nil, err
 	}
 
+	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
 	app := App{
-		bridgeURL:      fmt.Sprintf("http://%s/api/%s", strings.TrimSpace(*config.bridgeIP), bridgeUsername),
+		v2Req:          request.Get(fmt.Sprintf("https://%s", bridgeAddress)).Header("hue-application-key", bridgeUsername).WithClient(createInsecureClient(10 * time.Second)),
+		bridgeURL:      fmt.Sprintf("http://%s/api/%s", bridgeAddress, bridgeUsername),
 		bridgeUsername: bridgeUsername,
 		configFileName: strings.TrimSpace(*config.config),
 		rendererApp:    renderer,

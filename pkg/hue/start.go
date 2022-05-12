@@ -18,6 +18,8 @@ type syncer func() error
 func (a *App) Start(done <-chan struct{}) {
 	a.initConfig()
 
+	a.stream(done)
+
 	cron.New().Each(time.Minute).Now().OnError(func(err error) {
 		logger.Error("%s", err)
 	}).Start(a.refreshState, done)
