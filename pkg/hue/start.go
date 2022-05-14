@@ -19,7 +19,6 @@ func (a *App) Start(done <-chan struct{}) {
 	a.initConfig()
 
 	a.stream(done)
-
 	cron.New().Each(time.Minute).Now().OnError(func(err error) {
 		logger.Error("%s", err)
 	}).Start(a.refreshState, done)
@@ -63,6 +62,10 @@ func (a *App) initConfig() {
 	a.configureSchedules(ctx, config.Schedules)
 	a.configureTap(ctx, config.Taps)
 	a.configureMotionSensor(ctx, config.Sensors)
+
+	if _, err := a.buildMotionSensor(ctx); err != nil {
+		logger.Error("unable to build motion sensor aggregate: %s", err)
+	}
 }
 
 func (a *App) refreshState(ctx context.Context) error {

@@ -17,24 +17,20 @@ import (
 
 // App stores informations and secret of API
 type App struct {
-	v2Req      request.Request
-	apiHandler http.Handler
-	metrics    map[string]*prometheus.GaugeVec
-
-	syncers []syncer
-
-	lights    map[string]Light
-	groups    map[string]Group
-	scenes    map[string]Scene
-	schedules map[string]Schedule
-	sensors   map[string]Sensor
-
+	apiHandler     http.Handler
+	scenes         map[string]Scene
+	metrics        map[string]*prometheus.GaugeVec
+	lights         map[string]Light
+	groups         map[string]Group
+	schedules      map[string]Schedule
+	sensors        map[string]Sensor
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
-
-	rendererApp renderer.App
-	mutex       sync.RWMutex
+	rendererApp    renderer.App
+	syncers        []syncer
+	v2Req          request.Request
+	mutex          sync.RWMutex
 }
 
 // Config of package

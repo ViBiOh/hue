@@ -15,6 +15,34 @@ import (
 
 var dataPrefix []byte = []byte("data: ")
 
+// Event from the server sent event
+type Event struct {
+	Type string `json:"type"`
+	Data []struct {
+		Owner struct {
+			Rid   string `json:"rid"`
+			Rtype string `json:"rtype"`
+		} `json:"owner"`
+		ID          string `json:"id"`
+		Type        string `json:"type"`
+		Temperature struct {
+			Temperature float64 `json:"temperature"`
+		} `json:"temperature"`
+		Light struct {
+			Level float64 `json:"light_level"`
+		} `json:"light"`
+		Dimming struct {
+			Brightness float64 `json:"brightness"`
+		} `json:"dimming"`
+		Motion struct {
+			Motion bool `json:"motion"`
+		} `json:"motion"`
+		On struct {
+			On bool `json:"on"`
+		} `json:"on"`
+	} `json:"data"`
+}
+
 func createInsecureClient(timeout time.Duration) *http.Client {
 	client := request.CreateClient(timeout, request.NoRedirection)
 

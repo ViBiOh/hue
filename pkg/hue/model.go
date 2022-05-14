@@ -44,35 +44,6 @@ var (
 	scheduleGroupFinder = regexp.MustCompile(`(?mi)groups/(.*?)/`)
 )
 
-// Event from the server sent event
-type Event struct {
-	Type string `json:"type"`
-	Data []struct {
-		ID   string `json:"id"`
-		Type string `json:"type"`
-
-		Temperature struct {
-			Temperature float64 `json:"temperature"`
-		} `json:"temperature"`
-
-		Light struct {
-			Level float64 `json:"light_level"`
-		} `json:"light"`
-
-		Motion struct {
-			Motion bool `json:"motion"`
-		} `json:"motion"`
-
-		On struct {
-			On bool `json:"on"`
-		} `json:"on"`
-
-		Dimming struct {
-			Brightness float64 `json:"brightness"`
-		} `json:"dimming"`
-	} `json:"data"`
-}
-
 // Group description
 type Group struct {
 	ID     string     `json:"id,omitempty"`
