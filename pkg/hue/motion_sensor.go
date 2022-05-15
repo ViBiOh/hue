@@ -169,7 +169,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	return output, breaksync.NewSynchronization().
 		AddSources(breaksync.NewSliceSource(devices, func(t Device) string {
 			return t.ID
-		}, nil)).
+		}, breaksync.NewRupture("id", breaksync.Identity))).
 		AddSources(breaksync.NewSliceSource(motions, func(t Motion) string {
 			return t.Owner.Rid
 		}, nil)).
