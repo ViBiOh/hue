@@ -29,7 +29,7 @@ type Event struct {
 			Temperature float64 `json:"temperature"`
 		} `json:"temperature"`
 		Light struct {
-			Level float64 `json:"light_level"`
+			Level int64 `json:"light_level"`
 		} `json:"light"`
 		Dimming struct {
 			Brightness float64 `json:"brightness"`
@@ -108,17 +108,51 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 			switch data.Type {
 			case "light":
 				logger.Info("Light %s is %t", data.ID, data.On.On)
-			case "temperature":
-				logger.Info("Temperature of %s is %f", data.ID, data.Temperature.Temperature)
 			case "motion":
-				logger.Info("Motion of %s is %t", data.ID, data.Motion.Motion)
+				a.updateMotion(data.Owner.Rid, data.Motion.Motion)
 			case "light_level":
-				logger.Info("Light level of %s is %f", data.ID, data.Light.Level)
+				a.updateLightLevel(data.Owner.Rid, data.Light.Level)
+			case "temperature":
+				a.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
 			case "grouped_light":
 				logger.Info("Group %s is at %f brigtness", data.ID, data.Dimming.Brightness)
 			default:
 				logger.Info("Unknown event received: `%s`", data.Type)
 			}
 		}
+	}
+}
+
+func (a *App) updateMotion(owner string, motion bool) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	if motionSensor, ok := a.motionSensors[owner]; ok {
+		motionSensor.Motion = motion
+	} else {
+		logger.Warn("unknown motion owner ID `%s`", owner)
+	}
+}
+
+func (a *App) updateLightLevel(owner string, lightLevel int64) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	if motionSensor, ok := a.motionSensors[owner]; ok {
+		motionSensor.LightLevel = lightLevel
+	} else {
+		logger.Warn("unknown light level owner ID `%s`", owner)
+	}
+}
+
+func (a *App) updateTemperature(owner string, temperature float64) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	if motionSensor, ok := a.motionSensors[owner]; ok {
+		motionSensor.Temperature = temperature
+		a.setMetric("temperature", motionSensor.Name, temperature)
+	} else {
+		logger.Warn("unknown temperature owner ID `%s`", owner)
 	}
 }

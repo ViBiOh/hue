@@ -17,13 +17,15 @@ import (
 
 // App stores informations and secret of API
 type App struct {
-	apiHandler     http.Handler
-	scenes         map[string]Scene
-	metrics        map[string]*prometheus.GaugeVec
-	lights         map[string]Light
-	groups         map[string]Group
-	schedules      map[string]Schedule
-	sensors        map[string]Sensor
+	apiHandler    http.Handler
+	scenes        map[string]Scene
+	metrics       map[string]*prometheus.GaugeVec
+	lights        map[string]Light
+	groups        map[string]Group
+	schedules     map[string]Schedule
+	sensors       map[string]Sensor
+	motionSensors map[string]MotionSensor
+
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string

@@ -29,6 +29,15 @@ type Device struct {
 	} `json:"services"`
 }
 
+// DeviceByID sort Device by ID
+type DeviceByID []Device
+
+func (a DeviceByID) Len() int      { return len(a) }
+func (a DeviceByID) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DeviceByID) Less(i, j int) bool {
+	return a[i].ID < a[j].ID
+}
+
 // DevicePower description
 type DevicePower struct {
 	Owner struct {
@@ -42,6 +51,15 @@ type DevicePower struct {
 		BatteryState string `json:"battery_state"`
 		BatteryLevel int    `json:"battery_level"`
 	} `json:"power_state"`
+}
+
+// DevicePowerByOwner sort DevicePower by Owner
+type DevicePowerByOwner []DevicePower
+
+func (a DevicePowerByOwner) Len() int      { return len(a) }
+func (a DevicePowerByOwner) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DevicePowerByOwner) Less(i, j int) bool {
+	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
 func (a *App) getDevices(ctx context.Context, productName string) ([]Device, error) {

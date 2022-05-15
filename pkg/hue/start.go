@@ -63,7 +63,7 @@ func (a *App) initConfig() {
 	a.configureTap(ctx, config.Taps)
 	a.configureMotionSensor(ctx, config.Sensors)
 
-	if _, err := a.buildMotionSensor(ctx); err != nil {
+	if a.motionSensors, err = a.buildMotionSensor(ctx); err != nil {
 		logger.Error("unable to build motion sensor aggregate: %s", err)
 	}
 }
