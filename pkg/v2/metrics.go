@@ -1,4 +1,4 @@
-package hue
+package v2
 
 import (
 	"fmt"
@@ -52,14 +52,4 @@ func (a *App) setMetric(name, room string, value float64) {
 	}
 
 	metric.With(labels).Set(value)
-}
-
-func (a *App) updatePrometheus() {
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
-
-	for _, sensor := range a.sensors {
-		a.setMetric("temperature", sensor.Name, float64(sensor.State.Temperature))
-		a.setMetric("battery", sensor.Name, float64(sensor.Config.Battery))
-	}
 }

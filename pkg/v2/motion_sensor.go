@@ -1,4 +1,4 @@
-package hue
+package v2
 
 import (
 	"context"
@@ -28,8 +28,6 @@ type LightLevel struct {
 		Rtype string `json:"rtype"`
 	} `json:"owner"`
 	ID    string `json:"id"`
-	IDV1  string `json:"id_v1"`
-	Type  string `json:"type"`
 	Light struct {
 		LightLevel      int64 `json:"light_level"`
 		LightLevelValid bool  `json:"light_level_valid"`
@@ -53,8 +51,6 @@ type Motion struct {
 		Rtype string `json:"rtype"`
 	} `json:"owner"`
 	ID     string `json:"id"`
-	IDV1   string `json:"id_v1"`
-	Type   string `json:"type"`
 	Motion struct {
 		Motion      bool `json:"motion"`
 		MotionValid bool `json:"motion_valid"`
@@ -78,8 +74,6 @@ type Temperature struct {
 		Rtype string `json:"rtype"`
 	} `json:"owner"`
 	ID          string `json:"id"`
-	IDV1        string `json:"id_v1"`
-	Type        string `json:"type"`
 	Temperature struct {
 		Temperature      float64 `json:"temperature"`
 		TemperatureValid bool    `json:"temperature_valid"`
@@ -103,12 +97,12 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	var temperatures []Temperature
 	var devicePowers []DevicePower
 
-	wg := concurrent.NewFailFast(4)
+	wg := concurrent.NewFailFast(2)
 
 	wg.Go(func() (err error) {
 		devices, err = a.getDevices(ctx, "Hue motion sensor")
 		if err != nil {
-			return fmt.Errorf("unable to get devices: %s", err)
+			return fmt.Errorf("unable to list motion sensors: %s", err)
 		}
 
 		sort.Sort(DeviceByID(devices))
@@ -117,9 +111,9 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		motions, err = listV2[Motion](ctx, a.v2Req, "/motion")
+		motions, err = list[Motion](ctx, a.req, "motion")
 		if err != nil {
-			return fmt.Errorf("unable to get motions: %s", err)
+			return fmt.Errorf("unable to list motions: %s", err)
 		}
 
 		sort.Sort(MotionByOwner(motions))
@@ -128,9 +122,9 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		lightLevels, err = listV2[LightLevel](ctx, a.v2Req, "/light_level")
+		lightLevels, err = list[LightLevel](ctx, a.req, "light_level")
 		if err != nil {
-			return fmt.Errorf("unable to get light levels: %s", err)
+			return fmt.Errorf("unable to list light levels: %s", err)
 		}
 
 		sort.Sort(LightLevelByOwner(lightLevels))
@@ -139,9 +133,9 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		temperatures, err = listV2[Temperature](ctx, a.v2Req, "/temperature")
+		temperatures, err = list[Temperature](ctx, a.req, "temperature")
 		if err != nil {
-			return fmt.Errorf("unable to get temperatures: %s", err)
+			return fmt.Errorf("unable to list temperatures: %s", err)
 		}
 
 		sort.Sort(TemperatureByOwner(temperatures))
@@ -150,9 +144,9 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		devicePowers, err = listV2[DevicePower](ctx, a.v2Req, "/device_power")
+		devicePowers, err = list[DevicePower](ctx, a.req, "device_power")
 		if err != nil {
-			return fmt.Errorf("unable to get temperatures: %s", err)
+			return fmt.Errorf("unable to list devices' powers: %s", err)
 		}
 
 		sort.Sort(DevicePowerByOwner(devicePowers))

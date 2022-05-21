@@ -1,4 +1,4 @@
-package hue
+package v2
 
 import (
 	"context"
@@ -45,8 +45,6 @@ type DevicePower struct {
 		Rtype string `json:"rtype"`
 	} `json:"owner"`
 	ID         string `json:"id"`
-	IDV1       string `json:"id_v1"`
-	Type       string `json:"type"`
 	PowerState struct {
 		BatteryState string `json:"battery_state"`
 		BatteryLevel int    `json:"battery_level"`
@@ -63,7 +61,7 @@ func (a DevicePowerByOwner) Less(i, j int) bool {
 }
 
 func (a *App) getDevices(ctx context.Context, productName string) ([]Device, error) {
-	devices, err := listV2[Device](ctx, a.v2Req, "/device")
+	devices, err := list[Device](ctx, a.req, "device")
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch: %s", err)
 	}

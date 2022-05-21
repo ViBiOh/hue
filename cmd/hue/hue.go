@@ -23,6 +23,7 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/server"
 	"github.com/ViBiOh/httputils/v4/pkg/tracer"
 	"github.com/ViBiOh/hue/pkg/hue"
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 //go:embed templates static
@@ -44,6 +45,7 @@ func main() {
 	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"), flags.NewOverride("Templates", nil))
 
 	hueConfig := hue.Flags(fs, "")
+	v2Config := v2.Flags(fs, "v2")
 
 	logger.Fatal(fs.Parse(os.Args[1:]))
 
@@ -68,12 +70,17 @@ func main() {
 	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, tracerApp.GetTracer("renderer"))
 	logger.Fatal(err)
 
-	hueApp, err := hue.New(hueConfig, prometheusApp.Registerer(), rendererApp)
+	hueApp, err := hue.New(hueConfig, rendererApp)
+	logger.Fatal(err)
+
+	v2App, err := v2.New(v2Config, prometheusApp.Registerer())
 	logger.Fatal(err)
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 
 	go hueApp.Start(healthApp.Done())
+	go v2App.Start(healthApp.Done())
+
 	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
 	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, tracerApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
