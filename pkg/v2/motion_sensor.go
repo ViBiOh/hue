@@ -44,18 +44,21 @@ func (a LightLevelByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
+// MotionValue struct
+type MotionValue struct {
+	Motion      bool `json:"motion"`
+	MotionValid bool `json:"motion_valid"`
+}
+
 // Motion description
 type Motion struct {
 	Owner struct {
 		Rid   string `json:"rid"`
 		Rtype string `json:"rtype"`
 	} `json:"owner"`
-	ID     string `json:"id"`
-	Motion struct {
-		Motion      bool `json:"motion"`
-		MotionValid bool `json:"motion_valid"`
-	} `json:"motion"`
-	Enabled bool `json:"enabled"`
+	ID      string      `json:"id"`
+	Motion  MotionValue `json:"motion"`
+	Enabled bool        `json:"enabled"`
 }
 
 // MotionByOwner sort Motion by Owner

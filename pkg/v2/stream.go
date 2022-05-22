@@ -34,17 +34,16 @@ type Event struct {
 			Level int64 `json:"light_level"`
 		} `json:"light"`
 
-		Motion struct {
-			Motion bool `json:"motion"`
-		} `json:"motion"`
+		Enabled *bool        `json:"enabled,omitempty"`
+		Motion  *MotionValue `json:"motion,omitempty"`
 
 		PowerState struct {
 			BatteryState string `json:"battery_state"`
 			BatteryLevel int    `json:"battery_level"`
 		}
 
-		Dimming *Dimming `json:"dimming"`
-		On      *On      `json:"on"`
+		Dimming *Dimming `json:"dimming,omitempty"`
+		On      *On      `json:"on,omitempty"`
 	} `json:"data"`
 }
 
@@ -78,20 +77,19 @@ func (a *App) stream(done <-chan struct{}) {
 		cancel()
 	}()
 
-	var events []Event
-	var content []byte
-
 	reader := bufio.NewScanner(resp.Body)
 	eventStream := make(chan Event, 4)
 	go a.handleStreamEvent(eventStream)
 
 	for reader.Scan() {
-		content = reader.Bytes()
+		content := reader.Bytes()
 		if !bytes.HasPrefix(content, dataPrefix) {
 			continue
 		}
 
+		var events []Event
 		content = content[len(dataPrefix):]
+
 		if err := json.Unmarshal(content, &events); err != nil {
 			logger.Error("unable to parse event `%s`: %s", content, err)
 			continue
@@ -113,7 +111,7 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 			switch data.Type {
 			case "light":
 			case "motion":
-				a.updateMotion(data.Owner.Rid, data.Motion.Motion)
+				a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 			case "light_level":
 				a.updateLightLevel(data.Owner.Rid, data.Light.Level)
 			case "temperature":
@@ -121,9 +119,7 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 			case "device_power":
 				a.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
 			case "grouped_light":
-				if data.Owner.Rtype != "bridge_home" {
-					a.updateGroupedLight(data.ID, data.Dimming, data.On)
-				}
+				a.updateGroupedLight(data.ID, data.On, data.Dimming)
 			default:
 				logger.Info("Unknown event received: `%s`", data.Type)
 			}
@@ -131,13 +127,20 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 	}
 }
 
-func (a *App) updateMotion(owner string, motion bool) {
+func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
-		motionSensor.Motion = motion
-		logger.Info("Motion %t on %s", motion, motionSensor.Name)
+		if enabled != nil {
+			motionSensor.Enabled = *enabled
+			logger.Info("Motion enabled %t on %s", motionSensor.Enabled, motionSensor.Name)
+		}
+
+		if motion != nil {
+			motionSensor.Motion = motion.Motion
+			logger.Info("Motion %t on %s", motionSensor.Motion, motionSensor.Name)
+		}
 
 		a.motionSensors[owner] = motionSensor
 	} else {
@@ -190,7 +193,7 @@ func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel 
 	}
 }
 
-func (a *App) updateGroupedLight(owner string, dimming *Dimming, on *On) {
+func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
