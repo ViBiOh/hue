@@ -3,6 +3,7 @@ package v2
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"sort"
 
 	"github.com/ViBiOh/httputils/v4/pkg/breaksync"
@@ -12,13 +13,23 @@ import (
 // MotionSensor description
 type MotionSensor struct {
 	ID           string  `json:"id"`
+	MotionID     string  `json:"motion_id"`
 	Name         string  `json:"name"`
 	BatteryState string  `json:"battery_state"`
 	LightLevel   int64   `json:"light_level"`
 	Temperature  float64 `json:"temperature"`
-	BatteryLevel int     `json:"battery_level"`
+	BatteryLevel int64   `json:"battery_level"`
 	Enabled      bool    `json:"enabled"`
 	Motion       bool    `json:"motion"`
+}
+
+// MotionSensorByName sort MotionSensor by Name
+type MotionSensorByName []MotionSensor
+
+func (a MotionSensorByName) Len() int      { return len(a) }
+func (a MotionSensorByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a MotionSensorByName) Less(i, j int) bool {
+	return a[i].Name < a[j].Name
 }
 
 // LightLevel description
@@ -91,6 +102,42 @@ func (a TemperatureByOwner) Len() int      { return len(a) }
 func (a TemperatureByOwner) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a TemperatureByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
+}
+
+// Sensors list available motion sensors
+func (a *App) Sensors() []MotionSensor {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	output := make([]MotionSensor, len(a.motionSensors))
+
+	i := 0
+	for _, item := range a.motionSensors {
+		output[i] = item
+		i++
+	}
+
+	sort.Sort(MotionSensorByName(output))
+
+	return output
+}
+
+// UpdateSensor status
+func (a *App) UpdateSensor(ctx context.Context, id string, enabled bool) (MotionSensor, error) {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	payload := map[string]interface{}{
+		"enabled": enabled,
+	}
+
+	motionSensor, ok := a.motionSensors[id]
+	if !ok {
+		return motionSensor, fmt.Errorf("unknown motion sensor with `%s`", id)
+	}
+
+	_, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/motion/"+motionSensor.MotionID).JSON(ctx, payload)
+	return motionSensor, err
 }
 
 func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, error) {
@@ -197,6 +244,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 
 				sensor.Enabled = motion.Enabled
 				sensor.Motion = motion.Motion.Motion
+				sensor.MotionID = motion.ID
 			}
 
 			if syncFlags&1<<2 == 0 {

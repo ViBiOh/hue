@@ -9,9 +9,9 @@ import (
 
 // Group description
 type Group struct {
+	GroupedLights map[string]GroupedLight
 	ID            string `json:"id"`
 	Name          string `json:"name"`
-	GroupedLights map[string]GroupedLight
 }
 
 // Dimming description
@@ -26,11 +26,11 @@ type On struct {
 
 // GroupedLight description
 type GroupedLight struct {
+	ID    string `json:"id"`
 	Alert struct {
 		ActionValues []string `json:"action_values"`
 	} `json:"alert"`
 	Dimming Dimming `json:"dimming"`
-	ID      string  `json:"id"`
 	On      On      `json:"on"`
 }
 

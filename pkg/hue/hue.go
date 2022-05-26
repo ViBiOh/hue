@@ -10,16 +10,18 @@ import (
 
 	"github.com/ViBiOh/flags"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 // App stores informations and secret of API
 type App struct {
 	apiHandler http.Handler
-	scenes     map[string]Scene
-	lights     map[string]Light
-	groups     map[string]Group
-	schedules  map[string]Schedule
-	sensors    map[string]Sensor
+	v2App      *v2.App
+
+	scenes    map[string]Scene
+	lights    map[string]Light
+	groups    map[string]Group
+	schedules map[string]Schedule
 
 	bridgeUsername string
 	bridgeURL      string
@@ -46,7 +48,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, renderer renderer.App) (*App, error) {
+func New(config Config, renderer renderer.App, v2App *v2.App) (*App, error) {
 	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
@@ -55,12 +57,12 @@ func New(config Config, renderer renderer.App) (*App, error) {
 		bridgeUsername: bridgeUsername,
 		configFileName: strings.TrimSpace(*config.config),
 		rendererApp:    renderer,
+		v2App:          v2App,
 	}
 
 	app.syncers = []syncer{
 		app.syncGroups,
 		app.syncSchedules,
-		app.syncSensors,
 		app.syncScenes,
 	}
 
@@ -83,7 +85,7 @@ func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Pag
 		"Groups":    a.toGroups(),
 		"Scenes":    a.toScenes(),
 		"Schedules": a.toSchedules(),
-		"Sensors":   a.toSensors(),
+		"Sensors":   a.v2App.Sensors(),
 	}), nil
 }
 
@@ -117,20 +119,6 @@ func (a *App) toSchedules() []Schedule {
 	}
 
 	sort.Sort(ByScheduleID(output))
-
-	return output
-}
-
-func (a *App) toSensors() []Sensor {
-	output := make([]Sensor, len(a.sensors))
-
-	i := 0
-	for _, item := range a.sensors {
-		output[i] = item
-		i++
-	}
-
-	sort.Sort(BySensorID(output))
 
 	return output
 }

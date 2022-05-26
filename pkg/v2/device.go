@@ -47,7 +47,7 @@ type DevicePower struct {
 	ID         string `json:"id"`
 	PowerState struct {
 		BatteryState string `json:"battery_state"`
-		BatteryLevel int    `json:"battery_level"`
+		BatteryLevel int64  `json:"battery_level"`
 	} `json:"power_state"`
 }
 

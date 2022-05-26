@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sync"
 	"time"
 
+	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
@@ -68,16 +68,16 @@ func (a *App) refreshState(ctx context.Context) error {
 		return err
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(a.syncers))
+	wg := concurrent.NewLimited(4)
 
 	for _, fn := range a.syncers {
-		go func(syncer syncer) {
-			defer wg.Done()
+		syncer := fn
+
+		wg.Go(func() {
 			if err := syncer(); err != nil {
 				logger.Error("error while syncing: %s", err)
 			}
-		}(fn)
+		})
 	}
 
 	wg.Wait()
@@ -120,19 +120,6 @@ func (a *App) syncSchedules() error {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	a.schedules = schedules
-
-	return nil
-}
-
-func (a *App) syncSensors() error {
-	sensors, err := a.listSensors(context.Background())
-	if err != nil {
-		return fmt.Errorf("unable to list sensors: %s", err)
-	}
-
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.sensors = sensors
 
 	return nil
 }

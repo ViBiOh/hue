@@ -4,7 +4,7 @@ import "html/template"
 
 // FuncMap for template rendering
 var FuncMap = template.FuncMap{
-	"battery": func(value uint) string {
+	"battery": func(value int64) string {
 		switch {
 		case value >= 90:
 			return "battery-full?fill=limegreen"
@@ -18,7 +18,7 @@ var FuncMap = template.FuncMap{
 			return "battery-empty?fill=salmon"
 		}
 	},
-	"temperature": func(value float32) string {
+	"temperature": func(value float64) string {
 		switch {
 		case value >= 28:
 			return "thermometer-full?fill=salmon"

@@ -205,19 +205,15 @@
 
     {{ range .Sensors }}
       <span class="container">
-        <h3 class="header center no-margin {{ if .State.Presence }}success{{ end }}">{{ .Name }} Sensor</h3>
-
-        {{ if .Config.LedIndication }}
-          <h3 class="header center no-margin danger">LED</h3>
-        {{ end }}
+        <h3 class="header center no-margin {{ if .Motion }}success{{ end }}">{{ .Name }} Sensor</h3>
 
         <div class="center padding">
           <form class="inline" method="post" action="{{ url "" }}/api/sensors/{{ .ID }}">
             <input type="hidden" name="method" value="PATCH" />
-            <input type="hidden" name="on" value="{{ if .Config.On }}false{{ else }}true{{ end }}" />
+            <input type="hidden" name="on" value="{{ if .Enabled }}false{{ else }}true{{ end }}" />
 
             <button type="submit" class="button button-icon">
-              {{ if .Config.On }}
+              {{ if .Enabled }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
               {{ else }}
                 <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
@@ -225,12 +221,12 @@
             </button>
           </form>
 
-          <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery .Config.Battery }}" alt="{{ .Config.Battery }}%" title="{{ .Config.Battery }}%">
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery .BatteryLevel }}" alt="{{ .BatteryLevel }}%" title="{{ .BatteryLevel }}%">
         </div>
 
         <div class="flex flex-center padding">
-          <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature .State.Temperature }}" alt="Temperature">
-          <strong>{{ .State.Temperature }}°c</strong>
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature .Temperature }}" alt="Temperature">
+          <strong>{{ .Temperature }}°c</strong>
         </div>
       </span>
     {{ end }}

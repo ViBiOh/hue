@@ -19,31 +19,26 @@ var dataPrefix []byte = []byte("data: ")
 type Event struct {
 	Type string `json:"type"`
 	Data []struct {
-		Owner struct {
+		Motion  *MotionValue `json:"motion,omitempty"`
+		Dimming *Dimming     `json:"dimming,omitempty"`
+		On      *On          `json:"on,omitempty"`
+		Enabled *bool        `json:"enabled,omitempty"`
+		Owner   struct {
 			Rid   string `json:"rid"`
 			Rtype string `json:"rtype"`
 		} `json:"owner"`
-		ID   string `json:"id"`
-		Type string `json:"type"`
-
-		Temperature struct {
-			Temperature float64 `json:"temperature"`
-		} `json:"temperature"`
-
+		ID         string `json:"id"`
+		Type       string `json:"type"`
+		PowerState struct {
+			BatteryState string `json:"battery_state"`
+			BatteryLevel int64  `json:"battery_level"`
+		}
 		Light struct {
 			Level int64 `json:"light_level"`
 		} `json:"light"`
-
-		Enabled *bool        `json:"enabled,omitempty"`
-		Motion  *MotionValue `json:"motion,omitempty"`
-
-		PowerState struct {
-			BatteryState string `json:"battery_state"`
-			BatteryLevel int    `json:"battery_level"`
-		}
-
-		Dimming *Dimming `json:"dimming,omitempty"`
-		On      *On      `json:"on,omitempty"`
+		Temperature struct {
+			Temperature float64 `json:"temperature"`
+		} `json:"temperature"`
 	} `json:"data"`
 }
 
@@ -178,7 +173,7 @@ func (a *App) updateTemperature(owner string, temperature float64) {
 	}
 }
 
-func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel int) {
+func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel int64) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 

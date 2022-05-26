@@ -119,6 +119,8 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id := strings.Trim(strings.TrimPrefix(r.URL.Path, sensorsPath), "/")
+
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)
 	if err != nil {
@@ -126,34 +128,13 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sensor := Sensor{
-		ID: strings.Trim(strings.TrimPrefix(r.URL.Path, sensorsPath), "/"),
-		Config: SensorConfig{
-			On: statusBool,
-		},
-	}
-
-	if err := a.updateSensorConfig(r.Context(), sensor); err != nil {
-		a.rendererApp.Error(w, r, nil, err)
+	motionSensor, err := a.v2App.UpdateSensor(r.Context(), id, statusBool)
+	if err != nil {
+		a.rendererApp.Error(w, r, nil, fmt.Errorf("unable to update sensor `%s`: %s", id, err))
 		return
 	}
 
-	if err := a.syncSensors(); err != nil {
-		a.rendererApp.Error(w, r, nil, err)
-		return
-	}
-
-	a.mutex.RLock()
-
-	name := "Sensor"
-	for _, s := range a.sensors {
-		if s.ID == sensor.ID {
-			name = s.Name
-			break
-		}
-	}
-
-	a.mutex.RUnlock()
+	name := motionSensor.Name + " Sensor"
 
 	stateName := "on"
 	if !statusBool {

@@ -2,47 +2,13 @@ package hue
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
-const (
-	presenceSensorType    = "ZLLPresence"
-	temperatureSensorType = "ZLLTemperature"
-
-	sensorPresenceURL = "/sensors/%s/state/presence"
-)
-
-func (a *App) listSensors(ctx context.Context) (map[string]Sensor, error) {
-	var response map[string]Sensor
-
-	if err := get(ctx, fmt.Sprintf("%s/sensors", a.bridgeURL), &response); err != nil {
-		return nil, fmt.Errorf("unable to get: %s", err)
-	}
-
-	sensors := make(map[string]Sensor)
-
-	for id, sensor := range response {
-		if sensor.Type == presenceSensorType {
-			sensor.ID = id
-			sensors[sensor.Name] = sensor
-		}
-	}
-
-	for _, sensor := range response {
-		if sensor.Type == temperatureSensorType {
-			if presenceSensor, ok := sensors[sensor.Name]; ok {
-				presenceSensor.State.Temperature = sensor.State.Temperature / 100
-				sensors[sensor.Name] = presenceSensor
-			}
-		}
-	}
-
-	return sensors, nil
-}
+const sensorPresenceURL = "/sensors/%s/state/presence"
 
 func getGroupsActions(groups []string, state string) []Action {
 	actions := make([]Action, 0)
@@ -124,12 +90,4 @@ func (a *App) configureMotionSensor(ctx context.Context, sensors []configSensor)
 			logger.Error("%s", err)
 		}
 	}
-}
-
-func (a *App) updateSensorConfig(ctx context.Context, sensor Sensor) error {
-	if sensor.ID == "" {
-		return errors.New("missing sensor ID to update")
-	}
-
-	return update(ctx, fmt.Sprintf("%s/sensors/%s/config", a.bridgeURL, sensor.ID), sensor.Config)
 }

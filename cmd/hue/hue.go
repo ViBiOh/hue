@@ -70,10 +70,10 @@ func main() {
 	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, tracerApp.GetTracer("renderer"))
 	logger.Fatal(err)
 
-	hueApp, err := hue.New(hueConfig, rendererApp)
+	v2App, err := v2.New(v2Config, prometheusApp.Registerer())
 	logger.Fatal(err)
 
-	v2App, err := v2.New(v2Config, prometheusApp.Registerer())
+	hueApp, err := hue.New(hueConfig, rendererApp, v2App)
 	logger.Fatal(err)
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
