@@ -12,16 +12,7 @@ type Group struct {
 	GroupedLights map[string]GroupedLight
 	ID            string `json:"id"`
 	Name          string `json:"name"`
-}
-
-// Dimming description
-type Dimming struct {
-	Brightness float64 `json:"brightness"`
-}
-
-// On description
-type On struct {
-	On bool `json:"on"`
+	Lights        []*Light
 }
 
 // GroupedLight description
@@ -34,69 +25,66 @@ type GroupedLight struct {
 	On      On      `json:"on"`
 }
 
-// Service description
-type Service struct {
-	Rid   string `json:"rid"`
-	Rtype string `json:"rtype"`
-}
-
 // Room description
 type Room struct {
 	ID       string `json:"id"`
 	Metadata struct {
 		Name string `json:"name"`
 	} `json:"metadata"`
-	Services []Service `json:"services"`
+	Services []deviceReference `json:"services"`
+	Children []deviceReference `json:"children"`
 }
 
-// BridgeHome description
-type BridgeHome struct {
-	ID       string    `json:"id"`
-	Services []Service `json:"services"`
-}
+func (a *App) buildGroup(ctx context.Context) (output map[string]Group, err error) {
+	output = make(map[string]Group)
 
-func (a *App) buildGroup(ctx context.Context) (map[string]Group, error) {
-	rooms, err := list[Room](ctx, a.req, "room")
+	err = a.buildDeviceGroup(ctx, "room", output)
 	if err != nil {
-		return nil, fmt.Errorf("unable to list rooms: %s", err)
+		return
 	}
 
-	output := make(map[string]Group, len(rooms))
-	for _, room := range rooms {
-		groupedLights, err := a.buildServices(ctx, room.Services)
-		if err != nil {
-			return nil, fmt.Errorf("unable to build services for room `%s`: %s", room.ID, err)
-		}
-
-		output[room.ID] = Group{
-			ID:            room.ID,
-			Name:          room.Metadata.Name,
-			GroupedLights: groupedLights,
-		}
-	}
-
-	bridgeHomes, err := list[BridgeHome](ctx, a.req, "bridge_home")
+	err = a.buildDeviceGroup(ctx, "zone", output)
 	if err != nil {
-		return nil, fmt.Errorf("unable to list bridge homes: %s", err)
+		return
 	}
 
-	for _, bridgeHome := range bridgeHomes {
-		groupedLights, err := a.buildServices(ctx, bridgeHome.Services)
-		if err != nil {
-			return nil, fmt.Errorf("unable to build services for bridge `%s`: %s", bridgeHome.ID, err)
-		}
-
-		output[bridgeHome.ID] = Group{
-			ID:            bridgeHome.ID,
-			Name:          "Bridge",
-			GroupedLights: groupedLights,
-		}
+	err = a.buildDeviceGroup(ctx, "bridge_home", output)
+	if err != nil {
+		return
 	}
 
-	return output, nil
+	return
 }
 
-func (a *App) buildServices(ctx context.Context, services []Service) (map[string]GroupedLight, error) {
+func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[string]Group) error {
+	groupDevices, err := list[Room](ctx, a.req, name)
+	if err != nil {
+		return fmt.Errorf("unable to list rooms: %s", err)
+	}
+
+	for _, item := range groupDevices {
+		groupedLights, err := a.buildServices(ctx, name, item.Services)
+		if err != nil {
+			return fmt.Errorf("unable to build services for %s `%s`: %s", name, item.ID, err)
+		}
+
+		lights, err := a.buildChildren(ctx, name, item.Children)
+		if err != nil {
+			return fmt.Errorf("unable to build children for %s `%s`: %s", name, item.ID, err)
+		}
+
+		output[item.ID] = Group{
+			ID:            item.ID,
+			Name:          item.Metadata.Name,
+			GroupedLights: groupedLights,
+			Lights:        lights,
+		}
+	}
+
+	return nil
+}
+
+func (a *App) buildServices(ctx context.Context, name string, services []deviceReference) (map[string]GroupedLight, error) {
 	output := make(map[string]GroupedLight)
 
 	for _, service := range services {
@@ -109,7 +97,34 @@ func (a *App) buildServices(ctx context.Context, services []Service) (map[string
 			output[groupedLight.ID] = groupedLight
 
 		default:
-			logger.Warn("unknown room's service type: %s", service.Rtype)
+			logger.Warn("unhandled service type for %s: %s", name, service.Rtype)
+		}
+	}
+
+	return output, nil
+}
+
+func (a *App) buildChildren(ctx context.Context, name string, children []deviceReference) ([]*Light, error) {
+	var output []*Light
+
+	for _, service := range children {
+		switch service.Rtype {
+		case "light":
+			if light, ok := a.lights[service.Rid]; ok {
+				output = append(output, light)
+			}
+		case "device":
+			device, err := get[Device](ctx, a.req, service.Rtype, service.Rid)
+			if err != nil {
+				return nil, fmt.Errorf("unable to get device `%s`: %s", service.Rid, err)
+			}
+
+			lights, err := a.buildChildren(ctx, "device", device.Services)
+			if err != nil {
+				return nil, fmt.Errorf("unable to get children of device `%s`: %s", service.Rid, err)
+			}
+
+			output = append(output, lights...)
 		}
 	}
 

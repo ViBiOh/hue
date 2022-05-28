@@ -14,6 +14,7 @@ import (
 
 // App stores informations and secret of API
 type App struct {
+	lights        map[string]*Light
 	groups        map[string]Group
 	motionSensors map[string]MotionSensor
 	metrics       map[string]*prometheus.GaugeVec

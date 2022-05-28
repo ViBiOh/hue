@@ -13,11 +13,17 @@ func (a *App) Start(done <-chan struct{}) {
 		logger.Fatal(err)
 	}
 
-	a.stream(done)
+	go a.stream(done)
 }
 
 func (a *App) initConfig() (err error) {
 	ctx := context.Background()
+
+	a.lights, err = a.buildLights(ctx)
+	if err != nil {
+		err = fmt.Errorf("unable to build lights: %s", err)
+		return
+	}
 
 	a.groups, err = a.buildGroup(ctx)
 	if err != nil {

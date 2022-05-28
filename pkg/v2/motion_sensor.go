@@ -34,11 +34,8 @@ func (a MotionSensorByName) Less(i, j int) bool {
 
 // LightLevel description
 type LightLevel struct {
-	Owner struct {
-		Rid   string `json:"rid"`
-		Rtype string `json:"rtype"`
-	} `json:"owner"`
-	ID    string `json:"id"`
+	Owner deviceReference `json:"owner"`
+	ID    string          `json:"id"`
 	Light struct {
 		LightLevel      int64 `json:"light_level"`
 		LightLevelValid bool  `json:"light_level_valid"`
@@ -63,13 +60,10 @@ type MotionValue struct {
 
 // Motion description
 type Motion struct {
-	Owner struct {
-		Rid   string `json:"rid"`
-		Rtype string `json:"rtype"`
-	} `json:"owner"`
-	ID      string      `json:"id"`
-	Motion  MotionValue `json:"motion"`
-	Enabled bool        `json:"enabled"`
+	Owner   deviceReference `json:"owner"`
+	ID      string          `json:"id"`
+	Motion  MotionValue     `json:"motion"`
+	Enabled bool            `json:"enabled"`
 }
 
 // MotionByOwner sort Motion by Owner
@@ -83,11 +77,8 @@ func (a MotionByOwner) Less(i, j int) bool {
 
 // Temperature description
 type Temperature struct {
-	Owner struct {
-		Rid   string `json:"rid"`
-		Rtype string `json:"rtype"`
-	} `json:"owner"`
-	ID          string `json:"id"`
+	Owner       deviceReference `json:"owner"`
+	ID          string          `json:"id"`
 	Temperature struct {
 		Temperature      float64 `json:"temperature"`
 		TemperatureValid bool    `json:"temperature_valid"`

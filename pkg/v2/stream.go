@@ -19,16 +19,13 @@ var dataPrefix []byte = []byte("data: ")
 type Event struct {
 	Type string `json:"type"`
 	Data []struct {
-		Motion  *MotionValue `json:"motion,omitempty"`
-		Dimming *Dimming     `json:"dimming,omitempty"`
-		On      *On          `json:"on,omitempty"`
-		Enabled *bool        `json:"enabled,omitempty"`
-		Owner   struct {
-			Rid   string `json:"rid"`
-			Rtype string `json:"rtype"`
-		} `json:"owner"`
-		ID         string `json:"id"`
-		Type       string `json:"type"`
+		Motion     *MotionValue    `json:"motion,omitempty"`
+		Dimming    *Dimming        `json:"dimming,omitempty"`
+		On         *On             `json:"on,omitempty"`
+		Enabled    *bool           `json:"enabled,omitempty"`
+		Owner      deviceReference `json:"owner"`
+		ID         string          `json:"id"`
+		Type       string          `json:"type"`
 		PowerState struct {
 			BatteryState string `json:"battery_state"`
 			BatteryLevel int64  `json:"battery_level"`
@@ -104,7 +101,6 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 	for event := range events {
 		for _, data := range event.Data {
 			switch data.Type {
-			case "light":
 			case "motion":
 				a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 			case "light_level":
@@ -113,10 +109,12 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 				a.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
 			case "device_power":
 				a.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
+			case "light":
+				a.updateLight(data.ID, data.On, data.Dimming)
 			case "grouped_light":
 				a.updateGroupedLight(data.ID, data.On, data.Dimming)
 			default:
-				logger.Info("Unknown event received: `%s`", data.Type)
+				logger.Info("unhandled event received: `%s`", data.Type)
 			}
 		}
 	}
@@ -185,6 +183,25 @@ func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel 
 		a.motionSensors[owner] = motionSensor
 	} else {
 		logger.Warn("unknown device power owner ID `%s`", owner)
+	}
+}
+
+func (a *App) updateLight(owner string, on *On, dimming *Dimming) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	if light, ok := a.lights[owner]; ok {
+		if dimming != nil {
+			light.Dimming.Brightness = dimming.Brightness
+			logger.Info("Brightness at %f on %s", dimming.Brightness, light.Metadata.Name)
+		}
+
+		if on != nil {
+			light.On.On = on.On
+			logger.Info("On at %t on %s", on.On, light.Metadata.Name)
+		}
+	} else {
+		logger.Warn("unknown light ID `%s`", owner)
 	}
 }
 

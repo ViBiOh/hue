@@ -20,13 +20,15 @@ type Device struct {
 		Archetype string `json:"archetype"`
 		Name      string `json:"name"`
 	} `json:"metadata"`
-	ID       string `json:"id"`
-	IDV1     string `json:"id_v1"`
-	Type     string `json:"type"`
-	Services []struct {
-		Rid   string `json:"rid"`
-		Rtype string `json:"rtype"`
-	} `json:"services"`
+	ID       string            `json:"id"`
+	IDV1     string            `json:"id_v1"`
+	Type     string            `json:"type"`
+	Services []deviceReference `json:"services"`
+}
+
+type deviceReference struct {
+	Rid   string `json:"rid"`
+	Rtype string `json:"rtype"`
 }
 
 // DeviceByID sort Device by ID
@@ -40,11 +42,8 @@ func (a DeviceByID) Less(i, j int) bool {
 
 // DevicePower description
 type DevicePower struct {
-	Owner struct {
-		Rid   string `json:"rid"`
-		Rtype string `json:"rtype"`
-	} `json:"owner"`
-	ID         string `json:"id"`
+	Owner      deviceReference `json:"owner"`
+	ID         string          `json:"id"`
 	PowerState struct {
 		BatteryState string `json:"battery_state"`
 		BatteryLevel int64  `json:"battery_level"`
