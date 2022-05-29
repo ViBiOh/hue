@@ -106,34 +106,6 @@ func (s Schedule) FormatLocalTime() string {
 	return fmt.Sprintf("%s at %s", recurrenceStr(recurrence), s.Localtime[6:])
 }
 
-// FindStateName finds matching state's name
-func (s Schedule) FindStateName(scenes map[string]Scene) (output string) {
-	output = "unknown"
-
-	sceneID, ok := s.Command.Body["scene"]
-	if !ok {
-		return
-	}
-
-	scene, ok := scenes[sceneID.(string)]
-	if !ok {
-		return
-	}
-
-	for _, lightState := range scene.Lightstates {
-		lightStateValue := formatStateValue(lightState)
-
-		for stateName, state := range States {
-			if lightStateValue == formatStateValue(state) {
-				output = stateName
-				return
-			}
-		}
-	}
-
-	return
-}
-
-func formatStateValue(state map[string]any) string {
-	return fmt.Sprintf("%v|%v|%v|%v", state["on"], state["transitiontime"], state["sat"], state["bri"])
+func formatStateValue(state State) string {
+	return fmt.Sprintf("%v|%v|%v|%v", state.On, state.Duration, state.Saturation, state.Brightness)
 }

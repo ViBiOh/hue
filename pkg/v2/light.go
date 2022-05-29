@@ -9,7 +9,8 @@ import (
 type Light struct {
 	ID       string `json:"id"`
 	Metadata struct {
-		Name string `json:"name"`
+		Archetype string `json:"archetype"`
+		Name      string `json:"name"`
 	} `json:"metadata"`
 	On      On      `json:"on"`
 	Dimming Dimming `json:"dimming"`

@@ -1,6 +1,10 @@
 package hue
 
-import "html/template"
+import (
+	"html/template"
+
+	v2 "github.com/ViBiOh/hue/pkg/v2"
+)
 
 // FuncMap for template rendering
 var FuncMap = template.FuncMap{
@@ -36,9 +40,11 @@ var FuncMap = template.FuncMap{
 			return "snowflake?fill=cornflowerblue"
 		}
 	},
-	"groupName": func(groups map[string]Group, id string) string {
-		if group, ok := groups[id]; ok {
-			return group.Name
+	"groupName": func(groups []v2.Group, id string) string {
+		for _, group := range groups {
+			if group.ID == id {
+				return group.Name
+			}
 		}
 		return ""
 	},

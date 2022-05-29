@@ -2,42 +2,51 @@ package hue
 
 import (
 	"regexp"
+	"time"
 )
+
+// State description
+type State struct {
+	On         bool          `json:"on"`
+	Duration   time.Duration `json:"transitiontime"`
+	Saturation uint64        `json:"sat"`
+	Brightness uint64        `json:"bri"`
+}
 
 var (
 	// States available states of lights
-	States = map[string]map[string]any{
+	States = map[string]State{
 		"off": {
-			"on":             false,
-			"transitiontime": 30,
+			On:       false,
+			Duration: time.Second * 3,
 		},
 		"long_off": {
-			"on":             false,
-			"transitiontime": 300,
+			On:       false,
+			Duration: 300,
 		},
 		"on": {
-			"on":             true,
-			"transitiontime": 30,
-			"sat":            0,
-			"bri":            255,
+			On:         true,
+			Duration:   time.Second * 3,
+			Saturation: 0,
+			Brightness: 100,
 		},
 		"half": {
-			"on":             true,
-			"transitiontime": 30,
-			"sat":            0,
-			"bri":            96,
+			On:         true,
+			Duration:   time.Second * 3,
+			Saturation: 0,
+			Brightness: 96,
 		},
 		"dimmed": {
-			"on":             true,
-			"transitiontime": 30,
-			"sat":            0,
-			"bri":            0,
+			On:         true,
+			Duration:   time.Second * 3,
+			Saturation: 0,
+			Brightness: 0,
 		},
 		"long_on": {
-			"on":             true,
-			"transitiontime": 3000,
-			"sat":            0,
-			"bri":            255,
+			On:         true,
+			Duration:   time.Minute * 5,
+			Saturation: 0,
+			Brightness: 100,
 		},
 	}
 
@@ -70,10 +79,10 @@ type lightState struct {
 
 // APIScene describe scene as from Hue API
 type APIScene struct {
-	Lightstates map[string]map[string]any `json:"lightstates,omitempty"`
-	Name        string                    `json:"name,omitempty"`
-	Lights      []string                  `json:"lights,omitempty"`
-	Recycle     bool                      `json:"recycle"`
+	Lightstates map[string]State `json:"lightstates,omitempty"`
+	Name        string           `json:"name,omitempty"`
+	Lights      []string         `json:"lights,omitempty"`
+	Recycle     bool             `json:"recycle"`
 }
 
 // Scene description
@@ -123,9 +132,9 @@ type SensorConfig struct {
 
 // Action description
 type Action struct {
-	Address string         `json:"address,omitempty"`
-	Body    map[string]any `json:"body,omitempty"`
-	Method  string         `json:"method,omitempty"`
+	Address string `json:"address,omitempty"`
+	Body    any    `json:"body,omitempty"`
+	Method  string `json:"method,omitempty"`
 }
 
 // GetGroup returns the group ID of the Action performed

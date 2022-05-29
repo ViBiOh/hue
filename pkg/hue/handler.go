@@ -51,24 +51,14 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 	groupID := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsPath), "/")
 	stateName := r.FormValue("state")
 
-	group, ok := a.groups[groupID]
-	if !ok {
-		a.rendererApp.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("unknown group '%s'", groupID)))
-		return
-	}
-
 	state, ok := States[stateName]
 	if !ok {
 		a.rendererApp.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
 		return
 	}
 
-	if err := a.updateGroupState(r.Context(), groupID, state); err != nil {
-		a.rendererApp.Error(w, r, nil, err)
-		return
-	}
-
-	if err := a.syncGroups(); err != nil {
+	group, err := a.v2App.UpdateGroup(r.Context(), groupID, state.On, float64(state.Brightness), state.Duration)
+	if err != nil {
 		a.rendererApp.Error(w, r, nil, err)
 		return
 	}

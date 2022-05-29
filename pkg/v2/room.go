@@ -3,6 +3,9 @@ package v2
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"sort"
+	"time"
 
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
@@ -13,6 +16,39 @@ type Group struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
 	Lights        []*Light
+}
+
+// AnyOn checks if any lights in the group is on
+func (g Group) AnyOn() bool {
+	for _, light := range g.Lights {
+		if light.On.On {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsPlug checks if group contains only a plug
+func (g Group) IsPlug() bool {
+	var count int
+
+	for _, light := range g.Lights {
+		if light.Metadata.Archetype == "plug" {
+			count++
+		}
+	}
+
+	return count > 0 && count == len(g.Lights)
+}
+
+// GroupByName sort Group by Name
+type GroupByName []Group
+
+func (a GroupByName) Len() int      { return len(a) }
+func (a GroupByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a GroupByName) Less(i, j int) bool {
+	return a[i].Name < a[j].Name
 }
 
 // GroupedLight description
@@ -33,6 +69,55 @@ type Room struct {
 	} `json:"metadata"`
 	Services []deviceReference `json:"services"`
 	Children []deviceReference `json:"children"`
+}
+
+// Groups list available groups
+func (a *App) Groups() []Group {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	output := make([]Group, len(a.groups))
+
+	i := 0
+	for _, item := range a.groups {
+		output[i] = item
+		i++
+	}
+
+	sort.Sort(GroupByName(output))
+
+	return output
+}
+
+// UpdateGroup status
+func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness float64, transitionTime time.Duration) (Group, error) {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	payload := map[string]interface{}{
+		"on": On{
+			On: on,
+		},
+		"dimming": Dimming{
+			Brightness: brightness,
+		},
+		"dynamics": map[string]interface{}{
+			"duration": transitionTime.Milliseconds(),
+		},
+	}
+
+	group, ok := a.groups[id]
+	if !ok {
+		return group, fmt.Errorf("unknown group with id `%s`", id)
+	}
+
+	for _, groupedLight := range group.GroupedLights {
+		if _, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/grouped_light/"+groupedLight.ID).JSON(ctx, payload); err != nil {
+			return group, fmt.Errorf("unable to update grouped light `%s`: %s", groupedLight.ID, err)
+		}
+	}
+
+	return group, nil
 }
 
 func (a *App) buildGroup(ctx context.Context) (output map[string]Group, err error) {
@@ -73,9 +158,14 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 			return fmt.Errorf("unable to build children for %s `%s`: %s", name, item.ID, err)
 		}
 
+		groupName := item.Metadata.Name
+		if name == "bridge_home" {
+			groupName = "Bridge"
+		}
+
 		output[item.ID] = Group{
 			ID:            item.ID,
-			Name:          item.Metadata.Name,
+			Name:          groupName,
 			GroupedLights: groupedLights,
 			Lights:        lights,
 		}

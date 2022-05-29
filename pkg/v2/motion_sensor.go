@@ -124,7 +124,7 @@ func (a *App) UpdateSensor(ctx context.Context, id string, enabled bool) (Motion
 
 	motionSensor, ok := a.motionSensors[id]
 	if !ok {
-		return motionSensor, fmt.Errorf("unknown motion sensor with `%s`", id)
+		return motionSensor, fmt.Errorf("unknown motion sensor with id `%s`", id)
 	}
 
 	_, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/motion/"+motionSensor.MotionID).JSON(ctx, payload)

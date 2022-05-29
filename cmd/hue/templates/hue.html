@@ -117,10 +117,10 @@
   <div class="grid">
     {{ range .Groups }}
       <span class="container">
-        <h3 class="header center no-margin {{ if .State.AnyOn }}success{{ end }}">{{ .Name }}</h3>
+        <h3 class="header center no-margin {{ if .AnyOn }}success{{ end }}">{{ .Name }}</h3>
 
         <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
-          {{ if .Tap }}
+          {{ if .IsPlug }}
             <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />
@@ -139,35 +139,35 @@
           {{ else }}
             <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
               <input type="hidden" name="method" value="PATCH" />
-              <input type="hidden" name="state" value="on" />
-              <button type="submit" class="button button-icon">
-                <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=limegreen" }}" alt="bright light">
-              </button>
-            </form>
+            <input type="hidden" name="state" value="on" />
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=limegreen" }}" alt="bright light">
+            </button>
+          </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
-              <input type="hidden" name="method" value="PATCH" />
-              <input type="hidden" name="state" value="half" />
-              <button type="submit" class="button button-icon">
-                <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=gold" }}" alt="half light">
-              </button>
-            </form>
+          <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
+            <input type="hidden" name="method" value="PATCH" />
+            <input type="hidden" name="state" value="half" />
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=gold" }}" alt="half light">
+            </button>
+          </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
-              <input type="hidden" name="method" value="PATCH" />
-              <input type="hidden" name="state" value="dimmed" />
-              <button type="submit" class="button button-icon">
-                <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=lightyellow" }}" alt="dim light">
-              </button>
-            </form>
+          <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
+            <input type="hidden" name="method" value="PATCH" />
+            <input type="hidden" name="state" value="dimmed" />
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=lightyellow" }}" alt="dim light">
+            </button>
+          </form>
 
-            <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
-              <input type="hidden" name="method" value="PATCH" />
-              <input type="hidden" name="state" value="off" />
-              <button type="submit" class="button button-icon">
-                <img class="icon icon-large" src="{{ url "/svg/moon?fill=silver" }}" alt="off light">
-              </button>
-            </form>
+          <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
+            <input type="hidden" name="method" value="PATCH" />
+            <input type="hidden" name="state" value="off" />
+            <button type="submit" class="button button-icon">
+              <img class="icon icon-large" src="{{ url "/svg/moon?fill=silver" }}" alt="off light">
+            </button>
+          </form>
           {{ end }}
         </div>
       </span>
@@ -182,7 +182,7 @@
         </h4>
 
         <div class="center padding">
-          <strong>{{ .FindStateName $root.Scenes }}</strong> state on <strong>{{ .FormatLocalTime }}</strong>
+          <strong>{{ .FormatLocalTime }}</strong>
         </div>
 
         <div class="center flex flex-center margin-bottom">

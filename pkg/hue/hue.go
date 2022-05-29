@@ -82,7 +82,7 @@ func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Pag
 	defer a.mutex.RUnlock()
 
 	return renderer.NewPage("public", http.StatusOK, map[string]any{
-		"Groups":    a.toGroups(),
+		"Groups":    a.v2App.Groups(),
 		"Scenes":    a.toScenes(),
 		"Schedules": a.toSchedules(),
 		"Sensors":   a.v2App.Sensors(),

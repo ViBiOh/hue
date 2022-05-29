@@ -81,5 +81,4 @@ build:
 ## run: Locally run the application, e.g. node index.js, python -m myapp, go run myapp etc ...
 .PHONY: run
 run:
-	$(MAIN_RUNNER) \
-		-config "hue.json"
+	$(MAIN_RUNNER)
