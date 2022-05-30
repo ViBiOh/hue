@@ -89,16 +89,6 @@ func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Pag
 	}), nil
 }
 
-func (a *App) toGroups() map[string]Group {
-	output := make(map[string]Group, len(a.groups))
-
-	for key, item := range a.groups {
-		output[key] = item
-	}
-
-	return output
-}
-
 func (a *App) toScenes() map[string]Scene {
 	output := make(map[string]Scene, len(a.scenes))
 

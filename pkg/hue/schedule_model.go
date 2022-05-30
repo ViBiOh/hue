@@ -105,7 +105,3 @@ func (s Schedule) FormatLocalTime() string {
 
 	return fmt.Sprintf("%s at %s", recurrenceStr(recurrence), s.Localtime[6:])
 }
-
-func formatStateValue(state State) string {
-	return fmt.Sprintf("%v|%v|%v|%v", state.On, state.Duration, state.Saturation, state.Brightness)
-}
