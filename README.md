@@ -155,6 +155,12 @@ Usage of hue:
         [alcotest] User-Agent for check {HUE_USER_AGENT} (default "Alcotest")
   -username string
         [hue] Username for Bridge {HUE_USERNAME}
+  -v2BridgeIP string
+        [v2] IP of Bridge {HUE_V2_BRIDGE_IP}
+  -v2Config string
+        [v2] Configuration filename {HUE_V2_CONFIG}
+  -v2Username string
+        [v2] Username for Bridge {HUE_V2_USERNAME}
   -writeTimeout string
         [server] Write Timeout {HUE_WRITE_TIMEOUT} (default "10s")
 ```
