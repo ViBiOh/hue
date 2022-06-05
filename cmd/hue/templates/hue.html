@@ -116,11 +116,15 @@
 
   <div class="grid">
     {{ range .Groups }}
+      {{ if .Bridge }}
+        {{ continue }}
+      {{ end }}
+
       <span class="container">
         <h3 class="header center no-margin {{ if .AnyOn }}success{{ end }}">{{ .Name }}</h3>
 
         <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
-          {{ if .IsPlug }}
+          {{ if .Plug }}
             <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
               <input type="hidden" name="method" value="PATCH" />
               <input type="hidden" name="state" value="on" />

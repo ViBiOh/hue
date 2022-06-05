@@ -13,9 +13,11 @@ import (
 // Group description
 type Group struct {
 	GroupedLights map[string]GroupedLight
-	ID            string `json:"id"`
-	Name          string `json:"name"`
+	ID            string
+	Name          string
 	Lights        []*Light
+	Bridge        bool
+	Plug          bool
 }
 
 // AnyOn checks if any lights in the group is on
@@ -29,26 +31,32 @@ func (g Group) AnyOn() bool {
 	return false
 }
 
-// IsPlug checks if group contains only a plug
-func (g Group) IsPlug() bool {
+func isPlug(lights []*Light) bool {
 	var count int
 
-	for _, light := range g.Lights {
+	for _, light := range lights {
 		if light.Metadata.Archetype == "plug" {
 			count++
 		}
 	}
 
-	return count > 0 && count == len(g.Lights)
+	return count > 0 && count == len(lights)
 }
 
-// GroupByName sort Group by Name
-type GroupByName []Group
+// GroupByTypeAndName sort Group by Type then, Name
+type GroupByTypeAndName []Group
 
-func (a GroupByName) Len() int      { return len(a) }
-func (a GroupByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a GroupByName) Less(i, j int) bool {
-	return a[i].Name < a[j].Name
+func (a GroupByTypeAndName) Len() int      { return len(a) }
+func (a GroupByTypeAndName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a GroupByTypeAndName) Less(i, j int) bool {
+	if a[i].Plug == a[j].Plug {
+		return a[i].Name < a[j].Name
+	}
+
+	if a[i].Plug && !a[j].Plug {
+		return false
+	}
+	return true
 }
 
 // GroupedLight description
@@ -84,7 +92,7 @@ func (a *App) Groups() []Group {
 		i++
 	}
 
-	sort.Sort(GroupByName(output))
+	sort.Sort(GroupByTypeAndName(output))
 
 	return output
 }
@@ -147,6 +155,8 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 		return fmt.Errorf("unable to list rooms: %s", err)
 	}
 
+	isBridge := name == "bridge_home"
+
 	for _, item := range groupDevices {
 		groupedLights, err := a.buildServices(ctx, name, item.Services)
 		if err != nil {
@@ -159,7 +169,7 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 		}
 
 		groupName := item.Metadata.Name
-		if name == "bridge_home" {
+		if isBridge {
 			groupName = "Bridge"
 		}
 
@@ -168,6 +178,8 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 			Name:          groupName,
 			GroupedLights: groupedLights,
 			Lights:        lights,
+			Plug:          isPlug(lights),
+			Bridge:        isBridge,
 		}
 	}
 

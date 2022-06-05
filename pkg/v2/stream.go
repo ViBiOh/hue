@@ -53,6 +53,20 @@ func createInsecureClient(timeout time.Duration) *http.Client {
 	return client
 }
 
+func (a *App) streamIndefinitely(done <-chan struct{}) {
+	for {
+		a.stream(done)
+
+		select {
+		case <-done:
+			return
+		default:
+			logger.Warn("Streaming was ended before done receive, restarting in 5sec...")
+			time.Sleep(5 * time.Second)
+		}
+	}
+}
+
 func (a *App) stream(done <-chan struct{}) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -64,10 +78,18 @@ func (a *App) stream(done <-chan struct{}) {
 	logger.Info("Streaming events from hub...")
 	defer logger.Info("Streaming events ended.")
 
+	ended := make(chan struct{})
+
 	go func() {
-		<-done
-		cancel()
+		defer cancel()
+
+		select {
+		case <-ended:
+		case <-done:
+		}
 	}()
+
+	defer close(ended)
 
 	reader := bufio.NewScanner(resp.Body)
 	eventStream := make(chan Event, 4)
@@ -127,12 +149,12 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		if enabled != nil {
 			motionSensor.Enabled = *enabled
-			logger.Info("Motion enabled %t on %s", motionSensor.Enabled, motionSensor.Name)
+			logger.Debug("Motion enabled %t on %s", motionSensor.Enabled, motionSensor.Name)
 		}
 
 		if motion != nil {
 			motionSensor.Motion = motion.Motion
-			logger.Info("Motion %t on %s", motionSensor.Motion, motionSensor.Name)
+			logger.Debug("Motion %t on %s", motionSensor.Motion, motionSensor.Name)
 		}
 
 		a.motionSensors[owner] = motionSensor
@@ -147,7 +169,7 @@ func (a *App) updateLightLevel(owner string, lightLevel int64) {
 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.LightLevel = lightLevel
-		logger.Info("Light level at %d on %s", lightLevel, motionSensor.Name)
+		logger.Debug("Light level at %d on %s", lightLevel, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 	} else {
@@ -161,7 +183,7 @@ func (a *App) updateTemperature(owner string, temperature float64) {
 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.Temperature = temperature
-		logger.Info("Temperature at %f on %s", temperature, motionSensor.Name)
+		logger.Debug("Temperature at %f on %s", temperature, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 
@@ -178,7 +200,7 @@ func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.BatteryState = batteryState
 		motionSensor.BatteryLevel = batteryLevel
-		logger.Info("Battery at %d%% on %s", batteryLevel, motionSensor.Name)
+		logger.Debug("Battery at %d%% on %s", batteryLevel, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 	} else {
@@ -193,12 +215,12 @@ func (a *App) updateLight(owner string, on *On, dimming *Dimming) {
 	if light, ok := a.lights[owner]; ok {
 		if dimming != nil {
 			light.Dimming.Brightness = dimming.Brightness
-			logger.Info("Brightness at %f on %s", dimming.Brightness, light.Metadata.Name)
+			logger.Debug("Brightness at %f on %s", dimming.Brightness, light.Metadata.Name)
 		}
 
 		if on != nil {
 			light.On.On = on.On
-			logger.Info("On at %t on %s", on.On, light.Metadata.Name)
+			logger.Debug("On at %t on %s", on.On, light.Metadata.Name)
 		}
 	} else {
 		logger.Warn("unknown light ID `%s`", owner)
@@ -214,12 +236,12 @@ func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 
 		if dimming != nil {
 			groupedLight.Dimming.Brightness = dimming.Brightness
-			logger.Info("Brightness at %f on %s", dimming.Brightness, group.Name)
+			logger.Debug("Brightness at %f on %s", dimming.Brightness, group.Name)
 		}
 
 		if on != nil {
 			groupedLight.On.On = on.On
-			logger.Info("On at %t on %s", on.On, group.Name)
+			logger.Debug("On at %t on %s", on.On, group.Name)
 		}
 
 		group.GroupedLights[owner] = groupedLight

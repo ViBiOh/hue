@@ -17,7 +17,7 @@ func getGroupsActions(groups []string, state string) []Action {
 		actions = append(actions, Action{
 			Address: fmt.Sprintf("/groups/%s/action", group),
 			Method:  http.MethodPut,
-			Body:    States[state],
+			Body:    States[state].V1(),
 		})
 	}
 

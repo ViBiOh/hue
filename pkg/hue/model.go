@@ -9,8 +9,16 @@ import (
 type State struct {
 	On         bool          `json:"on"`
 	Duration   time.Duration `json:"transitiontime"`
-	Saturation uint64        `json:"sat"`
 	Brightness uint64        `json:"bri"`
+}
+
+// V1 transform state to its V1 version
+func (s State) V1() map[string]interface{} {
+	return map[string]interface{}{
+		"on":             s.On,
+		"bri":            s.Brightness / 100 * 254,
+		"transitiontime": s.Duration.Milliseconds() / 100,
+	}
 }
 
 var (
@@ -27,25 +35,21 @@ var (
 		"on": {
 			On:         true,
 			Duration:   time.Second * 3,
-			Saturation: 0,
 			Brightness: 100,
 		},
 		"half": {
 			On:         true,
 			Duration:   time.Second * 3,
-			Saturation: 0,
-			Brightness: 96,
+			Brightness: 50,
 		},
 		"dimmed": {
 			On:         true,
 			Duration:   time.Second * 3,
-			Saturation: 0,
 			Brightness: 0,
 		},
 		"long_on": {
 			On:         true,
 			Duration:   time.Minute * 5,
-			Saturation: 0,
 			Brightness: 100,
 		},
 	}

@@ -36,7 +36,7 @@ func (a *App) createRuleDescription(tapID string, button configTapButton) Rule {
 		newRule.Actions = append(newRule.Actions, Action{
 			Address: fmt.Sprintf("/groups/%s/action", group),
 			Method:  http.MethodPut,
-			Body:    States[button.State],
+			Body:    States[button.State].V1(),
 		})
 	}
 

@@ -79,7 +79,7 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config Schedule
 }
 
 func (a *App) updateSceneLightState(ctx context.Context, o Scene, lightID string, state State) error {
-	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", a.bridgeURL, o.ID, lightID), state)
+	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", a.bridgeURL, o.ID, lightID), state.V1())
 }
 
 func (a *App) deleteScene(ctx context.Context, id string) error {

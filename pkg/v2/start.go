@@ -13,7 +13,7 @@ func (a *App) Start(done <-chan struct{}) {
 		logger.Fatal(err)
 	}
 
-	go a.stream(done)
+	go a.streamIndefinitely(done)
 }
 
 func (a *App) initConfig() (err error) {
