@@ -30,7 +30,7 @@ var (
 		},
 		"long_off": {
 			On:       false,
-			Duration: 300,
+			Duration: time.Second * 30,
 		},
 		"on": {
 			On:         true,
