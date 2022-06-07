@@ -123,6 +123,8 @@ func (a *App) handleStreamEvent(events <-chan Event) {
 	for event := range events {
 		for _, data := range event.Data {
 			switch data.Type {
+			case "button":
+			case "zigbee_connectivity":
 			case "motion":
 				a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 			case "light_level":
