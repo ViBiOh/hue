@@ -12,18 +12,28 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
+var logError = func(err error) {
+	logger.Error("%s", err)
+}
+
 type syncer func() error
 
 // Start worker
 func (a *App) Start(done <-chan struct{}) {
-	a.initConfig()
+	config := a.initConfig()
 
-	cron.New().Each(time.Minute).Now().OnError(func(err error) {
-		logger.Error("%s", err)
-	}).Start(a.refreshState, done)
+	for _, motionSensorCron := range config.MotionSensors.Crons {
+		item := motionSensorCron
+
+		go cron.New().Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(func(ctx context.Context) error {
+			return a.updateSensors(ctx, item.Names, item.Enabled)
+		}, done)
+	}
+
+	cron.New().Each(time.Minute).Now().OnError(logError).Start(a.refreshState, done)
 }
 
-func (a *App) initConfig() {
+func (a *App) initConfig() (config configHue) {
 	if len(a.configFileName) == 0 {
 		logger.Warn("no config init for hue")
 		return
@@ -35,32 +45,49 @@ func (a *App) initConfig() {
 		return
 	}
 
-	var config configHue
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
 		logger.Error("unable to decode config file: %s", err)
 		return
 	}
 
-	logger.Info("Configuring hue...")
-	defer logger.Info("Configuration done.")
+	if a.update {
+		logger.Info("Configuring hue...")
+		defer logger.Info("Configuration done.")
 
-	ctx := context.Background()
+		ctx := context.Background()
 
-	if err := a.cleanSchedules(ctx); err != nil {
-		logger.Error("%s", err)
+		if err := a.cleanSchedules(ctx); err != nil {
+			logger.Error("%s", err)
+		}
+
+		if err := a.cleanRules(ctx); err != nil {
+			logger.Error("%s", err)
+		}
+
+		if err := a.cleanScenes(ctx); err != nil {
+			logger.Error("%s", err)
+		}
+
+		a.configureSchedules(ctx, config.Schedules)
+		a.configureTap(ctx, config.Taps)
+		a.configureMotionSensor(ctx, config.Sensors)
 	}
 
-	if err := a.cleanRules(ctx); err != nil {
-		logger.Error("%s", err)
+	return
+}
+
+func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) error {
+	for _, sensor := range a.v2App.Sensors() {
+		for _, name := range names {
+			if sensor.Name == name {
+				if _, err := a.v2App.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
+					return fmt.Errorf("unable to update sensor `%s`: %s", sensor.ID, err)
+				}
+			}
+		}
 	}
 
-	if err := a.cleanScenes(ctx); err != nil {
-		logger.Error("%s", err)
-	}
-
-	a.configureSchedules(ctx, config.Schedules)
-	a.configureTap(ctx, config.Taps)
-	a.configureMotionSensor(ctx, config.Sensors)
+	return nil
 }
 
 func (a *App) refreshState(ctx context.Context) error {

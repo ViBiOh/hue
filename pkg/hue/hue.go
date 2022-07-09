@@ -15,20 +15,19 @@ import (
 
 // App stores informations and secret of API
 type App struct {
-	apiHandler http.Handler
-	v2App      *v2.App
-
-	scenes    map[string]Scene
-	lights    map[string]Light
-	groups    map[string]Group
-	schedules map[string]Schedule
-
+	apiHandler     http.Handler
+	v2App          *v2.App
+	scenes         map[string]Scene
+	lights         map[string]Light
+	groups         map[string]Group
+	schedules      map[string]Schedule
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
 	rendererApp    renderer.App
 	syncers        []syncer
 	mutex          sync.RWMutex
+	update         bool
 }
 
 // Config of package
@@ -36,6 +35,7 @@ type Config struct {
 	bridgeIP       *string
 	bridgeUsername *string
 	config         *string
+	update         *bool
 }
 
 // Flags adds flags for configuring package
@@ -44,6 +44,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 		bridgeIP:       flags.String(fs, prefix, "hue", "BridgeIP", "IP of Bridge", "", nil),
 		bridgeUsername: flags.String(fs, prefix, "hue", "Username", "Username for Bridge", "", nil),
 		config:         flags.String(fs, prefix, "hue", "Config", "Configuration filename", "", nil),
+		update:         flags.Bool(fs, prefix, "hue", "Update", "Update configuration from file", false, nil),
 	}
 }
 
@@ -56,6 +57,7 @@ func New(config Config, renderer renderer.App, v2App *v2.App) (*App, error) {
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", bridgeAddress, bridgeUsername),
 		bridgeUsername: bridgeUsername,
 		configFileName: strings.TrimSpace(*config.config),
+		update:         *config.update,
 		rendererApp:    renderer,
 		v2App:          v2App,
 	}

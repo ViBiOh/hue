@@ -1,4 +1,20 @@
 {
+  "motion_sensors": {
+    "crons": [
+      {
+        "enabled": true,
+        "hour": "07:00",
+        "timezone": "Europe/Paris",
+        "names": ["Bathroom", "Kitchen"]
+      },
+      {
+        "enabled": false,
+        "hour": "00:30",
+        "timezone": "Europe/Paris",
+        "names": ["Bathroom", "Kitchen"]
+      }
+    ]
+  },
   "schedules": [
     {
       "name": "Wake Up",

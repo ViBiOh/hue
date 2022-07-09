@@ -1,9 +1,10 @@
 package hue
 
 type configHue struct {
-	Schedules []ScheduleConfig
-	Sensors   []configSensor
-	Taps      []configTap
+	Schedules     []ScheduleConfig
+	Sensors       []configSensor
+	Taps          []configTap
+	MotionSensors motionSensors `json:"motion_sensors"`
 }
 
 type configSensor struct {
@@ -24,4 +25,15 @@ type configTapButton struct {
 	State  string
 	Groups []string
 	Rule   Rule
+}
+
+type motionSensors struct {
+	Crons []motionSensorCron `json:"crons"`
+}
+
+type motionSensorCron struct {
+	Hour     string   `json:"hour"`
+	Timezone string   `json:"timezone"`
+	Names    []string `json:"names"`
+	Enabled  bool     `json:"enabled"`
 }
