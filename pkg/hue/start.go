@@ -10,6 +10,7 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 var logError = func(err error) {
@@ -50,6 +51,8 @@ func (a *App) initConfig() (config configHue) {
 		return
 	}
 
+	a.webhooks = config.Webhooks
+
 	if a.update {
 		logger.Info("Configuring hue...")
 		defer logger.Info("Configuration done.")
@@ -74,6 +77,14 @@ func (a *App) initConfig() (config configHue) {
 	}
 
 	return
+}
+
+// Webhooks return the webhooks configuration
+func (a *App) Webhooks() []v2.Webhooks {
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
+
+	return a.webhooks
 }
 
 func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) error {

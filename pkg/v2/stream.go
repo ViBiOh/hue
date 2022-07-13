@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
+	"github.com/ViBiOh/httputils/v4/pkg/model"
 	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
@@ -160,6 +161,7 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 		}
 
 		a.motionSensors[owner] = motionSensor
+		a.sendWebhook("motion", motionSensor)
 	} else {
 		logger.Warn("unknown motion owner ID `%s`", owner)
 	}
@@ -250,5 +252,21 @@ func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 		a.groups[group.ID] = group
 	} else {
 		logger.Warn("unknown grouped light ID `%s`", owner)
+	}
+}
+
+func (a *App) sendWebhook(name string, payload any) {
+	if model.IsNil(a.webhookConfigProvider) {
+		return
+	}
+
+	for _, webhook := range a.webhookConfigProvider.Webhooks() {
+		if !webhook.Enabled || webhook.Event != name {
+			continue
+		}
+
+		if _, err := request.Post(webhook.URL).JSON(context.Background(), payload); err != nil {
+			logger.Error("unable to send webhook for `%s` event: %s", name, err)
+		}
 	}
 }
