@@ -28,7 +28,6 @@ type App struct {
 	syncers        []syncer
 	mutex          sync.RWMutex
 	update         bool
-	webhooks       []v2.Webhooks
 }
 
 // Config of package

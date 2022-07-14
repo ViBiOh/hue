@@ -1,13 +1,10 @@
 package hue
 
-import v2 "github.com/ViBiOh/hue/pkg/v2"
-
 type configHue struct {
 	Schedules     []ScheduleConfig
 	Sensors       []configSensor
 	Taps          []configTap
 	MotionSensors motionSensors `json:"motion_sensors"`
-	Webhooks      []v2.Webhooks `json:"webhooks"`
 }
 
 type configSensor struct {

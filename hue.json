@@ -15,13 +15,6 @@
       }
     ]
   },
-  "webhooks": [
-    {
-      "enabled": false,
-      "event": "motion",
-      "url": "http://notifier/hue"
-    }
-  ],
   "schedules": [
     {
       "name": "Wake Up",

@@ -77,8 +77,6 @@ func main() {
 	hueApp, err := hue.New(hueConfig, rendererApp, v2App)
 	logger.Fatal(err)
 
-	v2App.SetWebhookConfigProvider(hueApp)
-
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 
 	go hueApp.Start(healthApp.Done())

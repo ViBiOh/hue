@@ -12,11 +12,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// WebhookConfigProvider returns the configuration of provider
-type WebhookConfigProvider interface {
-	Webhooks() []Webhooks
-}
-
 // App stores informations and secret of API
 type App struct {
 	lights        map[string]*Light
@@ -24,9 +19,8 @@ type App struct {
 	motionSensors map[string]MotionSensor
 	metrics       map[string]*prometheus.GaugeVec
 
-	webhookConfigProvider WebhookConfigProvider
-	req                   request.Request
-	mutex                 sync.RWMutex
+	req   request.Request
+	mutex sync.RWMutex
 }
 
 // Config of package
@@ -47,7 +41,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 
 // New creates new App from Config
 func New(config Config, prometheusRegisterer prometheus.Registerer) (*App, error) {
-	metrics, err := createMetrics(prometheusRegisterer, "temperature", "battery")
+	metrics, err := createMetrics(prometheusRegisterer, "temperature", "battery", "motion")
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +55,4 @@ func New(config Config, prometheusRegisterer prometheus.Registerer) (*App, error
 	}
 
 	return &app, nil
-}
-
-// SetWebhookConfigProvider configures webhook config provider
-func (a *App) SetWebhookConfigProvider(webhookConfigProvider WebhookConfigProvider) {
-	a.webhookConfigProvider = webhookConfigProvider
 }
