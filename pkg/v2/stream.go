@@ -83,9 +83,8 @@ func (a *App) stream(done <-chan struct{}) {
 		select {
 		case <-ctx.Done():
 		case <-done:
+			cancel()
 		}
-
-		cancel()
 	}()
 
 	reader := bufio.NewScanner(resp.Body)
