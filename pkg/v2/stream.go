@@ -88,8 +88,6 @@ func (a *App) stream(done <-chan struct{}) {
 	}()
 
 	reader := bufio.NewScanner(resp.Body)
-	eventStream := make(chan Event, 4)
-	go a.handleStreamEvent(eventStream)
 
 	for reader.Scan() {
 		content := reader.Bytes()
@@ -106,7 +104,7 @@ func (a *App) stream(done <-chan struct{}) {
 		}
 
 		for _, event := range events {
-			eventStream <- event
+			a.handleStreamEvent(event)
 		}
 	}
 
@@ -115,27 +113,25 @@ func (a *App) stream(done <-chan struct{}) {
 	}
 }
 
-func (a *App) handleStreamEvent(events <-chan Event) {
-	for event := range events {
-		for _, data := range event.Data {
-			switch data.Type {
-			case "button":
-			case "zigbee_connectivity":
-			case "motion":
-				a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
-			case "light_level":
-				a.updateLightLevel(data.Owner.Rid, data.Light.Level)
-			case "temperature":
-				a.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
-			case "device_power":
-				a.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
-			case "light":
-				a.updateLight(data.ID, data.On, data.Dimming)
-			case "grouped_light":
-				a.updateGroupedLight(data.ID, data.On, data.Dimming)
-			default:
-				logger.Info("unhandled event received: `%s`", data.Type)
-			}
+func (a *App) handleStreamEvent(event Event) {
+	for _, data := range event.Data {
+		switch data.Type {
+		case "button":
+		case "zigbee_connectivity":
+		case "motion":
+			a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
+		case "light_level":
+			a.updateLightLevel(data.Owner.Rid, data.Light.Level)
+		case "temperature":
+			a.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
+		case "device_power":
+			a.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
+		case "light":
+			a.updateLight(data.ID, data.On, data.Dimming)
+		case "grouped_light":
+			a.updateGroupedLight(data.ID, data.On, data.Dimming)
+		default:
+			logger.Info("unhandled event received: `%s`", data.Type)
 		}
 	}
 }
