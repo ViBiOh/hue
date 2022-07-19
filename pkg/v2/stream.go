@@ -69,6 +69,7 @@ func (a *App) streamIndefinitely(done <-chan struct{}) {
 
 func (a *App) stream(done <-chan struct{}) {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	resp, err := a.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
@@ -78,18 +79,14 @@ func (a *App) stream(done <-chan struct{}) {
 	logger.Info("Streaming events from hub...")
 	defer logger.Info("Streaming events ended.")
 
-	ended := make(chan struct{})
-
 	go func() {
-		defer cancel()
-
 		select {
-		case <-ended:
+		case <-ctx.Done():
 		case <-done:
 		}
-	}()
 
-	defer close(ended)
+		cancel()
+	}()
 
 	reader := bufio.NewScanner(resp.Body)
 	eventStream := make(chan Event, 4)
