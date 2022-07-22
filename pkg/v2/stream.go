@@ -143,12 +143,12 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		if enabled != nil {
 			motionSensor.Enabled = *enabled
-			logger.Debug("Motion enabled %t on %s", motionSensor.Enabled, motionSensor.Name)
+			logger.Debug("Motion enabled %t on motion sensor `%s`", motionSensor.Enabled, motionSensor.Name)
 		}
 
 		if motion != nil {
 			motionSensor.Motion = motion.Motion
-			logger.Debug("Motion %t on %s", motionSensor.Motion, motionSensor.Name)
+			logger.Debug("Motion %t on motion sensor `%s`", motionSensor.Motion, motionSensor.Name)
 		}
 
 		a.motionSensors[owner] = motionSensor
@@ -169,7 +169,7 @@ func (a *App) updateLightLevel(owner string, lightLevel int64) {
 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.LightLevel = lightLevel
-		logger.Debug("Light level at %d on %s", lightLevel, motionSensor.Name)
+		logger.Debug("Light level at %d on motion sensor `%s`", lightLevel, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 	} else {
@@ -183,7 +183,7 @@ func (a *App) updateTemperature(owner string, temperature float64) {
 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.Temperature = temperature
-		logger.Debug("Temperature at %f on %s", temperature, motionSensor.Name)
+		logger.Debug("Temperature at %f on motion sensor `%s`", temperature, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 
@@ -200,7 +200,7 @@ func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel 
 	if motionSensor, ok := a.motionSensors[owner]; ok {
 		motionSensor.BatteryState = batteryState
 		motionSensor.BatteryLevel = batteryLevel
-		logger.Debug("Battery at %d%% on %s", batteryLevel, motionSensor.Name)
+		logger.Debug("Battery at %d%% on motion sensor `%s`", batteryLevel, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 	} else {
@@ -215,12 +215,12 @@ func (a *App) updateLight(owner string, on *On, dimming *Dimming) {
 	if light, ok := a.lights[owner]; ok {
 		if dimming != nil {
 			light.Dimming.Brightness = dimming.Brightness
-			logger.Debug("Brightness at %f on %s", dimming.Brightness, light.Metadata.Name)
+			logger.Debug("Brightness at %f on light `%s`", dimming.Brightness, light.Metadata.Name)
 		}
 
 		if on != nil {
 			light.On.On = on.On
-			logger.Debug("On at %t on %s", on.On, light.Metadata.Name)
+			logger.Debug("On at %t on light `%s`", on.On, light.Metadata.Name)
 		}
 	} else {
 		logger.Warn("unknown light ID `%s`", owner)
@@ -236,12 +236,12 @@ func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 
 		if dimming != nil {
 			groupedLight.Dimming.Brightness = dimming.Brightness
-			logger.Debug("Brightness at %f on %s", dimming.Brightness, group.Name)
+			logger.Debug("Brightness at %f on group `%s`", dimming.Brightness, group.Name)
 		}
 
 		if on != nil {
 			groupedLight.On.On = on.On
-			logger.Debug("On at %t on %s", on.On, group.Name)
+			logger.Debug("On at %t on group `%s`", on.On, group.Name)
 		}
 
 		group.GroupedLights[owner] = groupedLight
