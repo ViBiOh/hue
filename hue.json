@@ -9,7 +9,7 @@
       },
       {
         "enabled": false,
-        "hour": "00:30",
+        "hour": "00:00",
         "timezone": "Europe/Paris",
         "names": ["Bathroom", "Kitchen"]
       }
