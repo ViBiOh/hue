@@ -29,7 +29,7 @@ type On struct {
 func (a *App) buildLights(ctx context.Context) (map[string]*Light, error) {
 	lights, err := list[Light](ctx, a.req, "light")
 	if err != nil {
-		return nil, fmt.Errorf("unable to list lights: %s", err)
+		return nil, fmt.Errorf("list lights: %s", err)
 	}
 
 	output := make(map[string]*Light, len(lights))

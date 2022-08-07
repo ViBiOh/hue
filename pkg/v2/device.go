@@ -62,7 +62,7 @@ func (a DevicePowerByOwner) Less(i, j int) bool {
 func (a *App) getDevices(ctx context.Context, productName string) ([]Device, error) {
 	devices, err := list[Device](ctx, a.req, "device")
 	if err != nil {
-		return nil, fmt.Errorf("unable to fetch: %s", err)
+		return nil, fmt.Errorf("fetch: %s", err)
 	}
 
 	output := devices[:0]

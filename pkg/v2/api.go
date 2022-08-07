@@ -21,13 +21,13 @@ type APIResponse[T any] struct {
 func list[T any](ctx context.Context, req request.Request, kind string) (output []T, err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind)).Send(ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("unable to list: %s", err)
+		err = fmt.Errorf("list: %s", err)
 		return
 	}
 
 	content := APIResponse[T]{}
 	if err = httpjson.Read(resp, &content); err != nil {
-		err = fmt.Errorf("unable to parse: %s", err)
+		err = fmt.Errorf("parse: %s", err)
 		return
 	}
 
@@ -39,13 +39,13 @@ func list[T any](ctx context.Context, req request.Request, kind string) (output 
 func get[T any](ctx context.Context, req request.Request, kind, id string) (output T, err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind, id)).Send(ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("unable to get: %s", err)
+		err = fmt.Errorf("get: %s", err)
 		return
 	}
 
 	content := APIResponse[T]{}
 	if err = httpjson.Read(resp, &content); err != nil {
-		err = fmt.Errorf("unable to parse: %s", err)
+		err = fmt.Errorf("parse: %s", err)
 		return
 	}
 

@@ -73,7 +73,7 @@ func (a *App) stream(done <-chan struct{}) {
 
 	resp, err := a.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
-		logger.Error("unable to open stream: %s", err)
+		logger.Error("open stream: %s", err)
 	}
 
 	logger.Info("Streaming events from hub...")
@@ -99,7 +99,7 @@ func (a *App) stream(done <-chan struct{}) {
 		content = content[len(dataPrefix):]
 
 		if err := json.Unmarshal(content, &events); err != nil {
-			logger.Error("unable to parse event `%s`: %s", content, err)
+			logger.Error("parse event `%s`: %s", content, err)
 			continue
 		}
 
@@ -109,7 +109,7 @@ func (a *App) stream(done <-chan struct{}) {
 	}
 
 	if closeErr := resp.Body.Close(); closeErr != nil {
-		logger.Error("unable to close stream: %s", closeErr)
+		logger.Error("close stream: %s", closeErr)
 	}
 }
 

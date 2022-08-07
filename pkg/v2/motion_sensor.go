@@ -143,7 +143,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg.Go(func() (err error) {
 		devices, err = a.getDevices(ctx, "Hue motion sensor")
 		if err != nil {
-			return fmt.Errorf("unable to list motion sensors: %s", err)
+			return fmt.Errorf("list motion sensors: %s", err)
 		}
 
 		sort.Sort(DeviceByID(devices))
@@ -154,7 +154,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg.Go(func() (err error) {
 		motions, err = list[Motion](ctx, a.req, "motion")
 		if err != nil {
-			return fmt.Errorf("unable to list motions: %s", err)
+			return fmt.Errorf("list motions: %s", err)
 		}
 
 		sort.Sort(MotionByOwner(motions))
@@ -165,7 +165,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg.Go(func() (err error) {
 		lightLevels, err = list[LightLevel](ctx, a.req, "light_level")
 		if err != nil {
-			return fmt.Errorf("unable to list light levels: %s", err)
+			return fmt.Errorf("list light levels: %s", err)
 		}
 
 		sort.Sort(LightLevelByOwner(lightLevels))
@@ -176,7 +176,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg.Go(func() (err error) {
 		temperatures, err = list[Temperature](ctx, a.req, "temperature")
 		if err != nil {
-			return fmt.Errorf("unable to list temperatures: %s", err)
+			return fmt.Errorf("list temperatures: %s", err)
 		}
 
 		sort.Sort(TemperatureByOwner(temperatures))
@@ -187,7 +187,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg.Go(func() (err error) {
 		devicePowers, err = list[DevicePower](ctx, a.req, "device_power")
 		if err != nil {
-			return fmt.Errorf("unable to list devices' powers: %s", err)
+			return fmt.Errorf("list devices' powers: %s", err)
 		}
 
 		sort.Sort(DevicePowerByOwner(devicePowers))
@@ -196,7 +196,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	if err := wg.Wait(); err != nil {
-		return nil, fmt.Errorf("unable to fetch motion sensors data: %s", err)
+		return nil, fmt.Errorf("fetch motion sensors data: %s", err)
 	}
 
 	output := make(map[string]MotionSensor, len(devices))

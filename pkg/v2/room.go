@@ -121,7 +121,7 @@ func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness fl
 
 	for _, groupedLight := range group.GroupedLights {
 		if _, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/grouped_light/"+groupedLight.ID).JSON(ctx, payload); err != nil {
-			return group, fmt.Errorf("unable to update grouped light `%s`: %s", groupedLight.ID, err)
+			return group, fmt.Errorf("update grouped light `%s`: %s", groupedLight.ID, err)
 		}
 	}
 
@@ -152,7 +152,7 @@ func (a *App) buildGroup(ctx context.Context) (output map[string]Group, err erro
 func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[string]Group) error {
 	groupDevices, err := list[Room](ctx, a.req, name)
 	if err != nil {
-		return fmt.Errorf("unable to list rooms: %s", err)
+		return fmt.Errorf("list rooms: %s", err)
 	}
 
 	isBridge := name == "bridge_home"
@@ -160,12 +160,12 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 	for _, item := range groupDevices {
 		groupedLights, err := a.buildServices(ctx, name, item.Services)
 		if err != nil {
-			return fmt.Errorf("unable to build services for %s `%s`: %s", name, item.ID, err)
+			return fmt.Errorf("build services for %s `%s`: %s", name, item.ID, err)
 		}
 
 		lights, err := a.buildChildren(ctx, name, item.Children)
 		if err != nil {
-			return fmt.Errorf("unable to build children for %s `%s`: %s", name, item.ID, err)
+			return fmt.Errorf("build children for %s `%s`: %s", name, item.ID, err)
 		}
 
 		groupName := item.Metadata.Name
@@ -194,7 +194,7 @@ func (a *App) buildServices(ctx context.Context, name string, services []deviceR
 		case "grouped_light":
 			groupedLight, err := get[GroupedLight](ctx, a.req, service.Rtype, service.Rid)
 			if err != nil {
-				return nil, fmt.Errorf("unable to get grouped light `%s`: %s", service.Rid, err)
+				return nil, fmt.Errorf("get grouped light `%s`: %s", service.Rid, err)
 			}
 			output[groupedLight.ID] = groupedLight
 
@@ -218,12 +218,12 @@ func (a *App) buildChildren(ctx context.Context, name string, children []deviceR
 		case "device":
 			device, err := get[Device](ctx, a.req, service.Rtype, service.Rid)
 			if err != nil {
-				return nil, fmt.Errorf("unable to get device `%s`: %s", service.Rid, err)
+				return nil, fmt.Errorf("get device `%s`: %s", service.Rid, err)
 			}
 
 			lights, err := a.buildChildren(ctx, "device", device.Services)
 			if err != nil {
-				return nil, fmt.Errorf("unable to get children of device `%s`: %s", service.Rid, err)
+				return nil, fmt.Errorf("get children of device `%s`: %s", service.Rid, err)
 			}
 
 			output = append(output, lights...)

@@ -41,12 +41,12 @@ func (a *App) initConfig() (config configHue) {
 
 	configFile, err := os.Open(a.configFileName)
 	if err != nil {
-		logger.Error("unable to open config file: %s", err)
+		logger.Error("open config file: %s", err)
 		return
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
-		logger.Error("unable to decode config file: %s", err)
+		logger.Error("decode config file: %s", err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) e
 		for _, name := range names {
 			if sensor.Name == name {
 				if _, err := a.v2App.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
-					return fmt.Errorf("unable to update sensor `%s`: %s", sensor.ID, err)
+					return fmt.Errorf("update sensor `%s`: %s", sensor.ID, err)
 				}
 			}
 		}
@@ -115,7 +115,7 @@ func (a *App) refreshState(ctx context.Context) error {
 func (a *App) syncLights() error {
 	lights, err := a.listLights(context.Background())
 	if err != nil {
-		return fmt.Errorf("unable to list lights: %s", err)
+		return fmt.Errorf("list lights: %s", err)
 	}
 
 	a.mutex.Lock()
@@ -128,7 +128,7 @@ func (a *App) syncLights() error {
 func (a *App) syncGroups() error {
 	groups, err := a.listGroups(context.Background())
 	if err != nil {
-		return fmt.Errorf("unable to list groups: %s", err)
+		return fmt.Errorf("list groups: %s", err)
 	}
 
 	a.mutex.Lock()
@@ -141,7 +141,7 @@ func (a *App) syncGroups() error {
 func (a *App) syncSchedules() error {
 	schedules, err := a.listSchedules(context.Background())
 	if err != nil {
-		return fmt.Errorf("unable to list schedules: %s", err)
+		return fmt.Errorf("list schedules: %s", err)
 	}
 
 	a.mutex.Lock()
@@ -154,7 +154,7 @@ func (a *App) syncSchedules() error {
 func (a *App) syncScenes() error {
 	scenes, err := a.listScenes(context.Background())
 	if err != nil {
-		return fmt.Errorf("unable to list scenes: %s", err)
+		return fmt.Errorf("list scenes: %s", err)
 	}
 
 	a.mutex.Lock()
