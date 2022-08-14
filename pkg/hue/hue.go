@@ -13,7 +13,7 @@ import (
 	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
-// App stores informations and secret of API
+// App stores information and secret of API
 type App struct {
 	apiHandler     http.Handler
 	v2App          *v2.App

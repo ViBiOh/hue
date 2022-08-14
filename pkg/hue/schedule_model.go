@@ -91,7 +91,7 @@ func recurrenceStr(recurrence int) string {
 	return strings.Join(days, ", ")
 }
 
-// FormatLocalTime formats local time of schedules to human readable version
+// FormatLocalTime formats local time of schedules to human-readable version
 func (s Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, "W") {
 		return s.Localtime

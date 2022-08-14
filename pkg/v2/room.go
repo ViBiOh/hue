@@ -163,7 +163,7 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 			return fmt.Errorf("build services for %s `%s`: %s", name, item.ID, err)
 		}
 
-		lights, err := a.buildChildren(ctx, name, item.Children)
+		lights, err := a.buildChildren(ctx, item.Children)
 		if err != nil {
 			return fmt.Errorf("build children for %s `%s`: %s", name, item.ID, err)
 		}
@@ -206,7 +206,7 @@ func (a *App) buildServices(ctx context.Context, name string, services []deviceR
 	return output, nil
 }
 
-func (a *App) buildChildren(ctx context.Context, name string, children []deviceReference) ([]*Light, error) {
+func (a *App) buildChildren(ctx context.Context, children []deviceReference) ([]*Light, error) {
 	var output []*Light
 
 	for _, service := range children {
@@ -221,7 +221,7 @@ func (a *App) buildChildren(ctx context.Context, name string, children []deviceR
 				return nil, fmt.Errorf("get device `%s`: %s", service.Rid, err)
 			}
 
-			lights, err := a.buildChildren(ctx, "device", device.Services)
+			lights, err := a.buildChildren(ctx, device.Services)
 			if err != nil {
 				return nil, fmt.Errorf("get children of device `%s`: %s", service.Rid, err)
 			}

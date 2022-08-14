@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// App stores informations and secret of API
+// App stores information and secret of API
 type App struct {
 	lights        map[string]*Light
 	groups        map[string]Group

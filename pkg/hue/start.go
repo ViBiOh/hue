@@ -16,7 +16,7 @@ var logError = func(err error) {
 	logger.Error("%s", err)
 }
 
-type syncer func() error
+type syncer func(context.Context) error
 
 // Start worker
 func (a *App) Start(done <-chan struct{}) {
@@ -91,7 +91,7 @@ func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) e
 }
 
 func (a *App) refreshState(ctx context.Context) error {
-	if err := a.syncLights(); err != nil {
+	if err := a.syncLights(ctx); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func (a *App) refreshState(ctx context.Context) error {
 		syncer := fn
 
 		wg.Go(func() {
-			if err := syncer(); err != nil {
+			if err := syncer(ctx); err != nil {
 				logger.Error("error while syncing: %s", err)
 			}
 		})
@@ -112,8 +112,8 @@ func (a *App) refreshState(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) syncLights() error {
-	lights, err := a.listLights(context.Background())
+func (a *App) syncLights(ctx context.Context) error {
+	lights, err := a.listLights(ctx)
 	if err != nil {
 		return fmt.Errorf("list lights: %s", err)
 	}
@@ -125,8 +125,8 @@ func (a *App) syncLights() error {
 	return nil
 }
 
-func (a *App) syncGroups() error {
-	groups, err := a.listGroups(context.Background())
+func (a *App) syncGroups(ctx context.Context) error {
+	groups, err := a.listGroups(ctx)
 	if err != nil {
 		return fmt.Errorf("list groups: %s", err)
 	}
@@ -138,8 +138,8 @@ func (a *App) syncGroups() error {
 	return nil
 }
 
-func (a *App) syncSchedules() error {
-	schedules, err := a.listSchedules(context.Background())
+func (a *App) syncSchedules(ctx context.Context) error {
+	schedules, err := a.listSchedules(ctx)
 	if err != nil {
 		return fmt.Errorf("list schedules: %s", err)
 	}
@@ -151,8 +151,8 @@ func (a *App) syncSchedules() error {
 	return nil
 }
 
-func (a *App) syncScenes() error {
-	scenes, err := a.listScenes(context.Background())
+func (a *App) syncScenes(ctx context.Context) error {
+	scenes, err := a.listScenes(ctx)
 	if err != nil {
 		return fmt.Errorf("list scenes: %s", err)
 	}

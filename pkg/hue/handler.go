@@ -81,12 +81,14 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	if err := a.updateSchedule(r.Context(), schedule); err != nil {
+	ctx := r.Context()
+
+	if err := a.updateSchedule(ctx, schedule); err != nil {
 		a.rendererApp.Error(w, r, nil, err)
 		return
 	}
 
-	if err := a.syncSchedules(); err != nil {
+	if err := a.syncSchedules(ctx); err != nil {
 		a.rendererApp.Error(w, r, nil, err)
 		return
 	}
