@@ -21,19 +21,19 @@ func (a *App) initConfig() (err error) {
 
 	a.lights, err = a.buildLights(ctx)
 	if err != nil {
-		err = fmt.Errorf("build lights: %s", err)
+		err = fmt.Errorf("build lights: %w", err)
 		return
 	}
 
 	a.groups, err = a.buildGroup(ctx)
 	if err != nil {
-		err = fmt.Errorf("build groups: %s", err)
+		err = fmt.Errorf("build groups: %w", err)
 		return
 	}
 
 	a.motionSensors, err = a.buildMotionSensor(ctx)
 	if err != nil {
-		err = fmt.Errorf("build motion sensor: %s", err)
+		err = fmt.Errorf("build motion sensor: %w", err)
 		return
 	}
 

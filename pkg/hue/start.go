@@ -81,7 +81,7 @@ func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) e
 		for _, name := range names {
 			if sensor.Name == name {
 				if _, err := a.v2App.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
-					return fmt.Errorf("update sensor `%s`: %s", sensor.ID, err)
+					return fmt.Errorf("update sensor `%s`: %w", sensor.ID, err)
 				}
 			}
 		}
@@ -115,7 +115,7 @@ func (a *App) refreshState(ctx context.Context) error {
 func (a *App) syncLights(ctx context.Context) error {
 	lights, err := a.listLights(ctx)
 	if err != nil {
-		return fmt.Errorf("list lights: %s", err)
+		return fmt.Errorf("list lights: %w", err)
 	}
 
 	a.mutex.Lock()
@@ -128,7 +128,7 @@ func (a *App) syncLights(ctx context.Context) error {
 func (a *App) syncGroups(ctx context.Context) error {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		return fmt.Errorf("list groups: %s", err)
+		return fmt.Errorf("list groups: %w", err)
 	}
 
 	a.mutex.Lock()
@@ -141,7 +141,7 @@ func (a *App) syncGroups(ctx context.Context) error {
 func (a *App) syncSchedules(ctx context.Context) error {
 	schedules, err := a.listSchedules(ctx)
 	if err != nil {
-		return fmt.Errorf("list schedules: %s", err)
+		return fmt.Errorf("list schedules: %w", err)
 	}
 
 	a.mutex.Lock()
@@ -154,7 +154,7 @@ func (a *App) syncSchedules(ctx context.Context) error {
 func (a *App) syncScenes(ctx context.Context) error {
 	scenes, err := a.listScenes(ctx)
 	if err != nil {
-		return fmt.Errorf("list scenes: %s", err)
+		return fmt.Errorf("list scenes: %w", err)
 	}
 
 	a.mutex.Lock()

@@ -10,7 +10,7 @@ func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
 	var response map[string]Group
 	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &response)
 	if err != nil {
-		return nil, fmt.Errorf("get: %s", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
 	output := make(map[string]Group, len(response))

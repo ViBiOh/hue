@@ -116,13 +116,13 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)
 	if err != nil {
-		a.rendererApp.Error(w, r, nil, model.WrapInvalid(fmt.Errorf("parse boolean with value `%s`: %s", status, err)))
+		a.rendererApp.Error(w, r, nil, model.WrapInvalid(fmt.Errorf("parse boolean with value `%s`: %w", status, err)))
 		return
 	}
 
 	motionSensor, err := a.v2App.UpdateSensor(r.Context(), id, statusBool)
 	if err != nil {
-		a.rendererApp.Error(w, r, nil, fmt.Errorf("update sensor `%s`: %s", id, err))
+		a.rendererApp.Error(w, r, nil, fmt.Errorf("update sensor `%s`: %w", id, err))
 		return
 	}
 

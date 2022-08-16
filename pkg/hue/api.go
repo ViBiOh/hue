@@ -21,7 +21,7 @@ func get(ctx context.Context, url string, response any) error {
 	}
 
 	if err := httpjson.Read(resp, &response); err != nil {
-		return fmt.Errorf("read hue content: %s", err)
+		return fmt.Errorf("read hue content: %w", err)
 	}
 	return nil
 }

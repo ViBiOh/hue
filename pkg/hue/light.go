@@ -9,7 +9,7 @@ func (a *App) listLights(ctx context.Context) (map[string]Light, error) {
 	var response map[string]Light
 
 	if err := get(ctx, fmt.Sprintf("%s/lights", a.bridgeURL), &response); err != nil {
-		return nil, fmt.Errorf("get: %s", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
 	output := make(map[string]Light, len(response))
