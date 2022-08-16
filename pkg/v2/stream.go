@@ -146,20 +146,18 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 			logger.Debug("Motion enabled %t on motion sensor `%s`", motionSensor.Enabled, motionSensor.Name)
 		}
 
-		if motion == nil {
-			return
-		}
+		if motion != nil {
+			motionSensor.Motion = motion.Motion
+			logger.Debug("Motion %t on motion sensor `%s`", motionSensor.Motion, motionSensor.Name)
 
-		motionSensor.Motion = motion.Motion
-		logger.Debug("Motion %t on motion sensor `%s`", motionSensor.Motion, motionSensor.Name)
+			if motion.Motion {
+				a.setMetric("motion", motionSensor.Name, 1)
+			} else {
+				a.setMetric("motion", motionSensor.Name, 0)
+			}
+		}
 
 		a.motionSensors[owner] = motionSensor
-		if motion.Motion {
-			a.setMetric("motion", motionSensor.Name, 1)
-		} else {
-			a.setMetric("motion", motionSensor.Name, 0)
-		}
-
 	} else {
 		logger.Warn("unknown motion owner ID `%s`", owner)
 	}
