@@ -146,10 +146,12 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 			logger.Debug("Motion enabled %t on motion sensor `%s`", motionSensor.Enabled, motionSensor.Name)
 		}
 
-		if motion != nil {
-			motionSensor.Motion = motion.Motion
-			logger.Debug("Motion %t on motion sensor `%s`", motionSensor.Motion, motionSensor.Name)
+		if motion == nil {
+			return
 		}
+
+		motionSensor.Motion = motion.Motion
+		logger.Debug("Motion %t on motion sensor `%s`", motionSensor.Motion, motionSensor.Name)
 
 		a.motionSensors[owner] = motionSensor
 		if motion.Motion {
