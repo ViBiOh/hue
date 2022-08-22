@@ -102,6 +102,13 @@ func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness fl
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
 
+	// var color Color
+	// color.XY.X = 0.313
+	// color.XY.Y = .337
+
+	var colorTemperature ColorTemperature
+	colorTemperature.Mirek = 239
+
 	payload := map[string]interface{}{
 		"on": On{
 			On: on,
@@ -109,6 +116,7 @@ func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness fl
 		"dimming": Dimming{
 			Brightness: brightness,
 		},
+		"color_temperature": colorTemperature,
 		"dynamics": map[string]interface{}{
 			"duration": transitionTime.Milliseconds(),
 		},

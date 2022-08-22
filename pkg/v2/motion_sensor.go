@@ -10,7 +10,6 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 )
 
-// MotionSensor description
 type MotionSensor struct {
 	ID           string  `json:"id"`
 	MotionID     string  `json:"motion_id"`
@@ -23,7 +22,6 @@ type MotionSensor struct {
 	Motion       bool    `json:"motion"`
 }
 
-// MotionSensorByName sort MotionSensor by Name
 type MotionSensorByName []MotionSensor
 
 func (a MotionSensorByName) Len() int      { return len(a) }
@@ -32,7 +30,6 @@ func (a MotionSensorByName) Less(i, j int) bool {
 	return a[i].Name < a[j].Name
 }
 
-// LightLevel description
 type LightLevel struct {
 	Owner deviceReference `json:"owner"`
 	ID    string          `json:"id"`
@@ -43,7 +40,6 @@ type LightLevel struct {
 	Enabled bool `json:"enabled"`
 }
 
-// LightLevelByOwner sort LightLevel by Owner
 type LightLevelByOwner []LightLevel
 
 func (a LightLevelByOwner) Len() int      { return len(a) }
@@ -52,13 +48,22 @@ func (a LightLevelByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-// MotionValue struct
 type MotionValue struct {
 	Motion      bool `json:"motion"`
 	MotionValid bool `json:"motion_valid"`
 }
 
-// Motion description
+type ColorTemperature struct {
+	Mirek uint `json:"mirek"`
+}
+
+type Color struct {
+	XY struct {
+		X float64 `json:"x"`
+		Y float64 `json:"y"`
+	} `json:"xy"`
+}
+
 type Motion struct {
 	Owner   deviceReference `json:"owner"`
 	ID      string          `json:"id"`
@@ -66,7 +71,6 @@ type Motion struct {
 	Enabled bool            `json:"enabled"`
 }
 
-// MotionByOwner sort Motion by Owner
 type MotionByOwner []Motion
 
 func (a MotionByOwner) Len() int      { return len(a) }
@@ -75,7 +79,6 @@ func (a MotionByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-// Temperature description
 type Temperature struct {
 	Owner       deviceReference `json:"owner"`
 	ID          string          `json:"id"`
@@ -86,7 +89,6 @@ type Temperature struct {
 	Enabled bool `json:"enabled"`
 }
 
-// TemperatureByOwner sort Temperature by Owner
 type TemperatureByOwner []Temperature
 
 func (a TemperatureByOwner) Len() int      { return len(a) }
@@ -95,7 +97,6 @@ func (a TemperatureByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-// Sensors list available motion sensors
 func (a *App) Sensors() []MotionSensor {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
@@ -113,7 +114,6 @@ func (a *App) Sensors() []MotionSensor {
 	return output
 }
 
-// UpdateSensor status
 func (a *App) UpdateSensor(ctx context.Context, id string, enabled bool) (MotionSensor, error) {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()

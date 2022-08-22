@@ -19,14 +19,16 @@ var dataPrefix []byte = []byte("data: ")
 type Event struct {
 	Type string `json:"type"`
 	Data []struct {
-		Motion     *MotionValue    `json:"motion,omitempty"`
-		Dimming    *Dimming        `json:"dimming,omitempty"`
-		On         *On             `json:"on,omitempty"`
-		Enabled    *bool           `json:"enabled,omitempty"`
-		Owner      deviceReference `json:"owner"`
-		ID         string          `json:"id"`
-		Type       string          `json:"type"`
-		PowerState struct {
+		Motion           *MotionValue      `json:"motion,omitempty"`
+		ColorTemperature *ColorTemperature `json:"color_temperature,omitempty"`
+		Color            *Color            `json:"color,omitempty"`
+		Dimming          *Dimming          `json:"dimming,omitempty"`
+		On               *On               `json:"on,omitempty"`
+		Enabled          *bool             `json:"enabled,omitempty"`
+		Owner            deviceReference   `json:"owner"`
+		ID               string            `json:"id"`
+		Type             string            `json:"type"`
+		PowerState       struct {
 			BatteryState string `json:"battery_state"`
 			BatteryLevel int64  `json:"battery_level"`
 		}
