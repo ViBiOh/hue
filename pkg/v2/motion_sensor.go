@@ -54,7 +54,7 @@ type MotionValue struct {
 }
 
 type ColorTemperature struct {
-	Mirek uint `json:"mirek"`
+	Mirek int `json:"mirek"`
 }
 
 type Color struct {
