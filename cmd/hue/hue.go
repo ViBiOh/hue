@@ -79,7 +79,7 @@ func main() {
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 
-	go hueApp.Start(healthApp.Done())
+	go hueApp.Start(healthApp.Context())
 
 	v2App.Start(healthApp.Done())
 
