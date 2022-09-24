@@ -19,18 +19,18 @@ var logError = func(err error) {
 type syncer func(context.Context) error
 
 // Start worker
-func (a *App) Start(done <-chan struct{}) {
+func (a *App) Start(ctx context.Context) {
 	config := a.initConfig()
 
 	for _, motionSensorCron := range config.MotionSensors.Crons {
 		item := motionSensorCron
 
-		go cron.New().Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(func(ctx context.Context) error {
+		go cron.New().Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(ctx, func(ctx context.Context) error {
 			return a.updateSensors(ctx, item.Names, item.Enabled)
-		}, done)
+		})
 	}
 
-	cron.New().Each(time.Minute).Now().OnError(logError).Start(a.refreshState, done)
+	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, a.refreshState)
 }
 
 func (a *App) initConfig() (config configHue) {
