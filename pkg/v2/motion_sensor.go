@@ -120,6 +120,7 @@ func (a *App) UpdateSensor(ctx context.Context, id string, enabled bool) (Motion
 
 	payload := map[string]interface{}{
 		"enabled": enabled,
+		"motion":  false,
 	}
 
 	motionSensor, ok := a.motionSensors[id]
