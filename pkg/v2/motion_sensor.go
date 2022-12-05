@@ -202,20 +202,20 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	output := make(map[string]MotionSensor, len(devices))
 
 	return output, breaksync.NewSynchronization().
-		AddSources(breaksync.NewSliceSource(devices, func(t Device) string {
-			return t.ID
-		}, breaksync.NewRupture("id", breaksync.Identity))).
-		AddSources(breaksync.NewSliceSource(motions, func(t Motion) string {
-			return t.Owner.Rid
+		AddSources(breaksync.NewSliceSource(devices, func(t Device) []byte {
+			return []byte(t.ID)
+		}, breaksync.NewRupture("id", breaksync.RuptureIdentity))).
+		AddSources(breaksync.NewSliceSource(motions, func(t Motion) []byte {
+			return []byte(t.Owner.Rid)
 		}, nil)).
-		AddSources(breaksync.NewSliceSource(lightLevels, func(t LightLevel) string {
-			return t.Owner.Rid
+		AddSources(breaksync.NewSliceSource(lightLevels, func(t LightLevel) []byte {
+			return []byte(t.Owner.Rid)
 		}, nil)).
-		AddSources(breaksync.NewSliceSource(temperatures, func(t Temperature) string {
-			return t.Owner.Rid
+		AddSources(breaksync.NewSliceSource(temperatures, func(t Temperature) []byte {
+			return []byte(t.Owner.Rid)
 		}, nil)).
-		AddSources(breaksync.NewSliceSource(devicePowers, func(t DevicePower) string {
-			return t.Owner.Rid
+		AddSources(breaksync.NewSliceSource(devicePowers, func(t DevicePower) []byte {
+			return []byte(t.Owner.Rid)
 		}, nil)).
 		Run(func(syncFlags uint64, values []any) error {
 			var sensor MotionSensor
