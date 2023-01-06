@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"fmt"
@@ -54,9 +55,11 @@ func main() {
 	logger.Global(logger.New(loggerConfig))
 	defer logger.Close()
 
-	tracerApp, err := tracer.New(tracerConfig)
+	ctx := context.Background()
+
+	tracerApp, err := tracer.New(ctx, tracerConfig)
 	logger.Fatal(err)
-	defer tracerApp.Close()
+	defer tracerApp.Close(ctx)
 	request.AddTracerToDefaultClient(tracerApp.GetProvider())
 
 	go func() {
@@ -79,12 +82,12 @@ func main() {
 
 	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
 
-	go hueApp.Start(healthApp.Context())
+	go hueApp.Start(healthApp.ContextDone())
 
 	v2App.Start(healthApp.Done())
 
-	go promServer.Start("prometheus", healthApp.End(), prometheusApp.Handler())
-	go appServer.Start("http", healthApp.End(), httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, tracerApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go promServer.Start(healthApp.ContextEnd(), "prometheus", prometheusApp.Handler())
+	go appServer.Start(healthApp.ContextEnd(), "http", httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, prometheusApp.Middleware, tracerApp.Middleware, owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthApp.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done(), promServer.Done())
