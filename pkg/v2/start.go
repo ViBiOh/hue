@@ -8,12 +8,12 @@ import (
 )
 
 // Start worker
-func (a *App) Start(done <-chan struct{}) {
+func (a *App) Start(ctx context.Context) {
 	if err := a.initConfig(); err != nil {
 		logger.Fatal(err)
 	}
 
-	go a.streamIndefinitely(done)
+	go a.streamIndefinitely(ctx.Done())
 }
 
 func (a *App) initConfig() (err error) {
