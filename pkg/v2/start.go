@@ -9,16 +9,14 @@ import (
 
 // Start worker
 func (a *App) Start(ctx context.Context) {
-	if err := a.initConfig(); err != nil {
+	if err := a.initConfig(ctx); err != nil {
 		logger.Fatal(err)
 	}
 
 	go a.streamIndefinitely(ctx.Done())
 }
 
-func (a *App) initConfig() (err error) {
-	ctx := context.Background()
-
+func (a *App) initConfig(ctx context.Context) (err error) {
 	a.lights, err = a.buildLights(ctx)
 	if err != nil {
 		err = fmt.Errorf("build lights: %w", err)

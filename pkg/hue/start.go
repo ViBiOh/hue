@@ -20,7 +20,7 @@ type syncer func(context.Context) error
 
 // Start worker
 func (a *App) Start(ctx context.Context) {
-	config := a.initConfig()
+	config := a.initConfig(ctx)
 
 	for _, motionSensorCron := range config.MotionSensors.Crons {
 		item := motionSensorCron
@@ -33,7 +33,7 @@ func (a *App) Start(ctx context.Context) {
 	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, a.refreshState)
 }
 
-func (a *App) initConfig() (config configHue) {
+func (a *App) initConfig(ctx context.Context) (config configHue) {
 	if len(a.configFileName) == 0 {
 		logger.Warn("no config init for hue")
 		return
@@ -53,8 +53,6 @@ func (a *App) initConfig() (config configHue) {
 	if a.update {
 		logger.Info("Configuring hue...")
 		defer logger.Info("Configuration done.")
-
-		ctx := context.Background()
 
 		if err := a.cleanSchedules(ctx); err != nil {
 			logger.Error("%s", err)
