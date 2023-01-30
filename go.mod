@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/ViBiOh/flags v1.2.0
-	github.com/ViBiOh/httputils/v4 v4.53.1
+	github.com/ViBiOh/httputils/v4 v4.53.2
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/common v0.39.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
