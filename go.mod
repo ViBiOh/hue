@@ -4,10 +4,10 @@ go 1.20
 
 require (
 	github.com/ViBiOh/flags v1.2.0
-	github.com/ViBiOh/httputils/v4 v4.53.3
+	github.com/ViBiOh/httputils/v4 v4.53.4
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/common v0.39.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
 
 require (
@@ -22,12 +22,12 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/tdewolff/minify/v2 v2.12.4 // indirect
 	github.com/tdewolff/parse/v2 v2.6.4 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.38.0 // indirect
-	go.opentelemetry.io/otel v1.12.0 // indirect
-	go.opentelemetry.io/otel/exporters/jaeger v1.12.0 // indirect
-	go.opentelemetry.io/otel/metric v0.35.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.12.0 // indirect
-	go.opentelemetry.io/otel/trace v1.12.0 // indirect
-	golang.org/x/term v0.4.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0 // indirect
+	go.opentelemetry.io/otel v1.13.0 // indirect
+	go.opentelemetry.io/otel/exporters/jaeger v1.13.0 // indirect
+	go.opentelemetry.io/otel/metric v0.36.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.13.0 // indirect
+	go.opentelemetry.io/otel/trace v1.13.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
