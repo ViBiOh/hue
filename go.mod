@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/ViBiOh/flags v1.3.0
-	github.com/ViBiOh/httputils/v4 v4.56.1
-	github.com/prometheus/client_golang v1.14.0
+	github.com/ViBiOh/httputils/v4 v4.56.2
+	github.com/prometheus/client_golang v1.15.0
 	github.com/prometheus/common v0.42.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 )
@@ -21,7 +21,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/tdewolff/minify/v2 v2.12.5 // indirect
 	github.com/tdewolff/parse/v2 v2.6.5 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.40.0 // indirect
@@ -36,7 +36,7 @@ require (
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/genproto v0.0.0-20230403163135-c38d8f061ccd // indirect
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/grpc v1.54.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
