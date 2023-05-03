@@ -3,8 +3,8 @@ module github.com/ViBiOh/hue
 go 1.20
 
 require (
-	github.com/ViBiOh/flags v1.3.0
-	github.com/ViBiOh/httputils/v4 v4.57.0
+	github.com/ViBiOh/flags v1.3.1
+	github.com/ViBiOh/httputils/v4 v4.57.1
 	github.com/prometheus/client_golang v1.15.0
 	github.com/prometheus/common v0.42.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
