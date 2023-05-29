@@ -24,7 +24,7 @@ type App struct {
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
-	rendererApp    renderer.App
+	rendererApp    *renderer.App
 	syncers        []syncer
 	mutex          sync.RWMutex
 	update         bool
@@ -49,7 +49,7 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, renderer renderer.App, v2App *v2.App) (*App, error) {
+func New(config Config, renderer *renderer.App, v2App *v2.App) (*App, error) {
 	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
 	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
 
