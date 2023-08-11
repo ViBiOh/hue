@@ -93,7 +93,7 @@ func (a *App) refreshState(ctx context.Context) error {
 		return err
 	}
 
-	wg := concurrent.NewLimited(4)
+	wg := concurrent.NewLimiter(4)
 
 	for _, fn := range a.syncers {
 		syncer := fn
