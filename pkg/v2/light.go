@@ -3,9 +3,8 @@ package v2
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 type Light struct {
@@ -40,7 +39,7 @@ func (a *App) buildLights(ctx context.Context) (map[string]*Light, error) {
 		output[light.ID] = &light
 
 		if err := a.setWhiteLight(ctx, light.ID); err != nil {
-			logger.Error("white light: %s", err)
+			slog.Error("white light", "err", err)
 		}
 	}
 

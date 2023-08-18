@@ -59,7 +59,7 @@ The application is not an app or hub replacement, it uses the Hub's API and is n
 
 ### Metrics
 
-The web service exposes two specifics metrics gathered from the motions sensors: the battery life and the temperature. They are available on the prometheus endpoint `/metrics` (cf. [Usage](#usage) section). It also exposes basic Golang and HTTP metrics.
+The web service exposes two specifics metrics gathered from the motions sensors: the battery life and the temperature. They are available with OpenTelemetry.
 
 ## Usage
 
@@ -69,98 +69,42 @@ Be careful when using the CLI values, if someone list the processes on the syste
 
 ```bash
 Usage of hue:
-  -address string
-        [server] Listen address {HUE_ADDRESS}
-  -bridgeIP string
-        [hue] IP of Bridge {HUE_BRIDGE_IP}
-  -cert string
-        [server] Certificate file {HUE_CERT}
-  -config string
-        [hue] Configuration filename {HUE_CONFIG}
-  -corsCredentials
-        [cors] Access-Control-Allow-Credentials {HUE_CORS_CREDENTIALS}
-  -corsExpose string
-        [cors] Access-Control-Expose-Headers {HUE_CORS_EXPOSE}
-  -corsHeaders string
-        [cors] Access-Control-Allow-Headers {HUE_CORS_HEADERS} (default "Content-Type")
-  -corsMethods string
-        [cors] Access-Control-Allow-Methods {HUE_CORS_METHODS} (default "GET")
-  -corsOrigin string
-        [cors] Access-Control-Allow-Origin {HUE_CORS_ORIGIN} (default "*")
-  -csp string
-        [owasp] Content-Security-Policy {HUE_CSP} (default "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")
-  -frameOptions string
-        [owasp] X-Frame-Options {HUE_FRAME_OPTIONS} (default "deny")
-  -graceDuration string
-        [http] Grace duration when SIGTERM received {HUE_GRACE_DURATION} (default "30s")
-  -hsts
-        [owasp] Indicate Strict Transport Security {HUE_HSTS} (default true)
-  -idleTimeout string
-        [server] Idle Timeout {HUE_IDLE_TIMEOUT} (default "2m")
-  -key string
-        [server] Key file {HUE_KEY}
-  -loggerJson
-        [logger] Log format as JSON {HUE_LOGGER_JSON}
-  -loggerLevel string
-        [logger] Logger level {HUE_LOGGER_LEVEL} (default "INFO")
-  -loggerLevelKey string
-        [logger] Key for level in JSON {HUE_LOGGER_LEVEL_KEY} (default "level")
-  -loggerMessageKey string
-        [logger] Key for message in JSON {HUE_LOGGER_MESSAGE_KEY} (default "message")
-  -loggerTimeKey string
-        [logger] Key for timestamp in JSON {HUE_LOGGER_TIME_KEY} (default "time")
-  -minify
-        Minify HTML {HUE_MINIFY} (default true)
-  -okStatus int
-        [http] Healthy HTTP Status code {HUE_OK_STATUS} (default 204)
-  -pathPrefix string
-        Root Path Prefix {HUE_PATH_PREFIX}
-  -port uint
-        [server] Listen port (0 to disable) {HUE_PORT} (default 1080)
-  -prometheusAddress string
-        [prometheus] Listen address {HUE_PROMETHEUS_ADDRESS}
-  -prometheusCert string
-        [prometheus] Certificate file {HUE_PROMETHEUS_CERT}
-  -prometheusGzip
-        [prometheus] Enable gzip compression of metrics output {HUE_PROMETHEUS_GZIP}
-  -prometheusIdleTimeout string
-        [prometheus] Idle Timeout {HUE_PROMETHEUS_IDLE_TIMEOUT} (default "10s")
-  -prometheusIgnore string
-        [prometheus] Ignored path prefixes for metrics, comma separated {HUE_PROMETHEUS_IGNORE}
-  -prometheusKey string
-        [prometheus] Key file {HUE_PROMETHEUS_KEY}
-  -prometheusPort uint
-        [prometheus] Listen port (0 to disable) {HUE_PROMETHEUS_PORT} (default 9090)
-  -prometheusReadTimeout string
-        [prometheus] Read Timeout {HUE_PROMETHEUS_READ_TIMEOUT} (default "5s")
-  -prometheusShutdownTimeout string
-        [prometheus] Shutdown Timeout {HUE_PROMETHEUS_SHUTDOWN_TIMEOUT} (default "5s")
-  -prometheusWriteTimeout string
-        [prometheus] Write Timeout {HUE_PROMETHEUS_WRITE_TIMEOUT} (default "10s")
-  -publicURL string
-        Public URL {HUE_PUBLIC_URL} (default "https://hue.vibioh.fr")
-  -readTimeout string
-        [server] Read Timeout {HUE_READ_TIMEOUT} (default "5s")
-  -shutdownTimeout string
-        [server] Shutdown Timeout {HUE_SHUTDOWN_TIMEOUT} (default "10s")
-  -title string
-        Application title {HUE_TITLE} (default "Hue")
-  -tracerRate string
-        [tracer] Jaeger sample rate, 'always', 'never' or a float value {HUE_TRACER_RATE} (default "always")
-  -tracerURL string
-        [tracer] Jaeger endpoint URL (e.g. http://jaeger:14268/api/traces) {HUE_TRACER_URL}
-  -url string
-        [alcotest] URL to check {HUE_URL}
-  -userAgent string
-        [alcotest] User-Agent for check {HUE_USER_AGENT} (default "Alcotest")
-  -username string
-        [hue] Username for Bridge {HUE_USERNAME}
-  -v2BridgeIP string
-        [v2] IP of Bridge {HUE_V2_BRIDGE_IP}
-  -v2Config string
-        [v2] Configuration filename {HUE_V2_CONFIG}
-  -v2Username string
-        [v2] Username for Bridge {HUE_V2_USERNAME}
-  -writeTimeout string
-        [server] Write Timeout {HUE_WRITE_TIMEOUT} (default "10s")
+  --address           string    [server] Listen address ${HUE_ADDRESS}
+  --bridgeIP          string    [hue] IP of Bridge ${HUE_BRIDGE_IP}
+  --cert              string    [server] Certificate file ${HUE_CERT}
+  --config            string    [hue] Configuration filename ${HUE_CONFIG}
+  --corsCredentials             [cors] Access-Control-Allow-Credentials ${HUE_CORS_CREDENTIALS} (default false)
+  --corsExpose        string    [cors] Access-Control-Expose-Headers ${HUE_CORS_EXPOSE}
+  --corsHeaders       string    [cors] Access-Control-Allow-Headers ${HUE_CORS_HEADERS} (default "Content-Type")
+  --corsMethods       string    [cors] Access-Control-Allow-Methods ${HUE_CORS_METHODS} (default "GET")
+  --corsOrigin        string    [cors] Access-Control-Allow-Origin ${HUE_CORS_ORIGIN} (default "*")
+  --csp               string    [owasp] Content-Security-Policy ${HUE_CSP} (default "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")
+  --frameOptions      string    [owasp] X-Frame-Options ${HUE_FRAME_OPTIONS} (default "deny")
+  --graceDuration     duration  [http] Grace duration when SIGTERM received ${HUE_GRACE_DURATION} (default 30s)
+  --hsts                        [owasp] Indicate Strict Transport Security ${HUE_HSTS} (default true)
+  --idleTimeout       duration  [server] Idle Timeout ${HUE_IDLE_TIMEOUT} (default 2m0s)
+  --key               string    [server] Key file ${HUE_KEY}
+  --loggerJson                  [logger] Log format as JSON ${HUE_LOGGER_JSON} (default false)
+  --loggerLevel       string    [logger] Logger level ${HUE_LOGGER_LEVEL} (default "INFO")
+  --loggerLevelKey    string    [logger] Key for level in JSON ${HUE_LOGGER_LEVEL_KEY} (default "level")
+  --loggerMessageKey  string    [logger] Key for message in JSON ${HUE_LOGGER_MESSAGE_KEY} (default "msg")
+  --loggerTimeKey     string    [logger] Key for timestamp in JSON ${HUE_LOGGER_TIME_KEY} (default "time")
+  --minify                      Minify HTML ${HUE_MINIFY} (default true)
+  --okStatus          int       [http] Healthy HTTP Status code ${HUE_OK_STATUS} (default 204)
+  --pathPrefix        string    Root Path Prefix ${HUE_PATH_PREFIX}
+  --port              uint      [server] Listen port (0 to disable) ${HUE_PORT} (default 1080)
+  --publicURL         string    Public URL ${HUE_PUBLIC_URL} (default "https://hue.vibioh.fr")
+  --readTimeout       duration  [server] Read Timeout ${HUE_READ_TIMEOUT} (default 5s)
+  --shutdownTimeout   duration  [server] Shutdown Timeout ${HUE_SHUTDOWN_TIMEOUT} (default 10s)
+  --telemetryRate     string    [telemetry] OpenTelemetry sample rate, 'always', 'never' or a float value ${HUE_TELEMETRY_RATE} (default "always")
+  --telemetryURL      string    [telemetry] OpenTelemetry gRPC endpoint (e.g. otel-exporter:4317) ${HUE_TELEMETRY_URL}
+  --title             string    Application title ${HUE_TITLE} (default "Hue")
+  --update                      [hue] Update configuration from file ${HUE_UPDATE} (default false)
+  --url               string    [alcotest] URL to check ${HUE_URL}
+  --userAgent         string    [alcotest] User-Agent for check ${HUE_USER_AGENT} (default "Alcotest")
+  --username          string    [hue] Username for Bridge ${HUE_USERNAME}
+  --v2BridgeIP        string    [v2] IP of Bridge ${HUE_V2_BRIDGE_IP}
+  --v2Config          string    [v2] Configuration filename ${HUE_V2_CONFIG}
+  --v2Username        string    [v2] Username for Bridge ${HUE_V2_USERNAME}
+  --writeTimeout      duration  [server] Write Timeout ${HUE_WRITE_TIMEOUT} (default 10s)
 ```

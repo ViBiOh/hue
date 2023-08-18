@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
 	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 var logError = func(err error) {
-	logger.Error("%s", err)
+	slog.Error("error", "err", err)
 }
 
 type syncer func(context.Context) error
@@ -35,35 +35,35 @@ func (a *App) Start(ctx context.Context) {
 
 func (a *App) initConfig(ctx context.Context) (config configHue) {
 	if len(a.configFileName) == 0 {
-		logger.Warn("no config init for hue")
+		slog.Warn("no config init for hue")
 		return
 	}
 
 	configFile, err := os.Open(a.configFileName)
 	if err != nil {
-		logger.Error("open config file: %s", err)
+		slog.Error("open config file", "err", err)
 		return
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
-		logger.Error("decode config file: %s", err)
+		slog.Error("decode config file", "err", err)
 		return
 	}
 
 	if a.update {
-		logger.Info("Configuring hue...")
-		defer logger.Info("Configuration done.")
+		slog.Info("Configuring hue...")
+		defer slog.Info("Configuration done.")
 
 		if err := a.cleanSchedules(ctx); err != nil {
-			logger.Error("%s", err)
+			slog.Error("clean schedule", "err", err)
 		}
 
 		if err := a.cleanRules(ctx); err != nil {
-			logger.Error("%s", err)
+			slog.Error("clean rule", "err", err)
 		}
 
 		if err := a.cleanScenes(ctx); err != nil {
-			logger.Error("%s", err)
+			slog.Error("clean scene", "err", err)
 		}
 
 		a.configureSchedules(ctx, config.Schedules)
@@ -100,7 +100,7 @@ func (a *App) refreshState(ctx context.Context) error {
 
 		wg.Go(func() {
 			if err := syncer(ctx); err != nil {
-				logger.Error("error while syncing: %s", err)
+				slog.Error("sync", "err", err)
 			}
 		})
 	}

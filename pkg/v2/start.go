@@ -3,14 +3,15 @@ package v2
 import (
 	"context"
 	"fmt"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
+	"log/slog"
+	"os"
 )
 
 // Start worker
 func (a *App) Start(ctx context.Context) {
 	if err := a.initConfig(ctx); err != nil {
-		logger.Fatal(err)
+		slog.Error("init", "err", err)
+		os.Exit(1)
 	}
 
 	go a.streamIndefinitely(ctx.Done())
