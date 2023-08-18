@@ -2,10 +2,9 @@ package hue
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 const (
@@ -99,7 +98,7 @@ func (s Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		logger.Error("%s", err)
+		slog.Error("format time", "err", err)
 		return s.Localtime
 	}
 

@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 func (a *App) listSchedules(ctx context.Context) (map[string]Schedule, error) {
@@ -101,13 +100,13 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 func (a *App) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
 	groups, err := a.listGroups(ctx)
 	if err != nil {
-		logger.Error("%s", err)
+		slog.Error("list", "err", err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
-			logger.Error("%s", err)
+			slog.Error("create schedule", "err", err)
 		}
 	}
 }

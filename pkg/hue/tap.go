@@ -3,9 +3,8 @@ package hue
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 var tapButtonMapping = map[string]string{
@@ -48,7 +47,7 @@ func (a *App) configureTap(ctx context.Context, taps []configTap) {
 		for _, button := range tap.Buttons {
 			button.Rule = a.createRuleDescription(tap.ID, button)
 			if err := a.createRule(ctx, &button.Rule); err != nil {
-				logger.Error("%s", err)
+				slog.Error("create rule", "err", err)
 			}
 		}
 	}

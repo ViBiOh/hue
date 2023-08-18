@@ -3,9 +3,8 @@ package hue
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 const sensorPresenceURL = "/sensors/%s/state/presence"
@@ -82,12 +81,12 @@ func (a *App) configureMotionSensor(ctx context.Context, sensors []configSensor)
 	for _, sensor := range sensors {
 		onRule := a.createSensorOnRuleDescription(sensor)
 		if err := a.createRule(ctx, &onRule); err != nil {
-			logger.Error("%s", err)
+			slog.Error("create rule", "err", err)
 		}
 
 		offRule := a.createSensorOffRuleDescription(sensor)
 		if err := a.createRule(ctx, &offRule); err != nil {
-			logger.Error("%s", err)
+			slog.Error("create rule", "err", err)
 		}
 	}
 }

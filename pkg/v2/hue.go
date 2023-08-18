@@ -9,7 +9,7 @@ import (
 
 	"github.com/ViBiOh/flags"
 	"github.com/ViBiOh/httputils/v4/pkg/request"
-	"github.com/prometheus/client_golang/prometheus"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // App stores information and secret of API
@@ -17,7 +17,6 @@ type App struct {
 	lights        map[string]*Light
 	groups        map[string]Group
 	motionSensors map[string]MotionSensor
-	metrics       map[string]*prometheus.GaugeVec
 
 	req   request.Request
 	mutex sync.RWMutex
@@ -40,19 +39,18 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 }
 
 // New creates new App from Config
-func New(config Config, prometheusRegisterer prometheus.Registerer) (*App, error) {
-	metrics, err := createMetrics(prometheusRegisterer, "temperature", "battery", "motion")
+func New(config Config, meterProvider metric.MeterProvider) (*App, error) {
+	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
+	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
+
+	app := &App{
+		req: request.Get(fmt.Sprintf("https://%s", bridgeAddress)).Header("hue-application-key", bridgeUsername).WithClient(createInsecureClient(10 * time.Second)),
+	}
+
+	err := app.createMetrics(meterProvider)
 	if err != nil {
 		return nil, err
 	}
 
-	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
-	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
-
-	app := App{
-		req:     request.Get(fmt.Sprintf("https://%s", bridgeAddress)).Header("hue-application-key", bridgeUsername).WithClient(createInsecureClient(10 * time.Second)),
-		metrics: metrics,
-	}
-
-	return &app, nil
+	return app, nil
 }

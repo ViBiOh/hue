@@ -3,11 +3,10 @@ package v2
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"sort"
 	"time"
-
-	"github.com/ViBiOh/httputils/v4/pkg/logger"
 )
 
 // Group description
@@ -207,7 +206,7 @@ func (a *App) buildServices(ctx context.Context, name string, services []deviceR
 			output[groupedLight.ID] = groupedLight
 
 		default:
-			logger.Warn("unhandled service type for %s: %s", name, service.Rtype)
+			slog.Warn("unhandled service type", "anem", name, "type", service.Rtype)
 		}
 	}
 
