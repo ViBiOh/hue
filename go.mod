@@ -5,12 +5,9 @@ go 1.21
 require (
 	github.com/ViBiOh/flags v1.3.1
 	github.com/ViBiOh/httputils/v4 v4.63.4
-	golang.org/x/sys v0.11.0 // indirect
-)
-
-require (
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/metric v1.16.0
+	golang.org/x/sys v0.11.0 // indirect
 )
 
 require (
