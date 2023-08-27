@@ -14,7 +14,7 @@ var tapButtonMapping = map[string]string{
 	"4": "18",
 }
 
-func (a *App) createRuleDescription(tapID string, button configTapButton) Rule {
+func (s *Service) createRuleDescription(tapID string, button configTapButton) Rule {
 	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
 		Conditions: []Condition{
@@ -42,11 +42,11 @@ func (a *App) createRuleDescription(tapID string, button configTapButton) Rule {
 	return newRule
 }
 
-func (a *App) configureTap(ctx context.Context, taps []configTap) {
+func (s *Service) configureTap(ctx context.Context, taps []configTap) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
-			button.Rule = a.createRuleDescription(tap.ID, button)
-			if err := a.createRule(ctx, &button.Rule); err != nil {
+			button.Rule = s.createRuleDescription(tap.ID, button)
+			if err := s.createRule(ctx, &button.Rule); err != nil {
 				slog.Error("create rule", "err", err)
 			}
 		}

@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
+func (s *Service) listGroups(ctx context.Context) (map[string]Group, error) {
 	var response map[string]Group
-	err := get(ctx, fmt.Sprintf("%s/groups", a.bridgeURL), &response)
+	err := get(ctx, fmt.Sprintf("%s/groups", s.bridgeURL), &response)
 	if err != nil {
 		return nil, fmt.Errorf("get: %w", err)
 	}
@@ -19,7 +19,7 @@ func (a *App) listGroups(ctx context.Context) (map[string]Group, error) {
 		value.Tap = false
 
 		for _, lightID := range value.Lights {
-			if strings.HasPrefix(a.lights[lightID].Type, "On/Off") {
+			if strings.HasPrefix(s.lights[lightID].Type, "On/Off") {
 				value.Tap = true
 			}
 		}

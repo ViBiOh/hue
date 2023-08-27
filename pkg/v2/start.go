@@ -7,30 +7,29 @@ import (
 	"os"
 )
 
-// Start worker
-func (a *App) Start(ctx context.Context) {
-	if err := a.initConfig(ctx); err != nil {
+func (s *Service) Start(ctx context.Context) {
+	if err := s.initConfig(ctx); err != nil {
 		slog.Error("init", "err", err)
 		os.Exit(1)
 	}
 
-	go a.streamIndefinitely(ctx.Done())
+	go s.streamIndefinitely(ctx.Done())
 }
 
-func (a *App) initConfig(ctx context.Context) (err error) {
-	a.lights, err = a.buildLights(ctx)
+func (s *Service) initConfig(ctx context.Context) (err error) {
+	s.lights, err = s.buildLights(ctx)
 	if err != nil {
 		err = fmt.Errorf("build lights: %w", err)
 		return
 	}
 
-	a.groups, err = a.buildGroup(ctx)
+	s.groups, err = s.buildGroup(ctx)
 	if err != nil {
 		err = fmt.Errorf("build groups: %w", err)
 		return
 	}
 
-	a.motionSensors, err = a.buildMotionSensor(ctx)
+	s.motionSensors, err = s.buildMotionSensor(ctx)
 	if err != nil {
 		err = fmt.Errorf("build motion sensor: %w", err)
 		return

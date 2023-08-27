@@ -19,27 +19,27 @@ var logError = func(err error) {
 type syncer func(context.Context) error
 
 // Start worker
-func (a *App) Start(ctx context.Context) {
-	config := a.initConfig(ctx)
+func (s *Service) Start(ctx context.Context) {
+	config := s.initConfig(ctx)
 
 	for _, motionSensorCron := range config.MotionSensors.Crons {
 		item := motionSensorCron
 
 		go cron.New().Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(ctx, func(ctx context.Context) error {
-			return a.updateSensors(ctx, item.Names, item.Enabled)
+			return s.updateSensors(ctx, item.Names, item.Enabled)
 		})
 	}
 
-	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, a.refreshState)
+	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, s.refreshState)
 }
 
-func (a *App) initConfig(ctx context.Context) (config configHue) {
-	if len(a.configFileName) == 0 {
+func (s *Service) initConfig(ctx context.Context) (config configHue) {
+	if len(s.configFileName) == 0 {
 		slog.Warn("no config init for hue")
 		return
 	}
 
-	configFile, err := os.Open(a.configFileName)
+	configFile, err := os.Open(s.configFileName)
 	if err != nil {
 		slog.Error("open config file", "err", err)
 		return
@@ -50,35 +50,35 @@ func (a *App) initConfig(ctx context.Context) (config configHue) {
 		return
 	}
 
-	if a.update {
+	if s.update {
 		slog.Info("Configuring hue...")
 		defer slog.Info("Configuration done.")
 
-		if err := a.cleanSchedules(ctx); err != nil {
+		if err := s.cleanSchedules(ctx); err != nil {
 			slog.Error("clean schedule", "err", err)
 		}
 
-		if err := a.cleanRules(ctx); err != nil {
+		if err := s.cleanRules(ctx); err != nil {
 			slog.Error("clean rule", "err", err)
 		}
 
-		if err := a.cleanScenes(ctx); err != nil {
+		if err := s.cleanScenes(ctx); err != nil {
 			slog.Error("clean scene", "err", err)
 		}
 
-		a.configureSchedules(ctx, config.Schedules)
-		a.configureTap(ctx, config.Taps)
-		a.configureMotionSensor(ctx, config.Sensors)
+		s.configureSchedules(ctx, config.Schedules)
+		s.configureTap(ctx, config.Taps)
+		s.configureMotionSensor(ctx, config.Sensors)
 	}
 
 	return
 }
 
-func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) error {
-	for _, sensor := range a.v2App.Sensors() {
+func (s *Service) updateSensors(ctx context.Context, names []string, enabled bool) error {
+	for _, sensor := range s.v2Service.Sensors() {
 		for _, name := range names {
 			if sensor.Name == name {
-				if _, err := a.v2App.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
+				if _, err := s.v2Service.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
 					return fmt.Errorf("update sensor `%s`: %w", sensor.ID, err)
 				}
 			}
@@ -88,14 +88,14 @@ func (a *App) updateSensors(ctx context.Context, names []string, enabled bool) e
 	return nil
 }
 
-func (a *App) refreshState(ctx context.Context) error {
-	if err := a.syncLights(ctx); err != nil {
+func (s *Service) refreshState(ctx context.Context) error {
+	if err := s.syncLights(ctx); err != nil {
 		return err
 	}
 
 	wg := concurrent.NewLimiter(4)
 
-	for _, fn := range a.syncers {
+	for _, fn := range s.syncers {
 		syncer := fn
 
 		wg.Go(func() {
@@ -110,54 +110,54 @@ func (a *App) refreshState(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) syncLights(ctx context.Context) error {
-	lights, err := a.listLights(ctx)
+func (s *Service) syncLights(ctx context.Context) error {
+	lights, err := s.listLights(ctx)
 	if err != nil {
 		return fmt.Errorf("list lights: %w", err)
 	}
 
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.lights = lights
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.lights = lights
 
 	return nil
 }
 
-func (a *App) syncGroups(ctx context.Context) error {
-	groups, err := a.listGroups(ctx)
+func (s *Service) syncGroups(ctx context.Context) error {
+	groups, err := s.listGroups(ctx)
 	if err != nil {
 		return fmt.Errorf("list groups: %w", err)
 	}
 
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.groups = groups
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.groups = groups
 
 	return nil
 }
 
-func (a *App) syncSchedules(ctx context.Context) error {
-	schedules, err := a.listSchedules(ctx)
+func (s *Service) syncSchedules(ctx context.Context) error {
+	schedules, err := s.listSchedules(ctx)
 	if err != nil {
 		return fmt.Errorf("list schedules: %w", err)
 	}
 
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.schedules = schedules
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.schedules = schedules
 
 	return nil
 }
 
-func (a *App) syncScenes(ctx context.Context) error {
-	scenes, err := a.listScenes(ctx)
+func (s *Service) syncScenes(ctx context.Context) error {
+	scenes, err := s.listScenes(ctx)
 	if err != nil {
 		return fmt.Errorf("list scenes: %w", err)
 	}
 
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.scenes = scenes
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.scenes = scenes
 
 	return nil
 }

@@ -20,21 +20,20 @@ const (
 	updateSuccessMessage = "%s is now %s"
 )
 
-// Handler for request. Should be use with net/http
-func (a *App) Handler() http.Handler {
+func (s *Service) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, groupsPath) {
-			a.handleGroup(w, r)
+			s.handleGroup(w, r)
 			return
 		}
 
 		if strings.HasPrefix(r.URL.Path, schedulesPath) {
-			a.handleSchedule(w, r)
+			s.handleSchedule(w, r)
 			return
 		}
 
 		if strings.HasPrefix(r.URL.Path, sensorsPath) {
-			a.handleSensors(w, r)
+			s.handleSensors(w, r)
 			return
 		}
 
@@ -42,9 +41,9 @@ func (a *App) Handler() http.Handler {
 	})
 }
 
-func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
+func (s *Service) handleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
+		s.renderer.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
 	}
 
@@ -53,22 +52,22 @@ func (a *App) handleGroup(w http.ResponseWriter, r *http.Request) {
 
 	state, ok := States[stateName]
 	if !ok {
-		a.rendererApp.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
+		s.renderer.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("unknown state '%s'", stateName)))
 		return
 	}
 
-	group, err := a.v2App.UpdateGroup(r.Context(), groupID, state.On, float64(state.Brightness), state.Duration)
+	group, err := s.v2Service.UpdateGroup(r.Context(), groupID, state.On, float64(state.Brightness), state.Duration)
 	if err != nil {
-		a.rendererApp.Error(w, r, nil, err)
+		s.renderer.Error(w, r, nil, err)
 		return
 	}
 
-	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
 }
 
-func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
+func (s *Service) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
+		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
 	}
 
@@ -83,31 +82,31 @@ func (a *App) handleSchedule(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := a.updateSchedule(ctx, schedule); err != nil {
-		a.rendererApp.Error(w, r, nil, err)
+	if err := s.updateSchedule(ctx, schedule); err != nil {
+		s.renderer.Error(w, r, nil, err)
 		return
 	}
 
-	if err := a.syncSchedules(ctx); err != nil {
-		a.rendererApp.Error(w, r, nil, err)
+	if err := s.syncSchedules(ctx); err != nil {
+		s.renderer.Error(w, r, nil, err)
 		return
 	}
 
-	a.mutex.RLock()
+	s.mutex.RLock()
 
 	name := "Schedule"
-	if updated, ok := a.schedules[schedule.ID]; ok {
+	if updated, ok := s.schedules[schedule.ID]; ok {
 		name = updated.Name
 	}
 
-	a.mutex.RUnlock()
+	s.mutex.RUnlock()
 
-	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
 }
 
-func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
+func (s *Service) handleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		a.rendererApp.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
+		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return
 	}
 
@@ -116,13 +115,13 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)
 	if err != nil {
-		a.rendererApp.Error(w, r, nil, model.WrapInvalid(fmt.Errorf("parse boolean with value `%s`: %w", status, err)))
+		s.renderer.Error(w, r, nil, model.WrapInvalid(fmt.Errorf("parse boolean with value `%s`: %w", status, err)))
 		return
 	}
 
-	motionSensor, err := a.v2App.UpdateSensor(r.Context(), id, statusBool)
+	motionSensor, err := s.v2Service.UpdateSensor(r.Context(), id, statusBool)
 	if err != nil {
-		a.rendererApp.Error(w, r, nil, fmt.Errorf("update sensor `%s`: %w", id, err))
+		s.renderer.Error(w, r, nil, fmt.Errorf("update sensor `%s`: %w", id, err))
 		return
 	}
 
@@ -133,5 +132,5 @@ func (a *App) handleSensors(w http.ResponseWriter, r *http.Request) {
 		stateName = "off"
 	}
 
-	a.rendererApp.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
 }

@@ -13,10 +13,9 @@ import (
 	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
-// App stores information and secret of API
-type App struct {
+type Service struct {
 	apiHandler     http.Handler
-	v2App          *v2.App
+	v2Service      *v2.Service
 	scenes         map[string]Scene
 	lights         map[string]Light
 	groups         map[string]Group
@@ -24,88 +23,83 @@ type App struct {
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
-	rendererApp    *renderer.App
+	renderer       *renderer.Service
 	syncers        []syncer
 	mutex          sync.RWMutex
 	update         bool
 }
 
-// Config of package
 type Config struct {
-	bridgeIP       *string
-	bridgeUsername *string
-	config         *string
-	update         *bool
+	BridgeIP       string
+	BridgeUsername string
+	Config         string
+	Update         bool
 }
 
-// Flags adds flags for configuring package
 func Flags(fs *flag.FlagSet, prefix string) Config {
-	return Config{
-		bridgeIP:       flags.New("BridgeIP", "IP of Bridge").Prefix(prefix).DocPrefix("hue").String(fs, "", nil),
-		bridgeUsername: flags.New("Username", "Username for Bridge").Prefix(prefix).DocPrefix("hue").String(fs, "", nil),
-		config:         flags.New("Config", "Configuration filename").Prefix(prefix).DocPrefix("hue").String(fs, "", nil),
-		update:         flags.New("Update", "Update configuration from file").Prefix(prefix).DocPrefix("hue").Bool(fs, false, nil),
-	}
+	var config Config
+
+	flags.New("BridgeIP", "IP of Bridge").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.BridgeIP, "", nil)
+	flags.New("Username", "Username for Bridge").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.BridgeUsername, "", nil)
+	flags.New("Config", "Configuration filename").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.Config, "", nil)
+	flags.New("Update", "Update configuration from file").Prefix(prefix).DocPrefix("hue").BoolVar(fs, &config.Update, false, nil)
+
+	return config
 }
 
-// New creates new App from Config
-func New(config Config, renderer *renderer.App, v2App *v2.App) (*App, error) {
-	bridgeAddress := strings.TrimSpace(*config.bridgeIP)
-	bridgeUsername := strings.TrimSpace(*config.bridgeUsername)
-
-	app := App{
-		bridgeURL:      fmt.Sprintf("http://%s/api/%s", bridgeAddress, bridgeUsername),
-		bridgeUsername: bridgeUsername,
-		configFileName: strings.TrimSpace(*config.config),
-		update:         *config.update,
-		rendererApp:    renderer,
-		v2App:          v2App,
+func New(config Config, rendererService *renderer.Service, v2Service *v2.Service) (*Service, error) {
+	service := Service{
+		bridgeURL:      fmt.Sprintf("http://%s/api/%s", config.BridgeIP, config.BridgeUsername),
+		bridgeUsername: config.BridgeUsername,
+		configFileName: config.Config,
+		update:         config.Update,
+		renderer:       rendererService,
+		v2Service:      v2Service,
 	}
 
-	app.syncers = []syncer{
-		app.syncGroups,
-		app.syncSchedules,
-		app.syncScenes,
+	service.syncers = []syncer{
+		service.syncGroups,
+		service.syncSchedules,
+		service.syncScenes,
 	}
 
-	app.apiHandler = http.StripPrefix(apiPath, app.Handler())
+	service.apiHandler = http.StripPrefix(apiPath, service.Handler())
 
-	return &app, nil
+	return &service, nil
 }
 
-// TemplateFunc for rendering GUI
-func (a *App) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Page, error) {
+func (s *Service) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Page, error) {
 	if strings.HasPrefix(r.URL.Path, apiPath) {
-		a.apiHandler.ServeHTTP(w, r)
+		s.apiHandler.ServeHTTP(w, r)
 		return renderer.Page{}, nil
 	}
 
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	return renderer.NewPage("public", http.StatusOK, map[string]any{
-		"Groups":    a.v2App.Groups(),
-		"Scenes":    a.toScenes(),
-		"Schedules": a.toSchedules(),
-		"Sensors":   a.v2App.Sensors(),
+		"Groups":    s.v2Service.Groups(),
+		"Scenes":    s.toScenes(),
+		"Schedules": s.toSchedules(),
+		"Sensors":   s.v2Service.Sensors(),
 	}), nil
 }
 
-func (a *App) toScenes() map[string]Scene {
-	output := make(map[string]Scene, len(a.scenes))
+func (s *Service) toScenes() map[string]Scene {
+	output := make(map[string]Scene, len(s.scenes))
 
-	for key, item := range a.scenes {
+	for key, item := range s.scenes {
 		output[key] = item
 	}
 
 	return output
 }
 
-func (a *App) toSchedules() []Schedule {
-	output := make([]Schedule, len(a.schedules))
+func (s *Service) toSchedules() []Schedule {
+	output := make([]Schedule, len(s.schedules))
 
 	i := 0
-	for _, item := range a.schedules {
+	for _, item := range s.schedules {
 		output[i] = item
 		i++
 	}

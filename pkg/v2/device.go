@@ -59,8 +59,8 @@ func (a DevicePowerByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-func (a *App) getDevices(ctx context.Context, productName string) ([]Device, error) {
-	devices, err := list[Device](ctx, a.req, "device")
+func (s *Service) getDevices(ctx context.Context, productName string) ([]Device, error) {
+	devices, err := list[Device](ctx, s.req, "device")
 	if err != nil {
 		return nil, fmt.Errorf("fetch: %w", err)
 	}

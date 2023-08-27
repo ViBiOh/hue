@@ -79,14 +79,14 @@ type Room struct {
 }
 
 // Groups list available groups
-func (a *App) Groups() []Group {
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
+func (s *Service) Groups() []Group {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-	output := make([]Group, len(a.groups))
+	output := make([]Group, len(s.groups))
 
 	i := 0
-	for _, item := range a.groups {
+	for _, item := range s.groups {
 		output[i] = item
 		i++
 	}
@@ -97,9 +97,9 @@ func (a *App) Groups() []Group {
 }
 
 // UpdateGroup status
-func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness float64, transitionTime time.Duration) (Group, error) {
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
+func (s *Service) UpdateGroup(ctx context.Context, id string, on bool, brightness float64, transitionTime time.Duration) (Group, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	// var color Color
 	// color.XY.X = 0.313
@@ -121,13 +121,13 @@ func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness fl
 		},
 	}
 
-	group, ok := a.groups[id]
+	group, ok := s.groups[id]
 	if !ok {
 		return group, fmt.Errorf("unknown group with id `%s`", id)
 	}
 
 	for _, groupedLight := range group.GroupedLights {
-		if _, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/grouped_light/"+groupedLight.ID).JSON(ctx, payload); err != nil {
+		if _, err := s.req.Method(http.MethodPut).Path("/clip/v2/resource/grouped_light/"+groupedLight.ID).JSON(ctx, payload); err != nil {
 			return group, fmt.Errorf("update grouped light `%s`: %w", groupedLight.ID, err)
 		}
 	}
@@ -135,20 +135,20 @@ func (a *App) UpdateGroup(ctx context.Context, id string, on bool, brightness fl
 	return group, nil
 }
 
-func (a *App) buildGroup(ctx context.Context) (output map[string]Group, err error) {
+func (s *Service) buildGroup(ctx context.Context) (output map[string]Group, err error) {
 	output = make(map[string]Group)
 
-	err = a.buildDeviceGroup(ctx, "room", output)
+	err = s.buildDeviceGroup(ctx, "room", output)
 	if err != nil {
 		return
 	}
 
-	err = a.buildDeviceGroup(ctx, "zone", output)
+	err = s.buildDeviceGroup(ctx, "zone", output)
 	if err != nil {
 		return
 	}
 
-	err = a.buildDeviceGroup(ctx, "bridge_home", output)
+	err = s.buildDeviceGroup(ctx, "bridge_home", output)
 	if err != nil {
 		return
 	}
@@ -156,8 +156,8 @@ func (a *App) buildGroup(ctx context.Context) (output map[string]Group, err erro
 	return
 }
 
-func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[string]Group) error {
-	groupDevices, err := list[Room](ctx, a.req, name)
+func (s *Service) buildDeviceGroup(ctx context.Context, name string, output map[string]Group) error {
+	groupDevices, err := list[Room](ctx, s.req, name)
 	if err != nil {
 		return fmt.Errorf("list rooms: %w", err)
 	}
@@ -165,12 +165,12 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 	isBridge := name == "bridge_home"
 
 	for _, item := range groupDevices {
-		groupedLights, err := a.buildServices(ctx, name, item.Services)
+		groupedLights, err := s.buildServices(ctx, name, item.Services)
 		if err != nil {
 			return fmt.Errorf("build services for %s `%s`: %w", name, item.ID, err)
 		}
 
-		lights, err := a.buildChildren(ctx, item.Children)
+		lights, err := s.buildChildren(ctx, item.Children)
 		if err != nil {
 			return fmt.Errorf("build children for %s `%s`: %w", name, item.ID, err)
 		}
@@ -193,13 +193,13 @@ func (a *App) buildDeviceGroup(ctx context.Context, name string, output map[stri
 	return nil
 }
 
-func (a *App) buildServices(ctx context.Context, name string, services []deviceReference) (map[string]GroupedLight, error) {
+func (s *Service) buildServices(ctx context.Context, name string, services []deviceReference) (map[string]GroupedLight, error) {
 	output := make(map[string]GroupedLight)
 
 	for _, service := range services {
 		switch service.Rtype {
 		case "grouped_light":
-			groupedLight, err := get[GroupedLight](ctx, a.req, service.Rtype, service.Rid)
+			groupedLight, err := get[GroupedLight](ctx, s.req, service.Rtype, service.Rid)
 			if err != nil {
 				return nil, fmt.Errorf("get grouped light `%s`: %w", service.Rid, err)
 			}
@@ -213,22 +213,22 @@ func (a *App) buildServices(ctx context.Context, name string, services []deviceR
 	return output, nil
 }
 
-func (a *App) buildChildren(ctx context.Context, children []deviceReference) ([]*Light, error) {
+func (s *Service) buildChildren(ctx context.Context, children []deviceReference) ([]*Light, error) {
 	var output []*Light
 
 	for _, service := range children {
 		switch service.Rtype {
 		case "light":
-			if light, ok := a.lights[service.Rid]; ok {
+			if light, ok := s.lights[service.Rid]; ok {
 				output = append(output, light)
 			}
 		case "device":
-			device, err := get[Device](ctx, a.req, service.Rtype, service.Rid)
+			device, err := get[Device](ctx, s.req, service.Rtype, service.Rid)
 			if err != nil {
 				return nil, fmt.Errorf("get device `%s`: %w", service.Rid, err)
 			}
 
-			lights, err := a.buildChildren(ctx, device.Services)
+			lights, err := s.buildChildren(ctx, device.Services)
 			if err != nil {
 				return nil, fmt.Errorf("get children of device `%s`: %w", service.Rid, err)
 			}
@@ -240,8 +240,8 @@ func (a *App) buildChildren(ctx context.Context, children []deviceReference) ([]
 	return output, nil
 }
 
-func (a *App) getGroupOfGroupedLight(groupedLightID string) (Group, bool) {
-	for _, group := range a.groups {
+func (s *Service) getGroupOfGroupedLight(groupedLightID string) (Group, bool) {
+	for _, group := range s.groups {
 		if _, ok := group.GroupedLights[groupedLightID]; ok {
 			return group, true
 		}

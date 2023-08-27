@@ -55,9 +55,9 @@ func createInsecureClient(timeout time.Duration) *http.Client {
 	return client
 }
 
-func (a *App) streamIndefinitely(done <-chan struct{}) {
+func (s *Service) streamIndefinitely(done <-chan struct{}) {
 	for {
-		a.stream(done)
+		s.stream(done)
 
 		select {
 		case <-done:
@@ -69,11 +69,11 @@ func (a *App) streamIndefinitely(done <-chan struct{}) {
 	}
 }
 
-func (a *App) stream(done <-chan struct{}) {
+func (s *Service) stream(done <-chan struct{}) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	resp, err := a.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
+	resp, err := s.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
 		slog.Error("open stream", "err", err)
 	}
@@ -106,7 +106,7 @@ func (a *App) stream(done <-chan struct{}) {
 		}
 
 		for _, event := range events {
-			a.handleStreamEvent(event)
+			s.handleStreamEvent(event)
 		}
 	}
 
@@ -115,34 +115,34 @@ func (a *App) stream(done <-chan struct{}) {
 	}
 }
 
-func (a *App) handleStreamEvent(event Event) {
+func (s *Service) handleStreamEvent(event Event) {
 	for _, data := range event.Data {
 		switch data.Type {
 		case "button":
 		case "zigbee_connectivity":
 		case "motion":
-			a.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
+			s.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 		case "light_level":
-			a.updateLightLevel(data.Owner.Rid, data.Light.Level)
+			s.updateLightLevel(data.Owner.Rid, data.Light.Level)
 		case "temperature":
-			a.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
+			s.updateTemperature(data.Owner.Rid, data.Temperature.Temperature)
 		case "device_power":
-			a.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
+			s.updateDevicePower(data.Owner.Rid, data.PowerState.BatteryState, data.PowerState.BatteryLevel)
 		case "light":
-			a.updateLight(data.ID, data.On, data.Dimming)
+			s.updateLight(data.ID, data.On, data.Dimming)
 		case "grouped_light":
-			a.updateGroupedLight(data.ID, data.On, data.Dimming)
+			s.updateGroupedLight(data.ID, data.On, data.Dimming)
 		default:
 			slog.Info("unhandled event received", "type", data.Type)
 		}
 	}
 }
 
-func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateMotion(owner string, enabled *bool, motion *MotionValue) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if motionSensor, ok := a.motionSensors[owner]; ok {
+	if motionSensor, ok := s.motionSensors[owner]; ok {
 		if enabled != nil {
 			motionSensor.Enabled = *enabled
 			slog.Debug("Motion status", "value", motionSensor.Enabled, "sensor", motionSensor.Name)
@@ -153,60 +153,60 @@ func (a *App) updateMotion(owner string, enabled *bool, motion *MotionValue) {
 			slog.Debug("Motion", "motion", motionSensor.Motion, "sensor", motionSensor.Name)
 		}
 
-		a.motionSensors[owner] = motionSensor
+		s.motionSensors[owner] = motionSensor
 	} else {
 		slog.Warn("unknown motion owner ID", "owner", owner)
 	}
 }
 
-func (a *App) updateLightLevel(owner string, lightLevel int64) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateLightLevel(owner string, lightLevel int64) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if motionSensor, ok := a.motionSensors[owner]; ok {
+	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.LightLevel = lightLevel
 		slog.Debug("Light level", "level", lightLevel, "sensor", motionSensor.Name)
 
-		a.motionSensors[owner] = motionSensor
+		s.motionSensors[owner] = motionSensor
 	} else {
 		slog.Warn("unknown light level owner ID", "owner", owner)
 	}
 }
 
-func (a *App) updateTemperature(owner string, temperature float64) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateTemperature(owner string, temperature float64) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if motionSensor, ok := a.motionSensors[owner]; ok {
+	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.Temperature = temperature
 		slog.Debug("Temperature", "temperature", temperature, "sensor", motionSensor.Name)
 
-		a.motionSensors[owner] = motionSensor
+		s.motionSensors[owner] = motionSensor
 	} else {
 		slog.Warn("unknown temperature owner ID", "owner", owner)
 	}
 }
 
-func (a *App) updateDevicePower(owner string, batteryState string, batteryLevel int64) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateDevicePower(owner string, batteryState string, batteryLevel int64) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if motionSensor, ok := a.motionSensors[owner]; ok {
+	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.BatteryState = batteryState
 		motionSensor.BatteryLevel = batteryLevel
 		slog.Debug("Battery", "battery", batteryLevel, "sensor", motionSensor.Name)
 
-		a.motionSensors[owner] = motionSensor
+		s.motionSensors[owner] = motionSensor
 	} else {
 		slog.Warn("unknown device power owner ID", "owner", owner)
 	}
 }
 
-func (a *App) updateLight(owner string, on *On, dimming *Dimming) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateLight(owner string, on *On, dimming *Dimming) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if light, ok := a.lights[owner]; ok {
+	if light, ok := s.lights[owner]; ok {
 		if dimming != nil {
 			light.Dimming.Brightness = dimming.Brightness
 			slog.Debug("Brightness", "brightness", dimming.Brightness, "name", light.Metadata.Name)
@@ -221,11 +221,11 @@ func (a *App) updateLight(owner string, on *On, dimming *Dimming) {
 	}
 }
 
-func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+func (s *Service) updateGroupedLight(owner string, on *On, dimming *Dimming) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if group, ok := a.getGroupOfGroupedLight(owner); ok {
+	if group, ok := s.getGroupOfGroupedLight(owner); ok {
 		groupedLight := group.GroupedLights[owner]
 
 		if dimming != nil {
@@ -239,7 +239,7 @@ func (a *App) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 		}
 
 		group.GroupedLights[owner] = groupedLight
-		a.groups[group.ID] = group
+		s.groups[group.ID] = group
 	} else {
 		slog.Warn("unknown grouped light ID", "owner", owner)
 	}

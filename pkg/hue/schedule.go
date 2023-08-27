@@ -8,10 +8,10 @@ import (
 	"net/http"
 )
 
-func (a *App) listSchedules(ctx context.Context) (map[string]Schedule, error) {
+func (s *Service) listSchedules(ctx context.Context) (map[string]Schedule, error) {
 	var response map[string]Schedule
 
-	if err := get(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf("%s/schedules", s.bridgeURL), &response); err != nil {
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
@@ -24,8 +24,8 @@ func (a *App) listSchedules(ctx context.Context) (map[string]Schedule, error) {
 	return output, nil
 }
 
-func (a *App) createSchedule(ctx context.Context, o *Schedule) error {
-	id, err := create(ctx, fmt.Sprintf("%s/schedules", a.bridgeURL), o)
+func (s *Service) createSchedule(ctx context.Context, o *Schedule) error {
+	id, err := create(ctx, fmt.Sprintf("%s/schedules", s.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -35,16 +35,16 @@ func (a *App) createSchedule(ctx context.Context, o *Schedule) error {
 	return nil
 }
 
-func (a *App) createScheduleFromConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) error {
+func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) error {
 	if groups == nil {
 		var err error
 
-		if groups, err = a.listGroups(ctx); err != nil {
+		if groups, err = s.listGroups(ctx); err != nil {
 			return err
 		}
 	}
 
-	scene, err := a.createSceneFromScheduleConfig(ctx, config, groups)
+	scene, err := s.createSceneFromScheduleConfig(ctx, config, groups)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config ScheduleConfi
 			Name:      config.Name,
 			Localtime: config.Localtime,
 			Command: Action{
-				Address: fmt.Sprintf("/api/%s/groups/%s/action", a.bridgeUsername, config.Group),
+				Address: fmt.Sprintf("/api/%s/groups/%s/action", s.bridgeUsername, config.Group),
 				Body: map[string]any{
 					"scene": scene.ID,
 				},
@@ -63,33 +63,33 @@ func (a *App) createScheduleFromConfig(ctx context.Context, config ScheduleConfi
 		},
 	}
 
-	if err := a.createSchedule(ctx, schedule); err != nil {
+	if err := s.createSchedule(ctx, schedule); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (a *App) updateSchedule(ctx context.Context, schedule Schedule) error {
+func (s *Service) updateSchedule(ctx context.Context, schedule Schedule) error {
 	if schedule.ID == "" {
 		return errors.New("missing schedule ID to update")
 	}
 
-	return update(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, schedule.ID), schedule.APISchedule)
+	return update(ctx, fmt.Sprintf("%s/schedules/%s", s.bridgeURL, schedule.ID), schedule.APISchedule)
 }
 
-func (a *App) deleteSchedule(ctx context.Context, id string) error {
-	return remove(ctx, fmt.Sprintf("%s/schedules/%s", a.bridgeURL, id))
+func (s *Service) deleteSchedule(ctx context.Context, id string) error {
+	return remove(ctx, fmt.Sprintf("%s/schedules/%s", s.bridgeURL, id))
 }
 
-func (a *App) cleanSchedules(ctx context.Context) error {
-	schedules, err := a.listSchedules(ctx)
+func (s *Service) cleanSchedules(ctx context.Context) error {
+	schedules, err := s.listSchedules(ctx)
 	if err != nil {
 		return err
 	}
 
 	for key := range schedules {
-		if err := a.deleteSchedule(ctx, key); err != nil {
+		if err := s.deleteSchedule(ctx, key); err != nil {
 			return err
 		}
 	}
@@ -97,15 +97,15 @@ func (a *App) cleanSchedules(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
-	groups, err := a.listGroups(ctx)
+func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
+	groups, err := s.listGroups(ctx)
 	if err != nil {
 		slog.Error("list", "err", err)
 		return
 	}
 
 	for _, config := range schedules {
-		if err := a.createScheduleFromConfig(ctx, config, groups); err != nil {
+		if err := s.createScheduleFromConfig(ctx, config, groups); err != nil {
 			slog.Error("create schedule", "err", err)
 		}
 	}

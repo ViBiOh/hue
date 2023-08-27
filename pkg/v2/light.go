@@ -27,8 +27,8 @@ type On struct {
 	On bool `json:"on"`
 }
 
-func (a *App) buildLights(ctx context.Context) (map[string]*Light, error) {
-	lights, err := list[Light](ctx, a.req, "light")
+func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
+	lights, err := list[Light](ctx, s.req, "light")
 	if err != nil {
 		return nil, fmt.Errorf("list lights: %w", err)
 	}
@@ -38,7 +38,7 @@ func (a *App) buildLights(ctx context.Context) (map[string]*Light, error) {
 		light := light
 		output[light.ID] = &light
 
-		if err := a.setWhiteLight(ctx, light.ID); err != nil {
+		if err := s.setWhiteLight(ctx, light.ID); err != nil {
 			slog.Error("white light", "err", err)
 		}
 	}
@@ -46,7 +46,7 @@ func (a *App) buildLights(ctx context.Context) (map[string]*Light, error) {
 	return output, err
 }
 
-func (a *App) setWhiteLight(ctx context.Context, id string) error {
+func (s *Service) setWhiteLight(ctx context.Context, id string) error {
 	var color Color
 	color.XY.X = 0.37203
 	color.XY.Y = 0.37763
@@ -59,7 +59,7 @@ func (a *App) setWhiteLight(ctx context.Context, id string) error {
 		"color_temperature": colorTemperature,
 	}
 
-	if _, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/light/"+id).JSON(ctx, payload); err != nil {
+	if _, err := s.req.Method(http.MethodPut).Path("/clip/v2/resource/light/"+id).JSON(ctx, payload); err != nil {
 		return fmt.Errorf("update light `%s`: %w", id, err)
 	}
 

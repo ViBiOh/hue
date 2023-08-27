@@ -5,13 +5,13 @@ import (
 	"fmt"
 )
 
-func (a *App) listRules(ctx context.Context) (map[string]Rule, error) {
+func (s *Service) listRules(ctx context.Context) (map[string]Rule, error) {
 	var response map[string]Rule
-	return response, get(ctx, fmt.Sprintf("%s/rules", a.bridgeURL), &response)
+	return response, get(ctx, fmt.Sprintf("%s/rules", s.bridgeURL), &response)
 }
 
-func (a *App) createRule(ctx context.Context, o *Rule) error {
-	id, err := create(ctx, fmt.Sprintf("%s/rules", a.bridgeURL), o)
+func (s *Service) createRule(ctx context.Context, o *Rule) error {
+	id, err := create(ctx, fmt.Sprintf("%s/rules", s.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -21,18 +21,18 @@ func (a *App) createRule(ctx context.Context, o *Rule) error {
 	return nil
 }
 
-func (a *App) deleteRule(ctx context.Context, id string) error {
-	return remove(ctx, fmt.Sprintf("%s/rules/%s", a.bridgeURL, id))
+func (s *Service) deleteRule(ctx context.Context, id string) error {
+	return remove(ctx, fmt.Sprintf("%s/rules/%s", s.bridgeURL, id))
 }
 
-func (a *App) cleanRules(ctx context.Context) error {
-	rules, err := a.listRules(ctx)
+func (s *Service) cleanRules(ctx context.Context) error {
+	rules, err := s.listRules(ctx)
 	if err != nil {
 		return err
 	}
 
 	for key := range rules {
-		if err := a.deleteRule(ctx, key); err != nil {
+		if err := s.deleteRule(ctx, key); err != nil {
 			return err
 		}
 	}

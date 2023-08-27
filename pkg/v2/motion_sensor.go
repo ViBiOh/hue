@@ -97,14 +97,14 @@ func (a TemperatureByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-func (a *App) Sensors() []MotionSensor {
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
+func (s *Service) Sensors() []MotionSensor {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-	output := make([]MotionSensor, len(a.motionSensors))
+	output := make([]MotionSensor, len(s.motionSensors))
 
 	i := 0
-	for _, item := range a.motionSensors {
+	for _, item := range s.motionSensors {
 		output[i] = item
 		i++
 	}
@@ -114,24 +114,24 @@ func (a *App) Sensors() []MotionSensor {
 	return output
 }
 
-func (a *App) UpdateSensor(ctx context.Context, id string, enabled bool) (MotionSensor, error) {
-	a.mutex.RLock()
-	defer a.mutex.RUnlock()
+func (s *Service) UpdateSensor(ctx context.Context, id string, enabled bool) (MotionSensor, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	payload := map[string]interface{}{
 		"enabled": enabled,
 	}
 
-	motionSensor, ok := a.motionSensors[id]
+	motionSensor, ok := s.motionSensors[id]
 	if !ok {
 		return motionSensor, fmt.Errorf("unknown motion sensor with id `%s`", id)
 	}
 
-	_, err := a.req.Method(http.MethodPut).Path("/clip/v2/resource/motion/"+motionSensor.MotionID).JSON(ctx, payload)
+	_, err := s.req.Method(http.MethodPut).Path("/clip/v2/resource/motion/"+motionSensor.MotionID).JSON(ctx, payload)
 	return motionSensor, err
 }
 
-func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, error) {
+func (s *Service) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, error) {
 	var devices []Device
 	var motions []Motion
 	var lightLevels []LightLevel
@@ -141,7 +141,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	wg := concurrent.NewFailFast(2)
 
 	wg.Go(func() (err error) {
-		devices, err = a.getDevices(ctx, "Hue motion sensor")
+		devices, err = s.getDevices(ctx, "Hue motion sensor")
 		if err != nil {
 			return fmt.Errorf("list motion sensors: %w", err)
 		}
@@ -152,7 +152,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		motions, err = list[Motion](ctx, a.req, "motion")
+		motions, err = list[Motion](ctx, s.req, "motion")
 		if err != nil {
 			return fmt.Errorf("list motions: %w", err)
 		}
@@ -163,7 +163,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		lightLevels, err = list[LightLevel](ctx, a.req, "light_level")
+		lightLevels, err = list[LightLevel](ctx, s.req, "light_level")
 		if err != nil {
 			return fmt.Errorf("list light levels: %w", err)
 		}
@@ -174,7 +174,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		temperatures, err = list[Temperature](ctx, a.req, "temperature")
+		temperatures, err = list[Temperature](ctx, s.req, "temperature")
 		if err != nil {
 			return fmt.Errorf("list temperatures: %w", err)
 		}
@@ -185,7 +185,7 @@ func (a *App) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, e
 	})
 
 	wg.Go(func() (err error) {
-		devicePowers, err = list[DevicePower](ctx, a.req, "device_power")
+		devicePowers, err = list[DevicePower](ctx, s.req, "device_power")
 		if err != nil {
 			return fmt.Errorf("list devices' powers: %w", err)
 		}

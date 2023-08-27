@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-func (a *App) listScenes(ctx context.Context) (map[string]Scene, error) {
+func (s *Service) listScenes(ctx context.Context) (map[string]Scene, error) {
 	var response map[string]Scene
 
-	if err := get(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf("%s/scenes", s.bridgeURL), &response); err != nil {
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
 	for id := range response {
-		scene, err := a.getScene(ctx, id)
+		scene, err := s.getScene(ctx, id)
 		if err != nil {
 			return nil, err
 		}
@@ -24,9 +24,9 @@ func (a *App) listScenes(ctx context.Context) (map[string]Scene, error) {
 	return response, nil
 }
 
-func (a *App) getScene(ctx context.Context, id string) (Scene, error) {
+func (s *Service) getScene(ctx context.Context, id string) (Scene, error) {
 	var response Scene
-	if err := get(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id), &response); err != nil {
+	if err := get(ctx, fmt.Sprintf("%s/scenes/%s", s.bridgeURL, id), &response); err != nil {
 		return response, err
 	}
 
@@ -35,8 +35,8 @@ func (a *App) getScene(ctx context.Context, id string) (Scene, error) {
 	return response, nil
 }
 
-func (a *App) createScene(ctx context.Context, o *Scene) error {
-	id, err := create(ctx, fmt.Sprintf("%s/scenes", a.bridgeURL), o)
+func (s *Service) createScene(ctx context.Context, o *Scene) error {
+	id, err := create(ctx, fmt.Sprintf("%s/scenes", s.bridgeURL), o)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (a *App) createScene(ctx context.Context, o *Scene) error {
 	return nil
 }
 
-func (a *App) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) (Scene, error) {
+func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) (Scene, error) {
 	group, ok := groups[config.Group]
 	if !ok {
 		return Scene{}, fmt.Errorf("unknown group id: %s", config.Group)
@@ -65,12 +65,12 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config Schedule
 		},
 	}
 
-	if err := a.createScene(ctx, &scene); err != nil {
+	if err := s.createScene(ctx, &scene); err != nil {
 		return scene, err
 	}
 
 	for _, light := range scene.Lights {
-		if err := a.updateSceneLightState(ctx, scene, light, state); err != nil {
+		if err := s.updateSceneLightState(ctx, scene, light, state); err != nil {
 			return scene, err
 		}
 	}
@@ -78,22 +78,22 @@ func (a *App) createSceneFromScheduleConfig(ctx context.Context, config Schedule
 	return scene, nil
 }
 
-func (a *App) updateSceneLightState(ctx context.Context, o Scene, lightID string, state State) error {
-	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", a.bridgeURL, o.ID, lightID), state.V1())
+func (s *Service) updateSceneLightState(ctx context.Context, o Scene, lightID string, state State) error {
+	return update(ctx, fmt.Sprintf("%s/scenes/%s/lightstates/%s", s.bridgeURL, o.ID, lightID), state.V1())
 }
 
-func (a *App) deleteScene(ctx context.Context, id string) error {
-	return remove(ctx, fmt.Sprintf("%s/scenes/%s", a.bridgeURL, id))
+func (s *Service) deleteScene(ctx context.Context, id string) error {
+	return remove(ctx, fmt.Sprintf("%s/scenes/%s", s.bridgeURL, id))
 }
 
-func (a *App) cleanScenes(ctx context.Context) error {
-	scenes, err := a.listScenes(ctx)
+func (s *Service) cleanScenes(ctx context.Context) error {
+	scenes, err := s.listScenes(ctx)
 	if err != nil {
 		return err
 	}
 
 	for key := range scenes {
-		if err := a.deleteScene(ctx, key); err != nil {
+		if err := s.deleteScene(ctx, key); err != nil {
 			return err
 		}
 	}

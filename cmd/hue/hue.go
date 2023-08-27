@@ -58,50 +58,50 @@ func main() {
 
 	ctx := context.Background()
 
-	telemetryApp, err := telemetry.New(ctx, telemetryConfig)
+	telemetryService, err := telemetry.New(ctx, telemetryConfig)
 	if err != nil {
 		slog.Error("create telemetry", "err", err)
 		os.Exit(1)
 	}
 
-	defer telemetryApp.Close(ctx)
-	request.AddOpenTelemetryToDefaultClient(telemetryApp.MeterProvider(), telemetryApp.TracerProvider())
+	defer telemetryService.Close(ctx)
+	request.AddOpenTelemetryToDefaultClient(telemetryService.MeterProvider(), telemetryService.TracerProvider())
 
 	go func() {
 		fmt.Println(http.ListenAndServe("localhost:9999", http.DefaultServeMux))
 	}()
 
 	appServer := server.New(appServerConfig)
-	healthApp := health.New(healthConfig)
+	healthService := health.New(healthConfig)
 
-	rendererApp, err := renderer.New(rendererConfig, content, hue.FuncMap, telemetryApp.MeterProvider(), telemetryApp.TracerProvider())
+	rendererService, err := renderer.New(rendererConfig, content, hue.FuncMap, telemetryService.MeterProvider(), telemetryService.TracerProvider())
 	if err != nil {
 		slog.Error("create renderer", "err", err)
 		os.Exit(1)
 	}
 
-	v2App, err := v2.New(v2Config, telemetryApp.MeterProvider())
+	v2Service, err := v2.New(v2Config, telemetryService.MeterProvider())
 	if err != nil {
 		slog.Error("create hue v2", "err", err)
 		os.Exit(1)
 	}
 
-	hueApp, err := hue.New(hueConfig, rendererApp, v2App)
+	hueService, err := hue.New(hueConfig, rendererService, v2Service)
 	if err != nil {
 		slog.Error("create hue", "err", err)
 		os.Exit(1)
 	}
 
-	rendererHandler := rendererApp.Handler(hueApp.TemplateFunc)
+	rendererHandler := rendererService.Handler(hueService.TemplateFunc)
 
-	doneCtx := healthApp.Done(ctx)
-	endCtx := healthApp.End(ctx)
+	doneCtx := healthService.Done(ctx)
+	endCtx := healthService.End(ctx)
 
-	go hueApp.Start(doneCtx)
-	v2App.Start(doneCtx)
+	go hueService.Start(doneCtx)
+	v2Service.Start(doneCtx)
 
-	go appServer.Start(endCtx, "http", httputils.Handler(rendererHandler, healthApp, recoverer.Middleware, telemetryApp.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go appServer.Start(endCtx, "http", httputils.Handler(rendererHandler, healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
-	healthApp.WaitForTermination(appServer.Done())
+	healthService.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done())
 }
