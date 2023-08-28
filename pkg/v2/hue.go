@@ -26,17 +26,17 @@ type Config struct {
 	config         string
 }
 
-func Flags(fs *flag.FlagSet, prefix string) Config {
+func Flags(fs *flag.FlagSet, prefix string) *Config {
 	var config Config
 
 	flags.New("BridgeIP", "IP of Bridge").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.bridgeIP, "", nil)
 	flags.New("Username", "Username for Bridge").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.bridgeUsername, "", nil)
 	flags.New("Config", "Configuration filename").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.config, "", nil)
 
-	return config
+	return &config
 }
 
-func New(config Config, meterProvider metric.MeterProvider) (*Service, error) {
+func New(config *Config, meterProvider metric.MeterProvider) (*Service, error) {
 	service := &Service{
 		req: request.Get(fmt.Sprintf("https://%s", config.bridgeIP)).Header("hue-application-key", config.bridgeUsername).WithClient(createInsecureClient(10 * time.Second)),
 	}

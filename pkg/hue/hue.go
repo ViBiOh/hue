@@ -36,7 +36,7 @@ type Config struct {
 	Update         bool
 }
 
-func Flags(fs *flag.FlagSet, prefix string) Config {
+func Flags(fs *flag.FlagSet, prefix string) *Config {
 	var config Config
 
 	flags.New("BridgeIP", "IP of Bridge").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.BridgeIP, "", nil)
@@ -44,10 +44,10 @@ func Flags(fs *flag.FlagSet, prefix string) Config {
 	flags.New("Config", "Configuration filename").Prefix(prefix).DocPrefix("hue").StringVar(fs, &config.Config, "", nil)
 	flags.New("Update", "Update configuration from file").Prefix(prefix).DocPrefix("hue").BoolVar(fs, &config.Update, false, nil)
 
-	return config
+	return &config
 }
 
-func New(config Config, rendererService *renderer.Service, v2Service *v2.Service) (*Service, error) {
+func New(config *Config, rendererService *renderer.Service, v2Service *v2.Service) (*Service, error) {
 	service := Service{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", config.BridgeIP, config.BridgeUsername),
 		bridgeUsername: config.BridgeUsername,
