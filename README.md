@@ -80,7 +80,7 @@ Usage of hue:
   --corsOrigin        string    [cors] Access-Control-Allow-Origin ${HUE_CORS_ORIGIN} (default "*")
   --csp               string    [owasp] Content-Security-Policy ${HUE_CSP} (default "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")
   --frameOptions      string    [owasp] X-Frame-Options ${HUE_FRAME_OPTIONS} (default "deny")
-  --graceDuration     duration  [http] Grace duration when SIGTERM received ${HUE_GRACE_DURATION} (default 30s)
+  --graceDuration     duration  [http] Grace duration when signal received ${HUE_GRACE_DURATION} (default 30s)
   --hsts                        [owasp] Indicate Strict Transport Security ${HUE_HSTS} (default true)
   --idleTimeout       duration  [server] Idle Timeout ${HUE_IDLE_TIMEOUT} (default 2m0s)
   --key               string    [server] Key file ${HUE_KEY}
