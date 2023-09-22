@@ -18,7 +18,6 @@ var logError = func(err error) {
 
 type syncer func(context.Context) error
 
-// Start worker
 func (s *Service) Start(ctx context.Context) {
 	config := s.initConfig(ctx)
 

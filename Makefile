@@ -86,3 +86,8 @@ build:
 .PHONY: run
 run:
 	$(MAIN_RUNNER) -config "hue.json" -update
+
+## config: Create local configuration
+.PHONY: config
+config:
+	@cp .env.example .env

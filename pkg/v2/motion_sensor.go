@@ -101,12 +101,10 @@ func (s *Service) Sensors() []MotionSensor {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	output := make([]MotionSensor, len(s.motionSensors))
+	output := make([]MotionSensor, 0, len(s.motionSensors))
 
-	i := 0
 	for _, item := range s.motionSensors {
-		output[i] = item
-		i++
+		output = append(output, item)
 	}
 
 	sort.Sort(MotionSensorByName(output))

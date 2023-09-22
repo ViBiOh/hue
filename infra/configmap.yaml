@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hue-config
+  labels:
+    app.kubernetes.io/name: hue
+    app.kubernetes.io/instance: hue
+    app.kubernetes.io/managed-by: kubectl
+data:
+  config.json: |
+    {
+      "motion_sensors": {
+        "crons": [
+          {
+            "enabled": true,
+            "hour": "07:00",
+            "timezone": "Europe/Paris",
+            "names": ["Bathroom", "Kitchen"]
+          },
+          {
+            "enabled": false,
+            "hour": "00:00",
+            "timezone": "Europe/Paris",
+            "names": ["Bathroom", "Kitchen"]
+          }
+        ]
+      }
+    }
