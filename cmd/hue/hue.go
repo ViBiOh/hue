@@ -72,7 +72,7 @@ func main() {
 	}()
 
 	appServer := server.New(appServerConfig)
-	healthService := health.New(healthConfig)
+	healthService := health.New(ctx, healthConfig)
 
 	rendererService, err := renderer.New(rendererConfig, content, hue.FuncMap, telemetryService.MeterProvider(), telemetryService.TracerProvider())
 	if err != nil {
@@ -94,14 +94,15 @@ func main() {
 
 	rendererHandler := rendererService.Handler(hueService.TemplateFunc)
 
-	doneCtx := healthService.Done(ctx)
-	endCtx := healthService.End(ctx)
+	doneCtx := healthService.DoneCtx()
+	endCtx := healthService.EndCtx()
 
 	go hueService.Start(doneCtx)
-	v2Service.Start(doneCtx)
+	go v2Service.Start(doneCtx)
 
 	go appServer.Start(endCtx, "http", httputils.Handler(rendererHandler, healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthService.WaitForTermination(appServer.Done())
-	server.GracefulWait(appServer.Done())
+
+	appServer.Stop(ctx)
 }
