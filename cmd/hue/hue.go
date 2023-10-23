@@ -100,9 +100,8 @@ func main() {
 	go hueService.Start(doneCtx)
 	go v2Service.Start(doneCtx)
 
-	go appServer.Start(endCtx, "http", httputils.Handler(rendererHandler, healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go appServer.Start(endCtx, httputils.Handler(rendererHandler, healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthService.WaitForTermination(appServer.Done())
-
-	appServer.Stop(ctx)
+	server.GracefulWait(appServer.Done())
 }
