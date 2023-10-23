@@ -25,7 +25,7 @@ spec:
     nameOverride: hue
     image:
       name: vibioh/hue
-      tag: "202310221058" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tag: "202310231128" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
       GOMAXPROCS: "1"
       HUE_CONFIG: /opt/config.json
