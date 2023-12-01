@@ -30,7 +30,7 @@ spec:
       GOMAXPROCS: "1"
       HUE_CONFIG: /opt/config.json
       HUE_LOGGER_JSON: "true"
-      HUE_TELEMETRY_URL: otel-collector.observability:4317
+      HUE_TELEMETRY_URL: datadog.observability:4317
       OTEL_SERVICE_NAME: hue
     volumes:
       - name: config
