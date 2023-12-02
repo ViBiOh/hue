@@ -37,7 +37,7 @@ func (s *Service) Handler() http.Handler {
 			return
 		}
 
-		httperror.NotFound(w)
+		httperror.NotFound(r.Context(), w)
 	})
 }
 

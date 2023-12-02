@@ -60,11 +60,13 @@ func main() {
 
 	telemetryService, err := telemetry.New(ctx, telemetryConfig)
 	if err != nil {
-		slog.Error("create telemetry", "err", err)
+		slog.ErrorContext(ctx, "create telemetry", "err", err)
 		os.Exit(1)
 	}
 
 	defer telemetryService.Close(ctx)
+
+	logger.AddOpenTelemetryToDefaultLogger(telemetryService)
 	request.AddOpenTelemetryToDefaultClient(telemetryService.MeterProvider(), telemetryService.TracerProvider())
 
 	go func() {
@@ -76,19 +78,19 @@ func main() {
 
 	rendererService, err := renderer.New(rendererConfig, content, hue.FuncMap, telemetryService.MeterProvider(), telemetryService.TracerProvider())
 	if err != nil {
-		slog.Error("create renderer", "err", err)
+		slog.ErrorContext(ctx, "create renderer", "err", err)
 		os.Exit(1)
 	}
 
 	v2Service, err := v2.New(v2Config, telemetryService.MeterProvider())
 	if err != nil {
-		slog.Error("create hue v2", "err", err)
+		slog.ErrorContext(ctx, "create hue v2", "err", err)
 		os.Exit(1)
 	}
 
 	hueService, err := hue.New(hueConfig, rendererService, v2Service)
 	if err != nil {
-		slog.Error("create hue", "err", err)
+		slog.ErrorContext(ctx, "create hue", "err", err)
 		os.Exit(1)
 	}
 

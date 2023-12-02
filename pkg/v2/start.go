@@ -9,7 +9,7 @@ import (
 
 func (s *Service) Start(ctx context.Context) {
 	if err := s.initConfig(ctx); err != nil {
-		slog.Error("init", "err", err)
+		slog.ErrorContext(ctx, "init", "err", err)
 		os.Exit(1)
 	}
 

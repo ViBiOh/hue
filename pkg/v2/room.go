@@ -206,7 +206,7 @@ func (s *Service) buildServices(ctx context.Context, name string, services []dev
 			output[groupedLight.ID] = groupedLight
 
 		default:
-			slog.Warn("unhandled service type", "anem", name, "type", service.Rtype)
+			slog.WarnContext(ctx, "unhandled service type", "anem", name, "type", service.Rtype)
 		}
 	}
 

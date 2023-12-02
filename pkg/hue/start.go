@@ -12,8 +12,8 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
 )
 
-var logError = func(err error) {
-	slog.Error("error", "err", err)
+var logError = func(ctx context.Context, err error) {
+	slog.ErrorContext(ctx, "error", "err", err)
 }
 
 type syncer func(context.Context) error
@@ -34,35 +34,35 @@ func (s *Service) Start(ctx context.Context) {
 
 func (s *Service) initConfig(ctx context.Context) (config configHue) {
 	if len(s.configFileName) == 0 {
-		slog.Warn("no config init for hue")
+		slog.WarnContext(ctx, "no config init for hue")
 		return
 	}
 
 	configFile, err := os.Open(s.configFileName)
 	if err != nil {
-		slog.Error("open config file", "err", err)
+		slog.ErrorContext(ctx, "open config file", "err", err)
 		return
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
-		slog.Error("decode config file", "err", err)
+		slog.ErrorContext(ctx, "decode config file", "err", err)
 		return
 	}
 
 	if s.update {
-		slog.Info("Configuring hue...")
-		defer slog.Info("Configuration done.")
+		slog.InfoContext(ctx, "Configuring hue...")
+		defer slog.InfoContext(ctx, "Configuration done.")
 
 		if err := s.cleanSchedules(ctx); err != nil {
-			slog.Error("clean schedule", "err", err)
+			slog.ErrorContext(ctx, "clean schedule", "err", err)
 		}
 
 		if err := s.cleanRules(ctx); err != nil {
-			slog.Error("clean rule", "err", err)
+			slog.ErrorContext(ctx, "clean rule", "err", err)
 		}
 
 		if err := s.cleanScenes(ctx); err != nil {
-			slog.Error("clean scene", "err", err)
+			slog.ErrorContext(ctx, "clean scene", "err", err)
 		}
 
 		s.configureSchedules(ctx, config.Schedules)
@@ -99,7 +99,7 @@ func (s *Service) refreshState(ctx context.Context) error {
 
 		wg.Go(func() {
 			if err := syncer(ctx); err != nil {
-				slog.Error("sync", "err", err)
+				slog.ErrorContext(ctx, "sync", "err", err)
 			}
 		})
 	}

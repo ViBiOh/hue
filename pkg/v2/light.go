@@ -39,7 +39,7 @@ func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 		output[light.ID] = &light
 
 		if err := s.setWhiteLight(ctx, light.ID); err != nil {
-			slog.Error("white light", "err", err)
+			slog.ErrorContext(ctx, "white light", "err", err)
 		}
 	}
 
