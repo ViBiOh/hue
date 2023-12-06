@@ -31,6 +31,7 @@ spec:
       HUE_CONFIG: /opt/config.json
       HUE_LOGGER_JSON: "true"
       HUE_TELEMETRY_URL: datadog.observability:4317
+      OTEL_RESOURCE_ATTRIBUTES: env=production
       OTEL_SERVICE_NAME: hue
     volumes:
       - name: config
