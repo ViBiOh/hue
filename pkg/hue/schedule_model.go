@@ -98,7 +98,7 @@ func (s Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		slog.Error("format time", "err", err)
+		slog.Error("format time", "error", err)
 		return s.Localtime
 	}
 

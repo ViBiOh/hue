@@ -75,7 +75,7 @@ func (s *Service) stream(done <-chan struct{}) {
 
 	resp, err := s.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
-		slog.Error("open stream", "err", err)
+		slog.Error("open stream", "error", err)
 	}
 
 	slog.Info("Streaming events from hub...")
@@ -101,7 +101,7 @@ func (s *Service) stream(done <-chan struct{}) {
 		content = content[len(dataPrefix):]
 
 		if err := json.Unmarshal(content, &events); err != nil {
-			slog.Error("parse event", "err", err, "content", content)
+			slog.Error("parse event", "error", err, "content", content)
 			continue
 		}
 
@@ -111,7 +111,7 @@ func (s *Service) stream(done <-chan struct{}) {
 	}
 
 	if closeErr := resp.Body.Close(); closeErr != nil {
-		slog.Error("close stream", "err", closeErr)
+		slog.Error("close stream", "error", closeErr)
 	}
 }
 

@@ -13,7 +13,7 @@ import (
 )
 
 var logError = func(ctx context.Context, err error) {
-	slog.ErrorContext(ctx, "error", "err", err)
+	slog.ErrorContext(ctx, "error", "error", err)
 }
 
 type syncer func(context.Context) error
@@ -40,12 +40,12 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 
 	configFile, err := os.Open(s.configFileName)
 	if err != nil {
-		slog.ErrorContext(ctx, "open config file", "err", err)
+		slog.ErrorContext(ctx, "open config file", "error", err)
 		return
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
-		slog.ErrorContext(ctx, "decode config file", "err", err)
+		slog.ErrorContext(ctx, "decode config file", "error", err)
 		return
 	}
 
@@ -54,15 +54,15 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 		defer slog.InfoContext(ctx, "Configuration done.")
 
 		if err := s.cleanSchedules(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean schedule", "err", err)
+			slog.ErrorContext(ctx, "clean schedule", "error", err)
 		}
 
 		if err := s.cleanRules(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean rule", "err", err)
+			slog.ErrorContext(ctx, "clean rule", "error", err)
 		}
 
 		if err := s.cleanScenes(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean scene", "err", err)
+			slog.ErrorContext(ctx, "clean scene", "error", err)
 		}
 
 		s.configureSchedules(ctx, config.Schedules)
@@ -99,7 +99,7 @@ func (s *Service) refreshState(ctx context.Context) error {
 
 		wg.Go(func() {
 			if err := syncer(ctx); err != nil {
-				slog.ErrorContext(ctx, "sync", "err", err)
+				slog.ErrorContext(ctx, "sync", "error", err)
 			}
 		})
 	}

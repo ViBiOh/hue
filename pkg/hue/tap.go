@@ -47,7 +47,7 @@ func (s *Service) configureTap(ctx context.Context, taps []configTap) {
 		for _, button := range tap.Buttons {
 			button.Rule = s.createRuleDescription(tap.ID, button)
 			if err := s.createRule(ctx, &button.Rule); err != nil {
-				slog.ErrorContext(ctx, "create rule", "err", err)
+				slog.ErrorContext(ctx, "create rule", "error", err)
 			}
 		}
 	}

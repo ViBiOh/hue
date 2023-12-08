@@ -100,13 +100,13 @@ func (s *Service) cleanSchedules(ctx context.Context) error {
 func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
 	groups, err := s.listGroups(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "list", "err", err)
+		slog.ErrorContext(ctx, "list", "error", err)
 		return
 	}
 
 	for _, config := range schedules {
 		if err := s.createScheduleFromConfig(ctx, config, groups); err != nil {
-			slog.ErrorContext(ctx, "create schedule", "err", err)
+			slog.ErrorContext(ctx, "create schedule", "error", err)
 		}
 	}
 }
