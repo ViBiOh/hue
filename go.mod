@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	github.com/ViBiOh/flags v1.4.1
-	github.com/ViBiOh/httputils/v4 v4.69.6
+	github.com/ViBiOh/httputils/v4 v4.69.7
 	go.opentelemetry.io/otel v1.21.0
 	go.opentelemetry.io/otel/metric v1.21.0
 	golang.org/x/sys v0.15.0 // indirect
@@ -20,6 +20,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
+	github.com/rabbitmq/amqp091-go v1.9.0 // indirect
 	github.com/tdewolff/minify/v2 v2.20.9 // indirect
 	github.com/tdewolff/parse/v2 v2.7.6 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
