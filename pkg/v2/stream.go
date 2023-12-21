@@ -119,6 +119,7 @@ func (s *Service) handleStreamEvent(event Event) {
 	for _, data := range event.Data {
 		switch data.Type {
 		case "button":
+		case "geofence_client":
 		case "zigbee_connectivity":
 		case "motion":
 			s.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
