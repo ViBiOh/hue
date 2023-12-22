@@ -99,6 +99,11 @@ func main() {
 	doneCtx := healthService.DoneCtx()
 	endCtx := healthService.EndCtx()
 
+	if err := v2Service.Init(doneCtx); err != nil {
+		slog.ErrorContext(ctx, "init v2", "error", err)
+		os.Exit(1)
+	}
+
 	go hueService.Start(doneCtx)
 	go v2Service.Start(doneCtx)
 

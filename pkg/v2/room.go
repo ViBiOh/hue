@@ -6,20 +6,20 @@ import (
 	"log/slog"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 )
 
-// Group description
 type Group struct {
 	GroupedLights map[string]GroupedLight
 	ID            string
+	IDV1          string
 	Name          string
 	Lights        []*Light
 	Bridge        bool
 	Plug          bool
 }
 
-// AnyOn checks if any lights in the group is on
 func (g Group) AnyOn() bool {
 	for _, light := range g.Lights {
 		if light.On.On {
@@ -42,7 +42,6 @@ func isPlug(lights []*Light) bool {
 	return count > 0 && count == len(lights)
 }
 
-// GroupByTypeAndName sort Group by Type then, Name
 type GroupByTypeAndName []Group
 
 func (a GroupByTypeAndName) Len() int      { return len(a) }
@@ -58,9 +57,9 @@ func (a GroupByTypeAndName) Less(i, j int) bool {
 	return true
 }
 
-// GroupedLight description
 type GroupedLight struct {
 	ID    string `json:"id"`
+	IDV1  string `json:"id_v1"`
 	Alert struct {
 		ActionValues []string `json:"action_values"`
 	} `json:"alert"`
@@ -68,9 +67,9 @@ type GroupedLight struct {
 	On      On      `json:"on"`
 }
 
-// Room description
 type Room struct {
 	ID       string `json:"id"`
+	IDV1     string `json:"id_v1"`
 	Metadata struct {
 		Name string `json:"name"`
 	} `json:"metadata"`
@@ -78,7 +77,6 @@ type Room struct {
 	Children []deviceReference `json:"children"`
 }
 
-// Groups list available groups
 func (s *Service) Groups() []Group {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
@@ -96,19 +94,14 @@ func (s *Service) Groups() []Group {
 	return output
 }
 
-// UpdateGroup status
 func (s *Service) UpdateGroup(ctx context.Context, id string, on bool, brightness float64, transitionTime time.Duration) (Group, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	// var color Color
-	// color.XY.X = 0.313
-	// color.XY.Y = .337
-
 	var colorTemperature ColorTemperature
 	colorTemperature.Mirek = 239
 
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"on": On{
 			On: on,
 		},
@@ -116,7 +109,7 @@ func (s *Service) UpdateGroup(ctx context.Context, id string, on bool, brightnes
 			Brightness: brightness,
 		},
 		"color_temperature": colorTemperature,
-		"dynamics": map[string]interface{}{
+		"dynamics": map[string]any{
 			"duration": transitionTime.Milliseconds(),
 		},
 	}
@@ -182,6 +175,7 @@ func (s *Service) buildDeviceGroup(ctx context.Context, name string, output map[
 
 		output[item.ID] = Group{
 			ID:            item.ID,
+			IDV1:          strings.TrimPrefix(item.IDV1, "/groups/"),
 			Name:          groupName,
 			GroupedLights: groupedLights,
 			Lights:        lights,
@@ -203,6 +197,9 @@ func (s *Service) buildServices(ctx context.Context, name string, services []dev
 			if err != nil {
 				return nil, fmt.Errorf("get grouped light `%s`: %w", service.Rid, err)
 			}
+
+			groupedLight.IDV1 = strings.TrimPrefix(groupedLight.IDV1, "/groups/")
+
 			output[groupedLight.ID] = groupedLight
 
 		default:

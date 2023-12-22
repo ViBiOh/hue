@@ -8,15 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
 )
 
 var logError = func(ctx context.Context, err error) {
 	slog.ErrorContext(ctx, "error", "error", err)
 }
-
-type syncer func(context.Context) error
 
 func (s *Service) Start(ctx context.Context) {
 	config := s.initConfig(ctx)
@@ -29,7 +26,7 @@ func (s *Service) Start(ctx context.Context) {
 		})
 	}
 
-	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, s.refreshState)
+	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, s.syncSchedules)
 }
 
 func (s *Service) initConfig(ctx context.Context) (config configHue) {
@@ -87,54 +84,6 @@ func (s *Service) updateSensors(ctx context.Context, names []string, enabled boo
 	return nil
 }
 
-func (s *Service) refreshState(ctx context.Context) error {
-	if err := s.syncLights(ctx); err != nil {
-		return err
-	}
-
-	wg := concurrent.NewLimiter(4)
-
-	for _, fn := range s.syncers {
-		syncer := fn
-
-		wg.Go(func() {
-			if err := syncer(ctx); err != nil {
-				slog.ErrorContext(ctx, "sync", "error", err)
-			}
-		})
-	}
-
-	wg.Wait()
-
-	return nil
-}
-
-func (s *Service) syncLights(ctx context.Context) error {
-	lights, err := s.listLights(ctx)
-	if err != nil {
-		return fmt.Errorf("list lights: %w", err)
-	}
-
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.lights = lights
-
-	return nil
-}
-
-func (s *Service) syncGroups(ctx context.Context) error {
-	groups, err := s.listGroups(ctx)
-	if err != nil {
-		return fmt.Errorf("list groups: %w", err)
-	}
-
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.groups = groups
-
-	return nil
-}
-
 func (s *Service) syncSchedules(ctx context.Context) error {
 	schedules, err := s.listSchedules(ctx)
 	if err != nil {
@@ -144,19 +93,6 @@ func (s *Service) syncSchedules(ctx context.Context) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	s.schedules = schedules
-
-	return nil
-}
-
-func (s *Service) syncScenes(ctx context.Context) error {
-	scenes, err := s.listScenes(ctx)
-	if err != nil {
-		return fmt.Errorf("list scenes: %w", err)
-	}
-
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.scenes = scenes
 
 	return nil
 }

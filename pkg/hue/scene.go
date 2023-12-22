@@ -3,6 +3,8 @@ package hue
 import (
 	"context"
 	"fmt"
+
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 func (s *Service) listScenes(ctx context.Context) (map[string]Scene, error) {
@@ -46,7 +48,7 @@ func (s *Service) createScene(ctx context.Context, o *Scene) error {
 	return nil
 }
 
-func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) (Scene, error) {
+func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, groups map[string]v2.Group) (Scene, error) {
 	group, ok := groups[config.Group]
 	if !ok {
 		return Scene{}, fmt.Errorf("unknown group id: %s", config.Group)
@@ -57,10 +59,15 @@ func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config Sche
 		return Scene{}, fmt.Errorf("unknown state name: %s", config.State)
 	}
 
+	lights := make([]string, 0, len(group.Lights))
+	for _, light := range group.Lights {
+		lights = append(lights, light.IDV1)
+	}
+
 	scene := Scene{
 		APIScene: APIScene{
 			Name:    config.Name,
-			Lights:  group.Lights,
+			Lights:  lights,
 			Recycle: false,
 		},
 	}

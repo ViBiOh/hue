@@ -4,19 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 )
 
 func (s *Service) Start(ctx context.Context) {
-	if err := s.initConfig(ctx); err != nil {
-		slog.ErrorContext(ctx, "init", "error", err)
-		os.Exit(1)
-	}
-
-	go s.streamIndefinitely(ctx.Done())
+	s.streamIndefinitely(ctx.Done())
 }
 
-func (s *Service) initConfig(ctx context.Context) (err error) {
+func (s *Service) Init(ctx context.Context) (err error) {
+	slog.Info("Initializing V2...")
+	defer slog.Info("Initialization V2 done.")
+
 	s.lights, err = s.buildLights(ctx)
 	if err != nil {
 		err = fmt.Errorf("build lights: %w", err)

@@ -17,14 +17,11 @@ type Service struct {
 	apiHandler     http.Handler
 	v2Service      *v2.Service
 	scenes         map[string]Scene
-	lights         map[string]Light
-	groups         map[string]Group
 	schedules      map[string]Schedule
+	renderer       *renderer.Service
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
-	renderer       *renderer.Service
-	syncers        []syncer
 	mutex          sync.RWMutex
 	update         bool
 }
@@ -55,12 +52,6 @@ func New(config *Config, rendererService *renderer.Service, v2Service *v2.Servic
 		update:         config.Update,
 		renderer:       rendererService,
 		v2Service:      v2Service,
-	}
-
-	service.syncers = []syncer{
-		service.syncGroups,
-		service.syncSchedules,
-		service.syncScenes,
 	}
 
 	service.apiHandler = http.StripPrefix(apiPath, service.Handler())

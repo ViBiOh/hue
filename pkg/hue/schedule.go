@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 func (s *Service) listSchedules(ctx context.Context) (map[string]Schedule, error) {
@@ -35,13 +37,12 @@ func (s *Service) createSchedule(ctx context.Context, o *Schedule) error {
 	return nil
 }
 
-func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleConfig, groups map[string]Group) error {
-	if groups == nil {
-		var err error
+func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleConfig) error {
+	rawGroups := s.v2Service.Groups()
 
-		if groups, err = s.listGroups(ctx); err != nil {
-			return err
-		}
+	groups := make(map[string]v2.Group)
+	for _, group := range rawGroups {
+		groups[group.IDV1] = group
 	}
 
 	scene, err := s.createSceneFromScheduleConfig(ctx, config, groups)
@@ -98,14 +99,8 @@ func (s *Service) cleanSchedules(ctx context.Context) error {
 }
 
 func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
-	groups, err := s.listGroups(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "list", "error", err)
-		return
-	}
-
 	for _, config := range schedules {
-		if err := s.createScheduleFromConfig(ctx, config, groups); err != nil {
+		if err := s.createScheduleFromConfig(ctx, config); err != nil {
 			slog.ErrorContext(ctx, "create schedule", "error", err)
 		}
 	}

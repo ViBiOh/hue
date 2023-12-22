@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 )
 
 type Light struct {
 	ID       string `json:"id"`
+	IDV1     string `json:"id_v1"`
 	Metadata struct {
 		Archetype string `json:"archetype"`
 		Name      string `json:"name"`
@@ -36,6 +38,8 @@ func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 	output := make(map[string]*Light, len(lights))
 	for _, light := range lights {
 		light := light
+		light.IDV1 = strings.TrimPrefix(light.IDV1, "/lights/")
+
 		output[light.ID] = &light
 
 		if err := s.setWhiteLight(ctx, light.ID); err != nil {
