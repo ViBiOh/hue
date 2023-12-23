@@ -15,7 +15,6 @@ import (
 
 var dataPrefix []byte = []byte("data: ")
 
-// Event from the server sent event
 type Event struct {
 	Type string `json:"type"`
 	Data []struct {
@@ -31,7 +30,7 @@ type Event struct {
 		PowerState       struct {
 			BatteryState string `json:"battery_state"`
 			BatteryLevel int64  `json:"battery_level"`
-		}
+		} `json:"power_state"`
 		Light struct {
 			Level int64 `json:"light_level"`
 		} `json:"light"`

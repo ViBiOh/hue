@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// Device description
 type Device struct {
 	ProductData struct {
 		ManufacturerName string `json:"manufacturer_name"`
@@ -31,7 +30,6 @@ type deviceReference struct {
 	Rtype string `json:"rtype"`
 }
 
-// DeviceByID sort Device by ID
 type DeviceByID []Device
 
 func (a DeviceByID) Len() int      { return len(a) }
@@ -40,7 +38,6 @@ func (a DeviceByID) Less(i, j int) bool {
 	return a[i].ID < a[j].ID
 }
 
-// DevicePower description
 type DevicePower struct {
 	Owner      deviceReference `json:"owner"`
 	ID         string          `json:"id"`
@@ -50,7 +47,6 @@ type DevicePower struct {
 	} `json:"power_state"`
 }
 
-// DevicePowerByOwner sort DevicePower by Owner
 type DevicePowerByOwner []DevicePower
 
 func (a DevicePowerByOwner) Len() int      { return len(a) }
