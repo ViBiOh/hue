@@ -59,10 +59,7 @@ func main() {
 	ctx := context.Background()
 
 	telemetryService, err := telemetry.New(ctx, telemetryConfig)
-	if err != nil {
-		slog.ErrorContext(ctx, "create telemetry", "error", err)
-		os.Exit(1)
-	}
+	logger.FatalfOnErr(ctx, err, "create telemetry")
 
 	defer telemetryService.Close(ctx)
 
@@ -77,22 +74,13 @@ func main() {
 	healthService := health.New(ctx, healthConfig)
 
 	rendererService, err := renderer.New(rendererConfig, content, hue.FuncMap, telemetryService.MeterProvider(), telemetryService.TracerProvider())
-	if err != nil {
-		slog.ErrorContext(ctx, "create renderer", "error", err)
-		os.Exit(1)
-	}
+	logger.FatalfOnErr(ctx, err, "create renderer")
 
 	v2Service, err := v2.New(v2Config, telemetryService.MeterProvider())
-	if err != nil {
-		slog.ErrorContext(ctx, "create hue v2", "error", err)
-		os.Exit(1)
-	}
+	logger.FatalfOnErr(ctx, err, "create hue v2")
 
 	hueService, err := hue.New(hueConfig, rendererService, v2Service)
-	if err != nil {
-		slog.ErrorContext(ctx, "create hue", "error", err)
-		os.Exit(1)
-	}
+	logger.FatalfOnErr(ctx, err, "create hue")
 
 	rendererHandler := rendererService.Handler(hueService.TemplateFunc)
 
