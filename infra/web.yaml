@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: app
-      version: "0.0.94"
+      version: "0.1.2"
       sourceRef:
         kind: HelmRepository
         name: vibioh
@@ -26,14 +26,16 @@ spec:
     image:
       name: vibioh/hue
       tag: "202401150917" # {"$imagepolicy": "default:flux-hue-api:tag"}
+    labels:
+      tags.datadoghq.com/env: "production"
+      tags.datadoghq.com/service: "hue"
+      tags.datadoghq.com/version: "202401150917" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
-      GOMAXPROCS: "1"
       HUE_CONFIG: /opt/config.json
       HUE_LOGGER_JSON: "true"
       HUE_TELEMETRY_RATE: "0.01"
       HUE_TELEMETRY_URL: datadog.observability:4317
       OTEL_RESOURCE_ATTRIBUTES: env=production,git.repository_url=github.com/ViBiOh/hue
-      OTEL_SERVICE_NAME: hue
     volumes:
       - name: config
         configMap:
@@ -41,6 +43,23 @@ spec:
     volumeMounts:
       - name: config
         mountPath: /opt
+    env:
+      - name: GOMAXPROCS
+        valueFrom:
+          resourceFieldRef:
+            resource: limits.cpu
+      - name: GOMEMLIMIT
+        valueFrom:
+          resourceFieldRef:
+            resource: limits.memory
+      - name: VERSION
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['tags.datadoghq.com/version']
+      - name: OTEL_SERVICE_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['tags.datadoghq.com/service']
     secrets:
       HUE_PUBLIC_URL: AgAnV14Enh3p66yStVwzPzZ3UdqEcdSMP+9+f/6O54Xr3baKSPD8InGdGlDe9BsKulhWI1HuZxeXimSLJCiWr++Z5+6Ccn3JMdv0fiyGysHYAbFSxpVs5VZYgUk5Yr4mwb23N2wSwhha3InmgBjgqt5qci5WZYGWJAw1WilCST6pHdCmTzogrbtsrHhFfT3Qnyz2L1N9NlQcgGuWbznXY/oToo9UXe/ABDE3gpipZSDFA1CuKzpuyK7uANTbsv6w6SxB2pTMF4agSpHedKcGOWNnzHMTtMNAOUU8Mj8Ial6b1ktR6Dtq8Nb7jC9dt11wNZ7htw65LKUAPpJRhKiu4fTGkH6kuQ2mnmcW02gN6N5FEAiDNP0nNN+70/XJpYR01HOD/uvHATJIHcxg5TnPvbhQNRlnvUcuu6F2p2SQf8mJ712FrfraGSSqVyNTw2sIxncaG3+Z+YoRdwplrzoxM948wGnPHmPjOO47eplYPYeLW5L13OG+RTRbtTiB4wnxn7Upoid8phXtCmLhaQRci2GhrbDdrYnTZCqajl9vm0Ap/y/CSqAP9zORd7wp/Tuwb/yoT6souuPapXaMt+mh8yXP/7eHMbpxIgQutOjShzlzxBtJQb+Civi06ZQmtInN+Bs2iptxePAU4zIU6XBb9Vm4Mn/KE2aHlOJf4QPhmVc6Y1arDFmkYiIa25v0mAmLAQIzEbiPKmJSzCQr4UR04g9xbPlong==
       HUE_BRIDGE_IP: AgCM2wGJi/MOMXiuvU71ePhdbreEg6X6CnBUSwFI41ubrO61sYDZepQ+nWjRDzx6EjQbdjiE8V07OsIULkFyhdpUB3thmDY2UmOt1/SPb8ZyJMDwFCaQhGv4Wi7tEzpYHrV1Hi4biexbwZ0nqKqekXSynUf25AZrHm4IdRwbq0EaUgsMvDCQJb8rgC7kStXtT0L+HoB6d/t6QHF4Iv6c6sXZwJtobX8hujut5GKEXTdcoMDbi9y69BDUMKJGekusrZtu/qh39uVRyb++NCW/IM9DIi8+v/pbaikIVtvDmQbN5SpV1cF6gcLngSpadl5u9q5gBmaqaNshLrv/7H9Ouq+oINsZ7uXsW9YsLFLPK6A7zTTw1J83zncFLhQwcxGgQAvHyZtzV8i+hGgY0NC0nquqMBBGL4QRixLUqG9FJiqCTZF6gJQ2FlHULoJQImZZsAuU96pNdxOqsOcrCrluaw7V7XnuAo33zkzHP61xTiHH1cQ/7gcUm3gXf1F/6afnPfQ6hquPkYF4Z+HrIaIvDWZ4X49J626hRCgLixCg7ivNKGwYJeZjIl3JRFF45RjenXQpQYH/T5kUUV/l2poJ8eOUyYx41wJ2CFBtM8HKA0Tcxj7Gf7sAV9na7HmZEcTzTC+WVeMW9aGMSdsjUPsFUW1D8JTeanTzAwCViqNTnKSu2X0mZ11JDafQ/wWkRIkbDhibZZiq9MU7i687cxI2
