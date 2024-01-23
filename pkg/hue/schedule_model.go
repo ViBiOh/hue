@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -98,7 +99,7 @@ func (s Schedule) FormatLocalTime() string {
 
 	recurrence, err := strconv.Atoi(s.Localtime[1:4])
 	if err != nil {
-		slog.Error("format time", "error", err)
+		slog.LogAttrs(context.Background(), slog.LevelError, "format time", slog.Any("error", err))
 		return s.Localtime
 	}
 

@@ -101,7 +101,7 @@ func (s *Service) cleanSchedules(ctx context.Context) error {
 func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
 	for _, config := range schedules {
 		if err := s.createScheduleFromConfig(ctx, config); err != nil {
-			slog.ErrorContext(ctx, "create schedule", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "create schedule", slog.Any("error", err))
 		}
 	}
 }

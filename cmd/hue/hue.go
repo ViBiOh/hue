@@ -88,7 +88,7 @@ func main() {
 	endCtx := healthService.EndCtx()
 
 	if err := v2Service.Init(doneCtx); err != nil {
-		slog.ErrorContext(ctx, "init v2", "error", err)
+		slog.LogAttrs(ctx, slog.LevelError, "init v2", slog.Any("error", err))
 		os.Exit(1)
 	}
 

@@ -74,7 +74,7 @@ func (s *Service) stream(done <-chan struct{}) {
 
 	resp, err := s.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
-		slog.Error("open stream", "error", err)
+		slog.LogAttrs(context.Background(), slog.LevelError, "open stream", slog.Any("error", err))
 	}
 
 	slog.Info("Streaming events from hub...")
@@ -100,7 +100,7 @@ func (s *Service) stream(done <-chan struct{}) {
 		content = content[len(dataPrefix):]
 
 		if err := json.Unmarshal(content, &events); err != nil {
-			slog.Error("parse event", "error", err, "content", content)
+			slog.LogAttrs(context.Background(), slog.LevelError, "parse event", slog.String("content", string(content)), slog.Any("error", err))
 			continue
 		}
 
@@ -110,7 +110,7 @@ func (s *Service) stream(done <-chan struct{}) {
 	}
 
 	if closeErr := resp.Body.Close(); closeErr != nil {
-		slog.Error("close stream", "error", closeErr)
+		slog.LogAttrs(context.Background(), slog.LevelError, "close stream", slog.Any("error", closeErr))
 	}
 }
 
@@ -138,7 +138,7 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "grouped_light":
 			s.updateGroupedLight(data.ID, data.On, data.Dimming)
 		default:
-			slog.Info("unhandled event received", "type", data.Type)
+			slog.LogAttrs(context.Background(), slog.LevelInfo, "unhandled event received", slog.String("type", data.Type))
 		}
 	}
 }
@@ -150,17 +150,17 @@ func (s *Service) updateMotion(owner string, enabled *bool, motion *MotionValue)
 	if motionSensor, ok := s.motionSensors[owner]; ok {
 		if enabled != nil {
 			motionSensor.Enabled = *enabled
-			slog.Debug("Motion status", "value", motionSensor.Enabled, "sensor", motionSensor.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Motion status", slog.Bool("value", motionSensor.Enabled), slog.String("sensor", motionSensor.Name))
 		}
 
 		if motion != nil {
 			motionSensor.Motion = motion.Motion
-			slog.Debug("Motion", "motion", motionSensor.Motion, "sensor", motionSensor.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Motion", slog.Bool("motion", motionSensor.Motion), slog.String("sensor", motionSensor.Name))
 		}
 
 		s.motionSensors[owner] = motionSensor
 	} else {
-		slog.Warn("unknown motion owner ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown motion owner ID", slog.String("owner", owner))
 	}
 }
 
@@ -170,11 +170,11 @@ func (s *Service) updateLightLevel(owner string, lightLevel int64) {
 
 	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.LightLevel = lightLevel
-		slog.Debug("Light level", "level", lightLevel, "sensor", motionSensor.Name)
+		slog.LogAttrs(context.Background(), slog.LevelDebug, "Light level", slog.Int64("level", lightLevel), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
 	} else {
-		slog.Warn("unknown light level owner ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown light level owner ID", slog.String("owner", owner))
 	}
 }
 
@@ -184,11 +184,11 @@ func (s *Service) updateTemperature(owner string, temperature float64) {
 
 	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.Temperature = temperature
-		slog.Debug("Temperature", "temperature", temperature, "sensor", motionSensor.Name)
+		slog.LogAttrs(context.Background(), slog.LevelDebug, "Temperature", slog.Float64("temperature", temperature), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
 	} else {
-		slog.Warn("unknown temperature owner ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown temperature owner ID", slog.String("owner", owner))
 	}
 }
 
@@ -199,11 +199,11 @@ func (s *Service) updateDevicePower(owner string, batteryState string, batteryLe
 	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.BatteryState = batteryState
 		motionSensor.BatteryLevel = batteryLevel
-		slog.Debug("Battery", "battery", batteryLevel, "sensor", motionSensor.Name)
+		slog.LogAttrs(context.Background(), slog.LevelDebug, "Battery", slog.Int64("battery", batteryLevel), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
 	} else {
-		slog.Warn("unknown device power owner ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown device power owner ID", slog.String("owner", owner))
 	}
 }
 
@@ -214,15 +214,15 @@ func (s *Service) updateLight(owner string, on *On, dimming *Dimming) {
 	if light, ok := s.lights[owner]; ok {
 		if dimming != nil {
 			light.Dimming.Brightness = dimming.Brightness
-			slog.Debug("Brightness", "brightness", dimming.Brightness, "name", light.Metadata.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Brightness", slog.Float64("brightness", dimming.Brightness), slog.String("name", light.Metadata.Name))
 		}
 
 		if on != nil {
 			light.On.On = on.On
-			slog.Debug("Light status", "on", on.On, "name", light.Metadata.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Light status", slog.Bool("on", on.On), slog.String("name", light.Metadata.Name))
 		}
 	} else {
-		slog.Warn("unknown light ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown light ID", slog.String("owner", owner))
 	}
 }
 
@@ -235,17 +235,17 @@ func (s *Service) updateGroupedLight(owner string, on *On, dimming *Dimming) {
 
 		if dimming != nil {
 			groupedLight.Dimming.Brightness = dimming.Brightness
-			slog.Debug("Brightness", "brightness", dimming.Brightness, "group", group.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Brightness", slog.Float64("brightness", dimming.Brightness), slog.String("group", group.Name))
 		}
 
 		if on != nil {
 			groupedLight.On.On = on.On
-			slog.Debug("Group status", "on", on.On, "group", group.Name)
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Group status", slog.Bool("on", on.On), slog.String("group", group.Name))
 		}
 
 		group.GroupedLights[owner] = groupedLight
 		s.groups[group.ID] = group
 	} else {
-		slog.Warn("unknown grouped light ID", "owner", owner)
+		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown grouped light ID", slog.String("owner", owner))
 	}
 }

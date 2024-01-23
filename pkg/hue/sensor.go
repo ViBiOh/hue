@@ -81,12 +81,12 @@ func (s *Service) configureMotionSensor(ctx context.Context, sensors []configSen
 	for _, sensor := range sensors {
 		onRule := s.createSensorOnRuleDescription(sensor)
 		if err := s.createRule(ctx, &onRule); err != nil {
-			slog.ErrorContext(ctx, "create rule", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
 		}
 
 		offRule := s.createSensorOffRuleDescription(sensor)
 		if err := s.createRule(ctx, &offRule); err != nil {
-			slog.ErrorContext(ctx, "create rule", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
 		}
 	}
 }

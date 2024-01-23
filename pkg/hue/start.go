@@ -12,7 +12,7 @@ import (
 )
 
 var logError = func(ctx context.Context, err error) {
-	slog.ErrorContext(ctx, "error", "error", err)
+	slog.LogAttrs(ctx, slog.LevelError, "error", slog.Any("error", err))
 }
 
 func (s *Service) Start(ctx context.Context) {
@@ -37,12 +37,12 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 
 	configFile, err := os.Open(s.configFileName)
 	if err != nil {
-		slog.ErrorContext(ctx, "open config file", "error", err)
+		slog.LogAttrs(ctx, slog.LevelError, "open config file", slog.Any("error", err))
 		return
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
-		slog.ErrorContext(ctx, "decode config file", "error", err)
+		slog.LogAttrs(ctx, slog.LevelError, "decode config file", slog.Any("error", err))
 		return
 	}
 
@@ -51,15 +51,15 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 		defer slog.InfoContext(ctx, "Configuration done.")
 
 		if err := s.cleanSchedules(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean schedule", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "clean schedule", slog.Any("error", err))
 		}
 
 		if err := s.cleanRules(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean rule", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "clean rule", slog.Any("error", err))
 		}
 
 		if err := s.cleanScenes(ctx); err != nil {
-			slog.ErrorContext(ctx, "clean scene", "error", err)
+			slog.LogAttrs(ctx, slog.LevelError, "clean scene", slog.Any("error", err))
 		}
 
 		s.configureSchedules(ctx, config.Schedules)
