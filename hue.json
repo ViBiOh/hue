@@ -23,15 +23,27 @@
       "state": "long_on"
     },
     {
-      "name": "Desk",
+      "name": "Desktop - On",
       "localtime": "W127/T08:30:00",
       "group": "7",
       "state": "on"
     },
     {
-      "name": "Sleeping",
+      "name": "Desktop - Off",
       "localtime": "W127/T01:00:00",
       "group": "7",
+      "state": "off"
+    },
+    {
+      "name": "Kitchen - On",
+      "localtime": "W127/T07:00:00",
+      "group": "9",
+      "state": "on"
+    },
+    {
+      "name": "Kitchen - Off",
+      "localtime": "W127/T00:00:00",
+      "group": "9",
       "state": "off"
     }
   ],
