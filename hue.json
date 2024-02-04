@@ -35,12 +35,6 @@
       "state": "off"
     },
     {
-      "name": "Kitchen - On",
-      "localtime": "W127/T08:00:00",
-      "group": "9",
-      "state": "on"
-    },
-    {
       "name": "Kitchen - Off",
       "localtime": "W127/T00:00:00",
       "group": "9",
