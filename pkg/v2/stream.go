@@ -122,6 +122,7 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "device_software_update":
 		case "entertainment":
 		case "geofence_client":
+		case "grouped_light_level":
 		case "grouped_motion":
 		case "homekit":
 		case "zigbee_connectivity":
