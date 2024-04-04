@@ -75,6 +75,7 @@ func (s *Service) stream(done <-chan struct{}) {
 	resp, err := s.req.Path("/eventstream/clip/v2").Accept("text/event-stream").WithClient(createInsecureClient(0)).Send(ctx, nil)
 	if err != nil {
 		slog.LogAttrs(context.Background(), slog.LevelError, "open stream", slog.Any("error", err))
+		return
 	}
 
 	slog.Info("Streaming events from hub...")
