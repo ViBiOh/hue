@@ -43,7 +43,7 @@ func main() {
 	telemetryConfig := telemetry.Flags(fs, "telemetry")
 	owaspConfig := owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'"))
 	corsConfig := cors.Flags(fs, "cors")
-	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"), flags.NewOverride("Templates", nil))
+	rendererConfig := renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr"))
 
 	hueConfig := hue.Flags(fs, "")
 	v2Config := v2.Flags(fs, "v2")
@@ -82,8 +82,6 @@ func main() {
 	hueService, err := hue.New(hueConfig, rendererService, v2Service)
 	logger.FatalfOnErr(ctx, err, "create hue")
 
-	rendererHandler := rendererService.Handler(hueService.TemplateFunc)
-
 	doneCtx := healthService.DoneCtx()
 	endCtx := healthService.EndCtx()
 
@@ -95,7 +93,7 @@ func main() {
 	go hueService.Start(doneCtx)
 	go v2Service.Start(doneCtx)
 
-	go appServer.Start(endCtx, httputils.Handler(rendererHandler, healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
+	go appServer.Start(endCtx, httputils.Handler(newPort(hueService, rendererService), healthService, recoverer.Middleware, telemetryService.Middleware("http"), owasp.New(owaspConfig).Middleware, cors.New(corsConfig).Middleware))
 
 	healthService.WaitForTermination(appServer.Done())
 	server.GracefulWait(appServer.Done())

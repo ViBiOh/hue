@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/ViBiOh/flags"
@@ -14,7 +13,6 @@ import (
 )
 
 type Service struct {
-	apiHandler     http.Handler
 	v2Service      *v2.Service
 	scenes         map[string]Scene
 	schedules      map[string]Schedule
@@ -54,17 +52,10 @@ func New(config *Config, rendererService *renderer.Service, v2Service *v2.Servic
 		v2Service:      v2Service,
 	}
 
-	service.apiHandler = http.StripPrefix(apiPath, service.Handler())
-
 	return &service, nil
 }
 
 func (s *Service) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Page, error) {
-	if strings.HasPrefix(r.URL.Path, apiPath) {
-		s.apiHandler.ServeHTTP(w, r)
-		return renderer.Page{}, nil
-	}
-
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 

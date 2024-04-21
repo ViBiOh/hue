@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ViBiOh/httputils/v4/pkg/httperror"
 	"github.com/ViBiOh/httputils/v4/pkg/model"
@@ -12,32 +11,24 @@ import (
 )
 
 const (
-	apiPath       = "/api"
-	groupsPath    = "/groups"
-	schedulesPath = "/schedules"
-	sensorsPath   = "/sensors"
-
 	updateSuccessMessage = "%s is now %s"
 )
 
 func (s *Service) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, groupsPath) {
+		switch r.PathValue("resource") {
+		case "groups":
 			s.handleGroup(w, r)
-			return
-		}
 
-		if strings.HasPrefix(r.URL.Path, schedulesPath) {
+		case "schedules":
 			s.handleSchedule(w, r)
-			return
-		}
 
-		if strings.HasPrefix(r.URL.Path, sensorsPath) {
+		case "sensors":
 			s.handleSensors(w, r)
-			return
-		}
 
-		httperror.NotFound(r.Context(), w)
+		default:
+			httperror.NotFound(r.Context(), w)
+		}
 	})
 }
 
@@ -47,7 +38,7 @@ func (s *Service) handleGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID := strings.Trim(strings.TrimPrefix(r.URL.Path, groupsPath), "/")
+	groupID := r.PathValue("id")
 	stateName := r.FormValue("state")
 
 	state, ok := States[stateName]
@@ -74,7 +65,7 @@ func (s *Service) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	status := r.FormValue("status")
 
 	schedule := Schedule{
-		ID: strings.Trim(strings.TrimPrefix(r.URL.Path, schedulesPath), "/"),
+		ID: r.PathValue("id"),
 		APISchedule: APISchedule{
 			Status: status,
 		},
@@ -110,7 +101,7 @@ func (s *Service) handleSensors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := strings.Trim(strings.TrimPrefix(r.URL.Path, sensorsPath), "/")
+	id := r.PathValue("id")
 
 	status := r.FormValue("on")
 	statusBool, err := strconv.ParseBool(status)

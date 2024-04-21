@@ -8,7 +8,7 @@ endif
 APP_NAME = hue
 PACKAGES ?= ./...
 
-MAIN_SOURCE = cmd/hue/hue.go
+MAIN_SOURCE = ./cmd/hue/
 MAIN_RUNNER = go run $(MAIN_SOURCE)
 ifeq ($(DEBUG), true)
 	MAIN_RUNNER = dlv debug $(MAIN_SOURCE) --
