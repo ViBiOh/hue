@@ -265,7 +265,7 @@
     */
     function goBack() {
       const previousHash = document.location.hash;
-      document.location.hash = '';
+      document.location.hash = "";
 
       if (/success$/gim.test(previousHash)) {
         window.location.reload(true);
@@ -273,22 +273,22 @@
     }
 
     /**
-    * Handle Previous/next.
-    */
-    window.onkeyup = e => {
-      switch(e.key) {
-        case 'Escape':
+     * Handle Previous/next.
+     */
+    window.onkeyup = (e) => {
+      switch (e.key) {
+        case "Escape":
           goBack();
           break;
       }
     };
 
-    document.addEventListener('readystatechange', async (event) => {
-      if (event.target.readyState === 'complete') {
-        const link = document.getElementById('go-back');
+    document.addEventListener("readystatechange", async (event) => {
+      if (event.target.readyState === "complete") {
+        const link = document.getElementById("go-back");
         if (link) {
-          link.setAttribute('href', document.referrer);
-          link.addEventListener('click', (e) => {
+          link.setAttribute("href", document.referrer);
+          link.addEventListener("click", (e) => {
             e.preventDefault();
             history.back();
             return false;
@@ -318,7 +318,7 @@
       <div class="content">
         <header class="flex padding">
           <h1 class="no-margin no-padding">
-            <a href="{{ url "/" }}" class="no-style clear">{{ .Title }}</a>
+            <a href="{{ url "" }}{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
           </h1>
 
           <span class="flex-grow"></span>
