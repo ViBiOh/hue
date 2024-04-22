@@ -192,6 +192,8 @@ func (s *Service) buildServices(ctx context.Context, name string, services []dev
 
 	for _, service := range services {
 		switch service.Rtype {
+		case "grouped_light_level":
+		case "grouped_motion":
 		case "grouped_light":
 			groupedLight, err := get[GroupedLight](ctx, s.req, service.Rtype, service.Rid)
 			if err != nil {

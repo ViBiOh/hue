@@ -2,16 +2,13 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/ViBiOh/httputils/v4/pkg/renderer"
-	"github.com/ViBiOh/hue/pkg/hue"
 )
 
-func newPort(hue *hue.Service, renderer *renderer.Service) http.Handler {
+func newPort(service service) http.Handler {
 	mux := http.NewServeMux()
 
-	mux.Handle("/api/{resource}/{id}", hue.Handler())
-	mux.Handle("/", renderer.Handler(hue.TemplateFunc))
+	mux.Handle("/api/{resource}/{id}", service.hue.Handler())
+	mux.Handle("/", service.renderer.Handler(service.hue.TemplateFunc))
 
 	return mux
 }
