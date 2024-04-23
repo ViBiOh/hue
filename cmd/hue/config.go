@@ -31,11 +31,11 @@ type configuration struct {
 	hueV2    *v2.Config
 }
 
-func newConfig() (configuration, error) {
+func newConfig() configuration {
 	fs := flag.NewFlagSet("hue", flag.ExitOnError)
 	fs.Usage = flags.Usage(fs)
 
-	return configuration{
+	config := configuration{
 		http:      server.Flags(fs, ""),
 		health:    health.Flags(fs, ""),
 		alcotest:  alcotest.Flags(fs, ""),
@@ -48,5 +48,9 @@ func newConfig() (configuration, error) {
 
 		hue:   hue.Flags(fs, ""),
 		hueV2: v2.Flags(fs, "v2"),
-	}, fs.Parse(os.Args[1:])
+	}
+
+	_ = fs.Parse(os.Args[1:])
+
+	return config
 }
