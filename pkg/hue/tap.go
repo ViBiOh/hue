@@ -28,7 +28,6 @@ func (s *Service) createRuleDescription(tapID string, button configTapButton) Ru
 				Value:    tapButtonMapping[button.ID],
 			},
 		},
-		Actions: make([]Action, 0),
 	}
 
 	for _, group := range button.Groups {

@@ -64,7 +64,7 @@ func recurrenceStr(recurrence int) string {
 		return "Weekend"
 	}
 
-	days := make([]string, 0)
+	var days []string
 
 	if recurrence&monday != 0 {
 		days = append(days, "Mon")

@@ -10,7 +10,7 @@ import (
 const sensorPresenceURL = "/sensors/%s/state/presence"
 
 func getGroupsActions(groups []string, state string) []Action {
-	actions := make([]Action, 0)
+	var actions []Action
 
 	for _, group := range groups {
 		actions = append(actions, Action{
@@ -44,10 +44,8 @@ func (s *Service) createSensorOnRuleDescription(sensor configSensor) Rule {
 				Value:    "false",
 			},
 		},
-		Actions: make([]Action, 0),
+		Actions: getGroupsActions(sensor.Groups, state),
 	}
-
-	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
@@ -69,10 +67,8 @@ func (s *Service) createSensorOffRuleDescription(sensor configSensor) Rule {
 				Value:    sensor.OffDelay,
 			},
 		},
-		Actions: make([]Action, 0),
+		Actions: getGroupsActions(sensor.Groups, state),
 	}
-
-	newRule.Actions = append(newRule.Actions, getGroupsActions(sensor.Groups, state)...)
 
 	return newRule
 }
