@@ -88,14 +88,18 @@ Usage of hue:
   --loggerMessageKey  string    [logger] Key for message in JSON ${HUE_LOGGER_MESSAGE_KEY} (default "msg")
   --loggerTimeKey     string    [logger] Key for timestamp in JSON ${HUE_LOGGER_TIME_KEY} (default "time")
   --minify                      Minify HTML ${HUE_MINIFY} (default true)
+  --name              string    [server] Name ${HUE_NAME} (default "http")
   --okStatus          int       [http] Healthy HTTP Status code ${HUE_OK_STATUS} (default 204)
   --pathPrefix        string    Root Path Prefix ${HUE_PATH_PREFIX}
   --port              uint      [server] Listen port (0 to disable) ${HUE_PORT} (default 1080)
+  --pprofAgent        string    [pprof] URL of the Datadog Trace Agent (e.g. http://datadog.observability:8126) ${HUE_PPROF_AGENT}
+  --pprofPort         int       [pprof] Port of the HTTP server (0 to disable) ${HUE_PPROF_PORT} (default 0)
   --publicURL         string    Public URL ${HUE_PUBLIC_URL} (default "https://hue.vibioh.fr")
   --readTimeout       duration  [server] Read Timeout ${HUE_READ_TIMEOUT} (default 5s)
   --shutdownTimeout   duration  [server] Shutdown Timeout ${HUE_SHUTDOWN_TIMEOUT} (default 10s)
   --telemetryRate     string    [telemetry] OpenTelemetry sample rate, 'always', 'never' or a float value ${HUE_TELEMETRY_RATE} (default "always")
   --telemetryURL      string    [telemetry] OpenTelemetry gRPC endpoint (e.g. otel-exporter:4317) ${HUE_TELEMETRY_URL}
+  --telemetryUint64             [telemetry] Change OpenTelemetry Trace ID format to an unsigned int 64 ${HUE_TELEMETRY_UINT64} (default true)
   --title             string    Application title ${HUE_TITLE} (default "Hue")
   --update                      [hue] Update configuration from file ${HUE_UPDATE} (default false)
   --url               string    [alcotest] URL to check ${HUE_URL}

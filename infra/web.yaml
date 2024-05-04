@@ -33,6 +33,7 @@ spec:
     config:
       HUE_CONFIG: /opt/config.json
       HUE_LOGGER_JSON: "true"
+      HUE_PPROF_AGENT: http://datadog.observability:8126
       HUE_TELEMETRY_RATE: "0.01"
       HUE_TELEMETRY_URL: datadog.observability:4317
       OTEL_RESOURCE_ATTRIBUTES: env=production,git.repository_url=github.com/ViBiOh/hue
@@ -67,7 +68,5 @@ spec:
       HUE_V2_BRIDGE_IP: AgBaLpq15MVflt3ApjnR45KMgRxmeepsk+hSj1HoB6LqQt4G67SAwm+agLA9DdIsqLyIzE5mDxz8ZIMXRpKsQJF6i2e53tz1veVlIi3dKRSSLANUN92ptAdrE/LibLVWOVPII7pOviHxSmcjSSnGZByn5ZZLFObGUERkFJPwLpttToyBbX6Aj25opxV5no3EogscTU+oANo+GcJwWrOgwXFhvuT7QBsxyZK4E0vqwniqrcRGZ1iuC67XtgDzBcc0oE9B4/QdKgjwFKSxtirmkOwIrGCSgWRmecq7+O5p2LnB9joGEubvIkOklHpMg+ujaYiwQtlaI4EQ4jekZN2arhoc6L0gjTjBWTfIMZfDB1XymTCIfkN21DQ7jzNKn3XSQ7nmmEYensOgFJokD/SA1GIrdivfz8g9MYAgSwy5kml1eGFCo31j8+WzyisX+dmFvAWajCL+bsuiwBbhbewUlEKYz3fEqvOxqp3gqRtzGipjCDK8XEcOYwAU2VXFoEvqpeSkSamrpzDT0sNJd2JJgXYzgu0F+LQA9Y+qshiNoUbOztidjwwVas08cgqL7ozSv5+eZnem+EIyWvGVTm5d9Jr37WJGWxTdPMxat2owypSD/ZjgNWWwIkWNDvdV/+sKNpcl0ItqKEUDbyUcvSXJE7Q9d6YkSEybuOp9WVybE87AVWZffEJ6ubDXTPb2znIg7VfPLvz1LXnZ7bnNBU4=
       HUE_V2_USERNAME: AgBzRhoc+24UDQkvM7Pl6ByDzKf/uFwRI9DHzQ7/kb6fBRWKonf4u0ruJTq1WZCLSEty0p4V4OnJm0YRtcQj3LjAey85HZOHeKaG1fLqlVYT6x1JqupgjxX320CCqzk1wjcbcpLxRxWvcR9hyc+lccVuVk6miiFaHgX/lNrmt2FOvPGfO5vrBSosGUsTsCGVkV7Bt6Ak60zUf/OoFUOKdj94akaPLKyC1UPP+uI/+gtAcZommB3lP35GGXEtjR6bn4YAwEMxib61GWg0KFy7rDLu3RMYHRvVsviTDhdnZ3sdj1goQoTRBtOQKfIe3lWMk3sAX1/ARXZkAiuL0bjrQt1vVxojLAuwBwnt1F4vo8Gmw0hOu4b9YFoa6Cedo6gxJLHZKdtgX8Cw66uRFjs3JW8MPTQ+xbx5GdmpFuUbgU4mWaeVTew0QjkFlne+RLAOFMA26Is/NxFD5sVGxCat91VNIC4O3Th2udhYcC/XEzbLkj2MOg5COwIiejkYwxVaf0UmjFCkFm9Tn+hT245q9+wcyYX3o1BXJVCuSu7KaTqv73Y0WGiMoNiliPg9QetjP5Ez1fXGRC4Vj/9zVDaGD7zaJuMuYtV45HGQBvn1+UVeLEyIwNdaDlDw0Pj3g5mZz5x9LamqFqA8v+VVpKDbTX24gOr0xWoIbGsJgnitTUcxluGRp2UQ8C/RgQtdD6kXLPw/db1EduL4pNshn92ySaTZyl1mBjnMh2uesJyF8sh7k+3FVP/zHTa5
     service: null
-    pprof:
-      enabled: true
     autoscaling:
       enabled: false
