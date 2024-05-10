@@ -20,11 +20,11 @@ type service struct {
 	renderer *renderer.Service
 }
 
-func newService(config configuration, client client) (service, error) {
+func newService(ctx context.Context, config configuration, client client) (service, error) {
 	var output service
 	var err error
 
-	output.renderer, err = renderer.New(config.renderer, content, hue.FuncMap, client.telemetry.MeterProvider(), client.telemetry.TracerProvider())
+	output.renderer, err = renderer.New(ctx, config.renderer, content, hue.FuncMap, client.telemetry.MeterProvider(), client.telemetry.TracerProvider())
 	if err != nil {
 		return output, fmt.Errorf("renderer: %w", err)
 	}

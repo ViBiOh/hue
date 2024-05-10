@@ -8,7 +8,6 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/httputils"
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 	"github.com/ViBiOh/httputils/v4/pkg/owasp"
-	"github.com/ViBiOh/httputils/v4/pkg/recoverer"
 	"github.com/ViBiOh/httputils/v4/pkg/server"
 )
 
@@ -24,7 +23,7 @@ func main() {
 	defer clients.Close(ctx)
 	go clients.Start()
 
-	service, err := newService(config, clients)
+	service, err := newService(ctx, config, clients)
 	logger.FatalfOnErr(ctx, err, "client")
 
 	go service.Start(clients.health.DoneCtx())
@@ -33,7 +32,7 @@ func main() {
 
 	go appServer.Start(
 		clients.health.EndCtx(),
-		httputils.Handler(newPort(service), clients.health, recoverer.Middleware, clients.telemetry.Middleware("http"), owasp.New(config.owasp).Middleware, cors.New(config.cors).Middleware),
+		httputils.Handler(newPort(service), clients.health, clients.telemetry.Middleware("http"), owasp.New(config.owasp).Middleware, cors.New(config.cors).Middleware),
 	)
 
 	clients.health.WaitForTermination(appServer.Done())

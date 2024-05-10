@@ -21,7 +21,7 @@ func newClient(ctx context.Context, config configuration) (client, error) {
 	var output client
 	var err error
 
-	logger.Init(config.logger)
+	logger.Init(ctx, config.logger)
 
 	output.telemetry, err = telemetry.New(ctx, config.telemetry)
 	if err != nil {
