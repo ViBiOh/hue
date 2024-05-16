@@ -118,6 +118,7 @@ func (s *Service) stream(done <-chan struct{}) {
 func (s *Service) handleStreamEvent(event Event) {
 	for _, data := range event.Data {
 		switch data.Type {
+		case "behavior_script":
 		case "button":
 		case "device":
 		case "device_software_update":
