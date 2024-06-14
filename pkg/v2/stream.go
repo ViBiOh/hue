@@ -127,6 +127,7 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "grouped_light_level":
 		case "grouped_motion":
 		case "homekit":
+		case "taurus_7455":
 		case "zigbee_connectivity":
 		case "zigbee_device_discovery":
 		case "motion":
