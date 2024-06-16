@@ -8,7 +8,8 @@ func newPort(service service) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("/api/{resource}/{id}", service.hue.Handler())
-	mux.Handle("/", service.renderer.Handler(service.hue.TemplateFunc))
+
+	service.renderer.Register(mux, service.hue.TemplateFunc)
 
 	return mux
 }
