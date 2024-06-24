@@ -14,14 +14,14 @@ import (
 //go:embed templates static
 var content embed.FS
 
-type service struct {
+type services struct {
+	renderer *renderer.Service
 	hue      *hue.Service
 	huev2    *v2.Service
-	renderer *renderer.Service
 }
 
-func newService(ctx context.Context, config configuration, client client) (service, error) {
-	var output service
+func newServices(ctx context.Context, config configuration, client client) (services, error) {
+	var output services
 	var err error
 
 	output.renderer, err = renderer.New(ctx, config.renderer, content, hue.FuncMap, client.telemetry.MeterProvider(), client.telemetry.TracerProvider())
@@ -42,11 +42,10 @@ func newService(ctx context.Context, config configuration, client client) (servi
 	return output, nil
 }
 
-func (s service) Start(ctx context.Context) {
+func (s services) Start(ctx context.Context) {
 	err := s.huev2.Init(ctx)
 	logger.FatalfOnErr(ctx, err, "init v2")
 
 	go s.hue.Start(ctx)
-
-	s.huev2.Start(ctx)
+	go s.huev2.Start(ctx)
 }

@@ -4,12 +4,11 @@ import (
 	"net/http"
 )
 
-func newPort(service service) http.Handler {
+func newPort(config configuration, service services) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("/api/{resource}/{id}", service.hue.Handler())
-
-	service.renderer.Register(mux, service.hue.TemplateFunc)
+	mux.Handle(config.renderer.PathPrefix+"/", service.renderer.NewServeMux(service.hue.TemplateFunc))
 
 	return mux
 }

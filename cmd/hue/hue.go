@@ -23,16 +23,16 @@ func main() {
 	defer clients.Close(ctx)
 	go clients.Start()
 
-	service, err := newService(ctx, config, clients)
+	service, err := newServices(ctx, config, clients)
 	logger.FatalfOnErr(ctx, err, "client")
 
 	go service.Start(clients.health.DoneCtx())
 
-	appServer := server.New(config.http)
+	appServer := server.New(config.server)
 
 	go appServer.Start(
 		clients.health.EndCtx(),
-		httputils.Handler(newPort(service), clients.health, clients.telemetry.Middleware("http"), owasp.New(config.owasp).Middleware, cors.New(config.cors).Middleware),
+		httputils.Handler(newPort(config, service), clients.health, clients.telemetry.Middleware("http"), owasp.New(config.owasp).Middleware, cors.New(config.cors).Middleware),
 	)
 
 	clients.health.WaitForTermination(appServer.Done())
