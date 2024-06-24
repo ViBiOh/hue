@@ -19,18 +19,19 @@ import (
 )
 
 type configuration struct {
+	logger    *logger.Config
 	alcotest  *alcotest.Config
 	telemetry *telemetry.Config
 	pprof     *pprof.Config
-	logger    *logger.Config
-	cors      *cors.Config
-	owasp     *owasp.Config
-	http      *server.Config
 	health    *health.Config
 
+	server   *server.Config
+	owasp    *owasp.Config
+	cors     *cors.Config
 	renderer *renderer.Config
-	hue      *hue.Config
-	hueV2    *v2.Config
+
+	hue   *hue.Config
+	hueV2 *v2.Config
 }
 
 func newConfig() configuration {
@@ -38,15 +39,15 @@ func newConfig() configuration {
 	fs.Usage = flags.Usage(fs)
 
 	config := configuration{
-		http:      server.Flags(fs, ""),
-		health:    health.Flags(fs, ""),
-		alcotest:  alcotest.Flags(fs, ""),
 		logger:    logger.Flags(fs, "logger"),
+		alcotest:  alcotest.Flags(fs, ""),
 		telemetry: telemetry.Flags(fs, "telemetry"),
 		pprof:     pprof.Flags(fs, "pprof"),
-		owasp:     owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")),
-		cors:      cors.Flags(fs, "cors"),
+		health:    health.Flags(fs, ""),
 
+		server:   server.Flags(fs, ""),
+		owasp:    owasp.Flags(fs, "", flags.NewOverride("Csp", "default-src 'self'; script-src 'httputils-nonce'; style-src 'httputils-nonce'")),
+		cors:     cors.Flags(fs, "cors"),
 		renderer: renderer.Flags(fs, "", flags.NewOverride("Title", "Hue"), flags.NewOverride("PublicURL", "https://hue.vibioh.fr")),
 
 		hue:   hue.Flags(fs, ""),
