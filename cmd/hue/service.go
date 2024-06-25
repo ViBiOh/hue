@@ -7,6 +7,7 @@ import (
 
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
+	"github.com/ViBiOh/httputils/v4/pkg/server"
 	"github.com/ViBiOh/hue/pkg/hue"
 	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
@@ -15,6 +16,7 @@ import (
 var content embed.FS
 
 type services struct {
+	server   *server.Server
 	renderer *renderer.Service
 	hue      *hue.Service
 	huev2    *v2.Service
@@ -38,6 +40,8 @@ func newServices(ctx context.Context, config configuration, client client) (serv
 	if err != nil {
 		return output, fmt.Errorf("hue: %w", err)
 	}
+
+	output.server = server.New(config.server)
 
 	return output, nil
 }

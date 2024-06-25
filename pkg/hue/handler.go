@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ViBiOh/httputils/v4/pkg/httperror"
 	"github.com/ViBiOh/httputils/v4/pkg/model"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
 )
@@ -14,25 +13,7 @@ const (
 	updateSuccessMessage = "%s is now %s"
 )
 
-func (s *Service) Handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.PathValue("resource") {
-		case "groups":
-			s.handleGroup(w, r)
-
-		case "schedules":
-			s.handleSchedule(w, r)
-
-		case "sensors":
-			s.handleSensors(w, r)
-
-		default:
-			httperror.NotFound(r.Context(), w)
-		}
-	})
-}
-
-func (s *Service) handleGroup(w http.ResponseWriter, r *http.Request) {
+func (s *Service) HandleGroup(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		s.renderer.Error(w, r, nil, model.WrapNotFound(fmt.Errorf("invalid method for updating group")))
 		return
@@ -56,7 +37,7 @@ func (s *Service) handleGroup(w http.ResponseWriter, r *http.Request) {
 	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
 }
 
-func (s *Service) handleSchedule(w http.ResponseWriter, r *http.Request) {
+func (s *Service) HandleSchedule(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
 		return
@@ -95,7 +76,7 @@ func (s *Service) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
 }
 
-func (s *Service) handleSensors(w http.ResponseWriter, r *http.Request) {
+func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
 		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
 		return
