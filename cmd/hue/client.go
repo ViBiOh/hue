@@ -11,14 +11,14 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/telemetry"
 )
 
-type client struct {
+type clients struct {
 	telemetry *telemetry.Service
 	pprof     *pprof.Service
 	health    *health.Service
 }
 
-func newClient(ctx context.Context, config configuration) (client, error) {
-	var output client
+func newClients(ctx context.Context, config configuration) (clients, error) {
+	var output clients
 	var err error
 
 	logger.Init(ctx, config.logger)
@@ -39,10 +39,10 @@ func newClient(ctx context.Context, config configuration) (client, error) {
 	return output, nil
 }
 
-func (c client) Start() {
+func (c clients) Start() {
 	go c.pprof.Start(c.health.DoneCtx())
 }
 
-func (c client) Close(ctx context.Context) {
+func (c clients) Close(ctx context.Context) {
 	c.telemetry.Close(ctx)
 }

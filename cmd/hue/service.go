@@ -5,7 +5,9 @@ import (
 	"embed"
 	"fmt"
 
+	"github.com/ViBiOh/httputils/v4/pkg/cors"
 	"github.com/ViBiOh/httputils/v4/pkg/logger"
+	"github.com/ViBiOh/httputils/v4/pkg/owasp"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
 	"github.com/ViBiOh/httputils/v4/pkg/server"
 	"github.com/ViBiOh/hue/pkg/hue"
@@ -20,9 +22,11 @@ type services struct {
 	renderer *renderer.Service
 	hue      *hue.Service
 	huev2    *v2.Service
+	cors     cors.Service
+	owasp    owasp.Service
 }
 
-func newServices(ctx context.Context, config configuration, client client) (services, error) {
+func newServices(ctx context.Context, config configuration, client clients) (services, error) {
 	var output services
 	var err error
 
@@ -42,6 +46,8 @@ func newServices(ctx context.Context, config configuration, client client) (serv
 	}
 
 	output.server = server.New(config.server)
+	output.cors = cors.New(config.cors)
+	output.owasp = owasp.New(config.owasp)
 
 	return output, nil
 }
