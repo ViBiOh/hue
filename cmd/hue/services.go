@@ -30,6 +30,10 @@ func newServices(ctx context.Context, config configuration, client clients) (ser
 	var output services
 	var err error
 
+	output.server = server.New(config.server)
+	output.owasp = owasp.New(config.owasp)
+	output.cors = cors.New(config.cors)
+
 	output.renderer, err = renderer.New(ctx, config.renderer, content, hue.FuncMap, client.telemetry.MeterProvider(), client.telemetry.TracerProvider())
 	if err != nil {
 		return output, fmt.Errorf("renderer: %w", err)
@@ -44,10 +48,6 @@ func newServices(ctx context.Context, config configuration, client clients) (ser
 	if err != nil {
 		return output, fmt.Errorf("hue: %w", err)
 	}
-
-	output.server = server.New(config.server)
-	output.cors = cors.New(config.cors)
-	output.owasp = owasp.New(config.owasp)
 
 	return output, nil
 }
