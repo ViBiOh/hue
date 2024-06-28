@@ -26,7 +26,7 @@ type services struct {
 	owasp    owasp.Service
 }
 
-func newServices(ctx context.Context, config configuration, client clients) (services, error) {
+func newServices(ctx context.Context, config configuration, clients clients) (services, error) {
 	var output services
 	var err error
 
@@ -34,12 +34,12 @@ func newServices(ctx context.Context, config configuration, client clients) (ser
 	output.owasp = owasp.New(config.owasp)
 	output.cors = cors.New(config.cors)
 
-	output.renderer, err = renderer.New(ctx, config.renderer, content, hue.FuncMap, client.telemetry.MeterProvider(), client.telemetry.TracerProvider())
+	output.renderer, err = renderer.New(ctx, config.renderer, content, hue.FuncMap, clients.telemetry.MeterProvider(), clients.telemetry.TracerProvider())
 	if err != nil {
 		return output, fmt.Errorf("renderer: %w", err)
 	}
 
-	output.huev2, err = v2.New(config.hueV2, client.telemetry.MeterProvider())
+	output.huev2, err = v2.New(config.hueV2, clients.telemetry.MeterProvider())
 	if err != nil {
 		return output, fmt.Errorf("hue v2: %w", err)
 	}
