@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 
-	"github.com/ViBiOh/httputils/v4/pkg/httpjson"
 	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
@@ -20,7 +21,7 @@ func get(ctx context.Context, url string, response any) error {
 		return err
 	}
 
-	if err := httpjson.Read(resp, &response); err != nil {
+	if err := Read(resp, &response); err != nil {
 		return fmt.Errorf("read hue content: %w", err)
 	}
 	return nil
@@ -83,4 +84,14 @@ func remove(ctx context.Context, url string) error {
 	}
 
 	return nil
+}
+
+func Read(resp *http.Response, output any) (err error) {
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			err = errors.Join(err, closeErr)
+		}
+	}()
+
+	return json.NewDecoder(resp.Body).Decode(&output)
 }

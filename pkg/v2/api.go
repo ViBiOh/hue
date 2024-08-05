@@ -25,8 +25,8 @@ func list[T any](ctx context.Context, req request.Request, kind string) (output 
 		return
 	}
 
-	content := APIResponse[T]{}
-	if err = httpjson.Read(resp, &content); err != nil {
+	content, err := httpjson.Read[APIResponse[T]](resp)
+	if err != nil {
 		err = fmt.Errorf("parse: %w", err)
 		return
 	}
@@ -43,8 +43,8 @@ func get[T any](ctx context.Context, req request.Request, kind, id string) (outp
 		return
 	}
 
-	content := APIResponse[T]{}
-	if err = httpjson.Read(resp, &content); err != nil {
+	content, err := httpjson.Read[APIResponse[T]](resp)
+	if err != nil {
 		err = fmt.Errorf("parse: %w", err)
 		return
 	}
