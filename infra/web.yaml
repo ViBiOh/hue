@@ -31,11 +31,14 @@ spec:
       tags.datadoghq.com/service: "hue"
       tags.datadoghq.com/version: "202408130925" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
+      HUE_BRIDGE_IP: "10.100.3.10"
       HUE_CONFIG: /opt/config.json
       HUE_LOGGER_JSON: "true"
       HUE_PPROF_AGENT: http://datadog.observability:8126
+      HUE_PUBLIC_URL: "10.100.4.20"
       HUE_TELEMETRY_RATE: "0.01"
       HUE_TELEMETRY_URL: datadog.observability:4317
+      HUE_V2_BRIDGE_IP: "10.100.3.10"
       OTEL_RESOURCE_ATTRIBUTES: env=production,git.repository_url=github.com/ViBiOh/hue
     volumes:
       - name: config
@@ -45,12 +48,6 @@ spec:
       - name: config
         mountPath: /opt
     env:
-      - name: HUE_BRIDGE_IP
-        value: 10.1000.3.10
-      - name: HUE_V2_BRIDGE_IP
-        value: 10.1000.3.10
-      - name: HUE_PUBLIC_URL
-        value: 10.1000.4.20
       - name: GOMAXPROCS
         valueFrom:
           resourceFieldRef:
