@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ViBiOh/httputils/v4/pkg/cron"
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 var logError = func(ctx context.Context, err error) {
@@ -76,6 +77,10 @@ func (s *Service) updateSensors(ctx context.Context, names []string, enabled boo
 			if sensor.Name == name {
 				if _, err := s.v2Service.UpdateSensor(ctx, sensor.ID, enabled); err != nil {
 					return fmt.Errorf("update sensor `%s`: %w", sensor.ID, err)
+				}
+
+				if !enabled {
+					s.v2Service.UpdateMotion(sensor.ID, nil, &v2.MotionValue{Motion: false})
 				}
 			}
 		}

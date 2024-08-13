@@ -131,7 +131,7 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "zigbee_connectivity":
 		case "zigbee_device_discovery":
 		case "motion":
-			s.updateMotion(data.Owner.Rid, data.Enabled, data.Motion)
+			s.UpdateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 		case "light_level":
 			s.updateLightLevel(data.Owner.Rid, data.Light.Level)
 		case "temperature":
@@ -148,7 +148,7 @@ func (s *Service) handleStreamEvent(event Event) {
 	}
 }
 
-func (s *Service) updateMotion(owner string, enabled *bool, motion *MotionValue) {
+func (s *Service) UpdateMotion(owner string, enabled *bool, motion *MotionValue) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
