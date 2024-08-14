@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -34,7 +35,7 @@ func (s *Service) HandleGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, group.Name, stateName)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(updateSuccessMessage, group.Name, stateName))
 }
 
 func (s *Service) HandleSchedule(w http.ResponseWriter, r *http.Request) {
@@ -73,12 +74,12 @@ func (s *Service) HandleSchedule(w http.ResponseWriter, r *http.Request) {
 
 	s.mutex.RUnlock()
 
-	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, status)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(updateSuccessMessage, name, status))
 }
 
 func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("method") != http.MethodPatch {
-		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating sensor")))
+		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(errors.New("invalid method for updating sensor")))
 		return
 	}
 
@@ -104,5 +105,5 @@ func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 		stateName = "off"
 	}
 
-	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(fmt.Sprintf(updateSuccessMessage, name, stateName)))
+	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(updateSuccessMessage, name, stateName))
 }
