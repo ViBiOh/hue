@@ -215,7 +215,7 @@ func (s *Service) buildMotionSensor(ctx context.Context) (map[string]MotionSenso
 		AddSources(breaksync.NewSliceSource(devicePowers, func(t DevicePower) []byte {
 			return []byte(t.Owner.Rid)
 		}, nil)).
-		Run(func(syncFlags uint64, values []any) error {
+		Run(func(syncFlags uint, values []any) error {
 			var sensor MotionSensor
 
 			if syncFlags&1 != 0 {
