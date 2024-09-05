@@ -24,6 +24,7 @@ type configTapButton struct {
 	ID     string
 	State  string
 	Groups []string
+	Lights []string
 	Rule   Rule
 }
 

@@ -38,6 +38,14 @@ func (s *Service) createRuleDescription(tapID string, button configTapButton) Ru
 		})
 	}
 
+	for _, light := range button.Lights {
+		newRule.Actions = append(newRule.Actions, Action{
+			Address: fmt.Sprintf("/lights/%s/state", light),
+			Method:  http.MethodPut,
+			Body:    States[button.State].V1(),
+		})
+	}
+
 	return newRule
 }
 

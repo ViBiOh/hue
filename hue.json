@@ -1,42 +1,14 @@
 {
-  "motion_sensors": {
-    "crons": [
-      {
-        "enabled": true,
-        "hour": "07:00",
-        "timezone": "Europe/Paris",
-        "names": ["Bathroom", "Kitchen"]
-      },
-      {
-        "enabled": false,
-        "hour": "00:00",
-        "timezone": "Europe/Paris",
-        "names": ["Bathroom", "Kitchen"]
-      }
-    ]
-  },
   "schedules": [
     {
       "name": "Wake Up",
-      "localtime": "W124/T07:55:00",
+      "localtime": "W124/T07:25:00",
       "group": "2",
       "state": "long_on"
     },
     {
-      "name": "Desktop - On",
-      "localtime": "W127/T08:30:00",
-      "group": "7",
-      "state": "on"
-    },
-    {
-      "name": "Desktop - Off",
+      "name": "Office - Off",
       "localtime": "W127/T01:00:00",
-      "group": "7",
-      "state": "off"
-    },
-    {
-      "name": "Kitchen - Off",
-      "localtime": "W127/T00:00:00",
       "group": "9",
       "state": "off"
     }
@@ -46,21 +18,27 @@
       "id": "6",
       "lightSensorId": "7",
       "companionId": "17",
-      "groups": ["4"],
+      "groups": [
+        "4"
+      ],
       "offDelay": "PT00:01:00"
     },
     {
       "id": "10",
       "lightSensorId": "11",
       "companionId": "12",
-      "groups": ["3"],
+      "groups": [
+        "3"
+      ],
       "offDelay": "PT00:01:00"
     },
     {
       "id": "14",
       "lightSensorId": "15",
       "companionId": "16",
-      "groups": ["5"],
+      "groups": [
+        "5"
+      ],
       "offDelay": "PT00:01:00"
     }
   ],
@@ -71,22 +49,30 @@
         {
           "id": "1",
           "state": "on",
-          "groups": ["2"]
+          "groups": [
+            "2"
+          ]
         },
         {
           "id": "2",
           "state": "dimmed",
-          "groups": ["2"]
+          "groups": [
+            "2"
+          ]
         },
         {
           "id": "3",
           "state": "off",
-          "groups": ["2"]
+          "groups": [
+            "2"
+          ]
         },
         {
           "id": "4",
           "state": "off",
-          "groups": ["4"]
+          "groups": [
+            "1"
+          ]
         }
       ]
     },
@@ -96,22 +82,30 @@
         {
           "id": "1",
           "state": "on",
-          "groups": ["1"]
+          "groups": [
+            "1"
+          ]
         },
         {
           "id": "2",
           "state": "dimmed",
-          "groups": ["1"]
+          "groups": [
+            "1"
+          ]
         },
         {
           "id": "3",
           "state": "off",
-          "groups": ["1"]
+          "groups": [
+            "1"
+          ]
         },
         {
           "id": "4",
           "state": "off",
-          "groups": ["6"]
+          "groups": [
+            "2"
+          ]
         }
       ]
     },
@@ -121,22 +115,30 @@
         {
           "id": "1",
           "state": "on",
-          "groups": ["2"]
+          "lights": [
+            "9"
+          ]
         },
         {
           "id": "2",
-          "state": "dimmed",
-          "groups": ["2"]
+          "state": "on",
+          "lights": [
+            "14"
+          ]
         },
         {
           "id": "3",
           "state": "off",
-          "groups": ["2"]
+          "lights": [
+            "9"
+          ]
         },
         {
           "id": "4",
           "state": "off",
-          "groups": ["5"]
+          "lights": [
+            "14"
+          ]
         }
       ]
     }
