@@ -25,11 +25,11 @@ spec:
     nameOverride: hue
     image:
       name: vibioh/hue
-      tag: "202408312019" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tag: "202409052048" # {"$imagepolicy": "default:flux-hue-api:tag"}
     labels:
       tags.datadoghq.com/env: "production"
       tags.datadoghq.com/service: "hue"
-      tags.datadoghq.com/version: "202408312019" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tags.datadoghq.com/version: "202409052048" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
       HUE_BRIDGE_IP: "10.100.3.10"
       HUE_CONFIG: /opt/config.json
