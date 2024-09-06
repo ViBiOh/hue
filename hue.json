@@ -2,7 +2,7 @@
   "schedules": [
     {
       "name": "Wake Up",
-      "localtime": "W124/T07:25:00",
+      "localtime": "W124/T07:20:00",
       "group": "2",
       "state": "long_on"
     },
