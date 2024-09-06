@@ -119,6 +119,7 @@ func (s *Service) handleStreamEvent(event Event) {
 	for _, data := range event.Data {
 		switch data.Type {
 		case "behavior_script":
+		case "bridge_home":
 		case "button":
 		case "device":
 		case "device_software_update":
