@@ -1,8 +1,20 @@
 {
   "schedules": [
     {
-      "name": "Wake Up",
-      "localtime": "W124/T07:20:00",
+      "name": "Commute",
+      "localtime": "W84/T07:20:00",
+      "group": "2",
+      "state": "long_on"
+    },
+    {
+      "name": "Remote",
+      "localtime": "W40/T07:55:00",
+      "group": "2",
+      "state": "long_on"
+    },
+    {
+      "name": "Weekend",
+      "localtime": "W3/T07:40:00",
       "group": "2",
       "state": "long_on"
     },
@@ -69,9 +81,10 @@
         },
         {
           "id": "4",
-          "state": "off",
+          "state": "on",
           "groups": [
-            "1"
+            "1",
+            "2"
           ]
         }
       ]
@@ -97,12 +110,13 @@
           "id": "3",
           "state": "off",
           "groups": [
-            "1"
+            "1",
+            "2"
           ]
         },
         {
           "id": "4",
-          "state": "off",
+          "state": "on",
           "groups": [
             "2"
           ]
