@@ -2,7 +2,7 @@
   "schedules": [
     {
       "name": "Commute",
-      "localtime": "W84/T07:20:00",
+      "localtime": "W84/T07:15:00",
       "group": "2",
       "state": "long_on"
     },
@@ -14,7 +14,7 @@
     },
     {
       "name": "Weekend",
-      "localtime": "W3/T07:40:00",
+      "localtime": "W3/T07:25:00",
       "group": "2",
       "state": "long_on"
     },
