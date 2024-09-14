@@ -8,6 +8,8 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+const motionValue = 1
+
 func (s *Service) createMetrics(meterProvider metric.MeterProvider) error {
 	if meterProvider == nil {
 		return nil
@@ -72,7 +74,7 @@ func (s *Service) createMotionMetric(meter metric.Meter) error {
 		for _, motion := range s.motionSensors {
 			var value int64
 			if motion.Motion {
-				value = 1
+				value = motionValue
 			}
 
 			io.Observe(value, metric.WithAttributes(
