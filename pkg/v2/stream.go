@@ -62,8 +62,8 @@ func (s *Service) streamIndefinitely(done <-chan struct{}) {
 		case <-done:
 			return
 		default:
-			slog.Warn("Streaming was ended before done receive, restarting in 5sec...")
-			time.Sleep(5 * time.Second)
+			slog.Warn("Streaming was ended before done receive, restarting in 30sec...")
+			time.Sleep(30 * time.Second)
 		}
 	}
 }
