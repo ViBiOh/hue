@@ -62,29 +62,29 @@
           "id": "1",
           "state": "on",
           "groups": [
-            "2"
+            "Bedroom"
           ]
         },
         {
           "id": "2",
           "state": "dimmed",
           "groups": [
-            "2"
+            "Bedroom"
           ]
         },
         {
           "id": "3",
           "state": "off",
           "groups": [
-            "2",
-            "1"
+            "Bedroom",
+            "Living room"
           ]
         },
         {
           "id": "4",
           "state": "on",
           "groups": [
-            "1"
+            "Living room"
           ]
         }
       ]
@@ -96,29 +96,29 @@
           "id": "1",
           "state": "on",
           "groups": [
-            "1"
+            "Living room"
           ]
         },
         {
           "id": "2",
           "state": "dimmed",
           "groups": [
-            "1"
+            "Living room"
           ]
         },
         {
           "id": "3",
           "state": "off",
           "groups": [
-            "1",
-            "2"
+            "Living room",
+            "Bedroom"
           ]
         },
         {
           "id": "4",
           "state": "on",
           "groups": [
-            "2"
+            "Bedroom"
           ]
         }
       ]

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
 
 var tapButtonMapping = map[string]string{
@@ -14,7 +16,7 @@ var tapButtonMapping = map[string]string{
 	"4": "18",
 }
 
-func (s *Service) createRuleDescription(tapID string, button configTapButton) Rule {
+func (s *Service) createRuleDescription(groups []v2.Group, tapID string, button configTapButton) (Rule, error) {
 	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
 		Conditions: []Condition{
@@ -31,8 +33,13 @@ func (s *Service) createRuleDescription(tapID string, button configTapButton) Ru
 	}
 
 	for _, group := range button.Groups {
+		targetGroup, err := getGroup(groups, group)
+		if err != nil {
+			return Rule{}, err
+		}
+
 		newRule.Actions = append(newRule.Actions, Action{
-			Address: fmt.Sprintf("/groups/%s/action", group),
+			Address: fmt.Sprintf("/groups/%s/action", targetGroup.IDV1),
 			Method:  http.MethodPut,
 			Body:    States[button.State].V1(),
 		})
@@ -46,14 +53,18 @@ func (s *Service) createRuleDescription(tapID string, button configTapButton) Ru
 		})
 	}
 
-	return newRule
+	return newRule, nil
 }
 
-func (s *Service) configureTap(ctx context.Context, taps []configTap) {
+func (s *Service) configureTap(ctx context.Context, groups []v2.Group, taps []configTap) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
-			button.Rule = s.createRuleDescription(tap.ID, button)
-			if err := s.createRule(ctx, &button.Rule); err != nil {
+			rule, err := s.createRuleDescription(groups, tap.ID, button)
+			if err != nil {
+				slog.LogAttrs(ctx, slog.LevelError, "create rule description", slog.Any("error", err))
+			}
+
+			if err := s.createRule(ctx, &rule); err != nil {
 				slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
 			}
 		}

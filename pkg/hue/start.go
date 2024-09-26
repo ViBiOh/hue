@@ -63,9 +63,11 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 			slog.LogAttrs(ctx, slog.LevelError, "clean scene", slog.Any("error", err))
 		}
 
-		s.configureSchedules(ctx, config.Schedules)
-		s.configureTap(ctx, config.Taps)
-		s.configureMotionSensor(ctx, config.Sensors)
+		groups := s.v2Service.Groups()
+
+		s.configureSchedules(ctx, groups, config.Schedules)
+		s.configureTap(ctx, groups, config.Taps)
+		s.configureMotionSensor(ctx, groups, config.Sensors)
 	}
 
 	return

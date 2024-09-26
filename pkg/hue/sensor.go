@@ -30,7 +30,7 @@ func getGroupsActions(groups []v2.Group, config configSensor, state string) ([]A
 	return actions, nil
 }
 
-func (s *Service) createSensorOnRuleDescription(sensor configSensor, groups []v2.Group) (Rule, error) {
+func (s *Service) createSensorOnRuleDescription(groups []v2.Group, sensor configSensor) (Rule, error) {
 	state := "on"
 
 	actions, err := getGroupsActions(groups, sensor, state)
@@ -62,7 +62,7 @@ func (s *Service) createSensorOnRuleDescription(sensor configSensor, groups []v2
 	return newRule, nil
 }
 
-func (s *Service) createSensorOffRuleDescription(sensor configSensor, groups []v2.Group) (Rule, error) {
+func (s *Service) createSensorOffRuleDescription(groups []v2.Group, sensor configSensor) (Rule, error) {
 	state := "long_off"
 
 	actions, err := getGroupsActions(groups, sensor, state)
@@ -90,11 +90,9 @@ func (s *Service) createSensorOffRuleDescription(sensor configSensor, groups []v
 	return newRule, nil
 }
 
-func (s *Service) configureMotionSensor(ctx context.Context, sensors []configSensor) {
-	groups := s.v2Service.Groups()
-
+func (s *Service) configureMotionSensor(ctx context.Context, groups []v2.Group, sensors []configSensor) {
 	for _, sensor := range sensors {
-		onRule, err := s.createSensorOnRuleDescription(sensor, groups)
+		onRule, err := s.createSensorOnRuleDescription(groups, sensor)
 		if err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create sensor on rule", slog.Any("error", err))
 		}
@@ -103,7 +101,7 @@ func (s *Service) configureMotionSensor(ctx context.Context, sensors []configSen
 			slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
 		}
 
-		offRule, err := s.createSensorOffRuleDescription(sensor, groups)
+		offRule, err := s.createSensorOffRuleDescription(groups, sensor)
 		if err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create sensor off rule", slog.Any("error", err))
 		}

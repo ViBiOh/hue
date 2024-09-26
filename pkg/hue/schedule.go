@@ -96,9 +96,7 @@ func (s *Service) cleanSchedules(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
-	groups := s.v2Service.Groups()
-
+func (s *Service) configureSchedules(ctx context.Context, groups []v2.Group, schedules []ScheduleConfig) {
 	for _, config := range schedules {
 		if err := s.createScheduleFromConfig(ctx, config, groups); err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create schedule", slog.Any("error", err))
