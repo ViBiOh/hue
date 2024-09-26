@@ -48,9 +48,8 @@ func (s *Service) createScene(ctx context.Context, o *Scene) error {
 	return nil
 }
 
-func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, groups map[string]v2.Group) (Scene, error) {
-	group, ok := groups[config.Group]
-	if !ok {
+func (s *Service) createSceneFromScheduleConfig(ctx context.Context, config ScheduleConfig, group v2.Group) (Scene, error) {
+	if len(group.IDV1) == 0 {
 		return Scene{}, fmt.Errorf("unknown group id: %s", config.Group)
 	}
 

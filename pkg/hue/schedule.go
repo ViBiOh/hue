@@ -37,15 +37,13 @@ func (s *Service) createSchedule(ctx context.Context, o *Schedule) error {
 	return nil
 }
 
-func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleConfig) error {
-	rawGroups := s.v2Service.Groups()
-
-	groups := make(map[string]v2.Group)
-	for _, group := range rawGroups {
-		groups[group.IDV1] = group
+func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleConfig, groups []v2.Group) error {
+	targetGroup, err := getGroup(groups, config.Group)
+	if err != nil {
+		return err
 	}
 
-	scene, err := s.createSceneFromScheduleConfig(ctx, config, groups)
+	scene, err := s.createSceneFromScheduleConfig(ctx, config, targetGroup)
 	if err != nil {
 		return err
 	}
@@ -55,7 +53,7 @@ func (s *Service) createScheduleFromConfig(ctx context.Context, config ScheduleC
 			Name:      config.Name,
 			Localtime: config.Localtime,
 			Command: Action{
-				Address: fmt.Sprintf("/api/%s/groups/%s/action", s.bridgeUsername, config.Group),
+				Address: fmt.Sprintf("/api/%s/groups/%s/action", s.bridgeUsername, targetGroup.IDV1),
 				Body: map[string]any{
 					"scene": scene.ID,
 				},
@@ -99,8 +97,10 @@ func (s *Service) cleanSchedules(ctx context.Context) error {
 }
 
 func (s *Service) configureSchedules(ctx context.Context, schedules []ScheduleConfig) {
+	groups := s.v2Service.Groups()
+
 	for _, config := range schedules {
-		if err := s.createScheduleFromConfig(ctx, config); err != nil {
+		if err := s.createScheduleFromConfig(ctx, config, groups); err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create schedule", slog.Any("error", err))
 		}
 	}

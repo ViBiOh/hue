@@ -3,25 +3,25 @@
     {
       "name": "Commute",
       "localtime": "W84/T07:15:00",
-      "group": "2",
+      "group": "Bedroom",
       "state": "long_on"
     },
     {
       "name": "Remote",
       "localtime": "W40/T07:55:00",
-      "group": "2",
+      "group": "Bedroom",
       "state": "long_on"
     },
     {
       "name": "Weekend",
       "localtime": "W3/T07:25:00",
-      "group": "2",
+      "group": "Bedroom",
       "state": "long_on"
     },
     {
       "name": "Office - Off",
       "localtime": "W127/T01:00:00",
-      "group": "9",
+      "group": "Office",
       "state": "off"
     }
   ],
@@ -31,7 +31,7 @@
       "lightSensorId": "7",
       "companionId": "17",
       "groups": [
-        "4"
+        "Bathroom"
       ],
       "offDelay": "PT00:01:00"
     },
@@ -40,7 +40,7 @@
       "lightSensorId": "11",
       "companionId": "12",
       "groups": [
-        "3"
+        "Toilet"
       ],
       "offDelay": "PT00:01:00"
     },
@@ -49,7 +49,7 @@
       "lightSensorId": "15",
       "companionId": "16",
       "groups": [
-        "5"
+        "Kitchen"
       ],
       "offDelay": "PT00:01:00"
     }
