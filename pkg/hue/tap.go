@@ -16,7 +16,21 @@ var tapButtonMapping = map[string]string{
 	"4": "18",
 }
 
-func (s *Service) createRuleDescription(groups []v2.Group, tapID string, button configTapButton) (Rule, error) {
+var rotaryTapButtonMapping = map[string]string{
+	"1": "1000",
+	"2": "2000",
+	"3": "3000",
+	"4": "4000",
+}
+
+func getButtonMapping(rotary bool, id string) string {
+	if rotary {
+		return rotaryTapButtonMapping[id]
+	}
+	return tapButtonMapping[id]
+}
+
+func (s *Service) createRuleDescription(groups []v2.Group, tapID string, rotary bool, button configTapButton) (Rule, error) {
 	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
 		Conditions: []Condition{
@@ -27,7 +41,7 @@ func (s *Service) createRuleDescription(groups []v2.Group, tapID string, button 
 			{
 				Address:  fmt.Sprintf("/sensors/%s/state/buttonevent", tapID),
 				Operator: "eq",
-				Value:    tapButtonMapping[button.ID],
+				Value:    getButtonMapping(rotary, button.ID),
 			},
 		},
 	}
@@ -59,7 +73,7 @@ func (s *Service) createRuleDescription(groups []v2.Group, tapID string, button 
 func (s *Service) configureTap(ctx context.Context, groups []v2.Group, taps []configTap) {
 	for _, tap := range taps {
 		for _, button := range tap.Buttons {
-			rule, err := s.createRuleDescription(groups, tap.ID, button)
+			rule, err := s.createRuleDescription(groups, tap.ID, tap.Rotary, button)
 			if err != nil {
 				slog.LogAttrs(ctx, slog.LevelError, "create rule description", slog.Any("error", err))
 			}

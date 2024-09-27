@@ -18,6 +18,7 @@ type configSensor struct {
 type configTap struct {
 	ID      string
 	Buttons []configTapButton
+	Rotary  bool
 }
 
 type configTapButton struct {

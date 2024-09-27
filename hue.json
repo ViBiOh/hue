@@ -129,8 +129,8 @@
         {
           "id": "1",
           "state": "on",
-          "lights": [
-            "9"
+          "groups": [
+            "Office"
           ]
         },
         {
@@ -143,8 +143,8 @@
         {
           "id": "3",
           "state": "off",
-          "lights": [
-            "9"
+          "groups": [
+            "Office"
           ]
         },
         {
@@ -152,6 +152,79 @@
           "state": "off",
           "lights": [
             "14"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "28",
+      "rotary": true,
+      "buttons": [
+        {
+          "id": "1",
+          "state": "on",
+          "groups": [
+            "Living room"
+          ]
+        },
+        {
+          "id": "2",
+          "state": "on",
+          "groups": [
+            "Bedroom"
+          ]
+        },
+        {
+          "id": "3",
+          "state": "on",
+          "groups": [
+            "Office"
+          ]
+        },
+        {
+          "id": "4",
+          "state": "off",
+          "groups": [
+            "Living room",
+            "Bedroom",
+            "Office",
+            "Kitchen",
+            "Bathroom",
+            "Toilet"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "30",
+      "rotary": true,
+      "buttons": [
+        {
+          "id": "1",
+          "state": "on",
+          "groups": [
+            "Bedroom"
+          ]
+        },
+        {
+          "id": "2",
+          "state": "off",
+          "groups": [
+            "Bedroom"
+          ]
+        },
+        {
+          "id": "3",
+          "state": "on",
+          "groups": [
+            "Office"
+          ]
+        },
+        {
+          "id": "4",
+          "state": "off",
+          "groups": [
+            "Office"
           ]
         }
       ]

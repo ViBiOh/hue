@@ -118,6 +118,7 @@ func (s *Service) stream(done <-chan struct{}) {
 func (s *Service) handleStreamEvent(event Event) {
 	for _, data := range event.Data {
 		switch data.Type {
+		case "behavior_instance":
 		case "behavior_script":
 		case "bridge_home":
 		case "button":
@@ -128,6 +129,8 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "grouped_light_level":
 		case "grouped_motion":
 		case "homekit":
+		case "relative_rotary":
+		case "scene":
 		case "taurus_7455":
 		case "zigbee_connectivity":
 		case "zigbee_device_discovery":
