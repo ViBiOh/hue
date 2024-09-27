@@ -36,6 +36,16 @@ func list[T any](ctx context.Context, req request.Request, kind string) (output 
 	return
 }
 
+func stream[T any](ctx context.Context, req request.Request, kind string, output chan<- T) (err error) {
+	resp, err := req.Path(path.Join("/clip/v2/resource", kind)).Send(ctx, nil)
+	if err != nil {
+		err = fmt.Errorf("list: %w", err)
+		return
+	}
+
+	return httpjson.Stream[T](resp.Body, output, "data", true)
+}
+
 func get[T any](ctx context.Context, req request.Request, kind, id string) (output T, err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind, id)).Send(ctx, nil)
 	if err != nil {

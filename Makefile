@@ -92,6 +92,14 @@ build:
 run:
 	$(MAIN_RUNNER) -config "hue.json"
 
+## curl: Curl the v2 API
+.PHONY: curl
+curl:
+	curl \
+		--header "hue-application-key: ${HUE_USERNAME}" \
+		--insecure \
+		"https://${HUE_BRIDGE_IP}/clip/v2/resource/device" | jq
+
 ## config: Create local configuration
 .PHONY: config
 config:

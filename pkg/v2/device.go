@@ -70,3 +70,7 @@ func (s *Service) getDevices(ctx context.Context, productName string) ([]Device,
 
 	return output, nil
 }
+
+func (s *Service) streamDevices(ctx context.Context, output chan<- Device) error {
+	return stream(ctx, s.req, "device", output)
+}

@@ -15,6 +15,7 @@ type Service struct {
 	lights        map[string]*Light
 	groups        map[string]Group
 	motionSensors map[string]MotionSensor
+	taps          map[string]Tap
 
 	req   request.Request
 	mutex sync.RWMutex
