@@ -12,6 +12,7 @@ import (
 
 type MotionSensor struct {
 	ID           string  `json:"id"`
+	IDV1         string  `json:"id_v1"`
 	MotionID     string  `json:"motion_id"`
 	Name         string  `json:"name"`
 	BatteryState string  `json:"battery_state"`
@@ -129,25 +130,13 @@ func (s *Service) UpdateSensor(ctx context.Context, id string, enabled bool) (Mo
 	return motionSensor, err
 }
 
-func (s *Service) buildMotionSensor(ctx context.Context) (map[string]MotionSensor, error) {
-	var devices []Device
+func (s *Service) buildMotionSensor(ctx context.Context, devices []Device) (map[string]MotionSensor, error) {
 	var motions []Motion
 	var lightLevels []LightLevel
 	var temperatures []Temperature
 	var devicePowers []DevicePower
 
 	wg := concurrent.NewFailFast(2)
-
-	wg.Go(func() (err error) {
-		devices, err = s.getDevices(ctx, "Hue motion sensor")
-		if err != nil {
-			return fmt.Errorf("list motion sensors: %w", err)
-		}
-
-		sort.Sort(DeviceByID(devices))
-
-		return nil
-	})
 
 	wg.Go(func() (err error) {
 		motions, err = list[Motion](ctx, s.req, "motion")
@@ -197,6 +186,7 @@ func (s *Service) buildMotionSensor(ctx context.Context) (map[string]MotionSenso
 		return nil, fmt.Errorf("fetch motion sensors data: %w", err)
 	}
 
+	sort.Sort(DeviceByID(devices))
 	output := make(map[string]MotionSensor, len(devices))
 
 	return output, breaksync.NewSynchronization().

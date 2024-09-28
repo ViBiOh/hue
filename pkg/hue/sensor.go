@@ -94,20 +94,20 @@ func (s *Service) configureMotionSensor(ctx context.Context, groups []v2.Group, 
 	for _, sensor := range sensors {
 		onRule, err := s.createSensorOnRuleDescription(groups, sensor)
 		if err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create sensor on rule", slog.Any("error", err))
+			slog.LogAttrs(ctx, slog.LevelError, "create motion on rule", slog.Any("error", err))
 		}
 
 		if err := s.createRule(ctx, &onRule); err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
+			slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
 		}
 
 		offRule, err := s.createSensorOffRuleDescription(groups, sensor)
 		if err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create sensor off rule", slog.Any("error", err))
+			slog.LogAttrs(ctx, slog.LevelError, "create motion off rule", slog.Any("error", err))
 		}
 
 		if err := s.createRule(ctx, &offRule); err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
+			slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
 		}
 	}
 }

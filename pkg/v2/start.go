@@ -2,10 +2,9 @@ package v2
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"runtime"
+	"strings"
 )
 
 func (s *Service) Start(ctx context.Context) {
@@ -16,22 +15,15 @@ func (s *Service) Init(ctx context.Context) (err error) {
 	slog.Info("Initializing V2...")
 	defer slog.Info("Initialization V2 done.")
 
-	devices := make(chan Device, runtime.NumCPU())
-	var streamErr error
+	s.taps = make(map[string]Tap)
+	var motionDevices []Device
 
-	go func() {
-		if err := s.streamDevices(ctx, devices); err != nil {
-			streamErr = fmt.Errorf("build lights: %w", err)
+	if err = s.streamDevices(ctx, s.handleTapDevice, func(device Device) {
+		if strings.EqualFold(device.ProductData.ProductName, "Hue motion sensor") {
+			motionDevices = append(motionDevices, device)
 		}
-	}()
-
-	defer func() {
-		err = errors.Join(err, streamErr)
-	}()
-
-	s.taps, err = s.buildTaps(ctx, devices)
-	if err != nil {
-		err = fmt.Errorf("build tap: %w", err)
+	}); err != nil {
+		err = fmt.Errorf("stream devices: %w", err)
 		return
 	}
 
@@ -47,7 +39,7 @@ func (s *Service) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	s.motionSensors, err = s.buildMotionSensor(ctx)
+	s.motionSensors, err = s.buildMotionSensor(ctx, motionDevices)
 	if err != nil {
 		err = fmt.Errorf("build motion sensor: %w", err)
 		return

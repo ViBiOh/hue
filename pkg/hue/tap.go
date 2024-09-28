@@ -16,21 +16,21 @@ var tapButtonMapping = map[string]string{
 	"4": "18",
 }
 
-var rotaryTapButtonMapping = map[string]string{
+var dialTapButtonMapping = map[string]string{
 	"1": "1000",
 	"2": "2000",
 	"3": "3000",
 	"4": "4000",
 }
 
-func getButtonMapping(rotary bool, id string) string {
-	if rotary {
-		return rotaryTapButtonMapping[id]
+func getButtonMapping(dial bool, id string) string {
+	if dial {
+		return dialTapButtonMapping[id]
 	}
 	return tapButtonMapping[id]
 }
 
-func (s *Service) createRuleDescription(groups []v2.Group, tapID string, rotary bool, button configTapButton) (Rule, error) {
+func (s *Service) createRuleDescription(groups []v2.Group, tapID string, dial bool, button configTapButton) (Rule, error) {
 	newRule := Rule{
 		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
 		Conditions: []Condition{
@@ -41,7 +41,7 @@ func (s *Service) createRuleDescription(groups []v2.Group, tapID string, rotary 
 			{
 				Address:  fmt.Sprintf("/sensors/%s/state/buttonevent", tapID),
 				Operator: "eq",
-				Value:    getButtonMapping(rotary, button.ID),
+				Value:    getButtonMapping(dial, button.ID),
 			},
 		},
 	}
@@ -71,15 +71,23 @@ func (s *Service) createRuleDescription(groups []v2.Group, tapID string, rotary 
 }
 
 func (s *Service) configureTap(ctx context.Context, groups []v2.Group, taps []configTap) {
+	tapDevices := s.v2Service.Taps()
+
 	for _, tap := range taps {
+		targetTap, err := getTap(tapDevices, tap.ID)
+		if err != nil {
+			slog.LogAttrs(ctx, slog.LevelError, "unable to configure tap", slog.String("id", tap.ID), slog.Any("error", err))
+			continue
+		}
+
 		for _, button := range tap.Buttons {
-			rule, err := s.createRuleDescription(groups, tap.ID, tap.Rotary, button)
+			rule, err := s.createRuleDescription(groups, targetTap.IDV1, targetTap.Dial, button)
 			if err != nil {
-				slog.LogAttrs(ctx, slog.LevelError, "create rule description", slog.Any("error", err))
+				slog.LogAttrs(ctx, slog.LevelError, "create tap rule description", slog.Any("error", err))
 			}
 
 			if err := s.createRule(ctx, &rule); err != nil {
-				slog.LogAttrs(ctx, slog.LevelError, "create rule", slog.Any("error", err))
+				slog.LogAttrs(ctx, slog.LevelError, "create tap rule", slog.Any("error", err))
 			}
 		}
 	}

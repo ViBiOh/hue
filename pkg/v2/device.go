@@ -2,7 +2,7 @@ package v2
 
 import (
 	"context"
-	"fmt"
+	"runtime"
 	"strings"
 )
 
@@ -55,22 +55,21 @@ func (a DevicePowerByOwner) Less(i, j int) bool {
 	return a[i].Owner.Rid < a[j].Owner.Rid
 }
 
-func (s *Service) getDevices(ctx context.Context, productName string) ([]Device, error) {
-	devices, err := list[Device](ctx, s.req, "device")
-	if err != nil {
-		return nil, fmt.Errorf("fetch: %w", err)
-	}
+func (s *Service) streamDevices(ctx context.Context, handlers ...func(Device)) error {
+	var err error
 
-	output := devices[:0]
-	for _, device := range devices {
-		if strings.EqualFold(device.ProductData.ProductName, productName) {
-			output = append(output, device)
+	devices := make(chan Device, runtime.NumCPU())
+	go func() {
+		err = stream(ctx, s.req, "device", devices)
+	}()
+
+	for device := range devices {
+		device.IDV1 = strings.TrimPrefix(device.IDV1, "/sensors/")
+
+		for _, handler := range handlers {
+			handler(device)
 		}
 	}
 
-	return output, nil
-}
-
-func (s *Service) streamDevices(ctx context.Context, output chan<- Device) error {
-	return stream(ctx, s.req, "device", output)
+	return err
 }

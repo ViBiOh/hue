@@ -130,10 +130,12 @@ func (s *Service) handleStreamEvent(event Event) {
 		case "grouped_motion":
 		case "homekit":
 		case "relative_rotary":
+		case "room":
 		case "scene":
 		case "taurus_7455":
 		case "zigbee_connectivity":
 		case "zigbee_device_discovery":
+		case "zone":
 		case "motion":
 			s.UpdateMotion(data.Owner.Rid, data.Enabled, data.Motion)
 		case "light_level":

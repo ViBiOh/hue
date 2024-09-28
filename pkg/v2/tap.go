@@ -1,29 +1,45 @@
 package v2
 
 import (
-	"context"
+	"strconv"
 	"strings"
 )
 
 type Tap struct {
-	ID           string `json:"id"`
-	IDV1         string `json:"id_v1"`
-	BatteryState string `json:"battery_state"`
-	BatteryLevel int64  `json:"battery_level"`
-	Dial         bool   `json:"dial"`
+	ID           string
+	IDV1         string
+	Name         string
+	BatteryState string
+	BatteryLevel int64
+	Dial         bool
 }
 
-func (s *Service) buildTaps(ctx context.Context, input <-chan Device) (map[string]Tap, error) {
-	output := make(map[string]Tap)
+func (s *Service) Taps() []Tap {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-	for device := range input {
-		if strings.EqualFold(device.ProductData.ProductName, "Hue tap switch") {
-			output[device.ID] = Tap{
-				ID:   device.ID,
-				IDV1: device.IDV1,
-			}
-		}
+	output := make([]Tap, 0, len(s.taps))
+
+	for _, item := range s.taps {
+		output = append(output, item)
 	}
 
-	return output, nil
+	return output
+}
+
+func (s *Service) handleTapDevice(device Device) {
+	if dial := strings.EqualFold(device.ProductData.ProductName, "Hue tap dial switch"); strings.EqualFold(device.ProductData.ProductName, "Hue tap switch") || dial {
+		if dial {
+			// ugly hack for now, let's come back latter
+			id, _ := strconv.Atoi(device.IDV1)
+			device.IDV1 = strconv.Itoa(id + 1)
+		}
+
+		s.taps[device.ID] = Tap{
+			ID:   device.ID,
+			IDV1: device.IDV1,
+			Name: device.Metadata.Name,
+			Dial: dial,
+		}
+	}
 }

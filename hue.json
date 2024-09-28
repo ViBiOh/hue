@@ -56,7 +56,7 @@
   ],
   "taps": [
     {
-      "id": "25",
+      "id": "Bedroom",
       "buttons": [
         {
           "id": "1",
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "id": "26",
+      "id": "Living Room",
       "buttons": [
         {
           "id": "1",
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "id": "4",
+      "id": "Bathroom",
       "buttons": [
         {
           "id": "1",
@@ -136,8 +136,8 @@
         {
           "id": "2",
           "state": "on",
-          "lights": [
-            "14"
+          "groups": [
+            "Computer"
           ]
         },
         {
@@ -150,15 +150,14 @@
         {
           "id": "4",
           "state": "off",
-          "lights": [
-            "14"
+          "groups": [
+            "Computer"
           ]
         }
       ]
     },
     {
-      "id": "28",
-      "rotary": true,
+      "id": "Entrance",
       "buttons": [
         {
           "id": "1",
@@ -169,16 +168,16 @@
         },
         {
           "id": "2",
-          "state": "on",
+          "state": "off",
           "groups": [
-            "Bedroom"
+            "Living room"
           ]
         },
         {
           "id": "3",
           "state": "on",
           "groups": [
-            "Office"
+            "Bedroom"
           ]
         },
         {
@@ -196,8 +195,7 @@
       ]
     },
     {
-      "id": "30",
-      "rotary": true,
+      "id": "Rooms",
       "buttons": [
         {
           "id": "1",
