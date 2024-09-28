@@ -172,7 +172,7 @@
           "id": "2",
           "state": "on",
           "groups": [
-            "Bedroom"
+            "Kitchen"
           ]
         },
         {
@@ -180,14 +180,14 @@
           "state": "off",
           "long": true,
           "groups": [
-            "Bedroom"
+            "Kitchen"
           ]
         },
         {
           "id": "3",
           "state": "on",
           "groups": [
-            "Kitchen"
+            "Bedroom"
           ]
         },
         {
@@ -195,7 +195,7 @@
           "state": "off",
           "long": true,
           "groups": [
-            "Kitchen"
+            "Bedroom"
           ]
         },
         {
