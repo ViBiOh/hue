@@ -8,11 +8,9 @@ type configHue struct {
 }
 
 type configSensor struct {
-	ID            string
-	LightSensorID string
-	CompanionID   string
-	OffDelay      string
-	Groups        []string
+	ID       string
+	OffDelay string
+	Groups   []string
 }
 
 type configTap struct {

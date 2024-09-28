@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sort"
 	"strings"
 )
 
@@ -15,10 +16,24 @@ func (s *Service) Init(ctx context.Context) (err error) {
 	slog.Info("Initializing V2...")
 	defer slog.Info("Initialization V2 done.")
 
-	s.taps = make(map[string]Tap)
+	var tapDevices []Device
 	var motionDevices []Device
 
-	if err = s.streamDevices(ctx, s.handleTapDevice, func(device Device) {
+	devicePowers, err := list[DevicePower](ctx, s.req, "device_power")
+	if err != nil {
+		return fmt.Errorf("list devices' powers: %w", err)
+	}
+
+	sort.Sort(DevicePowerByOwner(devicePowers))
+
+	if err = s.streamDevices(ctx, func(device Device) {
+		tap := strings.EqualFold(device.ProductData.ProductName, "Hue tap switch")
+		dial := strings.EqualFold(device.ProductData.ProductName, "Hue tap dial switch")
+
+		if tap || dial {
+			tapDevices = append(tapDevices, device)
+		}
+	}, func(device Device) {
 		if strings.EqualFold(device.ProductData.ProductName, "Hue motion sensor") {
 			motionDevices = append(motionDevices, device)
 		}
@@ -39,7 +54,13 @@ func (s *Service) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	s.motionSensors, err = s.buildMotionSensor(ctx, motionDevices)
+	s.motionSensors, err = s.buildMotionSensor(ctx, motionDevices, devicePowers)
+	if err != nil {
+		err = fmt.Errorf("build motion sensor: %w", err)
+		return
+	}
+
+	s.taps, err = s.buildTaps(tapDevices, devicePowers)
 	if err != nil {
 		err = fmt.Errorf("build motion sensor: %w", err)
 		return

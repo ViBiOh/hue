@@ -30,7 +30,7 @@ func getGroupsActions(groups []v2.Group, config configSensor, state string) ([]A
 	return actions, nil
 }
 
-func (s *Service) createSensorOnRuleDescription(groups []v2.Group, sensor configSensor) (Rule, error) {
+func (s *Service) createSensorOnRuleDescription(groups []v2.Group, motion v2.MotionSensor, sensor configSensor) (Rule, error) {
 	state := "on"
 
 	actions, err := getGroupsActions(groups, sensor, state)
@@ -39,19 +39,19 @@ func (s *Service) createSensorOnRuleDescription(groups []v2.Group, sensor config
 	}
 
 	newRule := Rule{
-		Name: fmt.Sprintf("MotionSensor %s - %s", sensor.ID, state),
+		Name: fmt.Sprintf("MotionSensor %s - %s", motion.IDV1, state),
 		Conditions: []Condition{
 			{
-				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
 				Operator: "eq",
 				Value:    "true",
 			},
 			{
-				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
 				Operator: "dx",
 			},
 			{
-				Address:  fmt.Sprintf("/sensors/%s/state/daylight", sensor.LightSensorID),
+				Address:  fmt.Sprintf("/sensors/%s/state/daylight", motion.LightLevelIDV1),
 				Operator: "eq",
 				Value:    "false",
 			},
@@ -62,7 +62,7 @@ func (s *Service) createSensorOnRuleDescription(groups []v2.Group, sensor config
 	return newRule, nil
 }
 
-func (s *Service) createSensorOffRuleDescription(groups []v2.Group, sensor configSensor) (Rule, error) {
+func (s *Service) createSensorOffRuleDescription(groups []v2.Group, motion v2.MotionSensor, sensor configSensor) (Rule, error) {
 	state := "long_off"
 
 	actions, err := getGroupsActions(groups, sensor, state)
@@ -71,15 +71,15 @@ func (s *Service) createSensorOffRuleDescription(groups []v2.Group, sensor confi
 	}
 
 	newRule := Rule{
-		Name: fmt.Sprintf("MotionSensor %s - %s", sensor.ID, state),
+		Name: fmt.Sprintf("MotionSensor %s - %s", motion.IDV1, state),
 		Conditions: []Condition{
 			{
-				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
 				Operator: "eq",
 				Value:    "false",
 			},
 			{
-				Address:  fmt.Sprintf(sensorPresenceURL, sensor.ID),
+				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
 				Operator: "ddx",
 				Value:    sensor.OffDelay,
 			},
@@ -91,8 +91,16 @@ func (s *Service) createSensorOffRuleDescription(groups []v2.Group, sensor confi
 }
 
 func (s *Service) configureMotionSensor(ctx context.Context, groups []v2.Group, sensors []configSensor) {
+	motionDevices := s.v2Service.Sensors()
+
 	for _, sensor := range sensors {
-		onRule, err := s.createSensorOnRuleDescription(groups, sensor)
+		targetMotion, err := getMotionSensor(motionDevices, sensor.ID)
+		if err != nil {
+			slog.LogAttrs(ctx, slog.LevelError, "unable to configure sensor", slog.String("id", sensor.ID), slog.Any("error", err))
+			continue
+		}
+
+		onRule, err := s.createSensorOnRuleDescription(groups, targetMotion, sensor)
 		if err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create motion on rule", slog.Any("error", err))
 		}
@@ -101,7 +109,7 @@ func (s *Service) configureMotionSensor(ctx context.Context, groups []v2.Group, 
 			slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
 		}
 
-		offRule, err := s.createSensorOffRuleDescription(groups, sensor)
+		offRule, err := s.createSensorOffRuleDescription(groups, targetMotion, sensor)
 		if err != nil {
 			slog.LogAttrs(ctx, slog.LevelError, "create motion off rule", slog.Any("error", err))
 		}

@@ -17,6 +17,16 @@ func getGroup(groups []v2.Group, name string) (v2.Group, error) {
 	return v2.Group{}, fmt.Errorf("group `%s` not found", name)
 }
 
+func getMotionSensor(motions []v2.MotionSensor, name string) (v2.MotionSensor, error) {
+	for _, motion := range motions {
+		if strings.EqualFold(motion.Name, name) {
+			return motion, nil
+		}
+	}
+
+	return v2.MotionSensor{}, fmt.Errorf("motion sensor `%s` not found", name)
+}
+
 func getTap(taps []v2.Tap, name string) (v2.Tap, error) {
 	for _, tap := range taps {
 		if strings.EqualFold(tap.Name, name) {

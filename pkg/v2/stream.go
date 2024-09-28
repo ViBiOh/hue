@@ -180,7 +180,7 @@ func (s *Service) updateLightLevel(owner string, lightLevel int64) {
 	defer s.mutex.Unlock()
 
 	if motionSensor, ok := s.motionSensors[owner]; ok {
-		motionSensor.LightLevel = lightLevel
+		motionSensor.LightLevelValue = lightLevel
 		slog.LogAttrs(context.Background(), slog.LevelDebug, "Light level", slog.Int64("level", lightLevel), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
@@ -213,6 +213,12 @@ func (s *Service) updateDevicePower(owner string, batteryState string, batteryLe
 		slog.LogAttrs(context.Background(), slog.LevelDebug, "Battery", slog.Int64("battery", batteryLevel), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
+	} else if tap, ok := s.taps[owner]; ok {
+		tap.BatteryState = batteryState
+		tap.BatteryLevel = batteryLevel
+		slog.LogAttrs(context.Background(), slog.LevelDebug, "Battery", slog.Int64("battery", batteryLevel), slog.String("sensor", tap.Name))
+
+		s.taps[owner] = tap
 	} else {
 		slog.LogAttrs(context.Background(), slog.LevelWarn, "unknown device power owner ID", slog.String("owner", owner))
 	}

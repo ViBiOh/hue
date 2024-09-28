@@ -27,27 +27,21 @@
   ],
   "sensors": [
     {
-      "id": "6",
-      "lightSensorId": "7",
-      "companionId": "17",
+      "id": "Bathroom",
       "groups": [
         "Bathroom"
       ],
       "offDelay": "PT00:01:00"
     },
     {
-      "id": "10",
-      "lightSensorId": "11",
-      "companionId": "12",
+      "id": "Toilet",
       "groups": [
         "Toilet"
       ],
       "offDelay": "PT00:01:00"
     },
     {
-      "id": "14",
-      "lightSensorId": "15",
-      "companionId": "16",
+      "id": "Kitchen",
       "groups": [
         "Kitchen"
       ],

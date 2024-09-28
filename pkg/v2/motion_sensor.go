@@ -5,18 +5,23 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/ViBiOh/httputils/v4/pkg/breaksync"
 	"github.com/ViBiOh/httputils/v4/pkg/concurrent"
 )
 
 type MotionSensor struct {
-	ID           string  `json:"id"`
-	IDV1         string  `json:"id_v1"`
-	MotionID     string  `json:"motion_id"`
-	Name         string  `json:"name"`
-	BatteryState string  `json:"battery_state"`
-	LightLevel   int64   `json:"light_level"`
+	ID           string `json:"id"`
+	IDV1         string `json:"id_v1"`
+	MotionID     string `json:"motion_id"`
+	Name         string `json:"name"`
+	BatteryState string `json:"battery_state"`
+
+	LightLevelID    string `json:"light_level_id"`
+	LightLevelIDV1  string `json:"light_level_id_v1"`
+	LightLevelValue int64  `json:"light_level"`
+
 	Temperature  float64 `json:"temperature"`
 	BatteryLevel int64   `json:"battery_level"`
 	Enabled      bool    `json:"enabled"`
@@ -34,6 +39,7 @@ func (a MotionSensorByName) Less(i, j int) bool {
 type LightLevel struct {
 	Owner deviceReference `json:"owner"`
 	ID    string          `json:"id"`
+	IDV1  string          `json:"id_v1"`
 	Light struct {
 		LightLevel      int64 `json:"light_level"`
 		LightLevelValid bool  `json:"light_level_valid"`
@@ -130,11 +136,10 @@ func (s *Service) UpdateSensor(ctx context.Context, id string, enabled bool) (Mo
 	return motionSensor, err
 }
 
-func (s *Service) buildMotionSensor(ctx context.Context, devices []Device) (map[string]MotionSensor, error) {
+func (s *Service) buildMotionSensor(ctx context.Context, devices []Device, devicePowers []DevicePower) (map[string]MotionSensor, error) {
 	var motions []Motion
 	var lightLevels []LightLevel
 	var temperatures []Temperature
-	var devicePowers []DevicePower
 
 	wg := concurrent.NewFailFast(2)
 
@@ -171,22 +176,12 @@ func (s *Service) buildMotionSensor(ctx context.Context, devices []Device) (map[
 		return nil
 	})
 
-	wg.Go(func() (err error) {
-		devicePowers, err = list[DevicePower](ctx, s.req, "device_power")
-		if err != nil {
-			return fmt.Errorf("list devices' powers: %w", err)
-		}
-
-		sort.Sort(DevicePowerByOwner(devicePowers))
-
-		return nil
-	})
-
 	if err := wg.Wait(); err != nil {
 		return nil, fmt.Errorf("fetch motion sensors data: %w", err)
 	}
 
 	sort.Sort(DeviceByID(devices))
+
 	output := make(map[string]MotionSensor, len(devices))
 
 	return output, breaksync.NewSynchronization().
@@ -215,6 +210,7 @@ func (s *Service) buildMotionSensor(ctx context.Context, devices []Device) (map[
 			if syncFlags&1 == 0 {
 				device := values[0].(Device)
 				sensor.ID = device.ID
+				sensor.IDV1 = device.IDV1
 				sensor.Name = device.Metadata.Name
 			}
 
@@ -227,7 +223,11 @@ func (s *Service) buildMotionSensor(ctx context.Context, devices []Device) (map[
 			}
 
 			if syncFlags&1<<2 == 0 {
-				sensor.LightLevel = values[2].(LightLevel).Light.LightLevel
+				lightLevel := values[2].(LightLevel)
+
+				sensor.LightLevelID = lightLevel.ID
+				sensor.LightLevelIDV1 = strings.TrimPrefix(lightLevel.IDV1, "/sensors/")
+				sensor.LightLevelValue = lightLevel.Light.LightLevel
 			}
 
 			if syncFlags&1<<3 == 0 {
