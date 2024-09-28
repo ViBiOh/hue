@@ -23,8 +23,18 @@ var dialTapButtonMapping = map[string]string{
 	"4": "4000",
 }
 
-func getButtonMapping(dial bool, id string) string {
+var dialTapLongButtonMapping = map[string]string{
+	"1": "1010",
+	"2": "2010",
+	"3": "3010",
+	"4": "4010",
+}
+
+func getButtonMapping(dial bool, id string, long bool) string {
 	if dial {
+		if long {
+			return dialTapLongButtonMapping[id]
+		}
 		return dialTapButtonMapping[id]
 	}
 	return tapButtonMapping[id]
@@ -32,7 +42,7 @@ func getButtonMapping(dial bool, id string) string {
 
 func (s *Service) createRuleDescription(groups []v2.Group, tapID string, dial bool, button configTapButton) (Rule, error) {
 	newRule := Rule{
-		Name: fmt.Sprintf("Tap %s.%s", tapID, button.ID),
+		Name: fmt.Sprintf("Tap %s.%s.%t", tapID, button.ID, button.Long),
 		Conditions: []Condition{
 			{
 				Address:  fmt.Sprintf("/sensors/%s/state/buttonevent", tapID),
@@ -41,7 +51,7 @@ func (s *Service) createRuleDescription(groups []v2.Group, tapID string, dial bo
 			{
 				Address:  fmt.Sprintf("/sensors/%s/state/buttonevent", tapID),
 				Operator: "eq",
-				Value:    getButtonMapping(dial, button.ID),
+				Value:    getButtonMapping(dial, button.ID, button.Long),
 			},
 		},
 	}

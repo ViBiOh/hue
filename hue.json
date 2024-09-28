@@ -71,14 +71,14 @@
           "state": "off",
           "groups": [
             "Bedroom",
-            "Living room"
+            "Living Room"
           ]
         },
         {
           "id": "4",
           "state": "on",
           "groups": [
-            "Living room"
+            "Living Room"
           ]
         }
       ]
@@ -90,21 +90,21 @@
           "id": "1",
           "state": "on",
           "groups": [
-            "Living room"
+            "Living Room"
           ]
         },
         {
           "id": "2",
           "state": "dimmed",
           "groups": [
-            "Living room"
+            "Living Room"
           ]
         },
         {
           "id": "3",
           "state": "off",
           "groups": [
-            "Living room",
+            "Living Room",
             "Bedroom"
           ]
         },
@@ -157,28 +157,52 @@
           "id": "1",
           "state": "on",
           "groups": [
-            "Living room"
+            "Living Room"
+          ]
+        },
+        {
+          "id": "1",
+          "state": "off",
+          "long": true,
+          "groups": [
+            "Living Room"
           ]
         },
         {
           "id": "2",
-          "state": "off",
-          "groups": [
-            "Living room"
-          ]
-        },
-        {
-          "id": "3",
           "state": "on",
           "groups": [
             "Bedroom"
           ]
         },
         {
+          "id": "2",
+          "state": "off",
+          "long": true,
+          "groups": [
+            "Bedroom"
+          ]
+        },
+        {
+          "id": "3",
+          "state": "on",
+          "groups": [
+            "Kitchen"
+          ]
+        },
+        {
+          "id": "3",
+          "state": "off",
+          "long": true,
+          "groups": [
+            "Kitchen"
+          ]
+        },
+        {
           "id": "4",
           "state": "off",
           "groups": [
-            "Living room",
+            "Living Room",
             "Bedroom",
             "Office",
             "Kitchen",
@@ -199,10 +223,26 @@
           ]
         },
         {
-          "id": "2",
+          "id": "1",
           "state": "off",
+          "long": true,
           "groups": [
             "Bedroom"
+          ]
+        },
+        {
+          "id": "2",
+          "state": "on",
+          "groups": [
+            "Bathroom"
+          ]
+        },
+        {
+          "id": "2",
+          "state": "off",
+          "long": true,
+          "groups": [
+            "Bathroom"
           ]
         },
         {
@@ -213,10 +253,18 @@
           ]
         },
         {
+          "id": "3",
+          "state": "off",
+          "long": true,
+          "groups": [
+            "Office"
+          ]
+        },
+        {
           "id": "4",
           "state": "off",
           "groups": [
-            "Office"
+            "Toilet"
           ]
         }
       ]

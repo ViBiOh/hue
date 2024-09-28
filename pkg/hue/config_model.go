@@ -21,9 +21,10 @@ type configTap struct {
 type configTapButton struct {
 	ID     string
 	State  string
+	Rule   Rule
 	Groups []string
 	Lights []string
-	Rule   Rule
+	Long   bool
 }
 
 type motionSensors struct {

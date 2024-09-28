@@ -52,7 +52,8 @@ func (s *Service) buildTaps(devices []Device, devicePowers []DevicePower) (map[s
 			if syncFlags&1 == 0 {
 				device := values[0].(Device)
 
-				if strings.EqualFold(device.ProductData.ProductName, "Hue tap dial switch") {
+				dial := strings.EqualFold(device.ProductData.ProductName, "Hue tap dial switch")
+				if dial {
 					// ugly hack for now, let's come back latter
 					id, _ := strconv.Atoi(device.IDV1)
 					device.IDV1 = strconv.Itoa(id + 1)
@@ -61,6 +62,7 @@ func (s *Service) buildTaps(devices []Device, devicePowers []DevicePower) (map[s
 				tap.ID = device.ID
 				tap.IDV1 = device.IDV1
 				tap.Name = device.Metadata.Name
+				tap.Dial = dial
 			}
 
 			if syncFlags&1<<1 == 0 {
