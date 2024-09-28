@@ -56,14 +56,16 @@ func (s *Service) createBatteryMetric(meter metric.Meter) error {
 
 		for _, motion := range s.motionSensors {
 			io.Observe(motion.BatteryLevel, metric.WithAttributes(
-				attribute.String("room", motion.Name),
+				attribute.String("kind", "motion"),
+				attribute.String("name", motion.Name),
 			))
 		}
 
 		for _, tap := range s.taps {
 			if len(tap.BatteryState) != 0 {
 				io.Observe(tap.BatteryLevel, metric.WithAttributes(
-					attribute.String("room", tap.Name),
+					attribute.String("kind", "tap"),
+					attribute.String("name", tap.Name),
 				))
 			}
 		}
