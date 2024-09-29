@@ -57,7 +57,7 @@ The application is not an app or hub replacement, it uses the Hub's API and is n
 
 ### Metrics
 
-The web service exposes two specifics metrics gathered from the motions sensors: the battery life and the temperature. They are available with OpenTelemetry.
+The web service exposes multiples metrics gathered from the motions sensors and taps: the battery life, the temperature and the motion detection. They are available with OpenTelemetry.
 
 ## Usage
 
