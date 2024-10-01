@@ -234,7 +234,7 @@
           "id": "2",
           "state": "on",
           "groups": [
-            "Bathroom"
+            "Office"
           ]
         },
         {
@@ -242,14 +242,14 @@
           "state": "off",
           "long": true,
           "groups": [
-            "Bathroom"
+            "Office"
           ]
         },
         {
           "id": "3",
           "state": "on",
           "groups": [
-            "Office"
+            "Bathroom"
           ]
         },
         {
@@ -257,7 +257,7 @@
           "state": "off",
           "long": true,
           "groups": [
-            "Office"
+            "Bathroom"
           ]
         },
         {
