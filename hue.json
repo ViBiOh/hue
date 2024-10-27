@@ -19,9 +19,9 @@
       "state": "long_on"
     },
     {
-      "name": "Office - Off",
+      "name": "Computer - Off",
       "localtime": "W127/T01:00:00",
-      "group": "Office",
+      "group": "Computer",
       "state": "off"
     }
   ],
