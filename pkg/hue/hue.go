@@ -55,7 +55,7 @@ func New(config *Config, rendererService *renderer.Service, v2Service *v2.Servic
 	return &service, nil
 }
 
-func (s *Service) TemplateFunc(w http.ResponseWriter, r *http.Request) (renderer.Page, error) {
+func (s *Service) TemplateFunc(_ http.ResponseWriter, _ *http.Request) (renderer.Page, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 

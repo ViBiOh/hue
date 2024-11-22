@@ -1,0 +1,372 @@
+{{ define "main-style" }}
+    <style nonce="{{ .nonce }}">
+        :root {
+            --primary: cornflowerblue;
+            --success: limegreen;
+            --danger: salmon;
+            --dark: #000000;
+            --grey: #272727;
+            --white: silver;
+
+            --icon-small: 1.6rem;
+            --icon-size: 2.4rem;
+            --icon-large: 4.8rem;
+
+            --space-size: 1rem;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        body {
+            -webkit-overflow-scrolling: touch;
+            background-color: var(--dark);
+            height: 100vh;
+        }
+
+        body,
+        button,
+        input {
+            color: var(--white);
+            font-family: -apple-system,
+            'Segoe UI',
+            'Roboto',
+            'Oxygen-Sans',
+            'Ubuntu',
+            'Cantarell',
+            'Helvetica Nue',
+            sans-serif;
+            font-size: 1.6rem;
+            font-style: normal;
+            font-weight: 400;
+        }
+
+        input {
+            color: var(--dark);
+        }
+
+        a {
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .primary {
+            color: var(--primary);
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        .danger {
+            color: var(--danger);
+        }
+
+        .grey {
+            color: var(--grey);
+        }
+
+        .white {
+            color: var(--white);
+        }
+
+        .bg-primary,
+        .bg-primary:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .bg-success,
+        .bg-success:hover {
+            background-color: var(--success);
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .bg-danger,
+        .bg-danger:hover {
+            background-color: var(--danger);
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .bg-grey,
+        .bg-grey:hover {
+            background-color: var(--grey);
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .button {
+            border-radius: 4px;
+            border: 0;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0;
+            padding: var(--space-size);
+            text-decoration: none;
+        }
+
+        .button-icon {
+            background-color: transparent;
+        }
+
+        .icon {
+            background-position: center center;
+            background-repeat: no-repeat;
+            color: var(--white);
+            display: inline-block;
+            height: var(--icon-size);
+            text-decoration: none;
+            vertical-align: middle;
+            width: var(--icon-size);
+        }
+
+        .icon-large {
+            height: var(--icon-large);
+            width: var(--icon-large);
+        }
+
+        .icon-small {
+            height: var(--icon-small);
+            width: var(--icon-small);
+        }
+
+        .icon-overlay {
+            height: var(--icon-large);
+            left: calc((100% - var(--icon-large)) / 2);
+            pointer-events: none;
+            position: absolute;
+            top: calc((100% - var(--icon-large)) / 2);
+            width: var(--icon-large);
+        }
+
+        .modal {
+            align-items: center;
+            background-color: rgba(84, 84, 84, 0.75);
+            display: none;
+            height: 100vh;
+            justify-content: center;
+            left: 0;
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            width: 100vw;
+        }
+
+        .modal-content {
+            background-color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+            max-width: 100%;
+            pointer-events: auto;
+        }
+
+        .header {
+            background-color: var(--grey);
+            margin-top: 0;
+            padding: calc(var(--space-size) / 2) var(--space-size);
+            text-align: left;
+        }
+
+        .flex {
+            align-items: center;
+            display: flex;
+        }
+
+        .flex-grow {
+            flex: 1 1;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .padding {
+            padding: var(--space-size);
+        }
+
+        .padding-half {
+            padding: calc(var(--space-size) / 2);
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        .margin {
+            margin: var(--space-size);
+        }
+
+        .margin-top {
+            margin-top: var(--space-size);
+        }
+
+        .margin-right {
+            margin-right: var(--space-size);
+        }
+
+        .margin-bottom {
+            margin-bottom: var(--space-size);
+        }
+
+        .margin-left {
+            margin-left: var(--space-size);
+        }
+
+        .margin-half {
+            margin: calc(var(--space-size) / 2);
+        }
+
+        .no-margin {
+            margin: 0;
+        }
+
+        .ellipsis {
+            overflow: hidden;
+            text-align: left;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .full {
+            width: 100%;
+        }
+
+        @media print {
+            body::after {
+                content: 'Save ink, share link. {{ publicURL "" }}';
+            }
+
+            body > * {
+                display: none !important;
+            }
+        }
+    </style>
+{{ end }}
+
+{{ define "main-script" }}
+    <script type="text/javascript" nonce="{{ .nonce }}">
+        /**
+         * Go back from state.
+         */
+        function goBack() {
+            const previousHash = document.location.hash;
+            document.location.hash = "";
+
+            if (/success$/gim.test(previousHash)) {
+                window.location.reload(true);
+            }
+        }
+
+        /**
+         * Handle Previous/next.
+         */
+        window.onkeyup = (e) => {
+            switch (e.key) {
+                case "Escape":
+                    goBack();
+                    break;
+            }
+        };
+
+        document.addEventListener("readystatechange", async (event) => {
+            if (event.target.readyState === "complete") {
+                const link = document.getElementById("go-back");
+                if (link) {
+                    link.setAttribute("href", document.referrer);
+                    link.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        history.back();
+                        return false;
+                    });
+                }
+            }
+        });
+    </script>
+{{ end }}
+
+{{ define "header" }}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    {{ template "seo" . }}
+    {{ template "favicon" . }}
+
+    {{ template "main-style" . }}
+    {{ template "main-script" . }}
+</head>
+
+<body class="no-margin">
+<div class="content">
+    <header class="flex padding">
+        <h1 class="no-margin no-padding">
+            <a href="{{ url "" }}{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
+        </h1>
+
+        <span class="flex-grow"></span>
+
+        {{ template "header-part" . }}
+    </header>
+    {{ end }}
+
+    {{ define "footer" }}
+</div>
+</body>
+
+</html>
+{{ end }}
+
+{{ define "message" }}
+    {{ with . }}
+        {{ if gt (len .Content) 0 }}
+            <p class="message no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
+                {{ .Content }}
+            </p>
+        {{ end }}
+    {{ end }}
+{{ end }}
+
+{{ define "public" }}
+    {{ template "header" . }}
+
+    {{ template "message" .Message }}
+    {{ template "app" . }}
+
+    {{ template "footer" . }}
+{{ end }}
+
+{{ define "error" }}
+    {{ template "header" . }}
+    {{ template "message" .Message }}
+
+    {{ with .Errors }}
+        {{ range .Errors }}
+            <p class="padding no-margin center">
+                {{ . }}
+            </p>
+        {{ end }}
+    {{ end }}
+
+    <h3 class="center">
+        <a id="go-back" href="#">Go Back</a>
+    </h3>
+
+    {{ template "footer" . }}
+{{ end }}

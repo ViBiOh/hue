@@ -13,7 +13,7 @@ import (
 	"github.com/ViBiOh/httputils/v4/pkg/request"
 )
 
-var dataPrefix []byte = []byte("data: ")
+var dataPrefix = []byte("data: ")
 
 type Event struct {
 	Type string `json:"type"`
