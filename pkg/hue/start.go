@@ -82,7 +82,7 @@ func (s *Service) updateSensors(ctx context.Context, names []string, enabled boo
 				}
 
 				if !enabled {
-					s.v2Service.UpdateMotion(sensor.ID, nil, &v2.MotionValue{Motion: false})
+					s.v2Service.UpdateMotion(ctx, sensor.ID, nil, &v2.MotionValue{Motion: false})
 				}
 			}
 		}

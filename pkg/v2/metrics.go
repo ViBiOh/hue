@@ -1,10 +1,8 @@
 package v2
 
 import (
-	"context"
 	"fmt"
 
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )
 
@@ -17,83 +15,22 @@ func (s *Service) createMetrics(meterProvider metric.MeterProvider) error {
 
 	meter := meterProvider.Meter("github.com/ViBiOh/hue/pkg/v2")
 
-	if err := s.createTemperatureMetric(meter); err != nil {
+	var err error
+
+	s.temperatureMetric, err = meter.Float64Gauge("hue.temperature")
+	if err != nil {
 		return fmt.Errorf("create temperature metric: %w", err)
 	}
 
-	if err := s.createBatteryMetric(meter); err != nil {
+	s.batteryMetric, err = meter.Int64Gauge("hue.battery")
+	if err != nil {
 		return fmt.Errorf("create battery metric: %w", err)
 	}
 
-	if err := s.createMotionMetric(meter); err != nil {
+	s.motionMetric, err = meter.Int64Gauge("hue.motion")
+	if err != nil {
 		return fmt.Errorf("create motion metric: %w", err)
 	}
 
 	return nil
-}
-
-func (s *Service) createTemperatureMetric(meter metric.Meter) error {
-	_, err := meter.Float64ObservableGauge("hue.temperature", metric.WithFloat64Callback(func(ctx context.Context, fo metric.Float64Observer) error {
-		s.mutex.RLock()
-		defer s.mutex.RUnlock()
-
-		for _, motion := range s.motionSensors {
-			fo.Observe(motion.Temperature, metric.WithAttributes(
-				attribute.String("room", motion.Name),
-			))
-		}
-
-		return nil
-	}))
-
-	return err
-}
-
-func (s *Service) createBatteryMetric(meter metric.Meter) error {
-	_, err := meter.Int64ObservableGauge("hue.battery", metric.WithInt64Callback(func(ctx context.Context, io metric.Int64Observer) error {
-		s.mutex.RLock()
-		defer s.mutex.RUnlock()
-
-		for _, motion := range s.motionSensors {
-			io.Observe(motion.BatteryLevel, metric.WithAttributes(
-				attribute.String("kind", "motion"),
-				attribute.String("name", motion.Name),
-			))
-		}
-
-		for _, tap := range s.taps {
-			if len(tap.BatteryState) != 0 {
-				io.Observe(tap.BatteryLevel, metric.WithAttributes(
-					attribute.String("kind", "tap"),
-					attribute.String("name", tap.Name),
-				))
-			}
-		}
-
-		return nil
-	}))
-
-	return err
-}
-
-func (s *Service) createMotionMetric(meter metric.Meter) error {
-	_, err := meter.Int64ObservableGauge("hue.motion", metric.WithInt64Callback(func(ctx context.Context, io metric.Int64Observer) error {
-		s.mutex.RLock()
-		defer s.mutex.RUnlock()
-
-		for _, motion := range s.motionSensors {
-			var value int64
-			if motion.Motion {
-				value = motionValue
-			}
-
-			io.Observe(value, metric.WithAttributes(
-				attribute.String("room", motion.Name),
-			))
-		}
-
-		return nil
-	}))
-
-	return err
 }

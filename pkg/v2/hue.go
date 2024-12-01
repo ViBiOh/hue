@@ -17,6 +17,10 @@ type Service struct {
 	motionSensors map[string]MotionSensor
 	taps          map[string]Tap
 
+	temperatureMetric metric.Float64Gauge
+	batteryMetric     metric.Int64Gauge
+	motionMetric      metric.Int64Gauge
+
 	req   request.Request
 	mutex sync.RWMutex
 }
