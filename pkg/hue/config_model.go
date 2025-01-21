@@ -11,6 +11,7 @@ type configSensor struct {
 	ID       string
 	OffDelay string
 	Groups   []string
+	AllOff   bool
 }
 
 type configTap struct {

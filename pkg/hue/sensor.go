@@ -38,25 +38,42 @@ func (s *Service) createSensorOnRuleDescription(groups []v2.Group, motion v2.Mot
 		return Rule{}, fmt.Errorf("get groups actions: %w", err)
 	}
 
-	newRule := Rule{
-		Name: fmt.Sprintf("MotionSensor %s - %s", motion.IDV1, state),
-		Conditions: []Condition{
-			{
-				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
-				Operator: "eq",
-				Value:    "true",
-			},
-			{
-				Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
-				Operator: "dx",
-			},
-			{
-				Address:  fmt.Sprintf("/sensors/%s/state/daylight", motion.LightLevelIDV1),
+	conditions := []Condition{
+		{
+			Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
+			Operator: "eq",
+			Value:    "true",
+		},
+		{
+			Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
+			Operator: "dx",
+		},
+		{
+			Address:  fmt.Sprintf("/sensors/%s/state/daylight", motion.LightLevelIDV1),
+			Operator: "eq",
+			Value:    "false",
+		},
+	}
+
+	if sensor.AllOff {
+		for _, group := range sensor.Groups {
+			targetGroup, err := getGroup(groups, group)
+			if err != nil {
+				return Rule{}, fmt.Errorf("get all groups off: %w", err)
+			}
+
+			conditions = append(conditions, Condition{
+				Address:  fmt.Sprintf("/groups/%s/state/any_on", targetGroup.IDV1),
 				Operator: "eq",
 				Value:    "false",
-			},
-		},
-		Actions: actions,
+			})
+		}
+	}
+
+	newRule := Rule{
+		Name:       fmt.Sprintf("MotionSensor %s - %s", motion.IDV1, state),
+		Conditions: conditions,
+		Actions:    actions,
 	}
 
 	return newRule, nil
@@ -109,13 +126,15 @@ func (s *Service) configureMotionSensor(ctx context.Context, groups []v2.Group, 
 			slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
 		}
 
-		offRule, err := s.createSensorOffRuleDescription(groups, targetMotion, sensor)
-		if err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create motion off rule", slog.Any("error", err))
-		}
+		if len(sensor.OffDelay) != 0 {
+			offRule, err := s.createSensorOffRuleDescription(groups, targetMotion, sensor)
+			if err != nil {
+				slog.LogAttrs(ctx, slog.LevelError, "create motion off rule", slog.Any("error", err))
+			}
 
-		if err := s.createRule(ctx, &offRule); err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
+			if err := s.createRule(ctx, &offRule); err != nil {
+				slog.LogAttrs(ctx, slog.LevelError, "create motion rule", slog.Any("error", err))
+			}
 		}
 	}
 }
