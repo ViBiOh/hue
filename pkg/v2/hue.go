@@ -20,6 +20,7 @@ type Service struct {
 	temperatureMetric metric.Float64Gauge
 	batteryMetric     metric.Int64Gauge
 	motionMetric      metric.Int64Gauge
+	lightLevelMetric  metric.Int64Gauge
 
 	req   request.Request
 	mutex sync.RWMutex

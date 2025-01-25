@@ -32,5 +32,10 @@ func (s *Service) createMetrics(meterProvider metric.MeterProvider) error {
 		return fmt.Errorf("create motion metric: %w", err)
 	}
 
+	s.lightLevelMetric, err = meter.Int64Gauge("hue.light_level")
+	if err != nil {
+		return fmt.Errorf("create light level metric: %w", err)
+	}
+
 	return nil
 }

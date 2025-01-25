@@ -189,6 +189,8 @@ func (s *Service) updateLightLevel(ctx context.Context, owner string, lightLevel
 
 	if motionSensor, ok := s.motionSensors[owner]; ok {
 		motionSensor.LightLevelValue = lightLevel
+
+		s.lightLevelMetric.Record(ctx, lightLevel, metric.WithAttributes(attribute.String("room", motionSensor.Name)))
 		slog.LogAttrs(ctx, slog.LevelDebug, "Light level", slog.Int64("level", lightLevel), slog.String("sensor", motionSensor.Name))
 
 		s.motionSensors[owner] = motionSensor
