@@ -48,11 +48,14 @@ func (s *Service) createSensorOnRuleDescription(groups []v2.Group, motion v2.Mot
 			Address:  fmt.Sprintf(sensorPresenceURL, motion.IDV1),
 			Operator: "dx",
 		},
-		{
+	}
+
+	if sensor.WhenDark {
+		conditions = append(conditions, Condition{
 			Address:  fmt.Sprintf("/sensors/%s/state/lightlevel", motion.LightLevelIDV1),
 			Operator: "lt",
-			Value:    "7000",
-		},
+			Value:    "6000",
+		})
 	}
 
 	if sensor.AllOff {

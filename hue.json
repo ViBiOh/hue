@@ -53,6 +53,7 @@
         "Living Room",
         "Kitchen"
       ],
+      "WhenDark": true,
       "AllOff": true
     }
   ],
