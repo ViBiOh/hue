@@ -49,9 +49,9 @@ func (s *Service) createSensorOnRuleDescription(groups []v2.Group, motion v2.Mot
 			Operator: "dx",
 		},
 		{
-			Address:  fmt.Sprintf("/sensors/%s/state/dark", motion.LightLevelIDV1),
-			Operator: "eq",
-			Value:    "true",
+			Address:  fmt.Sprintf("/sensors/%s/state/lightlevel", motion.LightLevelIDV1),
+			Operator: "lt",
+			Value:    "7000",
 		},
 	}
 
