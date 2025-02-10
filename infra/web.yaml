@@ -12,7 +12,6 @@ spec:
     password: AgARv2WZUU5m2mwRx/TvKra734A1ym0eDDxfwYKnJA3//QhtOO4rRvk94IyZDnAj0QtRgFZ3Hf2+JKnJwyJKjReR8yVwnhAdlVKQ4RH3AnWbc7J1f3+M/LTuVkaPe3IxSQtFDdxEVs5dp3GB09JPIryN2X5bFIXJz0ONPZOSFzye1TxAqAyQdcxPdYrdKlMZ8H/E0fRuOQoC/wJJs33B0PSmxY9ELqpvnsPNzNKnkXgPBimptrQnjHpYe5YHUicMzgZ1s4+8GQOfBeZCrES0OXyZ1+hBr2bxTebU61QMMlyDjCmdHWTnI8Osx49he1vhoF3VHze8JkTR1+v2WdvFYSOO8UJUYOLeyKUtH+NeSXfOlGWL3vuxUHGLYULBIAZcJ4VVXxFaH4d2jpo44O3K8xzbp9NuBcaG9IHksP3ec4UOkKWNKRQs71lDPdwerqnz1+EINAfsrIaugFV99Dc2z8rsni8aEVINFPQx+K/3juUzD0uFP3aGTu+O2h8JFsf7b1r9wyUO2TeBFP8KyAg2z+TLYPeLqSgdXNOenicrmnROYM8EPv3DS9rMjpjLLndUpYfS0CzFKtVfTYzt3oLCZ3ULTyttXgawIkRdUaqdu8ZZBdscos/8ijcPFreQRJoN2SR5I9S7Nh2PdAeWikUmDts3hNb6sjhrYtVW/RYS6w97CCj7bbPXTZ7RuHS5DpWKPBxlEgYBQc+wqmF3G0jvU/SIVnvqnXuBHSXd
   template:
     type: kubernetes.io/basic-auth
-
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -53,11 +52,11 @@ spec:
     nameOverride: hue
     image:
       name: vibioh/hue
-      tag: "202502012200" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tag: "202502100744" # {"$imagepolicy": "default:flux-hue-api:tag"}
     labels:
       tags.datadoghq.com/env: "production"
       tags.datadoghq.com/service: "hue"
-      tags.datadoghq.com/version: "202502012200" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tags.datadoghq.com/version: "202502100744" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
       HUE_BRIDGE_IP: "10.100.3.10"
       HUE_CONFIG: /opt/config.json
