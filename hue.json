@@ -23,6 +23,12 @@
       "localtime": "W127/T02:00:00",
       "group": "Computer",
       "state": "off"
+    },
+    {
+      "name": "Home Theater - Off",
+      "localtime": "W127/T03:00:00",
+      "group": "Home Theater",
+      "state": "off"
     }
   ],
   "sensors": [
@@ -121,7 +127,7 @@
           "id": "4",
           "state": "on",
           "groups": [
-            "Bedroom"
+            "Home Theater"
           ]
         }
       ]
