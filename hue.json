@@ -2,13 +2,13 @@
   "schedules": [
     {
       "name": "Commute",
-      "localtime": "W84/T06:55:00",
+      "localtime": "W52/T06:55:00",
       "group": "Bedroom",
       "state": "long_on"
     },
     {
       "name": "Remote",
-      "localtime": "W40/T07:55:00",
+      "localtime": "W72/T07:55:00",
       "group": "Bedroom",
       "state": "long_on"
     },
