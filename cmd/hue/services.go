@@ -44,7 +44,7 @@ func newServices(ctx context.Context, config configuration, clients clients) (se
 		return output, fmt.Errorf("hue v2: %w", err)
 	}
 
-	output.hue, err = hue.New(config.hue, output.renderer, output.huev2)
+	output.hue, err = hue.New(config.hue, clients.telemetry.TracerProvider(), output.renderer, output.huev2)
 	if err != nil {
 		return output, fmt.Errorf("hue: %w", err)
 	}

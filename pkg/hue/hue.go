@@ -10,6 +10,7 @@ import (
 	"github.com/ViBiOh/flags"
 	"github.com/ViBiOh/httputils/v4/pkg/renderer"
 	v2 "github.com/ViBiOh/hue/pkg/v2"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Service struct {
@@ -17,6 +18,7 @@ type Service struct {
 	scenes         map[string]Scene
 	schedules      map[string]Schedule
 	renderer       *renderer.Service
+	tracerProvider trace.TracerProvider
 	bridgeUsername string
 	bridgeURL      string
 	configFileName string
@@ -42,13 +44,14 @@ func Flags(fs *flag.FlagSet, prefix string) *Config {
 	return &config
 }
 
-func New(config *Config, rendererService *renderer.Service, v2Service *v2.Service) (*Service, error) {
+func New(config *Config, tracerProvider trace.TracerProvider, rendererService *renderer.Service, v2Service *v2.Service) (*Service, error) {
 	service := Service{
 		bridgeURL:      fmt.Sprintf("http://%s/api/%s", config.BridgeIP, config.BridgeUsername),
 		bridgeUsername: config.BridgeUsername,
 		configFileName: config.Config,
 		update:         config.Update,
 		renderer:       rendererService,
+		tracerProvider: tracerProvider,
 		v2Service:      v2Service,
 	}
 

@@ -22,12 +22,12 @@ func (s *Service) Start(ctx context.Context) {
 	for _, motionSensorCron := range config.MotionSensors.Crons {
 		item := motionSensorCron
 
-		go cron.New().Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(ctx, func(ctx context.Context) error {
+		go cron.New().WithTracerProvider(s.tracerProvider).Days().At(item.Hour).In(item.Timezone).OnError(logError).Start(ctx, func(ctx context.Context) error {
 			return s.updateSensors(ctx, item.Names, item.Enabled)
 		})
 	}
 
-	cron.New().Each(time.Minute).Now().OnError(logError).Start(ctx, s.syncSchedules)
+	cron.New().WithTracerProvider(s.tracerProvider).Each(time.Minute).Now().OnError(logError).Start(ctx, s.syncSchedules)
 }
 
 func (s *Service) initConfig(ctx context.Context) (config configHue) {
