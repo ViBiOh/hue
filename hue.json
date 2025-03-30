@@ -1,4 +1,12 @@
 {
+  "temperatures": {
+    "Bedroom": "warm",
+    "Living room": "warm",
+    "Bathroom": "neutral",
+    "Toilet": "neutral",
+    "Kitchen": "cool",
+    "Office": "cool"
+  },
   "schedules": [
     {
       "name": "Commute",
@@ -57,7 +65,8 @@
       "id": "Entrance",
       "groups": [
         "Living Room",
-        "Kitchen"
+        "Kitchen",
+        "Entrance"
       ],
       "WhenDark": true,
       "AllOff": true
@@ -125,15 +134,15 @@
         },
         {
           "id": "4",
-          "state": "on",
+          "state": "off",
           "groups": [
-            "Home Theater"
+            "Entrance"
           ]
         }
       ]
     },
     {
-      "id": "Bathroom",
+      "id": "Office",
       "buttons": [
         {
           "id": "1",
@@ -218,11 +227,12 @@
           "state": "off",
           "groups": [
             "Living Room",
-            "Bedroom",
-            "Office",
             "Kitchen",
+            "Entrance",
+            "Bedroom",
             "Bathroom",
-            "Toilet"
+            "Toilet",
+            "Office"
           ]
         }
       ]

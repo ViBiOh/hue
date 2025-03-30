@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
 	"strings"
 )
@@ -29,6 +30,14 @@ type On struct {
 	On bool `json:"on"`
 }
 
+var temperatures = map[string]int{
+	"warm":    int(math.Round(1000000 / 3000)),
+	"neutral": int(math.Round(1000000 / 4000)),
+	"cool":    int(math.Round(1000000 / 5000)),
+}
+
+var defaultTemperature = temperatures["warm"]
+
 func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 	lights, err := list[Light](ctx, s.req, "light")
 	if err != nil {
@@ -41,22 +50,24 @@ func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 		light.IDV1 = strings.TrimPrefix(light.IDV1, "/lights/")
 
 		output[light.ID] = &light
-
-		if err := s.setWhiteLight(ctx, light.ID); err != nil {
-			slog.LogAttrs(ctx, slog.LevelError, "white light", slog.Any("error", err))
-		}
 	}
 
 	return output, err
 }
 
-func (s *Service) setWhiteLight(ctx context.Context, id string) error {
+func (s *Service) setWhiteLight(ctx context.Context, id, room string) error {
 	var color Color
-	color.XY.X = 0.37203
-	color.XY.Y = 0.37763
+	color.XY.X = 0.313
+	color.XY.Y = 0.329
 
-	var colorTemperature ColorTemperature
-	colorTemperature.Mirek = 238 // 4200K
+	colorTemperature := ColorTemperature{
+		Mirek: temperatures[s.config.Temperatures[room]],
+	}
+
+	if colorTemperature.Mirek == 0 {
+		slog.LogAttrs(ctx, slog.LevelWarn, "Using default color temperature", slog.String("id", id), slog.String("room", room))
+		colorTemperature.Mirek = defaultTemperature
+	}
 
 	payload := map[string]interface{}{
 		"color":             color,
