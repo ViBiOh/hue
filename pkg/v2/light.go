@@ -31,7 +31,8 @@ type On struct {
 }
 
 var temperatures = map[string]int{
-	"warm":    int(math.Round(1000000 / 3000)),
+	"warm":    int(math.Round(1000000 / 2700)),
+	"soft":    int(math.Round(1000000 / 3000)),
 	"neutral": int(math.Round(1000000 / 4000)),
 	"cool":    int(math.Round(1000000 / 5000)),
 }
@@ -57,8 +58,8 @@ func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 
 func (s *Service) setWhiteLight(ctx context.Context, id, room string) error {
 	var color Color
-	color.XY.X = 0.313
-	color.XY.Y = 0.329
+	color.XY.X = 0.372
+	color.XY.Y = 0.377
 
 	colorTemperature := ColorTemperature{
 		Mirek: temperatures[s.config.Temperatures[room]],

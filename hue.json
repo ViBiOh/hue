@@ -1,11 +1,11 @@
 {
   "temperatures": {
-    "Bedroom": "warm",
-    "Living room": "warm",
-    "Bathroom": "neutral",
-    "Toilet": "neutral",
-    "Kitchen": "cool",
-    "Office": "cool"
+    "Bedroom": "soft",
+    "Living room": "soft",
+    "Bathroom": "soft",
+    "Toilet": "soft",
+    "Kitchen": "soft",
+    "Office": "neutral"
   },
   "schedules": [
     {
