@@ -173,9 +173,11 @@ func (s *Service) buildDeviceGroup(ctx context.Context, name string, output map[
 			groupName = "Bridge"
 		}
 
-		for _, light := range lights {
-			if err := s.setWhiteLight(ctx, light.ID, groupName); err != nil {
-				slog.LogAttrs(ctx, slog.LevelError, "white light", slog.Any("error", err))
+		if len(s.config.Temperatures) != 0 {
+			for _, light := range lights {
+				if err := s.setWhiteLight(ctx, light.ID, groupName); err != nil {
+					slog.LogAttrs(ctx, slog.LevelError, "white light", slog.Any("error", err))
+				}
 			}
 		}
 
