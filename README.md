@@ -10,8 +10,6 @@ A web interface for easily managing your Hue installation.
 
 Golang binary is built with static link. You can download it directly from the [GitHub Release page](https://github.com/ViBiOh/hue/releases) or build it by yourself by cloning this repo and running `make`.
 
-A Docker image is available for `amd64`, `arm` and `arm64` platforms on Docker Hub: [vibioh/hue](https://hub.docker.com/r/vibioh/hue/tags).
-
 You can configure app by passing CLI args or environment variables (cf. [Usage](#usage) section). The args override environment variables.
 
 It's a single static binary with embedded templates and static. No Javascript framework. HTTP and HTML have all we need. The recommended way to use it is the Docker container but binary is self-sufficient too.
