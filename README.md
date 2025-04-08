@@ -14,7 +14,7 @@ You can configure app by passing CLI args or environment variables (cf. [Usage](
 
 It's a single static binary with embedded templates and static. No Javascript framework. HTTP and HTML have all we need. The recommended way to use it is the Docker container but binary is self-sufficient too.
 
-You'll find a Kubernetes exemple in the [`infra/`](infra) folder. It contains two ingresses : one for "same network access" and another, publicly available but with basic-auth.
+You'll find a Kubernetes exemple in the [`infra/`](infra) folder.
 
 ### Get credentials from bridge
 
