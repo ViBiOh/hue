@@ -10,13 +10,13 @@
   "schedules": [
     {
       "name": "Commute",
-      "localtime": "W52/T06:55:00",
+      "localtime": "W84/T06:55:00",
       "group": "Bedroom",
       "state": "long_on"
     },
     {
       "name": "Remote",
-      "localtime": "W72/T07:55:00",
+      "localtime": "W40/T07:55:00",
       "group": "Bedroom",
       "state": "long_on"
     },
@@ -25,18 +25,6 @@
       "localtime": "W3/T07:35:00",
       "group": "Bedroom",
       "state": "long_on"
-    },
-    {
-      "name": "Computer - Off",
-      "localtime": "W127/T02:00:00",
-      "group": "Computer",
-      "state": "off"
-    },
-    {
-      "name": "Home Theater - Off",
-      "localtime": "W127/T03:00:00",
-      "group": "Home Theater",
-      "state": "off"
     }
   ],
   "sensors": [
