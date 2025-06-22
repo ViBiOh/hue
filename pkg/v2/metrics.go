@@ -6,7 +6,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-const motionValue = 1
+const motionValue = 2
 
 func (s *Service) createMetrics(meterProvider metric.MeterProvider) error {
 	if meterProvider == nil {
