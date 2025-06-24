@@ -131,6 +131,7 @@ func (s *Service) handleStreamEvent(ctx context.Context, event Event) {
 		case "grouped_light_level":
 		case "grouped_motion":
 		case "homekit":
+		case "motion_area_candidate":
 		case "relative_rotary":
 		case "room":
 		case "scene":
