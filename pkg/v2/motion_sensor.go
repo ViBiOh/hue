@@ -28,12 +28,24 @@ type MotionSensor struct {
 	Motion       bool    `json:"motion"`
 }
 
+type MotionSensors []MotionSensor
+
+func (ms MotionSensors) HasEnabled() bool {
+	for _, sensor := range ms {
+		if sensor.Enabled {
+			return true
+		}
+	}
+
+	return false
+}
+
 type MotionSensorByName []MotionSensor
 
-func (a MotionSensorByName) Len() int      { return len(a) }
-func (a MotionSensorByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a MotionSensorByName) Less(i, j int) bool {
-	return a[i].Name < a[j].Name
+func (msbn MotionSensorByName) Len() int      { return len(msbn) }
+func (msbn MotionSensorByName) Swap(i, j int) { msbn[i], msbn[j] = msbn[j], msbn[i] }
+func (msbn MotionSensorByName) Less(i, j int) bool {
+	return msbn[i].Name < msbn[j].Name
 }
 
 type LightLevel struct {
@@ -49,10 +61,10 @@ type LightLevel struct {
 
 type LightLevelByOwner []LightLevel
 
-func (a LightLevelByOwner) Len() int      { return len(a) }
-func (a LightLevelByOwner) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a LightLevelByOwner) Less(i, j int) bool {
-	return a[i].Owner.Rid < a[j].Owner.Rid
+func (llbo LightLevelByOwner) Len() int      { return len(llbo) }
+func (llbo LightLevelByOwner) Swap(i, j int) { llbo[i], llbo[j] = llbo[j], llbo[i] }
+func (llbo LightLevelByOwner) Less(i, j int) bool {
+	return llbo[i].Owner.Rid < llbo[j].Owner.Rid
 }
 
 type MotionValue struct {
@@ -80,10 +92,10 @@ type Motion struct {
 
 type MotionByOwner []Motion
 
-func (a MotionByOwner) Len() int      { return len(a) }
-func (a MotionByOwner) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a MotionByOwner) Less(i, j int) bool {
-	return a[i].Owner.Rid < a[j].Owner.Rid
+func (mbo MotionByOwner) Len() int      { return len(mbo) }
+func (mbo MotionByOwner) Swap(i, j int) { mbo[i], mbo[j] = mbo[j], mbo[i] }
+func (mbo MotionByOwner) Less(i, j int) bool {
+	return mbo[i].Owner.Rid < mbo[j].Owner.Rid
 }
 
 type Temperature struct {
@@ -98,13 +110,13 @@ type Temperature struct {
 
 type TemperatureByOwner []Temperature
 
-func (a TemperatureByOwner) Len() int      { return len(a) }
-func (a TemperatureByOwner) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a TemperatureByOwner) Less(i, j int) bool {
-	return a[i].Owner.Rid < a[j].Owner.Rid
+func (tbo TemperatureByOwner) Len() int      { return len(tbo) }
+func (tbo TemperatureByOwner) Swap(i, j int) { tbo[i], tbo[j] = tbo[j], tbo[i] }
+func (tbo TemperatureByOwner) Less(i, j int) bool {
+	return tbo[i].Owner.Rid < tbo[j].Owner.Rid
 }
 
-func (s *Service) Sensors() []MotionSensor {
+func (s *Service) Sensors() MotionSensors {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
