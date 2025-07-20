@@ -92,17 +92,17 @@ func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stateName := "on"
-	if !statusBool {
-		stateName = "off"
-	}
-
 	if id == "all" {
 		for _, sensor := range s.v2Service.Sensors() {
 			if _, err := s.v2Service.UpdateSensor(r.Context(), sensor.ID, statusBool); err != nil {
 				s.renderer.Error(w, r, nil, fmt.Errorf("update sensor `%s`: %w", id, err))
 				return
 			}
+		}
+
+		stateName := "off"
+		if !statusBool {
+			stateName = "on"
 		}
 
 		s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage("Stealth mode %s", stateName))
@@ -115,6 +115,11 @@ func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := motionSensor.Name + " Sensor"
+
+	stateName := "on"
+	if !statusBool {
+		stateName = "off"
+	}
 
 	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(updateSuccessMessage, name, stateName))
 }
