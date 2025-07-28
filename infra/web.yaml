@@ -52,11 +52,11 @@ spec:
     nameOverride: hue
     image:
       name: rg.fr-par.scw.cloud/vibioh/hue
-      tag: "202507200955" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tag: "202507280901" # {"$imagepolicy": "default:flux-hue-api:tag"}
     labels:
       tags.datadoghq.com/env: "production"
       tags.datadoghq.com/service: "hue"
-      tags.datadoghq.com/version: "202507200955" # {"$imagepolicy": "default:flux-hue-api:tag"}
+      tags.datadoghq.com/version: "202507280901" # {"$imagepolicy": "default:flux-hue-api:tag"}
     config:
       HUE_BRIDGE_IP: "10.100.3.10"
       HUE_CONFIG: /opt/config.json
