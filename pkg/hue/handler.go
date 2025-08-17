@@ -106,6 +106,7 @@ func (s *Service) HandleSensors(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage("Stealth mode %s", stateName))
+		return
 	}
 
 	motionSensor, err := s.v2Service.UpdateSensor(r.Context(), id, statusBool)
