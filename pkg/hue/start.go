@@ -33,18 +33,18 @@ func (s *Service) Start(ctx context.Context) {
 func (s *Service) initConfig(ctx context.Context) (config configHue) {
 	if len(s.configFileName) == 0 {
 		slog.WarnContext(ctx, "no config init for hue")
-		return
+		return config
 	}
 
 	configFile, err := os.Open(s.configFileName)
 	if err != nil {
 		slog.LogAttrs(ctx, slog.LevelError, "open config file", slog.Any("error", err))
-		return
+		return config
 	}
 
 	if err := json.NewDecoder(configFile).Decode(&config); err != nil {
 		slog.LogAttrs(ctx, slog.LevelError, "decode config file", slog.Any("error", err))
-		return
+		return config
 	}
 
 	if s.update {
@@ -70,7 +70,7 @@ func (s *Service) initConfig(ctx context.Context) (config configHue) {
 		s.configureMotionSensor(ctx, groups, config.Sensors)
 	}
 
-	return
+	return config
 }
 
 func (s *Service) updateSensors(ctx context.Context, names []string, enabled bool) error {
