@@ -133,20 +133,20 @@ func (s *Service) buildGroup(ctx context.Context) (output map[string]Group, err 
 
 	err = s.buildDeviceGroup(ctx, "room", output)
 	if err != nil {
-		return
+		return output, err
 	}
 
 	err = s.buildDeviceGroup(ctx, "zone", output)
 	if err != nil {
-		return
+		return output, err
 	}
 
 	err = s.buildDeviceGroup(ctx, "bridge_home", output)
 	if err != nil {
-		return
+		return output, err
 	}
 
-	return
+	return output, err
 }
 
 func (s *Service) buildDeviceGroup(ctx context.Context, name string, output map[string]Group) error {

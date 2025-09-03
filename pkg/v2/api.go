@@ -21,47 +21,41 @@ type APIResponse[T any] struct {
 func list[T any](ctx context.Context, req request.Request, kind string) (output []T, err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind)).Send(ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("list: %w", err)
-		return
+		return output, fmt.Errorf("list: %w", err)
 	}
 
 	content, err := httpjson.Read[APIResponse[T]](resp)
 	if err != nil {
-		err = fmt.Errorf("parse: %w", err)
-		return
+		return output, fmt.Errorf("parse: %w", err)
 	}
 
 	output = content.Data
 
-	return
+	return output, err
 }
 
 func stream[T any](ctx context.Context, req request.Request, kind string, output chan<- T) (err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind)).Send(ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("list: %w", err)
-		return
+		return fmt.Errorf("list: %w", err)
 	}
 
-	return httpjson.Stream[T](resp.Body, output, "data", true)
+	return httpjson.Stream(resp.Body, output, "data", true)
 }
 
 func get[T any](ctx context.Context, req request.Request, kind, id string) (output T, err error) {
 	resp, err := req.Path(path.Join("/clip/v2/resource", kind, id)).Send(ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("get: %w", err)
-		return
+		return output, fmt.Errorf("get: %w", err)
 	}
 
 	content, err := httpjson.Read[APIResponse[T]](resp)
 	if err != nil {
-		err = fmt.Errorf("parse: %w", err)
-		return
+		return output, fmt.Errorf("parse: %w", err)
 	}
 
 	if len(content.Data) == 0 {
-		err = errors.New("not found")
-		return
+		return output, errors.New("not found")
 	}
 
 	return content.Data[0], nil

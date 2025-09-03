@@ -38,32 +38,27 @@ func (s *Service) Init(ctx context.Context) (err error) {
 			motionDevices = append(motionDevices, device)
 		}
 	}); err != nil {
-		err = fmt.Errorf("stream devices: %w", err)
-		return
+		return fmt.Errorf("stream devices: %w", err)
 	}
 
 	s.lights, err = s.buildLights(ctx)
 	if err != nil {
-		err = fmt.Errorf("build lights: %w", err)
-		return
+		return fmt.Errorf("build lights: %w", err)
 	}
 
 	s.groups, err = s.buildGroup(ctx)
 	if err != nil {
-		err = fmt.Errorf("build groups: %w", err)
-		return
+		return fmt.Errorf("build groups: %w", err)
 	}
 
 	s.motionSensors, err = s.buildMotionSensor(ctx, motionDevices, devicePowers)
 	if err != nil {
-		err = fmt.Errorf("build motion sensor: %w", err)
-		return
+		return fmt.Errorf("build motion sensor: %w", err)
 	}
 
 	s.taps, err = s.buildTaps(tapDevices, devicePowers)
 	if err != nil {
-		err = fmt.Errorf("build motion sensor: %w", err)
-		return
+		return fmt.Errorf("build motion sensor: %w", err)
 	}
 
 	return nil
