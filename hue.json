@@ -52,12 +52,10 @@
     {
       "id": "Entrance",
       "groups": [
-        "Living Room",
-        "Kitchen",
         "Entrance"
       ],
-      "WhenDark": true,
-      "AllOff": true
+      "offDelay": "PT00:01:00",
+      "WhenDark": true
     }
   ],
   "taps": [
