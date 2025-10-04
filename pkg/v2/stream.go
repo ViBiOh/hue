@@ -136,6 +136,7 @@ func (s *Service) handleStreamEvent(ctx context.Context, event Event) {
 		case "room":
 		case "scene":
 		case "taurus_7455":
+		case "zgp_connectivity":
 		case "zigbee_connectivity":
 		case "zigbee_device_discovery":
 		case "zone":
