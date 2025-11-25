@@ -128,6 +128,7 @@ func (s *Service) handleStreamEvent(ctx context.Context, event Event) {
 		case "device_software_update":
 		case "entertainment":
 		case "geofence_client":
+		case "geolocation":
 		case "grouped_light_level":
 		case "grouped_motion":
 		case "homekit":
