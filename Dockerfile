@@ -7,7 +7,7 @@ ENV ZONEINFO /zoneinfo.zip
 COPY zoneinfo.zip /zoneinfo.zip
 COPY ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
-HEALTHCHECK --retries=10 CMD [ "/hue", "-url", "http://localhost:1080/health" ]
+HEALTHCHECK --retries=10 CMD [ "/hue", "-url", "http://127.0.0.1:1080/health" ]
 ENTRYPOINT [ "/hue" ]
 
 ARG VERSION
