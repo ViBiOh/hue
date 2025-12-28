@@ -50,7 +50,6 @@ spec:
     cleanupOnFail: true
   values:
     nameOverride: hue
-    nodeName: bob
     image:
       name: rg.fr-par.scw.cloud/vibioh/hue
       tag: "202512282044" # {"$imagepolicy": "default:flux-hue-api:tag"}
