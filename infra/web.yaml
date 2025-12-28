@@ -35,7 +35,7 @@ spec:
   chart:
     spec:
       chart: app
-      version: "0.1.7"
+      version: "0.1.8"
       sourceRef:
         kind: HelmRepository
         name: vibioh
@@ -50,6 +50,7 @@ spec:
     cleanupOnFail: true
   values:
     nameOverride: hue
+    nodeName: bob
     image:
       name: rg.fr-par.scw.cloud/vibioh/hue
       tag: "202512261731" # {"$imagepolicy": "default:flux-hue-api:tag"}
