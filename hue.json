@@ -80,8 +80,13 @@
           "id": "3",
           "state": "off",
           "groups": [
+            "Living Room",
+            "Kitchen",
+            "Entrance",
             "Bedroom",
-            "Living Room"
+            "Bathroom",
+            "Toilet",
+            "Office"
           ]
         },
         {
@@ -275,6 +280,9 @@
           "id": "4",
           "state": "off",
           "groups": [
+            "Bedroom",
+            "Office",
+            "Bathroom",
             "Toilet"
           ]
         }
