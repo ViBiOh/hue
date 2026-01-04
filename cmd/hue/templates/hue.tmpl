@@ -149,7 +149,6 @@
           <div class="center padding">
             <form class="inline" method="post" action="{{ url "" }}/api/sensors/all">
               <input type="hidden" name="method" value="PATCH"/>
-              <input type="hidden" name="on" value="{{ if $sensorsEnabled }}false{{ else }}true{{ end }}"/>
 
               <button type="submit" class="button button-icon">
                 {{ if $sensorsEnabled }}
@@ -158,6 +157,8 @@
                     <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
                 {{ end }}
               </button>
+
+              <input type="hidden" name="on" value="{{ if $sensorsEnabled }}false{{ else }}true{{ end }}"/>
             </form>
           </div>
         </span>
@@ -230,15 +231,7 @@
         <span class="container">
           <h3 class="header center no-margin">{{ .Name }}</h3>
 
-          <h4 class="center margin primary">
-            {{ groupName $root.Groups .Command.GetGroup }}
-          </h4>
-
-          <div class="center padding">
-            <strong>{{ .FormatLocalTime }}</strong>
-          </div>
-
-          <div class="center flex flex-center margin-bottom">
+          <div class="center flex flex-center">
             <form class="inline" method="post" action="{{ url "" }}/api/schedules/{{ .ID }}">
               <input type="hidden" name="method" value="PATCH"/>
               <input type="hidden" name="name" value="{{ .Name }}"/>
@@ -252,6 +245,14 @@
                 {{ end }}
               </button>
             </form>
+          </div>
+
+          <h4 class="center margin primary">
+            {{ groupName $root.Groups .Command.GetGroup }}
+          </h4>
+
+          <div class="center padding">
+            <strong>{{ .FormatLocalTime }}</strong>
           </div>
         </span>
       {{ end }}

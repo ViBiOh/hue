@@ -42,10 +42,11 @@ var FuncMap = template.FuncMap{
 	},
 	"groupName": func(groups []v2.Group, id string) string {
 		for _, group := range groups {
-			if group.ID == id {
+			if group.IDV1 == id {
 				return group.Name
 			}
 		}
+
 		return ""
 	},
 }
