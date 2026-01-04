@@ -29,6 +29,19 @@ func (s *Service) HandleGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(groupID) == 0 {
+		for _, group := range s.v2Service.Groups() {
+			_, err := s.v2Service.UpdateGroup(r.Context(), group.ID, state.On, float64(state.Brightness), state.Duration)
+			if err != nil {
+				s.renderer.Error(w, r, nil, err)
+				return
+			}
+		}
+
+		s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage("All groups are now %s", stateName))
+		return
+	}
+
 	group, err := s.v2Service.UpdateGroup(r.Context(), groupID, state.On, float64(state.Brightness), state.Duration)
 	if err != nil {
 		s.renderer.Error(w, r, nil, err)
