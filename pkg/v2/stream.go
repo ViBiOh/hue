@@ -218,7 +218,7 @@ func (s *Service) updateTemperature(ctx context.Context, owner string, temperatu
 	}
 }
 
-func (s *Service) updateDevicePower(ctx context.Context, owner string, batteryState string, batteryLevel int64) {
+func (s *Service) updateDevicePower(ctx context.Context, owner, batteryState string, batteryLevel int64) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
