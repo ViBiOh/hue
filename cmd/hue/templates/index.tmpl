@@ -1,372 +1,430 @@
 {{ define "main-style" }}
-    <style nonce="{{ .nonce }}">
-        :root {
-            --primary: cornflowerblue;
-            --success: limegreen;
-            --danger: salmon;
-            --dark: #000000;
-            --grey: #272727;
-            --white: silver;
+  <style nonce="{{ .nonce }}">
+    :root {
+      --primary: cornflowerblue;
+      --success: limegreen;
+      --danger: salmon;
+      --dark: #000000;
+      --grey: #272727;
+      --white: silver;
 
-            --icon-small: 1.6rem;
-            --icon-size: 2.4rem;
-            --icon-large: 4.8rem;
+      --success-fade: #155415;
+      --danger-fade: #66352E;
 
-            --space-size: 1rem;
-        }
+      --icon-small: 1.6rem;
+      --icon-size: 2.4rem;
+      --icon-large: 4.8rem;
 
-        * {
-            box-sizing: border-box;
-        }
+      --space-size: 1rem;
+    }
 
-        html {
-            font-size: 62.5%;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            -webkit-overflow-scrolling: touch;
-            background-color: var(--dark);
-            height: 100vh;
-        }
+    html {
+      font-size: 62.5%;
+    }
 
-        body,
-        button,
-        input {
-            color: var(--white);
-            font-family: -apple-system,
-            'Segoe UI',
-            'Roboto',
-            'Oxygen-Sans',
-            'Ubuntu',
-            'Cantarell',
-            'Helvetica Nue',
-            sans-serif;
-            font-size: 1.6rem;
-            font-style: normal;
-            font-weight: 400;
-        }
+    body {
+      -webkit-overflow-scrolling: touch;
+      background-color: var(--dark);
+      height: 100vh;
+    }
 
-        input {
-            color: var(--dark);
-        }
+    body,
+    button,
+    input {
+      color: var(--white);
+      font-family:
+        -apple-system,
+        'Segoe UI',
+        'Roboto',
+        'Oxygen-Sans',
+        'Ubuntu',
+        'Cantarell',
+        'Helvetica Neue',
+        sans-serif;
+      font-size: 1.6rem;
+      font-style: normal;
+      font-weight: 400;
+    }
 
-        a {
-            color: var(--white);
-            text-decoration: none;
-        }
+    input {
+      color: var(--dark);
+    }
 
-        a:hover {
-            color: var(--primary);
-            text-decoration: underline;
-        }
+    a {
+      color: var(--white);
+      text-decoration: none;
+    }
 
-        .primary {
-            color: var(--primary);
-        }
+    a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
 
-        .success {
-            color: var(--success);
-        }
+    .primary {
+      color: var(--primary);
+    }
 
-        .danger {
-            color: var(--danger);
-        }
+    .success {
+      color: var(--success);
+    }
 
-        .grey {
-            color: var(--grey);
-        }
+    .danger {
+      color: var(--danger);
+    }
 
-        .white {
-            color: var(--white);
-        }
+    .grey {
+      color: var(--grey);
+    }
 
-        .bg-primary,
-        .bg-primary:hover {
-            background-color: var(--primary);
-            color: var(--dark);
-            text-decoration: none;
-        }
+    .white {
+      color: var(--white);
+    }
 
-        .bg-success,
-        .bg-success:hover {
-            background-color: var(--success);
-            color: var(--dark);
-            text-decoration: none;
-        }
+    .bg-primary,
+    .bg-primary:hover {
+      background-color: var(--primary);
+      color: var(--dark);
+      text-decoration: none;
+    }
 
-        .bg-danger,
-        .bg-danger:hover {
-            background-color: var(--danger);
-            color: var(--dark);
-            text-decoration: none;
-        }
+    .bg-success,
+    .bg-success:hover {
+      background-color: var(--success);
+      color: var(--dark);
+      text-decoration: none;
+    }
 
-        .bg-grey,
-        .bg-grey:hover {
-            background-color: var(--grey);
-            color: var(--white);
-            text-decoration: none;
-        }
+    .bg-danger,
+    .bg-danger:hover {
+      background-color: var(--danger);
+      color: var(--dark);
+      text-decoration: none;
+    }
 
-        .button {
-            border-radius: 4px;
-            border: 0;
-            cursor: pointer;
-            display: inline-block;
-            margin: 0;
-            padding: var(--space-size);
-            text-decoration: none;
-        }
+    .bg-grey,
+    .bg-grey:hover {
+      background-color: var(--grey);
+      color: var(--white);
+      text-decoration: none;
+    }
 
-        .button-icon {
-            background-color: transparent;
-        }
+    .button {
+      border-radius: 4px;
+      border: 0;
+      cursor: pointer;
+      display: inline-block;
+      margin: 0;
+      padding: var(--space-size);
+      text-decoration: none;
+    }
 
-        .icon {
-            background-position: center center;
-            background-repeat: no-repeat;
-            color: var(--white);
-            display: inline-block;
-            height: var(--icon-size);
-            text-decoration: none;
-            vertical-align: middle;
-            width: var(--icon-size);
-        }
+    .button-icon {
+      background-color: transparent;
+    }
 
-        .icon-large {
-            height: var(--icon-large);
-            width: var(--icon-large);
-        }
+    .icon {
+      background-position: center center;
+      background-repeat: no-repeat;
+      color: var(--white);
+      display: inline-block;
+      height: var(--icon-size);
+      text-decoration: none;
+      vertical-align: middle;
+      width: var(--icon-size);
+    }
 
-        .icon-small {
-            height: var(--icon-small);
-            width: var(--icon-small);
-        }
+    .icon-large {
+      height: var(--icon-large);
+      width: var(--icon-large);
+    }
 
-        .icon-overlay {
-            height: var(--icon-large);
-            left: calc((100% - var(--icon-large)) / 2);
-            pointer-events: none;
-            position: absolute;
-            top: calc((100% - var(--icon-large)) / 2);
-            width: var(--icon-large);
-        }
+    .icon-small {
+      height: var(--icon-small);
+      width: var(--icon-small);
+    }
 
-        .modal {
-            align-items: center;
-            background-color: rgba(84, 84, 84, 0.75);
-            display: none;
-            height: 100vh;
-            justify-content: center;
-            left: 0;
-            pointer-events: none;
-            position: fixed;
-            top: 0;
-            width: 100vw;
-        }
+    .icon-overlay {
+      height: var(--icon-large);
+      left: calc((100% - var(--icon-large)) / 2);
+      pointer-events: none;
+      position: absolute;
+      top: calc((100% - var(--icon-large)) / 2);
+      width: var(--icon-large);
+    }
 
-        .modal-content {
-            background-color: var(--dark);
-            display: flex;
-            flex-direction: column;
-            max-height: 100%;
-            max-width: 100%;
-            pointer-events: auto;
-        }
+    .modal {
+      align-items: center;
+      backdrop-filter: blur(1rem);
+      display: none;
+      height: 100vh;
+      justify-content: center;
+      left: 0;
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      width: 100vw;
+    }
 
-        .header {
-            background-color: var(--grey);
-            margin-top: 0;
-            padding: calc(var(--space-size) / 2) var(--space-size);
-            text-align: left;
-        }
+    .modal-content {
+      background-color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      max-height: 100%;
+      max-width: 100%;
+      pointer-events: auto;
+    }
 
-        .flex {
-            align-items: center;
-            display: flex;
-        }
+    .header {
+      background-color: var(--grey);
+      margin-top: 0;
+      padding: calc(var(--space-size) / 2) var(--space-size);
+      text-align: left;
+    }
 
-        .flex-grow {
-            flex: 1 1;
-        }
+    .block {
+      display: block;
+    }
 
-        .center {
-            text-align: center;
-        }
+    .flex {
+      align-items: center;
+      display: flex;
+    }
 
-        .padding {
-            padding: var(--space-size);
-        }
+    .flex-center {
+      justify-content: center;
+    }
 
-        .padding-half {
-            padding: calc(var(--space-size) / 2);
-        }
+    .flex-grow {
+      flex: 1 1;
+    }
 
-        .no-padding {
-            padding: 0;
-        }
+    .center {
+      text-align: center;
+    }
 
-        .margin {
-            margin: var(--space-size);
-        }
+    .padding {
+      padding: var(--space-size);
+    }
 
-        .margin-top {
-            margin-top: var(--space-size);
-        }
+    .padding-half {
+      padding: calc(var(--space-size) / 2);
+    }
 
-        .margin-right {
-            margin-right: var(--space-size);
-        }
+    .no-padding {
+      padding: 0;
+    }
 
-        .margin-bottom {
-            margin-bottom: var(--space-size);
-        }
+    .margin-auto {
+      margin: 0 auto;
+    }
 
-        .margin-left {
-            margin-left: var(--space-size);
-        }
+    .margin {
+      margin: var(--space-size);
+    }
 
-        .margin-half {
-            margin: calc(var(--space-size) / 2);
-        }
+    .margin-top {
+      margin-top: var(--space-size);
+    }
 
-        .no-margin {
-            margin: 0;
-        }
+    .margin-right {
+      margin-right: var(--space-size);
+    }
 
-        .ellipsis {
-            overflow: hidden;
-            text-align: left;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    .margin-bottom {
+      margin-bottom: var(--space-size);
+    }
 
-        .full {
-            width: 100%;
-        }
+    .margin-left {
+      margin-left: var(--space-size);
+    }
 
-        @media print {
-            body::after {
-                content: 'Save ink, share link. {{ publicURL "" }}';
-            }
+    .margin-half {
+      margin: calc(var(--space-size) / 2);
+    }
 
-            body > * {
-                display: none !important;
-            }
-        }
-    </style>
+    .no-margin {
+      margin: 0;
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .full {
+      width: 100%;
+    }
+
+    @media print {
+      body::after {
+        content: 'Save ink, share link. {{ publicURL "" }}';
+      }
+
+      body > * {
+        display: none !important;
+      }
+    }
+  </style>
 {{ end }}
 
 {{ define "main-script" }}
-    <script type="text/javascript" nonce="{{ .nonce }}">
-        /**
-         * Go back from state.
-         */
-        function goBack() {
-            const previousHash = document.location.hash;
-            document.location.hash = "";
+  <script type="text/javascript" nonce="{{ .nonce }}">
+    function goBack() {
+      const previousHash = document.location.hash;
+      document.location.hash = "";
 
-            if (/success$/gim.test(previousHash)) {
-                window.location.reload(true);
-            }
+      if (/success$/gim.test(previousHash)) {
+        window.location.reload(true);
+      }
+    }
+
+    window.onkeyup = (e) => {
+      switch (e.key) {
+        case "Escape":
+          goBack();
+          break;
+      }
+    };
+
+    document.addEventListener("readystatechange", async (event) => {
+      if (event.target.readyState === "complete") {
+        const link = document.getElementById("go-back");
+        if (link) {
+          link.setAttribute("href", document.referrer);
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            history.back();
+            return false;
+          });
         }
-
-        /**
-         * Handle Previous/next.
-         */
-        window.onkeyup = (e) => {
-            switch (e.key) {
-                case "Escape":
-                    goBack();
-                    break;
-            }
-        };
-
-        document.addEventListener("readystatechange", async (event) => {
-            if (event.target.readyState === "complete") {
-                const link = document.getElementById("go-back");
-                if (link) {
-                    link.setAttribute("href", document.referrer);
-                    link.addEventListener("click", (e) => {
-                        e.preventDefault();
-                        history.back();
-                        return false;
-                    });
-                }
-            }
-        });
-    </script>
+      }
+    });
+  </script>
 {{ end }}
 
 {{ define "header" }}
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="format-detection" content="telephone=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="format-detection" content="telephone=no">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-    {{ template "seo" . }}
-    {{ template "favicon" . }}
+      {{ template "seo" . }}
+      {{ template "favicon" . }}
 
-    {{ template "main-style" . }}
-    {{ template "main-script" . }}
-</head>
+      {{ template "main-style" . }}
+      {{ template "main-script" . }}
+    </head>
 
-<body class="no-margin">
-<div class="content">
-    <header class="flex padding">
-        <h1 class="no-margin no-padding">
+    <body class="no-margin">
+      <div class="content">
+        <header class="flex padding">
+          <h1 class="no-margin no-padding">
             <a href="{{ url "" }}{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
-        </h1>
+          </h1>
 
-        <span class="flex-grow"></span>
+          <span class="flex-grow"></span>
 
-        {{ template "header-part" . }}
-    </header>
-    {{ end }}
+          {{ template "header-part" . }}
+        </header>
+{{ end }}
 
-    {{ define "footer" }}
-</div>
-</body>
+{{ define "footer" }}
+    </div>
+  </body>
 
 </html>
 {{ end }}
 
 {{ define "message" }}
-    {{ with . }}
-        {{ if gt (len .Content) 0 }}
-            <p class="message no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
-                {{ .Content }}
-            </p>
-        {{ end }}
+  {{ with . }}
+    {{ if gt (len .Content) 0 }}
+      <p class="message no-margin padding center {{ if eq .Level "error" }}bg-danger{{ else }}success{{ end }}">
+        {{ .Content }}
+      </p>
     {{ end }}
+  {{ end }}
 {{ end }}
 
 {{ define "public" }}
-    {{ template "header" . }}
+  {{ template "header" . }}
 
-    {{ template "message" .Message }}
-    {{ template "app" . }}
+  {{ template "message" .Message }}
+  {{ template "app" . }}
 
-    {{ template "footer" . }}
+  {{ template "footer" . }}
 {{ end }}
 
 {{ define "error" }}
-    {{ template "header" . }}
-    {{ template "message" .Message }}
+  {{ template "header" . }}
+  {{ template "message" .Message }}
 
-    {{ with .Errors }}
-        {{ range .Errors }}
-            <p class="padding no-margin center">
-                {{ . }}
-            </p>
-        {{ end }}
+  {{ with .Errors }}
+    {{ range .Errors }}
+      <p class="padding no-margin center">
+        {{ . }}
+      </p>
     {{ end }}
+  {{ end }}
 
-    <h3 class="center">
-        <a id="go-back" href="#">Go Back</a>
-    </h3>
+  <h3 class="center">
+    <a id="go-back" href="#">Go Back</a>
+  </h3>
 
-    {{ template "footer" . }}
+  {{ template "footer" . }}
+{{ end }}
+
+{{ define "header-redirect" }}
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="format-detection" content="telephone=no">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+      <meta http-equiv="refresh" content="3;url={{ .Redirect }}">
+
+      {{ template "seo" . }}
+      {{ template "favicon" . }}
+
+      {{ template "main-style" . }}
+      {{ template "main-script" . }}
+    </head>
+
+    <body class="no-margin">
+      <div class="content">
+        <header class="flex padding">
+          <h1 class="no-margin no-padding">
+            <a href="{{ url "" }}{{ with .Root }}{{ . }}{{ end }}" class="no-style clear">{{ .Title }}</a>
+          </h1>
+
+          <span class="flex-grow"></span>
+
+          {{ template "header-part" . }}
+        </header>
+{{ end }}
+
+{{ define "auth" }}
+  {{ template "header-redirect" . }}
+
+  {{ template "message" .Message }}
+
+  <article class="flex flex-center">
+    <div>
+      {{ with .Image }}
+        <img src="{{ . }}">
+      {{ end }}
+
+      <a class="button bg-primary block margin-top" href="{{ .Redirect }}">Redirect in 3s...</a>
+    </div>
+  </article>
+
+  {{ template "footer" . }}
 {{ end }}

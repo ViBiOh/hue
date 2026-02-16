@@ -25,11 +25,50 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
 {{ end}}
 
+{{ define "modal-schedule" }}
+  <div id="schedule-modal-{{ .ID }}" class="modal schedule-modal">
+    <div class="modal-content">
+      <h2 class="header">Update schedule</h2>
+
+      <form method="post" action="{{ url "" }}/api/schedules/{{ .ID }}">
+        <input type="hidden" name="method" value="PUT" />
+
+        <p class="padding no-margin">
+          <label class="block">Group</label>
+          <label >{{ groupName $root.Groups .Command.GetGroup }}</label>
+        </p>
+
+        <p class="padding no-margin">
+          <label for="days" class="block">Days</label>
+        </p>
+
+        <p class="padding no-margin">
+          <label for="time" class="block">Time</label>
+        </p>
+
+        <p class="padding no-margin center">
+          <a href="#setting-modal" class="button white">Cancel</a>
+          <button type="submit" class="button bg-primary">Create</button>
+        </p>
+      </form>
+    </div>
+  </div>
+{{ end }}
+
 {{ define "header-part" }}
 {{ end }}
 
 {{ define "app" }}
   <style nonce="{{ .nonce }}">
+    .schedule-modal:target {
+      display: flex;
+      z-index: 5;
+    }
+
+    .schedule-modal:target ~ .content {
+      pointer-events: none;
+    }
+
     .grid {
       display: grid;
       grid-gap: .5rem;
@@ -116,6 +155,10 @@
   </style>
 
   {{ $root := . }}
+
+  {{ range .Schedules }}
+    {{ template "modal-schedule" . }}
+  {{ end }}
 
   <div class="grid">
     <span class="container">
@@ -247,8 +290,8 @@
           </form>
         </div>
 
-        <h4 class="center margin primary">
-          {{ groupName $root.Groups .Command.GetGroup }}
+        <h4 class="center margin">
+          <a href="#schedule-modal-{{ .ID }}" class="primary">{{ groupName $root.Groups .Command.GetGroup }}</a>
         </h4>
 
         <div class="center padding">
