@@ -1,289 +1,289 @@
 {{ define "seo" }}
-    {{ $description := "Manage your Hue installation easily from your browser" }}
+  {{ $description := "Manage your Hue installation easily from your browser" }}
 
-    <title>{{ .Title }}</title>
-    <meta name="description" content="{{ $description }}">
-    <meta property="og:title" content="{{ .Title }}"/>
-    <meta property="og:description" content="{{ $description }}"/>
-    <meta property="og:type" content="website"/>
-    <meta property="og:url" content="{{ publicURL "" }}"/>
-    <meta property="og:image" content="{{ publicURL "/images/favicon/android-chrome-512x512.png" }}"/>
-    <meta property="og:image:height" content="512"/>
-    <meta property="og:image:width" content="512"/>
+  <title>{{ .Title }}</title>
+  <meta name="description" content="{{ $description }}">
+  <meta property="og:title" content="{{ .Title }}"/>
+  <meta property="og:description" content="{{ $description }}"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="{{ publicURL "" }}"/>
+  <meta property="og:image" content="{{ publicURL "/images/favicon/android-chrome-512x512.png" }}"/>
+  <meta property="og:image:height" content="512"/>
+  <meta property="og:image:width" content="512"/>
 {{ end }}
 
 {{ define "favicon" }}
-    <link rel="apple-touch-icon" sizes="180x180"
-          href="{{ url "/images/favicon/apple-touch-icon.png" }}?v={{ .Version }}">
-    <link rel="icon" type="image/png" sizes="32x32"
-          href="{{ url "/images/favicon/favicon-32x32.png" }}?v={{ .Version }}">
-    <link rel="icon" type="image/png" sizes="16x16"
-          href="{{ url "/images/favicon/favicon-16x16.png" }}?v={{ .Version }}">
-    <link rel="manifest" href="{{ url "/images/favicon/manifest.json" }}?v={{ .Version }}">
-    <link rel="mask-icon" href="{{ url "/images/favicon/safari-pinned-tab.svg" }}?v={{ .Version }}" color="#5bbad5">
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
+  <link rel="apple-touch-icon" sizes="180x180"
+      href="{{ url "/images/favicon/apple-touch-icon.png" }}?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="32x32"
+      href="{{ url "/images/favicon/favicon-32x32.png" }}?v={{ .Version }}">
+  <link rel="icon" type="image/png" sizes="16x16"
+      href="{{ url "/images/favicon/favicon-16x16.png" }}?v={{ .Version }}">
+  <link rel="manifest" href="{{ url "/images/favicon/manifest.json" }}?v={{ .Version }}">
+  <link rel="mask-icon" href="{{ url "/images/favicon/safari-pinned-tab.svg" }}?v={{ .Version }}" color="#5bbad5">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
 {{ end}}
 
 {{ define "header-part" }}
 {{ end }}
 
 {{ define "app" }}
-    <style nonce="{{ .nonce }}">
-        .grid {
-            display: grid;
-            grid-gap: .5rem;
-            grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-            margin: .5rem;
-        }
+  <style nonce="{{ .nonce }}">
+    .grid {
+      display: grid;
+      grid-gap: .5rem;
+      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+      margin: .5rem;
+    }
 
-        .container {
-            border: 1px solid var(--white);
-            display: inline-flex;
-            flex-direction: column;
-            height: 20rem;
-        }
+    .container {
+      border: 1px solid var(--white);
+      display: inline-flex;
+      flex-direction: column;
+      height: 20rem;
+    }
 
-        @media screen and (max-width: 424px) {
-            .container {
-                height: auto;
-            }
-        }
+    @media screen and (max-width: 424px) {
+      .container {
+        height: auto;
+      }
+    }
 
-        .title {
-            margin: 0;
-            padding: 0;
-        }
+    .title {
+      margin: 0;
+      padding: 0;
+    }
 
-        .flex {
-            display: flex;
-        }
+    .flex {
+      display: flex;
+    }
 
-        .flex-center {
-            align-items: center;
-            justify-content: center;
-        }
+    .flex-center {
+      align-items: center;
+      justify-content: center;
+    }
 
-        .flex-grow {
-            flex: 1 1;
-        }
+    .flex-grow {
+      flex: 1 1;
+    }
 
-        .flex-wrap {
-            flex-wrap: wrap;
-        }
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
 
-        .flex-half {
-            flex-basis: 50%;
-        }
+    .flex-half {
+      flex-basis: 50%;
+    }
 
-        .flex-column {
-            flex-direction: column;
-        }
+    .flex-column {
+      flex-direction: column;
+    }
 
-        .full {
-            width: 100%;
-        }
+    .full {
+      width: 100%;
+    }
 
-        .inline {
-            display: inline-block;
-        }
+    .inline {
+      display: inline-block;
+    }
 
-        .full-screen {
-            max-width: 100vw;
-        }
+    .full-screen {
+      max-width: 100vw;
+    }
 
-        .medium {
-            font-size: 2.4rem;
-        }
+    .medium {
+      font-size: 2.4rem;
+    }
 
-        .small {
-            font-size: 1.6rem;
-        }
+    .small {
+      font-size: 1.6rem;
+    }
 
-        .padding-left {
-            padding-left: 1rem;
-        }
+    .padding-left {
+      padding-left: 1rem;
+    }
 
-        .ellipsis {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    .ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-        .relative {
-            position: relative;
-        }
-    </style>
+    .relative {
+      position: relative;
+    }
+  </style>
 
-    {{ $root := . }}
+  {{ $root := . }}
 
-    <div class="grid">
+  <div class="grid">
+    <span class="container">
+      <h3 class="header center no-margin">Global</h3>
+
+      <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
+        <form method="post" action="{{ url "/api/groups/" }}">
+          <input type="hidden" name="method" value="PATCH"/>
+          <input type="hidden" name="state" value="on"/>
+          <button type="submit" class="button button-icon">
+            <img class="icon icon-large" src="{{ url "/svg/power-off?fill=limegreen" }}" alt="power-on">
+          </button>
+        </form>
+
+        <form method="post" action="{{ url "/api/groups/" }}" class="margin-left">
+          <input type="hidden" name="method" value="PATCH"/>
+          <input type="hidden" name="state" value="off"/>
+          <button type="submit" class="button button-icon">
+            <img class="icon icon-large" src="{{ url "/svg/power-off?fill=salmon" }}" alt="power-off">
+          </button>
+        </form>
+      </div>
+    </span>
+
+    {{ if gt (len .Sensors) 0 }}
+      {{ $sensorsEnabled := .Sensors.HasEnabled }}
+
       <span class="container">
-        <h3 class="header center no-margin">Global</h3>
+        <h3 class="header center no-margin">Stealth mode</h3>
 
-        <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
-          <form method="post" action="{{ url "/api/groups/" }}">
+        <div class="center padding">
+          <form class="inline" method="post" action="{{ url "" }}/api/sensors/all">
             <input type="hidden" name="method" value="PATCH"/>
-            <input type="hidden" name="state" value="on"/>
-            <button type="submit" class="button button-icon">
-              <img class="icon icon-large" src="{{ url "/svg/power-off?fill=limegreen" }}" alt="power-on">
-            </button>
-          </form>
 
-          <form method="post" action="{{ url "/api/groups/" }}" class="margin-left">
-            <input type="hidden" name="method" value="PATCH"/>
-            <input type="hidden" name="state" value="off"/>
             <button type="submit" class="button button-icon">
-              <img class="icon icon-large" src="{{ url "/svg/power-off?fill=salmon" }}" alt="power-off">
+              {{ if $sensorsEnabled }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
+              {{ else }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
+              {{ end }}
             </button>
+
+            <input type="hidden" name="on" value="{{ if $sensorsEnabled }}false{{ else }}true{{ end }}"/>
           </form>
         </div>
       </span>
+    {{ end }}
 
-      {{ if gt (len .Sensors) 0 }}
-        {{ $sensorsEnabled := .Sensors.HasEnabled }}
+    {{ range .Groups }}
+        {{ if not .Bridge }}
+          <span class="container">
+            <h3 class="header center no-margin {{ if .AnyOn }}success{{ end }}">{{ .Name }}</h3>
 
-        <span class="container">
-          <h3 class="header center no-margin">Stealth mode</h3>
+            <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
+              {{ if .Plug }}
+                <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="on"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/power-off?fill=limegreen" }}" alt="power-on">
+                  </button>
+                </form>
 
-          <div class="center padding">
-            <form class="inline" method="post" action="{{ url "" }}/api/sensors/all">
-              <input type="hidden" name="method" value="PATCH"/>
+                <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="off"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/power-off?fill=salmon" }}" alt="power-off">
+                  </button>
+                </form>
+              {{ else }}
+                <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="on"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=limegreen" }}" alt="bright light">
+                  </button>
+                </form>
 
-              <button type="submit" class="button button-icon">
-                {{ if $sensorsEnabled }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
-                {{ else }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
-                {{ end }}
-              </button>
+                <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
+                        class="margin-left">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="half"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=gold" }}" alt="half light">
+                  </button>
+                </form>
 
-              <input type="hidden" name="on" value="{{ if $sensorsEnabled }}false{{ else }}true{{ end }}"/>
-            </form>
-          </div>
-        </span>
+                <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
+                        class="margin-left">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="dimmed"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=lightyellow" }}" alt="dim light">
+                  </button>
+                </form>
+
+                <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
+                        class="margin-left">
+                  <input type="hidden" name="method" value="PATCH"/>
+                  <input type="hidden" name="state" value="off"/>
+                  <button type="submit" class="button button-icon">
+                    <img class="icon icon-large" src="{{ url "/svg/moon?fill=silver" }}" alt="off light">
+                  </button>
+                </form>
+              {{ end }}
+            </div>
+          </span>
       {{ end }}
+    {{ end }}
 
-      {{ range .Groups }}
-          {{ if not .Bridge }}
-            <span class="container">
-              <h3 class="header center no-margin {{ if .AnyOn }}success{{ end }}">{{ .Name }}</h3>
+    {{ range .Schedules }}
+      <span class="container">
+        <h3 class="header center no-margin">{{ .Name }}</h3>
 
-              <div class="flex flex-center flex-grow flex-wrap margin-top margin-bottom">
-                {{ if .Plug }}
-                  <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="on"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/power-off?fill=limegreen" }}" alt="power-on">
-                    </button>
-                  </form>
+        <div class="center flex flex-center">
+          <form class="inline" method="post" action="{{ url "" }}/api/schedules/{{ .ID }}">
+            <input type="hidden" name="method" value="PATCH"/>
+            <input type="hidden" name="name" value="{{ .Name }}"/>
+            <input type="hidden" name="status" value="{{ if eq .Status "enabled" }}disabled{{ else }}enabled{{ end }}"/>
 
-                  <form method="post" action="{{ url "/api/groups/" }}{{ .ID }}" class="margin-left">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="off"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/power-off?fill=salmon" }}" alt="power-off">
-                    </button>
-                  </form>
-                {{ else }}
-                  <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="on"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=limegreen" }}" alt="bright light">
-                    </button>
-                  </form>
+            <button type="submit" class="button button-icon">
+              {{ if eq .Status "enabled" }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
+              {{ else }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
+              {{ end }}
+            </button>
+          </form>
+        </div>
 
-                  <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
-                          class="margin-left">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="half"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=gold" }}" alt="half light">
-                    </button>
-                  </form>
+        <h4 class="center margin primary">
+          {{ groupName $root.Groups .Command.GetGroup }}
+        </h4>
 
-                  <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
-                          class="margin-left">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="dimmed"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/lightbulb?fill=lightyellow" }}" alt="dim light">
-                    </button>
-                  </form>
+        <div class="center padding">
+          <strong>{{ .FormatLocalTime }}</strong>
+        </div>
+      </span>
+    {{ end }}
 
-                  <form class="center flex-half" method="post" action="{{ url "/api/groups/" }}{{ .ID }}"
-                          class="margin-left">
-                    <input type="hidden" name="method" value="PATCH"/>
-                    <input type="hidden" name="state" value="off"/>
-                    <button type="submit" class="button button-icon">
-                      <img class="icon icon-large" src="{{ url "/svg/moon?fill=silver" }}" alt="off light">
-                    </button>
-                  </form>
-                {{ end }}
-              </div>
-            </span>
-        {{ end }}
-      {{ end }}
+    {{ range .Sensors }}
+      <span class="container">
+        <h3 class="header center no-margin {{ if .Motion }}success{{ end }}">{{ .Name }} Sensor</h3>
 
-      {{ range .Schedules }}
-        <span class="container">
-          <h3 class="header center no-margin">{{ .Name }}</h3>
+        <div class="center padding">
+          <form class="inline" method="post" action="{{ url "" }}/api/sensors/{{ .ID }}">
+            <input type="hidden" name="method" value="PATCH"/>
+            <input type="hidden" name="on" value="{{ if .Enabled }}false{{ else }}true{{ end }}"/>
 
-          <div class="center flex flex-center">
-            <form class="inline" method="post" action="{{ url "" }}/api/schedules/{{ .ID }}">
-              <input type="hidden" name="method" value="PATCH"/>
-              <input type="hidden" name="name" value="{{ .Name }}"/>
-              <input type="hidden" name="status" value="{{ if eq .Status "enabled" }}disabled{{ else }}enabled{{ end }}"/>
+            <button type="submit" class="button button-icon">
+              {{ if .Enabled }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
+              {{ else }}
+                  <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
+              {{ end }}
+            </button>
+          </form>
 
-              <button type="submit" class="button button-icon">
-                {{ if eq .Status "enabled" }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
-                {{ else }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
-                {{ end }}
-              </button>
-            </form>
-          </div>
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery .BatteryLevel }}" alt="{{ .BatteryLevel }}%"
+               title="{{ .BatteryLevel }}%">
+        </div>
 
-          <h4 class="center margin primary">
-            {{ groupName $root.Groups .Command.GetGroup }}
-          </h4>
-
-          <div class="center padding">
-            <strong>{{ .FormatLocalTime }}</strong>
-          </div>
-        </span>
-      {{ end }}
-
-      {{ range .Sensors }}
-        <span class="container">
-          <h3 class="header center no-margin {{ if .Motion }}success{{ end }}">{{ .Name }} Sensor</h3>
-
-          <div class="center padding">
-            <form class="inline" method="post" action="{{ url "" }}/api/sensors/{{ .ID }}">
-              <input type="hidden" name="method" value="PATCH"/>
-              <input type="hidden" name="on" value="{{ if .Enabled }}false{{ else }}true{{ end }}"/>
-
-              <button type="submit" class="button button-icon">
-                {{ if .Enabled }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on?fill=limegreen" }}" alt="toggled on">
-                {{ else }}
-                    <img class="icon icon-large" src="{{ url "/svg/toggle-on-reverse?fill=salmon" }}" alt="toggled off">
-                {{ end }}
-              </button>
-            </form>
-
-            <img class="icon icon-large" src="{{ url "/svg/" }}{{ battery .BatteryLevel }}" alt="{{ .BatteryLevel }}%"
-                 title="{{ .BatteryLevel }}%">
-          </div>
-
-          <div class="flex flex-center padding">
-            <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature .Temperature }}" alt="Temperature">
-            <strong>{{ .Temperature }}°c</strong>
-          </div>
-        </span>
-      {{ end }}
-    </div>
+        <div class="flex flex-center padding">
+          <img class="icon icon-large" src="{{ url "/svg/" }}{{ temperature .Temperature }}" alt="Temperature">
+          <strong>{{ .Temperature }}°c</strong>
+        </div>
+      </span>
+    {{ end }}
+  </div>
 {{ end }}
