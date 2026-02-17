@@ -91,6 +91,28 @@ func recurrenceStr(recurrence int) string {
 	return strings.Join(days, ", ")
 }
 
+func (s Schedule) HasDay(dayValue int) bool {
+	if !strings.HasPrefix(s.Localtime, "W") {
+		return false
+	}
+
+	recurrence, err := strconv.Atoi(s.Localtime[1:4])
+	if err != nil {
+		return false
+	}
+
+	return recurrence&dayValue != 0
+}
+
+func (s Schedule) ScheduleTime() string {
+	separator := strings.Index(s.Localtime, "/T")
+	if separator == -1 {
+		return ""
+	}
+
+	return s.Localtime[separator+2 : separator+7]
+}
+
 // FormatLocalTime formats local time of schedules to human-readable version
 func (s Schedule) FormatLocalTime() string {
 	if !strings.HasPrefix(s.Localtime, "W") {

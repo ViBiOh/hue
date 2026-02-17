@@ -36,19 +36,19 @@
         <p class="padding no-margin">
           <label for="days-{{ .ID }}" class="block">Days</label>
           <select id="days-{{ .ID }}" name="days" multiple class="full" style="height: 10rem;">
-            <option value="64" {{ if hasDay .Localtime 64 }}selected{{ end }}>Monday</option>
-            <option value="32" {{ if hasDay .Localtime 32 }}selected{{ end }}>Tuesday</option>
-            <option value="16" {{ if hasDay .Localtime 16 }}selected{{ end }}>Wednesday</option>
-            <option value="8" {{ if hasDay .Localtime 8 }}selected{{ end }}>Thursday</option>
-            <option value="4" {{ if hasDay .Localtime 4 }}selected{{ end }}>Friday</option>
-            <option value="2" {{ if hasDay .Localtime 2 }}selected{{ end }}>Saturday</option>
-            <option value="1" {{ if hasDay .Localtime 1 }}selected{{ end }}>Sunday</option>
+            <option value="{{ monday }}" {{ if .HasDay monday }}selected{{ end }}>Monday</option>
+            <option value="{{ tuesday }}" {{ if .HasDay tuesday }}selected{{ end }}>Tuesday</option>
+            <option value="{{ wednesday }}" {{ if .HasDay wednesday }}selected{{ end }}>Wednesday</option>
+            <option value="{{ thursday }}" {{ if .HasDay thursday }}selected{{ end }}>Thursday</option>
+            <option value="{{ friday }}" {{ if .HasDay friday }}selected{{ end }}>Friday</option>
+            <option value="{{ saturday }}" {{ if .HasDay saturday }}selected{{ end }}>Saturday</option>
+            <option value="{{ sunday }}" {{ if .HasDay sunday }}selected{{ end }}>Sunday</option>
           </select>
         </p>
 
         <p class="padding no-margin">
           <label for="time-{{ .ID }}" class="block">Time</label>
-          <input id="time-{{ .ID }}" name="time" type="time" value="{{ scheduleTime .Localtime }}" class="full" />
+          <input id="time-{{ .ID }}" name="time" type="time" value="{{ .ScheduleTime }}" class="full" />
         </p>
 
         <p class="padding no-margin center">
