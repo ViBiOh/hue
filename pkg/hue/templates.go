@@ -2,6 +2,8 @@ package hue
 
 import (
 	"html/template"
+	"strconv"
+	"strings"
 
 	v2 "github.com/ViBiOh/hue/pkg/v2"
 )
@@ -48,5 +50,13 @@ var FuncMap = template.FuncMap{
 		}
 
 		return ""
+	},
+	"hasDay": func(Localtime string, dayValue int) bool {
+		recurrence, _ := strconv.Atoi(Localtime[1:4])
+		return recurrence&dayValue != 0
+	},
+	"scheduleTime": func(localtime string) string {
+		tPos := strings.Index(localtime, "/T")
+		return localtime[tPos+2 : tPos+7]
 	},
 }

@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -52,11 +53,17 @@ func (s *Service) HandleGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) HandleSchedule(w http.ResponseWriter, r *http.Request) {
-	if r.FormValue("method") != http.MethodPatch {
+	switch r.FormValue("method") {
+	case http.MethodPatch:
+		s.handleSchedulePatch(w, r)
+	case http.MethodPut:
+		s.handleSchedulePut(w, r)
+	default:
 		s.renderer.Error(w, r, nil, model.WrapMethodNotAllowed(fmt.Errorf("invalid method for updating schedule")))
-		return
 	}
+}
 
+func (s *Service) handleSchedulePatch(w http.ResponseWriter, r *http.Request) {
 	status := r.FormValue("status")
 
 	schedule := Schedule{
@@ -73,18 +80,51 @@ func (s *Service) HandleSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.handleScheduleSuccess(ctx, w, r, schedule.ID, status)
+}
+
+func (s *Service) handleSchedulePut(w http.ResponseWriter, r *http.Request) {
+	days := r.Form["days"]
+	time := r.FormValue("time")
+
+	var recurrence int
+	for _, day := range days {
+		dayValue, err := strconv.Atoi(day)
+		if err == nil {
+			recurrence |= dayValue
+		}
+	}
+
+	localtime := fmt.Sprintf("W%03d/T%s:00", recurrence, time)
+
+	schedule := Schedule{
+		ID: r.PathValue("id"),
+		APISchedule: APISchedule{
+			Localtime: localtime,
+		},
+	}
+
+	ctx := r.Context()
+
+	if err := s.updateSchedule(ctx, schedule); err != nil {
+		s.renderer.Error(w, r, nil, err)
+		return
+	}
+
+	s.handleScheduleSuccess(ctx, w, r, schedule.ID, "updated")
+}
+
+func (s *Service) handleScheduleSuccess(ctx context.Context, w http.ResponseWriter, r *http.Request, scheduleID, status string) {
 	if err := s.syncSchedules(ctx); err != nil {
 		s.renderer.Error(w, r, nil, err)
 		return
 	}
 
 	s.mutex.RLock()
-
 	name := "Schedule"
-	if updated, ok := s.schedules[schedule.ID]; ok {
+	if updated, ok := s.schedules[scheduleID]; ok {
 		name = updated.Name
 	}
-
 	s.mutex.RUnlock()
 
 	s.renderer.Redirect(w, r, "/", renderer.NewSuccessMessage(updateSuccessMessage, name, status))
