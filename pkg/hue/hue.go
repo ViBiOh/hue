@@ -3,6 +3,7 @@ package hue
 import (
 	"flag"
 	"fmt"
+	"maps"
 	"net/http"
 	"sort"
 	"sync"
@@ -73,9 +74,7 @@ func (s *Service) TemplateFunc(_ http.ResponseWriter, _ *http.Request) (renderer
 func (s *Service) toScenes() map[string]Scene {
 	output := make(map[string]Scene, len(s.scenes))
 
-	for key, item := range s.scenes {
-		output[key] = item
-	}
+	maps.Copy(output, s.scenes)
 
 	return output
 }

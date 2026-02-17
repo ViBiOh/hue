@@ -13,8 +13,8 @@ type State struct {
 }
 
 // V1 transform state to its V1 version
-func (s State) V1() map[string]interface{} {
-	return map[string]interface{}{
+func (s State) V1() map[string]any {
+	return map[string]any{
 		"on":             s.On,
 		"bri":            s.Brightness / 100 * 254,
 		"transitiontime": s.Duration.Milliseconds() / 100,
@@ -62,7 +62,7 @@ type Group struct {
 	ID     string     `json:"id,omitempty"`
 	Name   string     `json:"name,omitempty"`
 	Lights []string   `json:"lights,omitempty"`
-	State  groupState `json:"state,omitempty"`
+	State  groupState `json:"state"`
 	Tap    bool       `json:"tap,omitempty"`
 }
 
@@ -74,7 +74,7 @@ type groupState struct {
 type Light struct {
 	ID    string     `json:"id,omitempty"`
 	Type  string     `json:"type,omitempty"`
-	State lightState `json:"state,omitempty"`
+	State lightState `json:"state"`
 }
 
 type lightState struct {
@@ -109,8 +109,8 @@ type Sensor struct {
 	ID     string       `json:"-"`
 	Name   string       `json:"name,omitempty"`
 	Type   string       `json:"type,omitempty"`
-	State  sensorState  `json:"state,omitempty"`
-	Config SensorConfig `json:"config,omitempty"`
+	State  sensorState  `json:"state"`
+	Config SensorConfig `json:"config"`
 }
 
 // BySensorID sort Sensor by id

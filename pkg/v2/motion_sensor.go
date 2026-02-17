@@ -135,7 +135,7 @@ func (s *Service) UpdateSensor(ctx context.Context, id string, enabled bool) (Mo
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"enabled": enabled,
 	}
 

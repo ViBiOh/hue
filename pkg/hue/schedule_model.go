@@ -41,7 +41,7 @@ func (a ByScheduleID) Less(i, j int) bool {
 type APISchedule struct {
 	Name      string `json:"name,omitempty"`
 	Localtime string `json:"localtime,omitempty"`
-	Command   Action `json:"command,omitempty"`
+	Command   Action `json:"command"`
 	Status    string `json:"status,omitempty"`
 }
 

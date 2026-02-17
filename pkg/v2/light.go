@@ -47,7 +47,6 @@ func (s *Service) buildLights(ctx context.Context) (map[string]*Light, error) {
 
 	output := make(map[string]*Light, len(lights))
 	for _, light := range lights {
-		light := light
 		light.IDV1 = strings.TrimPrefix(light.IDV1, "/lights/")
 
 		output[light.ID] = &light
@@ -70,7 +69,7 @@ func (s *Service) setWhiteLight(ctx context.Context, id, room string) error {
 		colorTemperature.Mirek = defaultTemperature
 	}
 
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"color":             color,
 		"color_temperature": colorTemperature,
 	}
