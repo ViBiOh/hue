@@ -35,7 +35,7 @@
 
         <p class="padding no-margin">
           <label for="days-{{ .ID }}" class="block">Days</label>
-          <select id="days-{{ .ID }}" name="days" multiple class="full" style="height: 10rem;">
+          <select id="days-{{ .ID }}" name="days" multiple class="full">
             <option value="{{ monday }}" {{ if .HasDay monday }}selected{{ end }}>Monday</option>
             <option value="{{ tuesday }}" {{ if .HasDay tuesday }}selected{{ end }}>Tuesday</option>
             <option value="{{ wednesday }}" {{ if .HasDay wednesday }}selected{{ end }}>Wednesday</option>
